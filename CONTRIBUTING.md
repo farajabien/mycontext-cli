@@ -7,7 +7,7 @@ Thank you for your interest in contributing to MyContext CLI! 🎉
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/mycontext-cli.git
+   git clone https://github.com/farajabien/mycontext-cli.git
    cd mycontext-cli
    ```
 3. **Install dependencies**:
@@ -22,16 +22,19 @@ Thank you for your interest in contributing to MyContext CLI! 🎉
 ## Development
 
 ### Building
+
 ```bash
 npm run build
 ```
 
 ### Testing
+
 ```bash
 npm test
 ```
 
 ### Linting
+
 ```bash
 npm run lint
 npm run lint:fix
