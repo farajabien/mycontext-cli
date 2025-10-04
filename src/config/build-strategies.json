@@ -1,9 +1,9 @@
 {
   "buildStrategies": {
     "metadata": {
-      "version": "2.0.0",
+      "version": "2.0.8",
       "description": "MyContext CLI Build Strategy Framework - Component-First Edition",
-      "lastUpdated": "2025-01-04",
+      "lastUpdated": "2025-10-04",
       "author": "MyContext Team"
     },
     "strategies": [
