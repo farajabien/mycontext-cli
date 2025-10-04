@@ -1,0 +1,244 @@
+{
+  "card": {
+    "name": "RevenueCard",
+    "type": "card",
+    "description": "A card component displaying revenue metrics with primary value prominently and secondary info subtly",
+    "elements": [
+      {
+        "type": "title",
+        "content": "Total Revenue",
+        "prominence": "medium"
+      },
+      {
+        "type": "value",
+        "content": "$125,430",
+        "prominence": "high"
+      },
+      {
+        "type": "subtitle",
+        "content": "+12.5% from last month",
+        "prominence": "low"
+      },
+      {
+        "type": "icon",
+        "content": "trending-up",
+        "prominence": "low"
+      }
+    ],
+    "layout": "vertical",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary", "success"],
+      "spacing": "medium",
+      "borderRadius": "lg",
+      "shadow": "sm",
+      "alignment": "left"
+    }
+  },
+  "form": {
+    "name": "ContactForm",
+    "type": "form",
+    "description": "A contact form with input fields and submit button",
+    "elements": [
+      {
+        "type": "input",
+        "inputType": "text",
+        "label": "Name",
+        "placeholder": "Enter your name",
+        "required": true,
+        "prominence": "medium"
+      },
+      {
+        "type": "input",
+        "inputType": "email",
+        "label": "Email",
+        "placeholder": "your.email@example.com",
+        "required": true,
+        "prominence": "medium"
+      },
+      {
+        "type": "textarea",
+        "label": "Message",
+        "placeholder": "Your message here...",
+        "rows": 4,
+        "required": true,
+        "prominence": "medium"
+      },
+      {
+        "type": "button",
+        "label": "Send Message",
+        "variant": "primary",
+        "prominence": "high"
+      }
+    ],
+    "layout": "vertical",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary", "secondary"],
+      "spacing": "medium",
+      "borderRadius": "md",
+      "shadow": "none",
+      "alignment": "left"
+    }
+  },
+  "button": {
+    "name": "PrimaryButton",
+    "type": "button",
+    "description": "A primary action button with hover and focus states",
+    "elements": [
+      {
+        "type": "button",
+        "label": "Get Started",
+        "variant": "primary",
+        "prominence": "high",
+        "icon": "arrow-right",
+        "iconPosition": "right"
+      }
+    ],
+    "layout": "horizontal",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary"],
+      "spacing": "none",
+      "borderRadius": "md",
+      "shadow": "sm",
+      "alignment": "center"
+    }
+  },
+  "modal": {
+    "name": "ConfirmationModal",
+    "type": "modal",
+    "description": "A confirmation modal with title, message, and action buttons",
+    "elements": [
+      {
+        "type": "icon",
+        "content": "alert-circle",
+        "prominence": "medium",
+        "color": "warning"
+      },
+      {
+        "type": "title",
+        "content": "Confirm Action",
+        "prominence": "high"
+      },
+      {
+        "type": "message",
+        "content": "Are you sure you want to proceed? This action cannot be undone.",
+        "prominence": "medium"
+      },
+      {
+        "type": "buttonGroup",
+        "layout": "horizontal",
+        "buttons": [
+          {
+            "type": "button",
+            "label": "Cancel",
+            "variant": "secondary",
+            "prominence": "medium"
+          },
+          {
+            "type": "button",
+            "label": "Confirm",
+            "variant": "primary",
+            "prominence": "high"
+          }
+        ]
+      }
+    ],
+    "layout": "vertical",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary", "secondary", "danger"],
+      "spacing": "medium",
+      "borderRadius": "lg",
+      "shadow": "xl",
+      "alignment": "center",
+      "backdrop": "blur"
+    }
+  },
+  "list": {
+    "name": "UserList",
+    "type": "list",
+    "description": "A list of users with avatar, name, and status",
+    "repeatable": true,
+    "elements": [
+      {
+        "type": "avatar",
+        "content": "User Avatar",
+        "size": "md",
+        "prominence": "medium"
+      },
+      {
+        "type": "text",
+        "label": "name",
+        "content": "John Doe",
+        "prominence": "high"
+      },
+      {
+        "type": "badge",
+        "label": "status",
+        "content": "Online",
+        "variant": "success",
+        "prominence": "low"
+      },
+      {
+        "type": "button",
+        "label": "View Profile",
+        "variant": "ghost",
+        "prominence": "medium"
+      }
+    ],
+    "layout": "horizontal",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary", "success"],
+      "spacing": "medium",
+      "borderRadius": "md",
+      "shadow": "none",
+      "alignment": "left",
+      "divider": true
+    }
+  },
+  "navigation": {
+    "name": "MainNavigation",
+    "type": "navigation",
+    "description": "A horizontal navigation bar with logo and menu items",
+    "elements": [
+      {
+        "type": "logo",
+        "content": "Brand Logo",
+        "prominence": "high"
+      },
+      {
+        "type": "navItem",
+        "label": "Home",
+        "active": true,
+        "prominence": "medium"
+      },
+      {
+        "type": "navItem",
+        "label": "About",
+        "prominence": "medium"
+      },
+      {
+        "type": "navItem",
+        "label": "Services",
+        "prominence": "medium"
+      },
+      {
+        "type": "navItem",
+        "label": "Contact",
+        "prominence": "medium"
+      }
+    ],
+    "layout": "horizontal",
+    "styling": {
+      "theme": "modern",
+      "colors": ["primary", "secondary"],
+      "spacing": "medium",
+      "borderRadius": "none",
+      "shadow": "sm",
+      "alignment": "space-between"
+    }
+  }
+}

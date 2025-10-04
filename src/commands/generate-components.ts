@@ -281,7 +281,9 @@ export class GenerateComponentsCommand {
     } catch (error) {
       console.log(
         chalk.yellow(
-          `⚠️  Failed to update component list: ${error instanceof Error ? error.message : String(error)}`
+          `⚠️  Failed to update component list: ${
+            error instanceof Error ? error.message : String(error)
+          }`
         )
       );
     }
@@ -586,8 +588,17 @@ export class GenerateComponentsCommand {
     const componentList = JSON.parse(await this.fs.readFile(componentListPath));
 
     // Check if complete architecture generation is requested
-    if (options.completeArchitecture || options.serverActions || options.routes) {
-      await this.generateCompleteArchitecture(componentList, options, spinner, userId);
+    if (
+      options.completeArchitecture ||
+      options.serverActions ||
+      options.routes
+    ) {
+      await this.generateCompleteArchitecture(
+        componentList,
+        options,
+        spinner,
+        userId
+      );
       return;
     }
 
@@ -715,8 +726,8 @@ export class GenerateComponentsCommand {
           process.platform === "darwin"
             ? "open"
             : process.platform === "win32"
-              ? "start"
-              : "xdg-open";
+            ? "start"
+            : "xdg-open";
         execSync(`${opener} ${url}`, { stdio: "ignore" });
       } catch {}
     }
@@ -817,8 +828,8 @@ export class GenerateComponentsCommand {
           process.platform === "darwin"
             ? "open"
             : process.platform === "win32"
-              ? "start"
-              : "xdg-open";
+            ? "start"
+            : "xdg-open";
         execSync(`${opener} ${url}`, { stdio: "ignore" });
       } catch {}
     }
@@ -968,7 +979,9 @@ export class GenerateComponentsCommand {
         while (retryCount <= maxRetries) {
           try {
             console.log(
-              `🔍 DEBUG: About to call orchestrator.executeAgent for CodeGenSubAgent (attempt ${retryCount + 1}/${maxRetries + 1})`
+              `🔍 DEBUG: About to call orchestrator.executeAgent for CodeGenSubAgent (attempt ${
+                retryCount + 1
+              }/${maxRetries + 1})`
             );
 
             // Use stack configuration timeout if available
@@ -994,7 +1007,9 @@ export class GenerateComponentsCommand {
                   () =>
                     reject(
                       new Error(
-                        `Code generation timed out after ${timeout / 1000} seconds`
+                        `Code generation timed out after ${
+                          timeout / 1000
+                        } seconds`
                       )
                     ),
                   timeout
@@ -1028,7 +1043,9 @@ export class GenerateComponentsCommand {
             const delay =
               baseDelay * Math.pow(2, retryCount - 1) + Math.random() * 1000;
             console.log(
-              `⚠️  Generation failed (attempt ${retryCount}/${maxRetries + 1}): ${error.message}`
+              `⚠️  Generation failed (attempt ${retryCount}/${
+                maxRetries + 1
+              }): ${error.message}`
             );
             console.log(
               `🔄 Retrying in ${Math.round(delay / 1000)} seconds...`
@@ -1068,6 +1085,40 @@ export class GenerateComponentsCommand {
 
       const fileBase = this.getComponentBaseName(component);
       const componentPath = path.join(groupDir, `${fileBase}.tsx`);
+
+      // Generate UI specification before writing component
+      if (options.verbose) {
+        console.log(
+          chalk.blue(`📋 Generating UI specification for ${component.name}...`)
+        );
+        try {
+          const { RefineCommand } = await import("./refine");
+          const refineCommand = new RefineCommand();
+          const uiSpec = await refineCommand.generateUISpec({
+            componentName: component.name,
+            description: component.description,
+            outputFormat: "compact",
+            template: "custom",
+            verbose: false,
+          });
+
+          // Write UI spec to file
+          const specPath = path.join(groupDir, `${fileBase}.spec.md`);
+          const specContent = `# UI Specification for ${component.name}\n\n${uiSpec.compactSpec}\n\n---\n\n${uiSpec.detailedSpec}`;
+          await this.fs.writeFile(specPath, specContent);
+
+          if (options.verbose) {
+            console.log(
+              chalk.green(`  ✓ UI specification generated: ${specPath}`)
+            );
+          }
+        } catch (error) {
+          console.log(
+            chalk.yellow(`  ⚠️  UI spec generation failed: ${error}`)
+          );
+        }
+      }
+
       // Fix common identifier issues (spaces in names) in generated code
       const safeName = this.getComponentBaseName(component);
       const fixedCode = codeResult.code
@@ -1978,34 +2029,70 @@ export default function PreviewPage() {
     }
 
     // Build complete generation queue with actions, routes, and documentation
-    const queue = await this.architectureEngine.buildCompleteGenerationQueue(rootComponent);
+    const queue = await this.architectureEngine.buildCompleteGenerationQueue(
+      rootComponent
+    );
 
-    spinner.success({ text: `Architecture plan ready: ${queue.length} components with actions and routes` });
+    spinner.success({
+      text: `Architecture plan ready: ${queue.length} components with actions and routes`,
+    });
 
     console.log(chalk.blue("\n📋 Architecture Overview:"));
     console.log(chalk.gray(`  • Total Components: ${queue.length}`));
-    console.log(chalk.gray(`  • Total Server Actions: ${queue.reduce((acc, item) => acc + item.serverActions.length, 0)}`));
-    console.log(chalk.gray(`  • Total Routes: ${queue.reduce((acc, item) => acc + item.routes.length, 0)}`));
-    console.log(chalk.gray(`  • Total Client Actions: ${queue.reduce((acc, item) => acc + item.actions.length, 0)}`));
-
-    // Create complete architecture plan
-    const architecturePlan = await this.architectureEngine.createCompleteArchitecturePlan(
-      rootComponent,
-      {
-        name: this.contextArtifacts.prd ? "Project" : "Application",
-        description: this.contextArtifacts.prd?.split('\n')[0] || "Full-stack application",
-        architecture: options.architectureType || "nextjs-app-router"
-      }
+    console.log(
+      chalk.gray(
+        `  • Total Server Actions: ${queue.reduce(
+          (acc, item) => acc + item.serverActions.length,
+          0
+        )}`
+      )
+    );
+    console.log(
+      chalk.gray(
+        `  • Total Routes: ${queue.reduce(
+          (acc, item) => acc + item.routes.length,
+          0
+        )}`
+      )
+    );
+    console.log(
+      chalk.gray(
+        `  • Total Client Actions: ${queue.reduce(
+          (acc, item) => acc + item.actions.length,
+          0
+        )}`
+      )
     );
 
+    // Create complete architecture plan
+    const architecturePlan =
+      await this.architectureEngine.createCompleteArchitecturePlan(
+        rootComponent,
+        {
+          name: this.contextArtifacts.prd ? "Project" : "Application",
+          description:
+            this.contextArtifacts.prd?.split("\n")[0] ||
+            "Full-stack application",
+          architecture: options.architectureType || "nextjs-app-router",
+        }
+      );
+
     // Save architecture plan
-    const planPath = path.join(process.cwd(), ".mycontext", "architecture-plan.json");
-    await this.fs.writeFile(planPath, JSON.stringify(architecturePlan, null, 2));
+    const planPath = path.join(
+      process.cwd(),
+      ".mycontext",
+      "architecture-plan.json"
+    );
+    await this.fs.writeFile(
+      planPath,
+      JSON.stringify(architecturePlan, null, 2)
+    );
 
     console.log(chalk.green(`\n✅ Architecture plan saved to: ${planPath}`));
 
     // Create directories
-    const componentsDir = options.output || path.join("components", ".mycontext");
+    const componentsDir =
+      options.output || path.join("components", ".mycontext");
     const actionsDir = path.join(process.cwd(), "actions");
     const appDir = await this.detectAppDirectory();
 
@@ -2016,18 +2103,30 @@ export default function PreviewPage() {
     spinner.updateText("Generating components with self-documentation...");
 
     for (const item of queue) {
-      const groupDir = path.join(componentsDir, this.toKebabCase(item.component.name));
+      const groupDir = path.join(
+        componentsDir,
+        this.toKebabCase(item.component.name)
+      );
       await this.fs.ensureDir(groupDir);
 
       // Generate component with self-documentation header
-      const componentCode = await this.generateComponentWithArchitecture(item, options, userId);
-      const componentPath = path.join(groupDir, `${this.getComponentBaseName(item.component)}.tsx`);
+      const componentCode = await this.generateComponentWithArchitecture(
+        item,
+        options,
+        userId
+      );
+      const componentPath = path.join(
+        groupDir,
+        `${this.getComponentBaseName(item.component)}.tsx`
+      );
 
       // Prepend self-documentation
       const documentedCode = `${item.selfDocumentation}\n\n${componentCode}`;
       await this.fs.writeFile(componentPath, documentedCode);
 
-      console.log(chalk.gray(`  ✓ ${item.component.name} (level ${item.level})`));
+      console.log(
+        chalk.gray(`  ✓ ${item.component.name} (level ${item.level})`)
+      );
     }
 
     // Generate server actions if requested
@@ -2039,19 +2138,32 @@ export default function PreviewPage() {
     // Generate routes if requested
     if (options.completeArchitecture || options.routes) {
       spinner.updateText("Generating Next.js routes...");
-      await this.generateRoutes(queue, appDir, options.architectureType || "nextjs-app-router");
+      await this.generateRoutes(
+        queue,
+        appDir,
+        options.architectureType || "nextjs-app-router"
+      );
     }
 
     spinner.success({ text: "Complete architecture generated successfully!" });
 
     console.log(chalk.green("\n✅ Generated:"));
-    console.log(chalk.gray(`  • ${queue.length} components with documentation`));
+    console.log(
+      chalk.gray(`  • ${queue.length} components with documentation`)
+    );
     if (options.completeArchitecture || options.serverActions) {
-      const totalActions = queue.reduce((acc, item) => acc + item.serverActions.length, 0);
-      console.log(chalk.gray(`  • ${totalActions} server actions in ${actionsDir}`));
+      const totalActions = queue.reduce(
+        (acc, item) => acc + item.serverActions.length,
+        0
+      );
+      console.log(
+        chalk.gray(`  • ${totalActions} server actions in ${actionsDir}`)
+      );
     }
     if (options.completeArchitecture || options.routes) {
-      const totalRoutes = new Set(queue.flatMap(item => item.routes.map(r => r.path))).size;
+      const totalRoutes = new Set(
+        queue.flatMap((item) => item.routes.map((r) => r.path))
+      ).size;
       console.log(chalk.gray(`  • ${totalRoutes} routes in ${appDir}`));
     }
 
@@ -2067,7 +2179,9 @@ export default function PreviewPage() {
    */
   private convertToEnhancedComponent(componentList: any): any {
     // Find root component
-    const rootKey = Object.keys(componentList).find(key => key !== "metadata");
+    const rootKey = Object.keys(componentList).find(
+      (key) => key !== "metadata"
+    );
     if (!rootKey) return null;
 
     const root = componentList[rootKey];
@@ -2085,13 +2199,19 @@ export default function PreviewPage() {
       tags: [],
       routes: [],
       actions: [],
-      children: {}
+      children: {},
     };
 
     if (node.children) {
-      Object.entries(node.children).forEach(([childName, childData]: [string, any]) => {
-        component.children[childName] = this.buildEnhancedComponent(childData, childName, level + 1);
-      });
+      Object.entries(node.children).forEach(
+        ([childName, childData]: [string, any]) => {
+          component.children[childName] = this.buildEnhancedComponent(
+            childData,
+            childName,
+            level + 1
+          );
+        }
+      );
     }
 
     return component;
@@ -2106,9 +2226,11 @@ export default function PreviewPage() {
     userId: string
   ): Promise<string> {
     // Use existing generateComponent logic but return only the code
-    const { orchestrator } = await import("../agents/orchestrator/SubAgentOrchestrator");
+    const { orchestrator } = await import(
+      "../agents/orchestrator/SubAgentOrchestrator"
+    );
 
-    const codeResult = await orchestrator.executeAgent("CodeGenSubAgent", {
+    const codeResult = (await orchestrator.executeAgent("CodeGenSubAgent", {
       component: item.component,
       group: { name: "Generated" },
       options: {
@@ -2121,10 +2243,10 @@ export default function PreviewPage() {
           stackConfig: this.stackConfig,
           serverActions: item.serverActions,
           routes: item.routes,
-          actions: item.actions
-        }
-      }
-    }) as { code: string };
+          actions: item.actions,
+        },
+      },
+    })) as { code: string };
 
     return codeResult.code;
   }
@@ -2132,11 +2254,14 @@ export default function PreviewPage() {
   /**
    * Generate server actions files
    */
-  private async generateServerActions(queue: any[], actionsDir: string): Promise<void> {
+  private async generateServerActions(
+    queue: any[],
+    actionsDir: string
+  ): Promise<void> {
     // Group actions by component
     const actionsByComponent = new Map<string, any[]>();
 
-    queue.forEach(item => {
+    queue.forEach((item) => {
       if (item.serverActions.length > 0) {
         actionsByComponent.set(item.component.name, item.serverActions);
       }
@@ -2156,7 +2281,10 @@ export default function PreviewPage() {
   /**
    * Generate server action file content
    */
-  private generateServerActionFile(componentName: string, actions: any[]): string {
+  private generateServerActionFile(
+    componentName: string,
+    actions: any[]
+  ): string {
     const imports = `'use server';
 
 import { db } from '@/lib/db';
@@ -2164,24 +2292,27 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 `;
 
-    const actionCode = actions.map(action => {
-      const params = action.parameters.map((p: any) =>
-        `${p.name}${p.required ? '' : '?'}: ${p.type}`
-      ).join(', ');
+    const actionCode = actions
+      .map((action) => {
+        const params = action.parameters
+          .map((p: any) => `${p.name}${p.required ? "" : "?"}: ${p.type}`)
+          .join(", ");
 
-      return `
+        return `
 /**
  * ${action.description}
  *
- * @param {${action.parameters.map((p: any) => `${p.type}`).join(', ')}} ${action.parameters.map((p: any) => p.name).join(', ')}
+ * @param {${action.parameters
+   .map((p: any) => `${p.type}`)
+   .join(", ")}} ${action.parameters.map((p: any) => p.name).join(", ")}
  * @returns {Promise<${action.returns}>}
  */
 export async function ${action.name}(${params}): Promise<${action.returns}> {
   try {
     // TODO: Implement ${action.name}
-    ${action.database ? `// Database: ${action.database}` : ''}
-    ${action.validation ? `// Validation: ${action.validation}` : ''}
-    ${action.middleware ? `// Middleware: ${action.middleware.join(', ')}` : ''}
+    ${action.database ? `// Database: ${action.database}` : ""}
+    ${action.validation ? `// Validation: ${action.validation}` : ""}
+    ${action.middleware ? `// Middleware: ${action.middleware.join(", ")}` : ""}
 
     throw new Error('Not implemented');
   } catch (error) {
@@ -2189,7 +2320,8 @@ export async function ${action.name}(${params}): Promise<${action.returns}> {
     throw error;
   }
 }`;
-    }).join('\n');
+      })
+      .join("\n");
 
     return `${imports}\n${actionCode}\n`;
   }
@@ -2197,14 +2329,21 @@ export async function ${action.name}(${params}): Promise<${action.returns}> {
   /**
    * Generate Next.js routes
    */
-  private async generateRoutes(queue: any[], appDir: string, architectureType: string): Promise<void> {
+  private async generateRoutes(
+    queue: any[],
+    appDir: string,
+    architectureType: string
+  ): Promise<void> {
     const routeMap = new Map<string, any>();
 
     // Collect unique routes
-    queue.forEach(item => {
+    queue.forEach((item) => {
       item.routes.forEach((route: any) => {
         if (!routeMap.has(route.path)) {
-          routeMap.set(route.path, { ...route, components: [item.component.name] });
+          routeMap.set(route.path, {
+            ...route,
+            components: [item.component.name],
+          });
         } else {
           const existing = routeMap.get(route.path);
           existing.components.push(item.component.name);
@@ -2213,17 +2352,17 @@ export async function ${action.name}(${params}): Promise<${action.returns}> {
     });
 
     for (const [routePath, route] of routeMap.entries()) {
-      const routeDir = path.join(appDir, routePath === '/' ? '' : routePath);
+      const routeDir = path.join(appDir, routePath === "/" ? "" : routePath);
       await this.fs.ensureDir(routeDir);
 
       // Generate page.tsx
-      const pagePath = path.join(routeDir, 'page.tsx');
+      const pagePath = path.join(routeDir, "page.tsx");
       const pageContent = this.generatePageContent(route);
       await this.fs.writeFile(pagePath, pageContent);
 
       // Generate layout.tsx if specified
       if (route.layout) {
-        const layoutPath = path.join(routeDir, 'layout.tsx');
+        const layoutPath = path.join(routeDir, "layout.tsx");
         const layoutContent = this.generateLayoutContent(route);
         await this.fs.writeFile(layoutPath, layoutContent);
       }
@@ -2236,14 +2375,27 @@ export async function ${action.name}(${params}): Promise<${action.returns}> {
    * Generate page content for route
    */
   private generatePageContent(route: any): string {
-    const isDynamic = route.type === 'dynamic';
-    const params = isDynamic ? '{ params }: { params: { id: string } }' : '';
+    const isDynamic = route.type === "dynamic";
+    const params = isDynamic ? "{ params }: { params: { id: string } }" : "";
 
-    return `import { ${route.components[0]} } from '@/components/.mycontext/${this.toKebabCase(route.components[0])}/${route.components[0]}';
-${route.actions.map((action: string) => `import { ${action} } from '@/actions/${this.toKebabCase(action)}';`).join('\n')}
+    return `import { ${
+      route.components[0]
+    } } from '@/components/.mycontext/${this.toKebabCase(
+      route.components[0]
+    )}/${route.components[0]}';
+${route.actions
+  .map(
+    (action: string) =>
+      `import { ${action} } from '@/actions/${this.toKebabCase(action)}';`
+  )
+  .join("\n")}
 
 export default async function Page(${params}) {
-  ${isDynamic ? `// Fetch data using ${route.actions[0] || 'getData'}(params.id)` : ''}
+  ${
+    isDynamic
+      ? `// Fetch data using ${route.actions[0] || "getData"}(params.id)`
+      : ""
+  }
 
   return (
     <div className="container mx-auto py-8">

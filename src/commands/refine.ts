@@ -23,11 +23,359 @@ export interface RefinementOptions {
   rollback?: boolean; // Rollback to previous version
 }
 
+export interface UISpecOptions {
+  componentName: string;
+  description?: string;
+  jsonInput?: string; // JSON component description
+  jsonFile?: string; // Path to JSON file
+  outputFormat?: "compact" | "detailed" | "both";
+  template?: "card" | "form" | "button" | "modal" | "list" | "custom";
+  verbose?: boolean;
+}
+
 export class RefineCommand {
   private enhancementAgent: EnhancementAgent;
 
   constructor() {
     this.enhancementAgent = new EnhancementAgent();
+  }
+
+  /**
+   * Generate UI specification from component description
+   */
+  async generateUISpec(options: UISpecOptions): Promise<any> {
+    const spinner = new EnhancedSpinner("Generating UI specification...");
+
+    try {
+      spinner.start();
+
+      // Get JSON input from various sources
+      const jsonData = await this.getJSONInput(options);
+
+      if (!jsonData) {
+        throw new Error(
+          "No JSON input provided. Use --desc, --json-input, or --json-file"
+        );
+      }
+
+      spinner.updateText("Analyzing component structure...");
+
+      // Generate UI specification
+      const spec = this.generateSpecification(jsonData, options);
+
+      spinner.succeed("UI specification generated successfully!");
+
+      return spec;
+    } catch (error) {
+      spinner.fail("UI specification generation failed");
+      throw error;
+    }
+  }
+
+  /**
+   * Get JSON input from various sources
+   */
+  private async getJSONInput(options: UISpecOptions): Promise<any> {
+    // Priority: jsonFile > jsonInput > description
+    if (options.jsonFile) {
+      const fullPath = path.resolve(options.jsonFile);
+      if (!(await fs.pathExists(fullPath))) {
+        throw new Error(`JSON file not found: ${options.jsonFile}`);
+      }
+      const content = await fs.readFile(fullPath, "utf-8");
+      return JSON.parse(content);
+    }
+
+    if (options.jsonInput) {
+      return JSON.parse(options.jsonInput);
+    }
+
+    if (options.description) {
+      // Convert description to basic JSON structure
+      return this.convertDescriptionToJSON(
+        options.description,
+        options.componentName
+      );
+    }
+
+    return null;
+  }
+
+  /**
+   * Convert description to basic JSON structure
+   */
+  private convertDescriptionToJSON(
+    description: string,
+    componentName: string
+  ): any {
+    // Load templates
+    const templatesPath = path.join(
+      __dirname,
+      "../templates/ui-spec-templates.json"
+    );
+    let templates: any = {};
+
+    try {
+      if (fs.existsSync(templatesPath)) {
+        templates = JSON.parse(fs.readFileSync(templatesPath, "utf-8"));
+      }
+    } catch (error) {
+      // Fallback to basic structure if templates can't be loaded
+    }
+
+    // Basic structure for common component types
+    const baseStructure: any = {
+      name: componentName,
+      type: "component",
+      description: description,
+      elements: [],
+      layout: "vertical",
+      styling: {
+        theme: "modern",
+        colors: ["primary", "secondary"],
+        spacing: "medium",
+      },
+    };
+
+    // Try to infer component type from description and use template
+    const lowerDesc = description.toLowerCase();
+    if (
+      lowerDesc.includes("card") ||
+      lowerDesc.includes("revenue") ||
+      lowerDesc.includes("metric")
+    ) {
+      if (templates.card) {
+        return {
+          ...templates.card,
+          name: componentName,
+          description: description,
+        };
+      }
+      baseStructure.type = "card";
+      baseStructure.elements = [
+        { type: "title", content: "Title", prominence: "high" },
+        { type: "value", content: "Primary Value", prominence: "high" },
+        { type: "subtitle", content: "Subtitle", prominence: "low" },
+      ];
+    } else if (lowerDesc.includes("form") || lowerDesc.includes("input")) {
+      if (templates.form) {
+        return {
+          ...templates.form,
+          name: componentName,
+          description: description,
+        };
+      }
+      baseStructure.type = "form";
+      baseStructure.elements = [
+        { type: "input", label: "Field Label", required: true },
+        { type: "button", label: "Submit", variant: "primary" },
+      ];
+    } else if (lowerDesc.includes("button")) {
+      if (templates.button) {
+        return {
+          ...templates.button,
+          name: componentName,
+          description: description,
+        };
+      }
+      baseStructure.type = "button";
+      baseStructure.elements = [
+        { type: "button", label: "Button Text", variant: "primary" },
+      ];
+    } else if (lowerDesc.includes("modal") || lowerDesc.includes("dialog")) {
+      if (templates.modal) {
+        return {
+          ...templates.modal,
+          name: componentName,
+          description: description,
+        };
+      }
+      baseStructure.type = "modal";
+      baseStructure.elements = [
+        { type: "title", content: "Modal Title", prominence: "high" },
+        { type: "message", content: "Modal Message", prominence: "medium" },
+        { type: "button", label: "Cancel", variant: "secondary" },
+        { type: "button", label: "Confirm", variant: "primary" },
+      ];
+    } else if (lowerDesc.includes("list") || lowerDesc.includes("item")) {
+      if (templates.list) {
+        return {
+          ...templates.list,
+          name: componentName,
+          description: description,
+        };
+      }
+      baseStructure.type = "list";
+      baseStructure.elements = [
+        { type: "avatar", content: "Item Avatar", prominence: "medium" },
+        { type: "name", content: "Item Name", prominence: "high" },
+        { type: "status", content: "Item Status", prominence: "low" },
+      ];
+    }
+
+    return baseStructure;
+  }
+
+  /**
+   * Generate UI specification from JSON data
+   */
+  private generateSpecification(jsonData: any, options: UISpecOptions): any {
+    const spec = {
+      componentName: options.componentName,
+      compactSpec: this.generateCompactSpec(jsonData),
+      detailedSpec: this.generateDetailedSpec(jsonData),
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        template: options.template || "custom",
+        outputFormat: options.outputFormat || "both",
+      },
+    };
+
+    return spec;
+  }
+
+  /**
+   * Generate compact specification
+   */
+  private generateCompactSpec(data: any): string {
+    const { name, type, elements = [], styling = {} } = data;
+
+    let spec = `**${name} Component - Compact Spec**\n\n`;
+
+    // Visual hierarchy
+    spec += `**Visual Hierarchy:**\n`;
+    const prominentElements = elements.filter(
+      (el: any) => el.prominence === "high"
+    );
+    const subtleElements = elements.filter(
+      (el: any) => el.prominence === "low"
+    );
+
+    if (prominentElements.length > 0) {
+      spec += `- Primary: ${prominentElements
+        .map((el: any) => el.content || el.label)
+        .join(", ")}\n`;
+    }
+    if (subtleElements.length > 0) {
+      spec += `- Secondary: ${subtleElements
+        .map((el: any) => el.content || el.label)
+        .join(", ")}\n`;
+    }
+
+    // Layout and spacing
+    spec += `\n**Layout:** ${data.layout || "vertical"} arrangement\n`;
+    spec += `**Spacing:** ${
+      styling.spacing || "medium"
+    } spacing between elements\n`;
+
+    // Colors and styling
+    if (styling.colors && styling.colors.length > 0) {
+      spec += `**Colors:** ${styling.colors.join(", ")} theme\n`;
+    }
+
+    // Interactive elements
+    const interactiveElements = elements.filter(
+      (el: any) =>
+        el.type === "button" || el.type === "input" || el.type === "link"
+    );
+    if (interactiveElements.length > 0) {
+      spec += `**Interactions:** ${interactiveElements
+        .map((el: any) => `${el.type} (${el.label || el.content})`)
+        .join(", ")}\n`;
+    }
+
+    return spec;
+  }
+
+  /**
+   * Generate detailed specification
+   */
+  private generateDetailedSpec(data: any): string {
+    const { name, type, elements = [], styling = {}, description } = data;
+
+    let spec = `**${name} Component - Detailed Implementation Spec**\n\n`;
+
+    // Component overview
+    spec += `**Component Overview:**\n`;
+    spec += `- Name: ${name}\n`;
+    spec += `- Type: ${type}\n`;
+    spec += `- Description: ${description || "No description provided"}\n\n`;
+
+    // Visual hierarchy
+    spec += `**Visual Hierarchy:**\n`;
+    elements.forEach((element: any, index: number) => {
+      const prominence = element.prominence || "medium";
+      const size =
+        prominence === "high"
+          ? "large (~32px)"
+          : prominence === "medium"
+          ? "medium (~16px)"
+          : "small (~12px)";
+      spec += `${index + 1}. **${element.type || "element"}**: ${
+        element.content || element.label
+      }\n`;
+      spec += `   - Prominence: ${prominence} (${size})\n`;
+      if (element.variant) spec += `   - Variant: ${element.variant}\n`;
+      if (element.required) spec += `   - Required: ${element.required}\n`;
+    });
+
+    // Layout specifications
+    spec += `\n**Layout Specifications:**\n`;
+    spec += `- Arrangement: ${data.layout || "vertical"}\n`;
+    spec += `- Spacing: ${
+      styling.spacing || "medium"
+    } (16px between elements)\n`;
+    spec += `- Alignment: ${styling.alignment || "left"}\n`;
+
+    // Styling details
+    spec += `\n**Styling Details:**\n`;
+    if (styling.theme) spec += `- Theme: ${styling.theme}\n`;
+    if (styling.colors && styling.colors.length > 0) {
+      spec += `- Color Palette: ${styling.colors.join(", ")}\n`;
+    }
+    if (styling.borderRadius)
+      spec += `- Border Radius: ${styling.borderRadius}\n`;
+    if (styling.shadow) spec += `- Shadow: ${styling.shadow}\n`;
+
+    // State behavior
+    spec += `\n**State Behavior:**\n`;
+    const interactiveElements = elements.filter(
+      (el: any) =>
+        el.type === "button" || el.type === "input" || el.type === "link"
+    );
+
+    if (interactiveElements.length > 0) {
+      interactiveElements.forEach((element: any) => {
+        spec += `- **${element.type}**:\n`;
+        spec += `  - Hover: opacity-80 transition-opacity\n`;
+        spec += `  - Focus: outline-none ring-2 ring-blue-500\n`;
+        spec += `  - Active: scale-95 transition-transform\n`;
+        spec += `  - Loading: spinner overlay (if applicable)\n`;
+      });
+    } else {
+      spec += `- Default: clean, minimal appearance\n`;
+      spec += `- Hover: subtle elevation or color change\n`;
+    }
+
+    // Accessibility
+    spec += `\n**Accessibility Requirements:**\n`;
+    spec += `- All interactive elements must have aria-label or aria-labelledby\n`;
+    spec += `- Focus management: tab order follows visual hierarchy\n`;
+    spec += `- Color contrast: minimum 4.5:1 ratio for text\n`;
+    spec += `- Screen reader: semantic HTML structure\n`;
+
+    // Responsive behavior
+    spec += `\n**Responsive Adjustments:**\n`;
+    spec += `- Mobile (< 768px):\n`;
+    spec += `  - Reduce spacing to 12px\n`;
+    spec += `  - Stack elements vertically\n`;
+    spec += `  - Increase touch targets to 44px minimum\n`;
+    spec += `- Desktop (> 768px):\n`;
+    spec += `  - Standard spacing (16px)\n`;
+    spec += `  - Maintain original layout\n`;
+    spec += `  - Hover states enabled\n`;
+
+    return spec;
   }
 
   async execute(
@@ -670,6 +1018,78 @@ export const refine = new Command("refine")
       }
     } catch (error) {
       console.error(chalk.red("❌ Refinement failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Add spec subcommand
+refine
+  .command("spec <component-name>")
+  .description("Generate UI specification from component description or JSON")
+  .option("-d, --desc <description>", "Component description")
+  .option("--json-input <json>", "JSON component description")
+  .option("--json-file <path>", "Path to JSON file with component description")
+  .option(
+    "--output-format <format>",
+    "Output format: compact, detailed, both",
+    "both"
+  )
+  .option(
+    "--template <type>",
+    "Component template: card, form, button, modal, list, custom",
+    "custom"
+  )
+  .option("--verbose", "Show detailed output")
+  .action(async (componentName, options) => {
+    try {
+      const result = await refineCommand.generateUISpec({
+        componentName,
+        description: options.desc,
+        jsonInput: options.jsonInput,
+        jsonFile: options.jsonFile,
+        outputFormat: options.outputFormat || "both",
+        template: options.template || "custom",
+        verbose: options.verbose || false,
+      });
+
+      // Display the specification
+      console.log(
+        chalk.blue.bold(`\n📋 UI Specification for ${componentName}\n`)
+      );
+
+      if (
+        options.outputFormat === "compact" ||
+        options.outputFormat === "both"
+      ) {
+        console.log(chalk.yellow("📝 Compact Specification:"));
+        console.log(chalk.gray(result.compactSpec));
+        console.log("");
+      }
+
+      if (
+        options.outputFormat === "detailed" ||
+        options.outputFormat === "both"
+      ) {
+        console.log(chalk.yellow("📋 Detailed Specification:"));
+        console.log(chalk.gray(result.detailedSpec));
+        console.log("");
+      }
+
+      // Show next steps
+      console.log(chalk.blue("➡️ Next steps:"));
+      console.log(
+        chalk.gray("   mycontext generate-components " + componentName)
+      );
+      console.log(
+        chalk.gray(
+          "   mycontext refine " +
+            componentName +
+            " --prompt 'Implement this spec'"
+        )
+      );
+      console.log(chalk.gray("   mycontext preview components"));
+    } catch (error) {
+      console.error(chalk.red("❌ UI spec generation failed:"), error);
       process.exit(1);
     }
   });

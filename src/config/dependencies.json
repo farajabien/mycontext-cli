@@ -38,8 +38,8 @@
       "installation": {
         "all": {
           "method": "ollama",
-          "command": "ollama pull deepseek-coder:6.7b",
-          "verify": "ollama list | grep deepseek-coder",
+          "command": "ollama pull qwen2.5-coder:7b",
+          "verify": "ollama list | grep qwen2.5-coder",
           "modelfile": "mycontext-react"
         }
       }
@@ -151,8 +151,8 @@
         "solutions": [
           "Check internet connection",
           "Check disk space (need 4GB+ free)",
-          "Retry download: ollama pull deepseek-coder:6.7b",
-          "Use alternative mirror: OLLAMA_HOST=mirror.ollama.ai ollama pull deepseek-coder:6.7b"
+          "Retry download: ollama pull qwen2.5-coder:7b",
+          "Use alternative mirror: OLLAMA_HOST=mirror.ollama.ai ollama pull qwen2.5-coder:7b"
         ]
       },
       {

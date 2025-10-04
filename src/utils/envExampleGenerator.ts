@@ -23,27 +23,42 @@ export class EnvExampleGenerator {
     envVars.add("NEXT_PUBLIC_APP_URL=http://localhost:3000");
 
     // MyContext AI Provider Configuration (User-Centric Workflow)
-    // Qwen3 Coder (FREE - Recommended starting point)
-    envVars.add("MYCONTEXT_QWEN_API_KEY=sk-or-your_qwen_key_here");
+    // Claude (Recommended starting point)
+    envVars.add("MYCONTEXT_CLAUDE_API_KEY=");
+
+    // Optional: OpenRouter (FREE alternative)
+    envVars.add("MYCONTEXT_OPENROUTER_API_KEY=");
 
     // Optional: GitHub Models (requires GitHub account)
-    envVars.add("MYCONTEXT_GITHUB_TOKEN=ghp_your_github_token_here");
+    envVars.add("MYCONTEXT_GITHUB_TOKEN=");
 
-    // Optional: X.AI Grok (premium)
-    envVars.add("MYCONTEXT_XAI_API_KEY=xai-your_xai_key_here");
+    // Optional: X.AI Grok
+    envVars.add("MYCONTEXT_XAI_API_KEY=");
 
-    // Optional: Claude (premium)
-    envVars.add("MYCONTEXT_CLAUDE_API_KEY=sk-ant-your_claude_key_here");
+    // Optional: OpenAI
+    envVars.add("MYCONTEXT_OPENAI_API_KEY=");
 
-    // Optional: OpenAI (premium)
-    envVars.add("MYCONTEXT_OPENAI_API_KEY=sk-your_openai_key_here");
+    // Optional: Gemini
+    envVars.add("MYCONTEXT_GEMINI_API_KEY=");
 
-    // Optional: Gemini (premium)
-    envVars.add("MYCONTEXT_GEMINI_API_KEY=your_gemini_key_here");
+    // Optional: Groq
+    envVars.add("MYCONTEXT_GROQ_API_KEY=");
 
-    // Provider selection (Qwen is recommended default)
-    envVars.add("MYCONTEXT_PROVIDER=qwen");
-    envVars.add("MYCONTEXT_MODEL=qwen3-coder");
+    // Optional: Cerebras
+    envVars.add("MYCONTEXT_CEREBRAS_API_KEY=");
+
+    // Optional: Fireworks
+    envVars.add("MYCONTEXT_FIREWORKS_API_KEY=");
+
+    // Optional: Together
+    envVars.add("MYCONTEXT_TOGETHER_API_KEY=");
+
+    // Optional: Deepseek
+    envVars.add("MYCONTEXT_DEEPSEEK_API_KEY=");
+
+    // Provider selection (Claude is recommended default)
+    envVars.add("MYCONTEXT_PROVIDER=claude");
+    envVars.add("MYCONTEXT_MODEL=claude-3-5-sonnet-20241022");
 
     // Generation settings
     envVars.add("MYCONTEXT_TIMEOUT=60000");
@@ -79,11 +94,17 @@ Copy this file to \`.env\` in your .mycontext directory and update with your act
 
 ### Step 1: Choose Your AI Provider
 
-**🎯 RECOMMENDED: Qwen3 Coder (100% FREE)**
+**🎯 RECOMMENDED: Claude**
+- Go to: https://console.anthropic.com/
+- Create account
+- Get API key from dashboard
+- Copy key to: MYCONTEXT_CLAUDE_API_KEY
+
+**🔑 Alternative: OpenRouter (100% FREE)**
 - Go to: https://openrouter.ai/keys
 - Create account (free)
 - Get API key from dashboard
-- Copy key to: MYCONTEXT_QWEN_API_KEY
+- Copy key to: MYCONTEXT_OPENROUTER_API_KEY
 
 **🔑 Alternative: GitHub Models (Free with GitHub Account)**
 - Go to: https://github.com/settings/tokens
@@ -99,9 +120,7 @@ cp .env.example .mycontext/.env
 
 ### Step 3: Update with Your Keys
 
-Edit \`.mycontext/.env\` and replace placeholder values:
-- Replace \`sk-or-your_qwen_key_here\` with your actual Qwen API key
-- Or replace \`ghp_your_github_token_here\` with your GitHub token
+Edit \`.mycontext/.env\` and replace placeholder values with your actual API keys.
 
 ### Step 4: Test Your Setup
 
@@ -117,39 +136,81 @@ ${Array.from(envVars).join("\n")}
 
 ### 🎯 Primary Setup (Choose One)
 
-#### Option 1: Qwen3 Coder (FREE - Recommended)
-\`\`\`bash
-MYCONTEXT_PROVIDER=qwen
-MYCONTEXT_QWEN_API_KEY=sk-or-your_actual_key_here
-MYCONTEXT_MODEL=qwen3-coder
-\`\`\`
-
-#### Option 2: GitHub Models (FREE with GitHub Account)
-\`\`\`bash
-MYCONTEXT_PROVIDER=github
-MYCONTEXT_GITHUB_TOKEN=ghp_your_actual_github_token_here
-MYCONTEXT_MODEL=grok-3
-\`\`\`
-
-#### Option 3: X.AI Grok (Premium)
-\`\`\`bash
-MYCONTEXT_PROVIDER=xai
-MYCONTEXT_XAI_API_KEY=xai-your_actual_key_here
-MYCONTEXT_MODEL=grok-4-fast-reasoning
-\`\`\`
-
-#### Option 4: Claude (Premium)
+#### Option 1: Claude (Recommended)
 \`\`\`bash
 MYCONTEXT_PROVIDER=claude
-MYCONTEXT_CLAUDE_API_KEY=sk-ant-your_actual_key_here
+MYCONTEXT_CLAUDE_API_KEY=
 MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
 \`\`\`
 
-#### Option 5: OpenAI (Premium)
+#### Option 2: OpenRouter (FREE)
+\`\`\`bash
+MYCONTEXT_PROVIDER=openrouter
+MYCONTEXT_OPENROUTER_API_KEY=
+MYCONTEXT_MODEL=qwen/qwen-2.5-coder-32b-instruct
+\`\`\`
+
+#### Option 3: GitHub Models (FREE with GitHub Account)
+\`\`\`bash
+MYCONTEXT_PROVIDER=github
+MYCONTEXT_GITHUB_TOKEN=
+MYCONTEXT_MODEL=gpt-4o
+\`\`\`
+
+#### Option 4: X.AI Grok
+\`\`\`bash
+MYCONTEXT_PROVIDER=xai
+MYCONTEXT_XAI_API_KEY=
+MYCONTEXT_MODEL=grok-beta
+\`\`\`
+
+#### Option 5: OpenAI
 \`\`\`bash
 MYCONTEXT_PROVIDER=openai
-MYCONTEXT_OPENAI_API_KEY=sk-your_actual_key_here
-MYCONTEXT_MODEL=gpt-4-turbo
+MYCONTEXT_OPENAI_API_KEY=
+MYCONTEXT_MODEL=gpt-4o
+\`\`\`
+
+#### Option 6: Gemini
+\`\`\`bash
+MYCONTEXT_PROVIDER=gemini
+MYCONTEXT_GEMINI_API_KEY=
+MYCONTEXT_MODEL=gemini-2.0-flash-exp
+\`\`\`
+
+#### Option 7: Groq
+\`\`\`bash
+MYCONTEXT_PROVIDER=groq
+MYCONTEXT_GROQ_API_KEY=
+MYCONTEXT_MODEL=llama-3.3-70b-versatile
+\`\`\`
+
+#### Option 8: Cerebras
+\`\`\`bash
+MYCONTEXT_PROVIDER=cerebras
+MYCONTEXT_CEREBRAS_API_KEY=
+MYCONTEXT_MODEL=llama3.1-70b
+\`\`\`
+
+#### Option 9: Fireworks
+\`\`\`bash
+MYCONTEXT_PROVIDER=fireworks
+MYCONTEXT_FIREWORKS_API_KEY=
+MYCONTEXT_MODEL=accounts/fireworks/models/llama-v3p3-70b-instruct
+\`\`\`
+
+#### Option 10: Together
+\`\`\`bash
+MYCONTEXT_PROVIDER=together
+MYCONTEXT_TOGETHER_API_KEY=
+MYCONTEXT_MODEL=meta-llama/Llama-3.3-70B-Instruct-Turbo
+\`\`\`
+
+#### Option 11: Deepseek
+\`\`\`bash
+MYCONTEXT_PROVIDER=deepseek
+MYCONTEXT_DEEPSEEK_API_KEY=
+MYCONTEXT_MODEL=deepseek-chat
 \`\`\`
 
 ## 📋 MyContext Workflow Steps
@@ -198,7 +259,7 @@ After setting up your environment:
 - Try a different provider
 
 **"Rate limit exceeded" error?**
-- Qwen and GitHub have generous free tiers
+- OpenRouter and GitHub have generous free tiers
 - Consider upgrading to paid plans for higher limits
 - Wait and try again later
 

@@ -1,54 +1,4 @@
 {
-  "github": {
-    "enabled": true,
-    "priority": 1,
-    "models": {
-      "component-generator": {
-        "name": "grok-3",
-        "description": "GPT-5 for component generation on GitHub Models",
-        "capabilities": ["generation", "typescript", "jsx", "docs"],
-            "maxTokens": 4000,
-        "temperature": 0.2
-      },
-      "component-refiner": {
-        "name": "grok-3",
-        "description": "GPT-5 for high-quality refinement and editing",
-        "capabilities": ["refinement", "accessibility", "styling", "perf"],
-            "maxTokens": 4000,
-        "temperature": 0.2
-      }
-    },
-    "api": {
-      "baseUrl": "https://models.github.ai/inference",
-      "timeout": 60000,
-      "retries": 2
-    }
-  },
-  "huggingface": {
-    "enabled": false,
-    "priority": 5,
-    "models": {
-      "component-refiner": {
-        "name": "mycontext/react-component-refiner",
-        "description": "Specialized model for React component refinement",
-        "capabilities": ["refinement", "accessibility", "styling", "performance"],
-        "maxTokens": 2048,
-        "temperature": 0.1
-      },
-      "component-generator": {
-        "name": "mycontext/react-component-generator",
-        "description": "Specialized model for generating new React components",
-        "capabilities": ["generation", "typescript", "jsx", "shadcn"],
-        "maxTokens": 2048,
-        "temperature": 0.1
-      }
-    },
-    "api": {
-      "baseUrl": "https://api-inference.huggingface.co",
-      "timeout": 60000,
-      "retries": 2
-    }
-  },
   "xai": {
     "enabled": true,
     "priority": 1,
@@ -83,35 +33,28 @@
   },
   "openai": {
     "enabled": true,
-    "priority": 1,
+    "priority": 2,
     "models": {
       "component-generator": {
-        "name": "gpt-3.5-turbo",
-        "description": "GPT-3.5-turbo for component generation",
+        "name": "gpt-4",
+        "description": "GPT-4 for advanced component generation",
         "capabilities": ["generation", "typescript", "jsx", "docs"],
-            "maxTokens": 4000,
+        "maxTokens": 4000,
         "temperature": 0.2
       },
       "component-refiner": {
-        "name": "gpt-3.5-turbo",
-        "description": "GPT-3.5-turbo for high-quality refinement and editing",
+        "name": "gpt-4",
+        "description": "GPT-4 for high-quality refinement and editing",
         "capabilities": ["refinement", "accessibility", "styling", "perf"],
-            "maxTokens": 4000,
+        "maxTokens": 4000,
         "temperature": 0.2
       },
       "text-generator": {
-        "name": "gpt-3.5-turbo",
-        "description": "GPT-3.5-turbo for PRD, types, and brand generation",
-        "capabilities": ["generation", "analysis", "documentation"],
-            "maxTokens": 4000,
-        "temperature": 0.3
-      },
-      "component-generator-gpt4": {
         "name": "gpt-4",
-        "description": "GPT-4 for advanced component generation (requires API access)",
-        "capabilities": ["generation", "typescript", "jsx", "docs"],
-            "maxTokens": 4000,
-        "temperature": 0.2
+        "description": "GPT-4 for PRD, types, and brand generation",
+        "capabilities": ["generation", "analysis", "documentation"],
+        "maxTokens": 4000,
+        "temperature": 0.3
       }
     },
     "api": {
@@ -122,103 +65,32 @@
   },
   "claude": {
     "enabled": true,
-    "priority": 1,
+    "priority": 3,
     "models": {
       "component-generator": {
-        "name": "claude-3-5-sonnet-20241022",
-        "description": "Claude 3.5 Sonnet for component generation",
+        "name": "claude-4-5-sonnet",
+        "description": "Claude 4.5 Sonnet for component generation",
         "capabilities": ["generation", "typescript", "jsx", "docs"],
-            "maxTokens": 4000,
+        "maxTokens": 4000,
         "temperature": 0.2
       },
       "component-refiner": {
-        "name": "claude-3-5-sonnet-20241022",
-        "description": "Claude 3.5 Sonnet for high-quality refinement and editing",
+        "name": "claude-4-5-sonnet",
+        "description": "Claude 4.5 Sonnet for high-quality refinement and editing",
         "capabilities": ["refinement", "accessibility", "styling", "perf"],
-            "maxTokens": 4000,
+        "maxTokens": 4000,
         "temperature": 0.2
       },
       "text-generator": {
-        "name": "claude-3-5-sonnet-20241022",
-        "description": "Claude 3.5 Sonnet for PRD, types, and brand generation",
+        "name": "claude-4-5-sonnet",
+        "description": "Claude 4.5 Sonnet for PRD, types, and brand generation",
         "capabilities": ["generation", "analysis", "documentation"],
-            "maxTokens": 4000,
+        "maxTokens": 4000,
         "temperature": 0.3
-      },
-      "component-generator-haiku": {
-        "name": "claude-3-haiku-20240307",
-        "description": "Claude 3 Haiku for fast component generation",
-        "capabilities": ["generation", "typescript", "jsx"],
-            "maxTokens": 4000,
-        "temperature": 0.2
       }
     },
     "api": {
       "baseUrl": "https://api.anthropic.com/v1",
-      "timeout": 60000,
-      "retries": 2
-    }
-  },
-  "qwen": {
-    "enabled": true,
-    "priority": 5,
-    "models": {
-      "component-generator": {
-        "name": "qwen/qwen3-coder:free",
-        "description": "Qwen3 Coder 480B A35B for component generation (free via OpenRouter)",
-        "capabilities": ["generation", "typescript", "jsx", "docs", "code-generation"],
-        "maxTokens": 4000,
-        "temperature": 0.2
-      },
-      "component-refiner": {
-        "name": "qwen/qwen3-coder:free",
-        "description": "Qwen3 Coder 480B A35B for component refinement (free via OpenRouter)",
-        "capabilities": ["refinement", "accessibility", "styling", "perf", "code-generation"],
-        "maxTokens": 4000,
-        "temperature": 0.2
-      },
-      "text-generator": {
-        "name": "qwen/qwen3-coder:free",
-        "description": "Qwen3 Coder 480B A35B for PRD, types, and brand generation (free via OpenRouter)",
-        "capabilities": ["generation", "analysis", "documentation", "code-generation"],
-        "maxTokens": 4000,
-        "temperature": 0.3
-      }
-    },
-    "api": {
-      "baseUrl": "https://openrouter.ai/api/v1",
-      "timeout": 60000,
-      "retries": 2
-    }
-  },
-  "gemini": {
-    "enabled": true,
-    "priority": 5,
-    "models": {
-      "component-generator": {
-        "name": "gemini-2.0-flash",
-        "description": "Gemini 2.0 Flash for component generation",
-        "capabilities": ["generation", "typescript", "jsx", "docs", "code-generation"],
-            "maxTokens": 4000,
-        "temperature": 0.2
-      },
-      "component-refiner": {
-        "name": "gemini-2.0-flash",
-        "description": "Gemini 2.0 Flash for component refinement",
-        "capabilities": ["refinement", "accessibility", "styling", "perf", "code-generation"],
-            "maxTokens": 4000,
-        "temperature": 0.2
-      },
-      "text-generator": {
-        "name": "gemini-2.0-flash",
-        "description": "Gemini 2.0 Flash for PRD, types, and brand generation",
-        "capabilities": ["generation", "analysis", "documentation", "code-generation"],
-            "maxTokens": 4000,
-        "temperature": 0.3
-      }
-    },
-    "api": {
-      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
       "timeout": 60000,
       "retries": 2
     }
