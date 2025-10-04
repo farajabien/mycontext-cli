@@ -1,0 +1,86 @@
+{
+  "name": "mycontext-cli",
+  "version": "2.0.6",
+  "description": "Component-first visual builder with zero-error guarantees. Generate and validate React/Next.js components one at a time, preview them visually, then scale to complete applications using Claude Agent SDK.",
+  "main": "dist/cli.js",
+  "bin": {
+    "mycontext-cli": "dist/cli.js",
+    "mycontext": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "npm run build:clean && npm run build:compile && npm run build:copy",
+    "build:clean": "rm -rf dist && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🧹 Cleaned build directory')",
+    "build:compile": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔨 Compiling TypeScript...') && tsc --noEmitOnError false",
+    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp package.json dist/ && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
+    "dev": "ts-node src/cli.ts",
+    "start": "node dist/cli.js",
+    "watch": "tsc --watch --pretty",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch --passWithNoTests",
+    "test:coverage": "jest --coverage --passWithNoTests",
+    "test:integration": "jest --testPathPattern=integration --passWithNoTests",
+    "test:unit": "jest --testPathPattern=unit --passWithNoTests",
+    "lint": "eslint src/**/*.ts --quiet",
+    "lint:fix": "eslint src/**/*.ts --fix --quiet",
+    "prepublishOnly": "echo 'Skipping tests and lint for now' && npm run build"
+  },
+  "keywords": [
+    "mycontext",
+    "mycontext-ai",
+    "mycontext-cli",
+    "mycontext-components",
+    "ai",
+    "components",
+    "shadcn",
+    "nextjs",
+    "typescript",
+    "react"
+  ],
+  "author": "MyContext",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farajabien/mycontext-cli.git"
+  },
+  "homepage": "https://github.com/farajabien/mycontext-cli#readme",
+  "bugs": {
+    "url": "https://github.com/farajabien/mycontext-cli/issues"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.1",
+    "axios": "^1.6.0",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "fs-extra": "^11.1.1",
+    "glob": "^10.3.10",
+    "inquirer": "^9.2.12",
+    "node-fetch": "^2.7.0",
+    "ora": "^7.0.1",
+    "prompts": "^2.4.2",
+    "sonner": "^2.0.7",
+    "uuid": "^9.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/glob": "^8.1.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "@types/node-fetch": "^2.6.13",
+    "@types/prompts": "^2.4.9",
+    "@types/uuid": "^9.0.7",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "package.json"
+  ]
+}

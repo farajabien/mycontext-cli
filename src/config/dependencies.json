@@ -1,0 +1,183 @@
+{
+  "dependencies": {
+    "ollama": {
+      "name": "Ollama",
+      "description": "Local AI runtime for running language models",
+      "required": true,
+      "type": "runtime",
+      "size": "~100MB",
+      "purpose": "Powers MyContext's local AI component generation",
+      "installation": {
+        "darwin": {
+          "method": "script",
+          "command": "curl -fsSL https://ollama.ai/install.sh | sh",
+          "verify": "ollama --version",
+          "path": "/usr/local/bin/ollama"
+        },
+        "linux": {
+          "method": "script", 
+          "command": "curl -fsSL https://ollama.ai/install.sh | sh",
+          "verify": "ollama --version",
+          "path": "/usr/local/bin/ollama"
+        },
+        "win32": {
+          "method": "download",
+          "url": "https://ollama.ai/download/windows",
+          "verify": "ollama.exe --version",
+          "path": "C:\\Program Files\\Ollama\\ollama.exe"
+        }
+      }
+    },
+    "mycontext-react-model": {
+      "name": "MyContext React Model", 
+      "description": "Specialized AI model for React/Shadcn component generation",
+      "required": true,
+      "type": "model",
+      "size": "~3.8GB",
+      "purpose": "Generates high-quality React components with perfect Shadcn patterns",
+      "installation": {
+        "all": {
+          "method": "ollama",
+          "command": "ollama pull deepseek-coder:6.7b",
+          "verify": "ollama list | grep deepseek-coder",
+          "modelfile": "mycontext-react"
+        }
+      }
+    }
+  },
+  "setup": {
+    "prompts": {
+      "welcome": "🚀 mycontext CLI Setup\n\nTo generate components locally (zero API costs), we need to set up your AI environment.\n\nThis is a one-time setup that will:",
+      "benefits": [
+        "✅ Enable unlimited component generation (no API costs)",
+        "⚡ Provide instant generation (no network latency)", 
+        "🔒 Keep your code 100% private (local processing)",
+        "🎯 Use specialized React/Shadcn AI model"
+      ],
+      "consent": "Would you like to set up local AI generation?",
+      "alternatives": "Alternative: Use API mode (requires API keys, costs apply)",
+      "storage_notice": "Total download size: ~4GB (one-time)",
+      "continue_prompt": "Continue with local setup?"
+    },
+    "steps": [
+      {
+        "id": "check_ollama",
+        "name": "Check Ollama Installation",
+        "description": "Checking if Ollama is already installed...",
+        "required": true
+      },
+      {
+        "id": "install_ollama", 
+        "name": "Install Ollama",
+        "description": "Installing Ollama AI runtime...",
+        "conditional": "ollama_not_found"
+      },
+      {
+        "id": "start_ollama",
+        "name": "Start Ollama Service", 
+        "description": "Starting Ollama service...",
+        "required": true
+      },
+      {
+        "id": "check_model",
+        "name": "Check MyContext Model",
+        "description": "Checking for specialized React model...",
+        "conditional": "model_check",
+        "required": false
+      },
+      {
+        "id": "download_model",
+        "name": "Download MyContext Model",
+        "description": "Downloading specialized React model (~3.8GB)...",
+        "conditional": "model_not_found",
+        "progress": true
+      },
+      {
+        "id": "create_specialized_model",
+        "name": "Create Specialized Model",
+        "description": "Creating MyContext React model...",
+        "conditional": "specialized_model_not_found",
+        "required": false
+      },
+      {
+        "id": "test_generation",
+        "name": "Test Component Generation",
+        "description": "Testing component generation...",
+        "conditional": "test_optional",
+        "required": false
+      },
+      {
+        "id": "save_config",
+        "name": "Save Configuration",
+        "description": "Saving setup configuration...",
+        "required": true
+      }
+    ],
+    "success_message": "🎉 MyContext local AI setup complete!\n\nYou can now generate unlimited components:\n  mycontext generate-component \"user profile card\"\n\nNo API keys required, zero costs, instant generation!",
+    "failure_alternatives": [
+      "Continue with API mode (requires setup: mycontext auth setup)",
+      "Retry local setup later (mycontext setup --local)",
+      "Use cloud mode (mycontext setup --cloud)"
+    ]
+  },
+  "health_checks": {
+    "ollama_service": {
+      "command": "curl -s http://localhost:11434/api/tags",
+      "timeout": 5000,
+      "success_indicator": "models"
+    },
+    "model_availability": {
+      "command": "ollama list",
+      "success_indicator": "mycontext-react"
+    },
+    "generation_test": {
+      "command": "ollama run mycontext-react \"test\"",
+      "timeout": 60000,
+      "success_indicator": "import React"
+    }
+  },
+  "troubleshooting": {
+    "common_issues": [
+      {
+        "issue": "Ollama service not starting",
+        "solutions": [
+          "Check if port 11434 is available: netstat -an | grep 11434",
+          "Restart Ollama: sudo systemctl restart ollama (Linux) or brew services restart ollama (Mac)",
+          "Check logs: ollama logs"
+        ]
+      },
+      {
+        "issue": "Model download fails",
+        "solutions": [
+          "Check internet connection",
+          "Check disk space (need 4GB+ free)",
+          "Retry download: ollama pull deepseek-coder:6.7b",
+          "Use alternative mirror: OLLAMA_HOST=mirror.ollama.ai ollama pull deepseek-coder:6.7b"
+        ]
+      },
+      {
+        "issue": "Generation quality poor",
+        "solutions": [
+          "Update to latest model: mycontext model update",
+          "Check model version: ollama list",
+          "Reset model: mycontext model reset --clean"
+        ]
+      }
+    ]
+  },
+  "configuration": {
+    "default_settings": {
+      "model_name": "mycontext-react",
+      "base_url": "http://localhost:11434", 
+      "temperature": 0.1,
+      "max_tokens": 4000,
+      "timeout": 300000
+    },
+    "environment_variables": {
+      "OLLAMA_HOST": "Override Ollama service URL",
+      "OLLAMA_MODELS": "Custom model directory path",
+      "MYCONTEXT_MODEL": "Override default model name",
+      "MYCONTEXT_LOCAL_ONLY": "Force local-only mode (no API fallback)"
+    }
+  }
+}

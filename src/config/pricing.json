@@ -1,0 +1,55 @@
+{
+  "plans": {
+    "free_beta": {
+      "name": "Free Beta",
+      "price": 0,
+      "currency": "USD",
+      "interval": "month",
+      "features": [
+        "Unlimited Qwen3 Coder generations",
+        "All component types",
+        "Basic support",
+        "Community access"
+      ],
+      "limits": {
+        "generations_per_month": -1,
+        "max_tokens_per_request": 4000,
+        "concurrent_requests": 5
+      },
+      "description": "Free during beta period - unlimited usage with Qwen3 Coder"
+    },
+    "unlimited": {
+      "name": "Unlimited Pro",
+      "price": 5,
+      "currency": "USD", 
+      "interval": "month",
+      "features": [
+        "Unlimited generations with all AI providers",
+        "Priority support",
+        "Advanced features",
+        "Team collaboration",
+        "API access"
+      ],
+      "limits": {
+        "generations_per_month": -1,
+        "max_tokens_per_request": 8000,
+        "concurrent_requests": 20
+      },
+      "description": "Unlimited usage with all AI providers and premium features"
+    }
+  },
+  "hosted_api": {
+    "base_url": "https://api.mycontext.fbien.com/v1",
+    "endpoints": {
+      "generate": "/generate",
+      "status": "/status",
+      "pricing": "/pricing"
+    },
+    "fallback_providers": ["qwen", "github", "claude", "openai"]
+  },
+  "beta_period": {
+    "enabled": true,
+    "end_date": "2025-12-31",
+    "message": "Free beta until December 31, 2025"
+  }
+}

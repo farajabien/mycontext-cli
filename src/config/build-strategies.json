@@ -1,0 +1,647 @@
+{
+  "buildStrategies": {
+    "metadata": {
+      "version": "2.0.0",
+      "description": "MyContext CLI Build Strategy Framework - Component-First Edition",
+      "lastUpdated": "2025-01-04",
+      "author": "MyContext Team"
+    },
+    "strategies": [
+      {
+        "id": "component-first",
+        "name": "Component-First (Recommended)",
+        "description": "Generate and validate individual components with visual preview, then compose into complete application using Claude Agent SDK",
+        "icon": "🎨",
+        "complexity": "low",
+        "timeToFirstDemo": "3-5 days",
+        "bestFor": ["MVPs", "rapid prototyping", "solo developers", "internal tools", "standard patterns"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Component Library Building",
+            "duration": "3-7 days",
+            "description": "Generate and validate core components one at a time with zero-error guarantees",
+            "tasks": [
+              "Run mycontext init to set up project structure",
+              "Generate authentication components (LoginForm, SignupForm, PasswordReset)",
+              "Validate each component (TypeScript, ESLint, build checks, tests)",
+              "Preview components in visual board (mycontext preview components)",
+              "Generate dashboard components (Sidebar, Header, DataTable, StatsCard)",
+              "Generate settings components (ProfileForm, SettingsPanel, AccountSettings)",
+              "Generate marketing components (Hero, Features, Pricing, Footer)",
+              "Build component library incrementally with validation at each step"
+            ],
+            "deliverables": [
+              "10-20 validated, production-ready components",
+              "Visual component preview board",
+              "Zero TypeScript/ESLint/build errors guaranteed",
+              "Component tests passing (100% coverage on generated code)",
+              "Component documentation auto-generated"
+            ],
+            "successCriteria": "All components validated and visible in preview board with zero errors"
+          },
+          {
+            "phase": 2,
+            "name": "AI-Powered Application Scaffolding",
+            "duration": "2-3 days",
+            "description": "Use Claude Agent SDK to detect components and generate intelligent integration layer",
+            "tasks": [
+              "Run mycontext build-app --interactive --complete-architecture",
+              "Claude Agent SDK detects existing validated components automatically",
+              "AI analyzes component names and groups (LoginForm → authentication)",
+              "AI maps components to Next.js routes intelligently (LoginForm → /login)",
+              "Generate server actions for component interactions (authenticateUser, createUser)",
+              "Generate custom hooks for shared logic (useAuth, useForm, useDashboard)",
+              "Create layouts for component grouping (AuthLayout, DashboardLayout)",
+              "Wire up routing, navigation, and state management",
+              "Validate scaffolding with build checks"
+            ],
+            "deliverables": [
+              "Complete Next.js App Router structure (app/, actions/, hooks/)",
+              "Routes generated for page components with proper layouts",
+              "Server actions integrated with type-safe interfaces",
+              "Custom hooks created for reusable logic",
+              "Layouts applied with proper component composition",
+              "Zero-error scaffolding guaranteed"
+            ],
+            "successCriteria": "Application scaffolding complete, all components integrated, app runs with zero errors"
+          },
+          {
+            "phase": 3,
+            "name": "Customization & Production Deployment",
+            "duration": "3-5 days",
+            "description": "Customize generated components for your unique use case and deploy to production",
+            "tasks": [
+              "Customize business logic in server actions (payment flows, data validation)",
+              "Adjust styling and branding (colors, fonts, logos)",
+              "Add unique product features (the 30% that makes your app special)",
+              "Integrate third-party services (Stripe, SendGrid, analytics)",
+              "Performance optimization (image optimization, code splitting)",
+              "Security hardening (rate limiting, input sanitization)",
+              "Final end-to-end testing",
+              "Deploy to Vercel/Netlify/self-hosted",
+              "Set up monitoring and analytics"
+            ],
+            "deliverables": [
+              "Fully customized application with unique features",
+              "Production-ready deployment",
+              "Monitoring and analytics configured",
+              "Documentation for maintenance"
+            ],
+            "successCriteria": "Application deployed, serving users, monitoring active"
+          }
+        ],
+        "pros": [
+          "Extremely fast - ship MVPs in 7-15 days, not months",
+          "Visual feedback from day 1 with component preview board",
+          "Zero-error components guaranteed before integration (TypeScript, ESLint, build)",
+          "Claude Agent SDK intelligently reuses and maps components to routes",
+          "Perfect for MVPs, internal tools, and rapid validation",
+          "Component library reusable across multiple projects",
+          "Focus on the 30% that's unique, not the 70% that's universal",
+          "Lower cost - generate standard patterns, pay developers for unique features"
+        ],
+        "cons": [
+          "Best for standard patterns, not highly custom UIs (Figma, Notion)",
+          "Requires customization for unique business logic (your competitive advantage)",
+          "May need refactoring for complex domain-specific integrations",
+          "Not ideal for apps where custom design IS the product"
+        ],
+        "workflow": {
+          "day1-2": "Generate 5-10 core components, preview in browser",
+          "day3-5": "Generate remaining components, validate all with tests",
+          "day6-7": "Run build-app, Claude maps components to routes, scaffolding generated",
+          "day8-12": "Customize business logic, add unique features",
+          "day13-15": "Testing, deployment, monitoring setup"
+        },
+        "cliCommands": [
+          "mycontext init my-app",
+          "mycontext generate-components LoginForm --with-tests",
+          "mycontext generate-components Dashboard --with-tests",
+          "mycontext preview components",
+          "mycontext build-app --interactive --complete-architecture",
+          "npm run build && vercel deploy"
+        ]
+      },
+      {
+        "id": "foundation-first",
+        "name": "Foundation First",
+        "description": "Start with authentication, core setup, and architecture before building features",
+        "icon": "🏗️",
+        "complexity": "medium",
+        "timeToFirstDemo": "2-3 weeks",
+        "bestFor": ["multi-user apps", "enterprise projects", "client work"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Core Infrastructure",
+            "duration": "1-2 weeks",
+            "description": "Set up the foundational systems",
+            "tasks": [
+              "Project setup (Next.js, TypeScript, Tailwind)",
+              "Database schema and migrations",
+              "Authentication system (NextAuth/Auth0/Clerk)",
+              "User roles and permissions",
+              "API structure and middleware",
+              "Basic routing and navigation",
+              "State management (Zustand/Redux)",
+              "Environment configuration"
+            ],
+            "deliverables": [
+              "Working authentication flow",
+              "Basic database structure",
+              "API endpoints skeleton",
+              "Protected routes working"
+            ],
+            "successCriteria": "User can sign up, log in, and access protected areas"
+          },
+          {
+            "phase": 2,
+            "name": "Core Features",
+            "duration": "2-3 weeks",
+            "description": "Build essential user-facing features",
+            "tasks": [
+              "User dashboard/profile",
+              "Core CRUD operations",
+              "Basic UI components",
+              "Data validation",
+              "Error handling",
+              "Loading states"
+            ],
+            "deliverables": [
+              "Functional user dashboard",
+              "Basic data management",
+              "Consistent UI patterns"
+            ],
+            "successCriteria": "Core user workflows are functional"
+          },
+          {
+            "phase": 3,
+            "name": "Feature Expansion",
+            "duration": "3-4 weeks",
+            "description": "Add remaining features systematically",
+            "tasks": [
+              "Advanced features",
+              "Integrations",
+              "Performance optimization",
+              "Testing coverage",
+              "Documentation"
+            ],
+            "deliverables": [
+              "Complete feature set",
+              "Optimized performance",
+              "Comprehensive tests"
+            ],
+            "successCriteria": "All planned features are working and tested"
+          }
+        ],
+        "pros": [
+          "Solid foundation prevents technical debt",
+          "Clear architecture from the start",
+          "Easier to add features later",
+          "Professional approach for clients"
+        ],
+        "cons": [
+          "Slower initial progress",
+          "Less visual feedback early",
+          "May feel slow for solo projects"
+        ]
+      },
+      {
+        "id": "vertical-slice",
+        "name": "Vertical Slice (User Journey)",
+        "description": "Build one complete user flow end-to-end before moving to other features",
+        "icon": "🎯",
+        "complexity": "medium",
+        "timeToFirstDemo": "1-2 weeks",
+        "bestFor": ["client demos", "MVP development", "user-focused apps"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Primary User Journey",
+            "duration": "1-2 weeks",
+            "description": "Complete one user flow from start to finish",
+            "tasks": [
+              "Choose primary user role (e.g., customer, admin)",
+              "Map complete user journey",
+              "Build authentication for this user",
+              "Create all pages in the journey",
+              "Implement all backend logic",
+              "Connect frontend to backend",
+              "Add data validation",
+              "Test complete flow"
+            ],
+            "deliverables": [
+              "Complete user onboarding flow",
+              "Functional dashboard",
+              "Core user actions working",
+              "End-to-end user experience"
+            ],
+            "successCriteria": "Primary user can complete their main workflow"
+          },
+          {
+            "phase": 2,
+            "name": "Secondary User Journeys",
+            "duration": "2-3 weeks",
+            "description": "Build additional user roles and flows",
+            "tasks": [
+              "Add secondary user roles",
+              "Build their complete journeys",
+              "Implement role-based permissions",
+              "Add cross-user interactions",
+              "Polish user experience"
+            ],
+            "deliverables": [
+              "Multiple user roles working",
+              "Role-based access control",
+              "Cross-user functionality"
+            ],
+            "successCriteria": "All user types can complete their workflows"
+          },
+          {
+            "phase": 3,
+            "name": "Feature Enhancement",
+            "duration": "2-3 weeks",
+            "description": "Add advanced features and polish",
+            "tasks": [
+              "Advanced features",
+              "Performance optimization",
+              "UI/UX improvements",
+              "Analytics and monitoring",
+              "Testing and documentation"
+            ],
+            "deliverables": [
+              "Enhanced user experience",
+              "Performance optimizations",
+              "Comprehensive testing"
+            ],
+            "successCriteria": "Production-ready application"
+          }
+        ],
+        "pros": [
+          "Quick demo-able results",
+          "Tests entire stack early",
+          "Reveals integration issues",
+          "Great for client feedback"
+        ],
+        "cons": [
+          "Other features remain untouched",
+          "May need refactoring later",
+          "Harder to parallelize work"
+        ]
+      },
+      {
+        "id": "horizontal-slice",
+        "name": "Horizontal Slice (Feature by Feature)",
+        "description": "Build complete features/modules one at a time across the entire app",
+        "icon": "📦",
+        "complexity": "low",
+        "timeToFirstDemo": "1-2 weeks",
+        "bestFor": ["modular apps", "team development", "well-defined features"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Core Module",
+            "duration": "1-2 weeks",
+            "description": "Build the most essential feature completely",
+            "tasks": [
+              "Choose core feature (e.g., user management)",
+              "Design feature architecture",
+              "Build frontend components",
+              "Implement backend logic",
+              "Add database operations",
+              "Create API endpoints",
+              "Add validation and error handling",
+              "Write tests"
+            ],
+            "deliverables": [
+              "Complete feature module",
+              "Frontend and backend integration",
+              "Database operations",
+              "Comprehensive testing"
+            ],
+            "successCriteria": "Core feature is fully functional and tested"
+          },
+          {
+            "phase": 2,
+            "name": "Secondary Modules",
+            "duration": "2-4 weeks",
+            "description": "Build remaining features systematically",
+            "tasks": [
+              "Build next priority feature",
+              "Ensure module integration",
+              "Add cross-module functionality",
+              "Implement shared components",
+              "Add feature-specific permissions"
+            ],
+            "deliverables": [
+              "Multiple feature modules",
+              "Integrated functionality",
+              "Shared component library"
+            ],
+            "successCriteria": "All planned features are complete"
+          },
+          {
+            "phase": 3,
+            "name": "Integration & Polish",
+            "duration": "1-2 weeks",
+            "description": "Connect all modules and polish the experience",
+            "tasks": [
+              "Cross-module integration",
+              "Global state management",
+              "Navigation between features",
+              "Performance optimization",
+              "UI consistency",
+              "Final testing"
+            ],
+            "deliverables": [
+              "Fully integrated application",
+              "Consistent user experience",
+              "Performance optimizations"
+            ],
+            "successCriteria": "Seamless experience across all features"
+          }
+        ],
+        "pros": [
+          "Clear feature boundaries",
+          "Easy to parallelize development",
+          "Modular architecture",
+          "Good for team collaboration"
+        ],
+        "cons": [
+          "Features may not integrate well",
+          "Delayed end-to-end testing",
+          "May need refactoring for integration"
+        ]
+      },
+      {
+        "id": "iterative-scaffolding",
+        "name": "Iterative Scaffolding",
+        "description": "Create placeholders for all major components, then flesh them out gradually",
+        "icon": "🚀",
+        "complexity": "low",
+        "timeToFirstDemo": "3-5 days",
+        "bestFor": ["personal projects", "rapid prototyping", "learning projects"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Quick Scaffolding",
+            "duration": "3-5 days",
+            "description": "Create skeleton for entire application",
+            "tasks": [
+              "Set up basic project structure",
+              "Create placeholder pages",
+              "Add basic routing",
+              "Create component skeletons",
+              "Add placeholder data",
+              "Set up basic styling",
+              "Create navigation structure"
+            ],
+            "deliverables": [
+              "Complete app skeleton",
+              "All pages accessible",
+              "Basic navigation working",
+              "Visual app structure"
+            ],
+            "successCriteria": "Can navigate through entire app structure"
+          },
+          {
+            "phase": 2,
+            "name": "Feature Fleshing",
+            "duration": "2-3 weeks",
+            "description": "Gradually implement real functionality",
+            "tasks": [
+              "Replace placeholders with real components",
+              "Add actual data handling",
+              "Implement user interactions",
+              "Add form validation",
+              "Connect to backend",
+              "Add error handling"
+            ],
+            "deliverables": [
+              "Functional components",
+              "Real data integration",
+              "User interactions working"
+            ],
+            "successCriteria": "Core functionality is working"
+          },
+          {
+            "phase": 3,
+            "name": "Polish & Optimization",
+            "duration": "1-2 weeks",
+            "description": "Refine and optimize the application",
+            "tasks": [
+              "UI/UX improvements",
+              "Performance optimization",
+              "Code refactoring",
+              "Testing implementation",
+              "Documentation",
+              "Bug fixes"
+            ],
+            "deliverables": [
+              "Polished user experience",
+              "Optimized performance",
+              "Clean, tested code"
+            ],
+            "successCriteria": "Production-ready application"
+          }
+        ],
+        "pros": [
+          "Quick visual progress",
+          "See full app structure early",
+          "Flexible development approach",
+          "Good for experimentation"
+        ],
+        "cons": [
+          "Many half-done features",
+          "Can feel messy initially",
+          "May need significant refactoring",
+          "Harder to maintain momentum"
+        ]
+      },
+      {
+        "id": "hybrid-approach",
+        "name": "Hybrid Approach",
+        "description": "Combine foundation-first with vertical slicing for optimal results",
+        "icon": "🎯",
+        "complexity": "high",
+        "timeToFirstDemo": "1-2 weeks",
+        "bestFor": ["complex applications", "client projects", "production apps"],
+        "phases": [
+          {
+            "phase": 1,
+            "name": "Foundation + Primary Journey",
+            "duration": "1-2 weeks",
+            "description": "Set up foundation and build one complete user flow",
+            "tasks": [
+              "Set up core infrastructure",
+              "Implement authentication",
+              "Choose primary user journey",
+              "Build complete user flow",
+              "Add basic error handling",
+              "Test end-to-end flow"
+            ],
+            "deliverables": [
+              "Solid foundation",
+              "Complete primary user journey",
+              "Working authentication",
+              "Basic error handling"
+            ],
+            "successCriteria": "Foundation is solid and primary user can complete their workflow"
+          },
+          {
+            "phase": 2,
+            "name": "Feature Expansion",
+            "duration": "2-3 weeks",
+            "description": "Add remaining features systematically",
+            "tasks": [
+              "Add secondary user roles",
+              "Build remaining features",
+              "Implement cross-feature functionality",
+              "Add advanced features",
+              "Optimize performance"
+            ],
+            "deliverables": [
+              "Multiple user roles",
+              "Complete feature set",
+              "Integrated functionality"
+            ],
+            "successCriteria": "All planned features are working"
+          },
+          {
+            "phase": 3,
+            "name": "Production Readiness",
+            "duration": "1-2 weeks",
+            "description": "Polish and prepare for production",
+            "tasks": [
+              "Comprehensive testing",
+              "Performance optimization",
+              "Security hardening",
+              "Documentation",
+              "Deployment preparation"
+            ],
+            "deliverables": [
+              "Production-ready application",
+              "Comprehensive testing",
+              "Security measures",
+              "Deployment configuration"
+            ],
+            "successCriteria": "Application is ready for production deployment"
+          }
+        ],
+        "pros": [
+          "Best of both worlds",
+          "Solid foundation with quick progress",
+          "Professional approach",
+          "Reduces technical debt"
+        ],
+        "cons": [
+          "More complex to plan",
+          "Requires careful coordination",
+          "May take longer initially"
+        ]
+      }
+    ],
+    "decisionMatrix": {
+      "mvpDevelopment": {
+        "recommended": ["component-first"],
+        "alternatives": ["vertical-slice", "iterative-scaffolding"],
+        "reasoning": "MVPs need speed and validation. Component-first gets you to production in 7-15 days with zero-error guarantees. Perfect for testing ideas quickly."
+      },
+      "rapidPrototyping": {
+        "recommended": ["component-first"],
+        "alternatives": ["iterative-scaffolding"],
+        "reasoning": "Component-first is specifically designed for rapid iteration with visual preview and automatic validation."
+      },
+      "personalProjects": {
+        "recommended": ["component-first", "iterative-scaffolding"],
+        "alternatives": ["horizontal-slice"],
+        "reasoning": "Personal projects benefit from speed, visual feedback, and component reusability. Component-first provides all three."
+      },
+      "internalTools": {
+        "recommended": ["component-first"],
+        "alternatives": ["horizontal-slice"],
+        "reasoning": "Internal tools follow standard patterns (auth, CRUD, dashboards). Component-first generates these in days."
+      },
+      "clientWork": {
+        "recommended": ["component-first", "vertical-slice"],
+        "alternatives": ["foundation-first", "hybrid-approach"],
+        "reasoning": "Clients need to see progress fast. Component-first delivers visual demos in days. Use foundation-first for complex enterprise clients."
+      },
+      "teamDevelopment": {
+        "recommended": ["horizontal-slice", "hybrid-approach"],
+        "alternatives": ["component-first"],
+        "reasoning": "Teams can work in parallel on different features. Component-first works for small teams building standard patterns."
+      },
+      "enterpriseApplications": {
+        "recommended": ["foundation-first", "hybrid-approach"],
+        "alternatives": ["component-first"],
+        "reasoning": "Enterprise apps with complex domains need solid architecture. Use component-first for admin dashboards and internal tools."
+      },
+      "standardPatterns": {
+        "recommended": ["component-first"],
+        "alternatives": [],
+        "reasoning": "Apps built on standard patterns (auth, dashboards, CRUD, settings) are PERFECT for component-first. The 70/30 rule applies."
+      },
+      "uniqueCustomUI": {
+        "recommended": ["foundation-first", "vertical-slice"],
+        "alternatives": [],
+        "reasoning": "Apps where custom UI IS the product (Figma, Notion) need full control. Component-first is NOT ideal here."
+      }
+    },
+    "contextualFactors": {
+      "appComplexity": {
+        "simple": ["component-first", "iterative-scaffolding"],
+        "medium": ["component-first", "vertical-slice", "hybrid-approach"],
+        "complex": ["foundation-first", "hybrid-approach"]
+      },
+      "userRoles": {
+        "single": ["component-first", "horizontal-slice"],
+        "multiple": ["component-first", "vertical-slice", "hybrid-approach"]
+      },
+      "timeline": {
+        "urgent": ["component-first", "iterative-scaffolding"],
+        "moderate": ["component-first", "horizontal-slice"],
+        "flexible": ["foundation-first", "hybrid-approach"]
+      },
+      "teamSize": {
+        "solo": ["component-first", "iterative-scaffolding"],
+        "small": ["component-first", "horizontal-slice"],
+        "large": ["foundation-first", "horizontal-slice"]
+      },
+      "patternType": {
+        "standardPatterns": ["component-first"],
+        "mixedPatterns": ["component-first", "vertical-slice"],
+        "customPatterns": ["foundation-first", "hybrid-approach"]
+      },
+      "developmentGoal": {
+        "rapidValidation": ["component-first"],
+        "productionMVP": ["component-first", "vertical-slice"],
+        "enterpriseGrade": ["foundation-first", "hybrid-approach"]
+      }
+    },
+    "implementationGuidance": {
+      "beforeStarting": [
+        "Analyze your app's complexity and user roles",
+        "Consider your timeline and team constraints",
+        "Choose strategy based on decision matrix",
+        "Plan phases and milestones",
+        "Set up project tracking"
+      ],
+      "duringDevelopment": [
+        "Stick to chosen strategy initially",
+        "Adjust if major issues arise",
+        "Track progress against milestones",
+        "Get feedback early and often",
+        "Document decisions and changes"
+      ],
+      "commonPitfalls": [
+        "Switching strategies mid-project",
+        "Over-engineering early features",
+        "Under-estimating integration complexity",
+        "Skipping testing and validation",
+        "Not getting user feedback early"
+      ]
+    }
+  }
+}
