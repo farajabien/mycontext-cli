@@ -245,7 +245,10 @@ Return a JSON object with this structure:
     let match;
     while ((match = interfaceRegex.exec(typesContent)) !== null) {
       const name = match[1];
-      const properties = match[2]
+      const body = match[2];
+      if (!body) continue;
+
+      const properties = body
         .split("\n")
         .map((line) => line.trim())
         .filter((line) => line && !line.startsWith("//"))

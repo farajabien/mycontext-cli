@@ -246,7 +246,7 @@ Make sure each todo is:
       const todos = [];
 
       for (let i = 0; i < Math.min(lines.length, 10); i++) {
-        const line = lines[i].trim();
+        const line = lines[i]?.trim() || "";
         if (line && !line.startsWith("#") && !line.startsWith("*")) {
           todos.push({
             title: line.substring(0, 60),

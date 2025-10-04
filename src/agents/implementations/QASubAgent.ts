@@ -11,7 +11,7 @@ import {
   QAValidationInput,
   QAValidationOutput,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 
 export class QASubAgent
   implements SubAgent<QAValidationInput, QAValidationOutput>

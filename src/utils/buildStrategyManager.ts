@@ -288,7 +288,7 @@ export class BuildStrategyManager {
         return null;
       })
       .filter(Boolean)
-      .sort((a, b) => b!.date.localeCompare(a!.date));
+      .sort((a, b) => (b?.date || "").localeCompare(a?.date || ""));
 
     return strategyFiles as Array<{
       type: string;
@@ -308,7 +308,9 @@ export class BuildStrategyManager {
 PROJECT CONTEXT:
 - Name: ${context.projectName}
 - Description: ${context.description}
-- Components: ${context.components.length} found (${context.components.join(", ")})
+- Components: ${context.components.length} found (${context.components.join(
+      ", "
+    )})
 - User Roles: ${context.userRoles.join(", ")}
 - Tech Stack: ${context.techStack.join(", ")}
 

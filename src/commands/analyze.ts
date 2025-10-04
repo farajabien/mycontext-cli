@@ -486,15 +486,15 @@ export class AnalyzeCommand {
   private extractComponentName(content: string, fileName: string): string {
     // Try to extract from function declaration
     const functionMatch = content.match(/function\s+(\w+)/);
-    if (functionMatch) return functionMatch[1];
+    if (functionMatch && functionMatch[1]) return functionMatch[1];
 
     // Try to extract from const declaration
     const constMatch = content.match(/const\s+(\w+)\s*=/);
-    if (constMatch) return constMatch[1];
+    if (constMatch && constMatch[1]) return constMatch[1];
 
     // Try to extract from export default
     const exportMatch = content.match(/export\s+default\s+(\w+)/);
-    if (exportMatch) return exportMatch[1];
+    if (exportMatch && exportMatch[1]) return exportMatch[1];
 
     // Fallback to filename
     return fileName.charAt(0).toUpperCase() + fileName.slice(1);
@@ -507,7 +507,7 @@ export class AnalyzeCommand {
     const interfaceMatch = content.match(
       /interface\s+(\w+)Props\s*\{([^}]+)\}/
     );
-    if (interfaceMatch) {
+    if (interfaceMatch && interfaceMatch[2]) {
       const propsContent = interfaceMatch[2];
       const propMatches = propsContent.match(/(\w+)\s*:/g);
       if (propMatches) {
@@ -519,7 +519,7 @@ export class AnalyzeCommand {
 
     // Extract from function parameters
     const functionMatch = content.match(/function\s+\w+\s*\(\s*\{([^}]+)\}/);
-    if (functionMatch) {
+    if (functionMatch && functionMatch[1]) {
       const paramsContent = functionMatch[1];
       const paramMatches = paramsContent.match(/(\w+)/g);
       if (paramMatches) {
@@ -542,7 +542,7 @@ export class AnalyzeCommand {
         ...importMatches
           .map((match) => {
             const fromMatch = match.match(/from\s+['"]([^'"]+)['"]/);
-            return fromMatch ? fromMatch[1] : "";
+            return fromMatch && fromMatch[1] ? fromMatch[1] : "";
           })
           .filter(Boolean)
       );
@@ -630,14 +630,15 @@ export class AnalyzeCommand {
         interfaceMatches.forEach((match) => {
           const nameMatch = match.match(/interface\s+(\w+)/);
           const propsMatch = match.match(/\{([^}]+)\}/);
-          if (nameMatch) {
+          if (nameMatch && nameMatch[1]) {
             types.push({
               name: nameMatch[1],
               type: "interface",
               path: filePath,
-              properties: propsMatch
-                ? propsMatch[1].split(",").map((p) => p.trim())
-                : [],
+              properties:
+                propsMatch && propsMatch[1]
+                  ? propsMatch[1].split(",").map((p) => p.trim())
+                  : [],
               isExported: true,
               isGeneric: match.includes("<"),
             });
@@ -650,7 +651,7 @@ export class AnalyzeCommand {
       if (typeMatches) {
         typeMatches.forEach((match) => {
           const nameMatch = match.match(/type\s+(\w+)/);
-          if (nameMatch) {
+          if (nameMatch && nameMatch[1]) {
             types.push({
               name: nameMatch[1],
               type: "type",
@@ -1247,24 +1248,21 @@ ${
 
   private generateComponentList(analysis: ProjectAnalysis): string {
     const componentList = {
-      groups: analysis.components.reduce(
-        (acc, component) => {
-          const group = component.group || "default";
-          if (!acc[group]) {
-            acc[group] = [];
-          }
-          acc[group].push({
-            name: component.name,
-            description: `${component.type} component`,
-            type: component.type,
-            priority: "medium",
-            dependencies: component.dependencies,
-            tags: [component.type, component.isClient ? "client" : "server"],
-          });
-          return acc;
-        },
-        {} as Record<string, any[]>
-      ),
+      groups: analysis.components.reduce((acc, component) => {
+        const group = component.group || "default";
+        if (!acc[group]) {
+          acc[group] = [];
+        }
+        acc[group].push({
+          name: component.name,
+          description: `${component.type} component`,
+          type: component.type,
+          priority: "medium",
+          dependencies: component.dependencies,
+          tags: [component.type, component.isClient ? "client" : "server"],
+        });
+        return acc;
+      }, {} as Record<string, any[]>),
     };
 
     return JSON.stringify(componentList, null, 2);

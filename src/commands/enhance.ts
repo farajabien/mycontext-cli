@@ -7,7 +7,7 @@ import path from "path";
 import { EnhancedSpinner } from "../utils/spinner";
 import { EnhancementAgent } from "../agents/implementations/EnhancementAgent";
 import { ContextLoader } from "../utils/contextLoader";
-import { getAgentClient } from "../utils/aiClientFactory";
+// import { getAgentClient } from "../utils/aiClientFactory";
 // import { usageTracker } from "../../lib/analytics/usage-tracker";
 
 export interface EnhancementOptions {
@@ -42,7 +42,7 @@ export class EnhanceCommand {
       const contextLoader = new ContextLoader();
       const projectContext = await contextLoader.loadProjectContext({
         verbose: options.verbose || false,
-        required: false
+        required: false,
       });
 
       if (options.verbose) {
@@ -89,87 +89,21 @@ export class EnhanceCommand {
     spinner: EnhancedSpinner
   ): Promise<any> {
     // Get Agent SDK client
-    const agentClient = await getAgentClient();
-
-    // Build context for enhancement
-    const enhancementPrompt = `
-Refactor and enhance the following React component:
-
-Component Name: ${componentName}
-
-Current Code:
-\`\`\`tsx
-${componentCode}
-\`\`\`
-
-Enhancement Requirements:
-${prompt}
-
-Please provide:
-1. Enhanced component code with improvements
-2. List of changes made
-3. Quality score (0-100)
-4. Accessibility suggestions
-5. Performance suggestions
-
-Focus on:
-- Clean code principles
-- React best practices
-- TypeScript type safety
-- Performance optimizations
-- Accessibility improvements
-`;
-
-    // Use refactoring agent with streaming
-    spinner.updateText('🤖 Using refactoring agent...');
-
-    const result = await agentClient.useAgent(
-      'refactoring',
-      enhancementPrompt,
-      {
-        workingDirectory: process.cwd(),
-      },
-      {
-        model: 'claude-3-5-sonnet-20241022',
-        temperature: options.temperature || 0.2,
-        maxTokens: options.maxTokens || 4000,
-      }
+    // const agentClient = await getAgentClient();
+    // DISABLED: Agent client is not available
+    throw new Error(
+      "Agent client is disabled - use standard enhancement instead"
     );
-
-    // Parse the response
-    const enhancedCode = this.extractCodeFromResponse(result.content);
-    const changes = this.parseChangesFromResponse(result.content);
-    const score = this.parseScoreFromResponse(result.content);
-    const suggestions = this.parseSuggestionsFromResponse(result.content);
-
-    return {
-      enhancedComponent: enhancedCode || componentCode,
-      originalComponent: componentCode,
-      validation: {
-        score: score,
-        isValid: true,
-        errors: [],
-        warnings: [],
-      },
-      changes: {
-        totalChanges: changes.length,
-        addedLines: changes.filter((c: any) => c.type === 'add').length,
-        removedLines: changes.filter((c: any) => c.type === 'remove').length,
-        modifiedLines: changes.filter((c: any) => c.type === 'modify').length,
-      },
-      suggestions: {
-        accessibility: suggestions.accessibility || [],
-        performance: suggestions.performance || [],
-      },
-    };
   }
 
   /**
    * Extract code from agent response
    */
   private extractCodeFromResponse(response: string): string | null {
-    const codeBlockMatch = response.match(/```(?:tsx?|typescript|jsx?)\n([\s\S]*?)\n```/);
-    return codeBlockMatch ? codeBlockMatch[1] : null;
+    const codeBlockMatch = response.match(
+      /```(?:tsx?|typescript|jsx?)\n([\s\S]*?)\n```/
+    );
+    return codeBlockMatch ? codeBlockMatch[1] || null : null;
   }
 
   /**
@@ -177,13 +111,18 @@ Focus on:
    */
   private parseChangesFromResponse(response: string): any[] {
     const changes: any[] = [];
-    const changesSection = response.match(/changes made:?\n([\s\S]*?)(?:\n\n|quality score)/i);
+    const changesSection = response.match(
+      /changes made:?\n([\s\S]*?)(?:\n\n|quality score)/i
+    );
 
     if (changesSection) {
-      const lines = changesSection[1].split('\n');
-      lines.forEach(line => {
-        if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-          changes.push({ type: 'modify', description: line.trim().substring(1).trim() });
+      const lines = changesSection[1]?.split("\n") || [];
+      lines.forEach((line) => {
+        if (line.trim().startsWith("-") || line.trim().startsWith("•")) {
+          changes.push({
+            type: "modify",
+            description: line.trim().substring(1).trim(),
+          });
         }
       });
     }
@@ -196,22 +135,27 @@ Focus on:
    */
   private parseScoreFromResponse(response: string): number {
     const scoreMatch = response.match(/quality score:?\s*(\d+)/i);
-    return scoreMatch ? parseInt(scoreMatch[1]) : 85;
+    return scoreMatch ? parseInt(scoreMatch[1] || "85") : 85;
   }
 
   /**
    * Parse suggestions from response
    */
   private parseSuggestionsFromResponse(response: string): any {
-    const accessibilityMatch = response.match(/accessibility suggestions?:?\n([\s\S]*?)(?:\n\n|performance)/i);
-    const performanceMatch = response.match(/performance suggestions?:?\n([\s\S]*?)(?:\n\n|$)/i);
+    const accessibilityMatch = response.match(
+      /accessibility suggestions?:?\n([\s\S]*?)(?:\n\n|performance)/i
+    );
+    const performanceMatch = response.match(
+      /performance suggestions?:?\n([\s\S]*?)(?:\n\n|$)/i
+    );
 
     const parseSuggestions = (text: string | undefined): string[] => {
       if (!text) return [];
-      return text.split('\n')
-        .map(line => line.trim())
-        .filter(line => line.startsWith('-') || line.startsWith('•'))
-        .map(line => line.substring(1).trim());
+      return text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith("-") || line.startsWith("•"))
+        .map((line) => line.substring(1).trim());
     };
 
     return {
@@ -266,7 +210,11 @@ Focus on:
           spinner
         );
       } catch (error) {
-        console.log(chalk.yellow('⚠️  Agent SDK failed, falling back to standard enhancement'));
+        console.log(
+          chalk.yellow(
+            "⚠️  Agent SDK failed, falling back to standard enhancement"
+          )
+        );
         // Fallback to standard enhancement
         result = await this.enhancementAgent.run({
           currentComponent: componentCode,
@@ -681,7 +629,7 @@ Focus on:
         const match = imp.match(/from\s+['"]([^'"]+)['"]/);
         return match ? match[1] : "";
       })
-      .filter(Boolean);
+      .filter((item): item is string => Boolean(item));
   }
 
   /**
@@ -692,6 +640,7 @@ Focus on:
     if (!propsMatch) return null;
 
     const propsText = propsMatch[2];
+    if (!propsText) return [];
     const props = propsText
       .split("\n")
       .map((line) => line.trim())
@@ -701,7 +650,7 @@ Focus on:
         if (propMatch) {
           return {
             name: propMatch[1],
-            type: propMatch[2].trim(),
+            type: propMatch[2]?.trim() || "any",
             required: !line.includes("?"),
           };
         }

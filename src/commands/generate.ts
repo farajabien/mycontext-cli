@@ -4,7 +4,7 @@ import path from "path";
 import { EnhancedSpinner } from "../utils/spinner";
 import { FileSystemManager } from "../utils/fileSystem";
 import { HybridAIClient } from "../utils/hybridAIClient";
-import { GitHubModelsClient } from "../utils/githubModelsClient";
+// import { GitHubModelsClient } from "../utils/githubModelsClient";
 import { HostedApiClient } from "../utils/hostedApiClient";
 import { CommandOptions, GenerationOptions, GenerationResult } from "../types";
 import * as fs from "fs-extra";
@@ -145,13 +145,13 @@ export class GenerateCommand {
       // Auto-discover GitHub Models as default candidates when none provided
       if (!this.getModelCandidates(options)) {
         try {
-          const gh = new GitHubModelsClient();
-          if (gh.hasApiKey()) {
-            const list = await gh.listModels();
-            if (Array.isArray(list) && list.length) {
-              (options as any)._autoModelCandidates = list.slice(0, 4);
-            }
-          }
+          const gh = null;
+          // if (gh && gh.hasApiKey()) {
+          //   const list = await gh.listModels();
+          //   if (Array.isArray(list) && list.length) {
+          //     (options as any)._autoModelCandidates = list.slice(0, 4);
+          //   }
+          // }
         } catch {}
       }
 
@@ -2490,7 +2490,10 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       // Attach rich context so JSON alone is enough for component generation
       try {
         console.log(
-          `[GenerateCommand] Attempting to parse cleaned content (first 200 chars): ${cleanedContent.slice(0, 200)}...`
+          `[GenerateCommand] Attempting to parse cleaned content (first 200 chars): ${cleanedContent.slice(
+            0,
+            200
+          )}...`
         );
         const obj = JSON.parse(cleanedContent);
         return {
@@ -2505,10 +2508,15 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
         };
       } catch (error) {
         console.log(
-          `[GenerateCommand] JSON.parse failed: ${error instanceof Error ? error.message : String(error)}`
+          `[GenerateCommand] JSON.parse failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`
         );
         console.log(
-          `[GenerateCommand] Content that failed to parse: ${cleanedContent.slice(0, 500)}...`
+          `[GenerateCommand] Content that failed to parse: ${cleanedContent.slice(
+            0,
+            500
+          )}...`
         );
 
         // Check if this looks like a non-JSON response
@@ -2517,7 +2525,10 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
           !cleanedContent.trim().startsWith("[")
         ) {
           throw new Error(
-            `AI returned plain text instead of JSON. Response: "${cleanedContent.slice(0, 200)}..."`
+            `AI returned plain text instead of JSON. Response: "${cleanedContent.slice(
+              0,
+              200
+            )}..."`
           );
         }
 
@@ -3736,7 +3747,10 @@ export function Typography({ variant, children, className }: TypographyProps) {
   private extractJson(raw: string): string {
     // Log the raw response for debugging
     console.log(
-      `[GenerateCommand] Raw AI response (first 200 chars): ${raw.slice(0, 200)}...`
+      `[GenerateCommand] Raw AI response (first 200 chars): ${raw.slice(
+        0,
+        200
+      )}...`
     );
 
     // 1) Prefer fenced json block
@@ -3748,7 +3762,9 @@ export function Typography({ variant, children, className }: TypographyProps) {
         return JSON.stringify(parsed, null, 2);
       } catch (error) {
         console.log(
-          `[GenerateCommand] Failed to parse fenced JSON: ${error instanceof Error ? error.message : String(error)}`
+          `[GenerateCommand] Failed to parse fenced JSON: ${
+            error instanceof Error ? error.message : String(error)
+          }`
         );
       }
     }
@@ -3762,7 +3778,9 @@ export function Typography({ variant, children, className }: TypographyProps) {
         return JSON.stringify(parsed, null, 2);
       } catch (error) {
         console.log(
-          `[GenerateCommand] Failed to parse any fenced block: ${error instanceof Error ? error.message : String(error)}`
+          `[GenerateCommand] Failed to parse any fenced block: ${
+            error instanceof Error ? error.message : String(error)
+          }`
         );
       }
     }
@@ -3777,7 +3795,9 @@ export function Typography({ variant, children, className }: TypographyProps) {
         return JSON.stringify(parsed, null, 2);
       } catch (error) {
         console.log(
-          `[GenerateCommand] Failed to parse JSON slice: ${error instanceof Error ? error.message : String(error)}`
+          `[GenerateCommand] Failed to parse JSON slice: ${
+            error instanceof Error ? error.message : String(error)
+          }`
         );
       }
     }
@@ -3785,10 +3805,14 @@ export function Typography({ variant, children, className }: TypographyProps) {
     // 4) Check if response looks like plain text (not JSON)
     if (!raw.trim().startsWith("{") && !raw.trim().startsWith("[")) {
       console.log(
-        `[GenerateCommand] AI returned plain text instead of JSON. Response starts with: "${raw.trim().slice(0, 50)}..."`
+        `[GenerateCommand] AI returned plain text instead of JSON. Response starts with: "${raw
+          .trim()
+          .slice(0, 50)}..."`
       );
       throw new Error(
-        `AI returned plain text instead of JSON. Response: "${raw.trim().slice(0, 100)}..."`
+        `AI returned plain text instead of JSON. Response: "${raw
+          .trim()
+          .slice(0, 100)}..."`
       );
     }
 
@@ -3950,7 +3974,10 @@ export function Typography({ variant, children, className }: TypographyProps) {
   private repairJson(raw: string): string {
     // Log what we're trying to repair
     console.log(
-      `[GenerateCommand] Repairing JSON input (first 100 chars): ${raw.slice(0, 100)}...`
+      `[GenerateCommand] Repairing JSON input (first 100 chars): ${raw.slice(
+        0,
+        100
+      )}...`
     );
 
     // Check if input looks like plain text (not JSON)
@@ -4220,29 +4247,29 @@ ${
     if (!raw) {
       // Default discovery path: ask GitHub client for models and pick a few good ones
       try {
-        const { GitHubModelsClient } = require("../utils/githubModelsClient");
-        const gh = new GitHubModelsClient();
-        if (gh.hasApiKey()) {
-          // Note: this is sync invocation within options compute; OK to block briefly
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const deasync = require("deasync");
-          let list: string[] = [];
-          let done = false;
-          gh.listModels()
-            .then((m: string[]) => {
-              list = m;
-              done = true;
-            })
-            .catch(() => {
-              done = true;
-            });
-          while (!done) {
-            deasync.sleep(50);
-          }
-          if (list.length) {
-            return list.slice(0, 4);
-          }
-        }
+        // const { GitHubModelsClient } = require("../utils/githubModelsClient");
+        const gh = null;
+        // if (gh && gh.hasApiKey()) {
+        // Note: this is sync invocation within options compute; OK to block briefly
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // const deasync = require("deasync");
+        // let list: string[] = [];
+        // let done = false;
+        // gh.listModels()
+        //   .then((m: string[]) => {
+        //     list = m;
+        //     done = true;
+        //   })
+        //   .catch(() => {
+        //     done = true;
+        //   });
+        // while (!done) {
+        //   deasync.sleep(50);
+        // }
+        // if (list.length) {
+        //   return list.slice(0, 4);
+        // }
+        // }
       } catch {}
       return undefined;
     }
@@ -4340,7 +4367,9 @@ ${
     if (existingFiles.length > 0 && !options.force) {
       return {
         success: false,
-        error: `Context files already exist: ${existingFiles.join(", ")}. Use --force to overwrite.`,
+        error: `Context files already exist: ${existingFiles.join(
+          ", "
+        )}. Use --force to overwrite.`,
         provider: "system" as any,
         metadata: { model: "system", tokens: 0, latency: 0 },
       };
@@ -4372,7 +4401,9 @@ ${
     } catch (error) {
       return {
         success: false,
-        error: `Context file generation failed: ${error instanceof Error ? error.message : String(error)}`,
+        error: `Context file generation failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         provider: "system" as any,
         metadata: { model: "system", tokens: 0, latency: 0 },
       };
@@ -4548,7 +4579,11 @@ ${
   private buildFeaturesPrompt(contextContent?: string): string {
     return `You are a product manager creating a comprehensive features document for a web application.
 
-${contextContent ? `Project Context (from PRD): ${contextContent}` : "Generate features for a modern web application."}
+${
+  contextContent
+    ? `Project Context (from PRD): ${contextContent}`
+    : "Generate features for a modern web application."
+}
 
 Create a detailed features document that includes:
 
@@ -4574,7 +4609,11 @@ Format the output as a well-structured markdown document with clear sections and
   private buildUserFlowsPrompt(contextContent?: string): string {
     return `You are a UX designer creating comprehensive user flow documentation for a web application.
 
-${contextContent ? `Project Context (from PRD): ${contextContent}` : "Generate user flows for a modern web application."}
+${
+  contextContent
+    ? `Project Context (from PRD): ${contextContent}`
+    : "Generate user flows for a modern web application."
+}
 
 Create detailed user flow documentation that includes:
 
@@ -4600,7 +4639,11 @@ Format the output as a well-structured markdown document with clear sections, nu
   private buildEdgeCasesPrompt(contextContent?: string): string {
     return `You are a QA engineer creating comprehensive edge cases and error scenarios documentation for a web application.
 
-${contextContent ? `Project Context (from PRD): ${contextContent}` : "Generate edge cases for a modern web application."}
+${
+  contextContent
+    ? `Project Context (from PRD): ${contextContent}`
+    : "Generate edge cases for a modern web application."
+}
 
 Create detailed edge cases documentation that includes:
 
@@ -4628,7 +4671,11 @@ Format the output as a well-structured markdown document with clear sections and
   private buildTechnicalSpecsPrompt(contextContent?: string): string {
     return `You are a technical architect creating comprehensive technical specifications for a web application.
 
-${contextContent ? `Project Context (from PRD): ${contextContent}` : "Generate technical specs for a modern web application."}
+${
+  contextContent
+    ? `Project Context (from PRD): ${contextContent}`
+    : "Generate technical specs for a modern web application."
+}
 
 Create detailed technical specifications that include:
 
@@ -4843,7 +4890,10 @@ ${response}
 
     return `# Product Features
 
-${features || "## Core Features\n\n*Features will be extracted from PRD content*"}
+${
+  features ||
+  "## Core Features\n\n*Features will be extracted from PRD content*"
+}
 
 ---
 *Generated by MyContext CLI - AI-powered component generation platform*
@@ -4879,7 +4929,10 @@ ${features || "## Core Features\n\n*Features will be extracted from PRD content*
 
     return `# User Flows
 
-${userFlows || "## User Journey\n\n*User flows will be extracted from PRD content*"}
+${
+  userFlows ||
+  "## User Journey\n\n*User flows will be extracted from PRD content*"
+}
 
 ---
 *Generated by MyContext CLI - AI-powered component generation platform*
@@ -4915,7 +4968,10 @@ ${userFlows || "## User Journey\n\n*User flows will be extracted from PRD conten
 
     return `# Edge Cases and Error Scenarios
 
-${edgeCases || "## Error Handling\n\n*Edge cases will be extracted from PRD content*"}
+${
+  edgeCases ||
+  "## Error Handling\n\n*Edge cases will be extracted from PRD content*"
+}
 
 ---
 *Generated by MyContext CLI - AI-powered component generation platform*
@@ -4951,7 +5007,10 @@ ${edgeCases || "## Error Handling\n\n*Edge cases will be extracted from PRD cont
 
     return `# Technical Specifications
 
-${techSpecs || "## Architecture\n\n*Technical specifications will be extracted from PRD content*"}
+${
+  techSpecs ||
+  "## Architecture\n\n*Technical specifications will be extracted from PRD content*"
+}
 
 ---
 *Generated by MyContext CLI - AI-powered component generation platform*

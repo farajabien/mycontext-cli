@@ -18,7 +18,7 @@ import {
   ComponentGenerationInput,
   ComponentGenerationOutput,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 import { GenerateComponentsCommand } from "../../commands/generate-components";
 
 // shadcn/ui component mapping for intelligent imports
@@ -2290,9 +2290,10 @@ export async function ${func}(...args: unknown[]): Promise<{
     while ((match = importRegex.exec(code)) !== null) {
       const importPath = match[1];
       if (
-        importPath.startsWith("@/") ||
-        importPath.startsWith("./") ||
-        importPath.startsWith("../")
+        importPath &&
+        (importPath.startsWith("@/") ||
+          importPath.startsWith("./") ||
+          importPath.startsWith("../"))
       ) {
         dependencies.push(importPath);
       }

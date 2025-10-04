@@ -10,7 +10,7 @@ import {
   DocumentationInput,
   DocumentationOutput,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 import { HybridAIClient } from "../../utils/hybridAIClient";
 
 export class DocsSubAgent

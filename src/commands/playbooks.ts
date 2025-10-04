@@ -272,10 +272,12 @@ export class PlaybooksCommand {
     if (playbooks.length > 0) {
       console.log(chalk.cyan("\n📁 YOUR PLAYBOOKS"));
       const grouped = playbooks.reduce((acc, playbook) => {
-        if (!acc[playbook.category]) {
-          acc[playbook.category] = [];
+        const category = playbook.category;
+        if (!category) return acc;
+        if (!acc[category]) {
+          acc[category] = [];
         }
-        acc[playbook.category].push(playbook);
+        acc[category].push(playbook);
         return acc;
       }, {} as Record<string, Playbook[]>);
 
@@ -302,10 +304,12 @@ export class PlaybooksCommand {
     if (templates.length > 0) {
       console.log(chalk.cyan("\n📋 AVAILABLE TEMPLATES"));
       const groupedTemplates = templates.reduce((acc, template) => {
-        if (!acc[template.category]) {
-          acc[template.category] = [];
+        const category = template.category;
+        if (!category) return acc;
+        if (!acc[category]) {
+          acc[category] = [];
         }
-        acc[template.category].push(template);
+        acc[category].push(template);
         return acc;
       }, {} as Record<string, typeof templates>);
 
@@ -610,7 +614,7 @@ ${playbook.content}`;
     const body = match[2];
 
     const frontmatter: any = {};
-    frontmatterText.split("\n").forEach((line) => {
+    frontmatterText?.split("\n").forEach((line) => {
       const [key, ...valueParts] = line.split(":");
       if (key && valueParts.length > 0) {
         const value = valueParts.join(":").trim();
@@ -624,7 +628,7 @@ ${playbook.content}`;
       }
     });
 
-    return { frontmatter, content: body };
+    return { frontmatter, content: body || "" };
   }
 
   private generateId(title: string): string {

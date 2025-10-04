@@ -1305,7 +1305,7 @@ export class PreviewCommand {
 
     const fontMatch = content.match(/Font Family.*?:\s*(.+)/);
     if (fontMatch) {
-      typography.fontFamily = fontMatch[1].trim();
+      typography.fontFamily = fontMatch[1]?.trim() || "Inter";
     }
 
     return typography;

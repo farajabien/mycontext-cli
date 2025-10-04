@@ -206,9 +206,9 @@ export class ProjectIntelligenceEngine {
         ...importMatches
           .map((match) => {
             const moduleMatch = match.match(/from\s+['"]([^'"]+)['"]/);
-            return moduleMatch ? moduleMatch[1] : "";
+            return moduleMatch ? moduleMatch[1] || "" : "";
           })
-          .filter(Boolean)
+          .filter((item): item is string => Boolean(item))
       );
     }
 
@@ -219,9 +219,9 @@ export class ProjectIntelligenceEngine {
         ...requireMatches
           .map((match) => {
             const moduleMatch = match.match(/require\(['"]([^'"]+)['"]\)/);
-            return moduleMatch ? moduleMatch[1] : "";
+            return moduleMatch ? moduleMatch[1] || "" : "";
           })
-          .filter(Boolean)
+          .filter((item): item is string => Boolean(item))
       );
     }
 
@@ -244,7 +244,7 @@ export class ProjectIntelligenceEngine {
       const defaultMatch = content.match(
         /export\s+default\s+(?:function\s+)?(\w+)/
       );
-      if (defaultMatch) exports.push(defaultMatch[1]);
+      if (defaultMatch && defaultMatch[1]) exports.push(defaultMatch[1]);
     }
 
     return exports.filter(Boolean);

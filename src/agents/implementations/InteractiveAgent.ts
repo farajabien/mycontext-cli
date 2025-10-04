@@ -189,7 +189,13 @@ export class InteractiveAgent
     this.rl.question(prompt, (answer) => {
       const index = parseInt(answer.trim()) - 1;
       if (index >= 0 && index < options.length) {
-        resolve(options[index]);
+        const selected = options[index];
+        if (selected) {
+          resolve(selected);
+        } else {
+          console.log(chalk.red("Invalid selection. Please try again."));
+          this.handleSelect(input, resolve);
+        }
       } else {
         console.log(chalk.red("Invalid selection. Please try again."));
         this.handleSelect(input, resolve);

@@ -417,8 +417,8 @@ export class GenerateComponentsCommand {
       // Optionally run final canvas normalization
       if (options.finalCanvas) {
         try {
-          const { NormalizeCommand } = await import("./normalize");
-          await new NormalizeCommand().execute("preview");
+          // const { NormalizeCommand } = await import("./normalize");
+          // await new NormalizeCommand().execute("preview");
         } catch (e) {
           console.log(
             chalk.yellow("   ⚠️ Normalize step failed; skipping final canvas.")
@@ -1886,6 +1886,7 @@ function groupBy<T, K extends string | number>(
       while ((match = interfaceRegex.exec(typesSource))) {
         const name = match[1];
         const body = match[2];
+        if (!body) continue;
         const fields: Record<string, string> = {};
         body
           .split("\n")
@@ -1893,9 +1894,9 @@ function groupBy<T, K extends string | number>(
           .filter(Boolean)
           .forEach((line) => {
             const m = line.match(/^(\w+)\??:\s*([^;]+);/);
-            if (m) fields[m[1]] = m[2].trim();
+            if (m && m[1] && m[2]) fields[m[1]] = m[2].trim();
           });
-        interfaces[name] = fields;
+        if (name) interfaces[name] = fields;
       }
 
       // Discover components and parse their Props interfaces
@@ -1918,6 +1919,7 @@ function groupBy<T, K extends string | number>(
           );
           if (!propsInterfaceMatch) continue;
           const propsBody = propsInterfaceMatch[2];
+          if (!propsBody) continue;
           const entries = propsBody
             .split("\n")
             .map((l) => l.trim())
@@ -1925,11 +1927,11 @@ function groupBy<T, K extends string | number>(
           const propsObj: Record<string, any> = {};
           for (const line of entries) {
             const m = line.match(/^(\w+)\??:\s*([^;]+);/);
-            if (!m) continue;
+            if (!m || !m[1] || !m[2]) continue;
             const propName = m[1];
-            const typeStr = m[2].trim();
+            const typeStr = m[2]?.trim() || "any";
             const value = this.generateSampleValue(typeStr, interfaces, 0);
-            if (value !== undefined) propsObj[propName] = value;
+            if (value !== undefined && propName) propsObj[propName] = value;
           }
           if (Object.keys(propsObj).length > 0) propsMap[base] = propsObj;
         }

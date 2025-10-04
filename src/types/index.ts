@@ -28,10 +28,10 @@ export interface ProjectContext {
   projectStructure?: string;
 
   // User-centric context files (A/B/C/D files)
-  features?: string;              // 01a-features.md
-  userFlows?: string;             // 01b-user-flows.md
-  edgeCases?: string;             // 01c-edge-cases.md
-  technicalSpecs?: string;        // 01d-technical-specs.md
+  features?: string; // 01a-features.md
+  userFlows?: string; // 01b-user-flows.md
+  edgeCases?: string; // 01c-edge-cases.md
+  technicalSpecs?: string; // 01d-technical-specs.md
 
   // Legacy/alternative context files
   userStories?: string;
@@ -254,11 +254,11 @@ export type TaskCategory =
  * Phase Identifier - Supports hierarchical phases (3.5a, etc.)
  */
 export interface PhaseIdentifier {
-  id: string;           // "phase-3.5.a"
-  major: number;        // 3
-  minor?: number;       // 5
-  patch?: string;       // "a"
-  label: string;        // "Phase 3.5a"
+  id: string; // "phase-3.5.a"
+  major: number; // 3
+  minor?: number; // 5
+  patch?: string; // "a"
+  label: string; // "Phase 3.5a"
   displayOrder: number; // 3.51 (for sorting)
 }
 
@@ -364,7 +364,14 @@ export interface Deliverable {
   id: string;
   title: string;
   description?: string;
-  type: "feature" | "component" | "documentation" | "test_suite" | "deployment" | "api_endpoint" | "database_schema";
+  type:
+    | "feature"
+    | "component"
+    | "documentation"
+    | "test_suite"
+    | "deployment"
+    | "api_endpoint"
+    | "database_schema";
   status: "planned" | "in_progress" | "completed" | "verified";
   createdAt: string;
   completedAt?: string;
@@ -527,12 +534,12 @@ export interface StrategyMetadata {
  * Action Types
  */
 export type ActionType =
-  | "server-action"      // Next.js server action
-  | "client-action"      // Client-side action
-  | "event-handler"      // React event handler
-  | "form-action"        // Form submission handler
-  | "api-route"          // API route handler
-  | "middleware";        // Middleware function
+  | "server-action" // Next.js server action
+  | "client-action" // Client-side action
+  | "event-handler" // React event handler
+  | "form-action" // Form submission handler
+  | "api-route" // API route handler
+  | "middleware"; // Middleware function
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -551,7 +558,7 @@ export interface ActionDefinition {
   validation?: string;
   middleware?: string[];
   external?: string[];
-  serverAction?: string;  // Reference to server action if client action
+  serverAction?: string; // Reference to server action if client action
 }
 
 /**
@@ -681,10 +688,13 @@ export interface CompleteArchitecturePlan {
   hierarchy: Record<string, EnhancedComponent>;
   routes: Record<string, RouteDefinition>;
   api: Record<string, ApiEndpoint>;
-  serverActions: Record<string, {
-    description: string;
-    actions: ServerActionDefinition[];
-  }>;
+  serverActions: Record<
+    string,
+    {
+      description: string;
+      actions: ServerActionDefinition[];
+    }
+  >;
   metadata: {
     totalComponents: number;
     totalRoutes: number;
@@ -722,3 +732,19 @@ export interface GenerationQueueItem {
   dependencies: string[];
   status: "pending" | "in_progress" | "completed" | "failed";
 }
+
+// ============================================================================
+// RE-EXPORT SPECIALIZED TYPES
+// ============================================================================
+
+// Progress Types
+export * from "./progress";
+
+// Analysis Types
+export * from "./analysis";
+
+// Component Types
+export * from "./components";
+
+// Enhancement Types
+export * from "./enhancement";

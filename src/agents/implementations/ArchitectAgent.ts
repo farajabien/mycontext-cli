@@ -1,6 +1,6 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import { ProjectIntelligenceEngine } from "../intelligence/ProjectIntelligence";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 
 export class ArchitectAgent implements SubAgent {
   name = "ArchitectAgent";
@@ -420,10 +420,10 @@ export class ArchitectAgent implements SubAgent {
         score > 8
           ? "excellent"
           : score > 6
-            ? "good"
-            : score > 4
-              ? "fair"
-              : "poor",
+          ? "good"
+          : score > 4
+          ? "fair"
+          : "poor",
       factors: this.getMaintainabilityFactors(component),
     };
   }

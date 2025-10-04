@@ -562,14 +562,12 @@ ${block}
     let match;
 
     while ((match = shortVarRegex.exec(content)) !== null) {
-      if (!["id", "x", "y", "i", "j"].includes(match[1])) {
+      const varName = match[1];
+      if (varName && !["id", "x", "y", "i", "j"].includes(varName)) {
         poorNames.push({
-          original: match[1],
+          original: varName,
           context: match[0],
-          improved: match[0].replace(
-            match[1],
-            this.suggestBetterName(match[1])
-          ),
+          improved: match[0].replace(varName, this.suggestBetterName(varName)),
         });
       }
     }
@@ -680,17 +678,19 @@ const VirtualizedList = ({ items }) => (
     let match;
 
     while ((match = imgRegex.exec(content)) !== null) {
+      const src = match[1];
       if (
-        !match[1].includes("next/image") &&
+        src &&
+        !src.includes("next/image") &&
         !match[0].includes('loading="lazy"')
       ) {
         optimizations.push({
           id: optimizations.length,
-          src: match[1],
+          src: src,
           optimized: `import Image from 'next/image';
 
 <Image
-  src="${match[1]}"
+  src="${src}"
   alt="Description"
   width={500}
   height={300}
@@ -724,7 +724,7 @@ const VirtualizedList = ({ items }) => (
   // Utility methods
   private extractComponentName(content: string): string {
     const nameMatch = content.match(/(?:function|const)\s+(\w+)/);
-    return nameMatch ? nameMatch[1] : "Component";
+    return nameMatch?.[1] || "Component";
   }
 
   // Public methods for applying improvements

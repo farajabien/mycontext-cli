@@ -5,16 +5,17 @@
  * and custom system prompts.
  */
 
-import type { AgentDefinition } from '@anthropic-ai/claude-agent-sdk';
+import type { AgentDefinition } from "@anthropic-ai/claude-agent-sdk";
 
 /**
  * Component Generator Agent
  * Specialized in creating production-ready React components
  */
 export const componentGeneratorAgent: AgentDefinition = {
-  description: 'Generates production-ready React components with TypeScript, Shadcn UI, and Tailwind CSS',
-  tools: ['Read', 'Write', 'Glob', 'AnalyzeComponent'],
-  model: 'sonnet',
+  description:
+    "Generates production-ready React components with TypeScript, Shadcn UI, and Tailwind CSS",
+  tools: ["Read", "Write", "Glob", "AnalyzeComponent"],
+  model: "sonnet",
   prompt: `You are an expert React/Next.js component developer specializing in:
 - Next.js 15 App Router patterns
 - TypeScript with strict typing
@@ -43,9 +44,9 @@ Output format: Provide complete, production-ready code in TSX format.`,
  * Analyzes code quality and suggests improvements
  */
 export const codeReviewerAgent: AgentDefinition = {
-  description: 'Reviews code for quality, best practices, and potential issues',
-  tools: ['Read', 'Grep', 'Glob', 'AnalyzeComponent', 'CheckTypes'],
-  model: 'opus',
+  description: "Reviews code for quality, best practices, and potential issues",
+  tools: ["Read", "Grep", "Glob", "AnalyzeComponent", "CheckTypes"],
+  model: "opus",
   prompt: `You are a senior software engineer conducting thorough code reviews. Focus on:
 
 **Code Quality:**
@@ -85,9 +86,10 @@ Provide constructive feedback with specific examples and actionable suggestions.
  * Creates comprehensive documentation
  */
 export const documentationAgent: AgentDefinition = {
-  description: 'Generates comprehensive documentation for components and projects',
-  tools: ['Read', 'Write', 'Glob', 'GenerateDocs', 'AnalyzeComponent'],
-  model: 'sonnet',
+  description:
+    "Generates comprehensive documentation for components and projects",
+  tools: ["Read", "Write", "Glob", "GenerateDocs", "AnalyzeComponent"],
+  model: "sonnet",
   prompt: `You are a technical writer specializing in developer documentation. Create:
 
 **Component Documentation:**
@@ -119,9 +121,9 @@ Prioritize clarity and usefulness for developers.`,
  * Creates unit and integration tests
  */
 export const testingAgent: AgentDefinition = {
-  description: 'Generates comprehensive unit and integration tests',
-  tools: ['Read', 'Write', 'Glob', 'AnalyzeComponent'],
-  model: 'sonnet',
+  description: "Generates comprehensive unit and integration tests",
+  tools: ["Read", "Write", "Glob", "AnalyzeComponent"],
+  model: "sonnet",
   prompt: `You are a QA engineer specializing in automated testing for React applications. Create:
 
 **Test Coverage:**
@@ -158,9 +160,10 @@ Generate comprehensive, maintainable tests that catch bugs early.`,
  * Designs system architecture and makes structural decisions
  */
 export const architectureAgent: AgentDefinition = {
-  description: 'Designs and reviews system architecture for scalability and maintainability',
-  tools: ['Read', 'Glob', 'Grep', 'ValidatePRD'],
-  model: 'opus',
+  description:
+    "Designs and reviews system architecture for scalability and maintainability",
+  tools: ["Read", "Glob", "Grep", "ValidatePRD"],
+  model: "opus",
   prompt: `You are a software architect with deep experience in full-stack applications. Focus on:
 
 **Architecture Design:**
@@ -198,9 +201,10 @@ Provide well-reasoned architectural decisions with trade-offs explained.`,
  * Identifies security vulnerabilities and suggests fixes
  */
 export const securityAgent: AgentDefinition = {
-  description: 'Analyzes code for security vulnerabilities and provides remediation',
-  tools: ['Read', 'Grep', 'Glob'],
-  model: 'opus',
+  description:
+    "Analyzes code for security vulnerabilities and provides remediation",
+  tools: ["Read", "Grep", "Glob"],
+  model: "opus",
   prompt: `You are a security engineer specializing in web application security. Check for:
 
 **Common Vulnerabilities:**
@@ -236,9 +240,10 @@ Provide severity ratings and specific remediation steps for each issue found.`,
  * Improves code quality through refactoring
  */
 export const refactoringAgent: AgentDefinition = {
-  description: 'Refactors code to improve quality, performance, and maintainability',
-  tools: ['Read', 'Write', 'Edit', 'AnalyzeComponent'],
-  model: 'sonnet',
+  description:
+    "Refactors code to improve quality, performance, and maintainability",
+  tools: ["Read", "Write", "Edit", "AnalyzeComponent"],
+  model: "sonnet",
   prompt: `You are a refactoring specialist focused on improving code quality without changing behavior. Focus on:
 
 **Code Smells to Address:**
@@ -272,9 +277,9 @@ Always preserve existing functionality while improving code quality.`,
  * Optimizes code for better performance
  */
 export const performanceAgent: AgentDefinition = {
-  description: 'Analyzes and optimizes application performance',
-  tools: ['Read', 'Glob', 'Grep', 'AnalyzeComponent'],
-  model: 'sonnet',
+  description: "Analyzes and optimizes application performance",
+  tools: ["Read", "Glob", "Grep", "AnalyzeComponent"],
+  model: "sonnet",
   prompt: `You are a performance optimization specialist for React/Next.js applications. Focus on:
 
 **React Performance:**
@@ -313,16 +318,20 @@ Provide measurable improvements with before/after comparisons where possible.`,
  * Intelligently reuses existing validated components or generates new ones
  */
 export const componentFirstBuilderAgent: AgentDefinition = {
-  description: 'Builds applications by intelligently reusing validated components and generating scaffolding',
+  description:
+    "Builds applications by intelligently reusing validated components and generating scaffolding",
   tools: [
-    'Read', 'Write', 'Glob', 'Grep',
-    'DetectExistingComponents',
-    'MapComponentsToRoutes',
-    'GenerateScaffolding',
-    'AnalyzeComponent',
-    'ValidatePRD'
+    "Read",
+    "Write",
+    "Glob",
+    "Grep",
+    "DetectExistingComponents",
+    "MapComponentsToRoutes",
+    "GenerateScaffolding",
+    "AnalyzeComponent",
+    "ValidatePRD",
   ],
-  model: 'sonnet',
+  model: "sonnet",
   prompt: `You are a component-first application builder. Your workflow emphasizes reusing validated components over regenerating everything.
 
 **Step 1: Detection Phase**
@@ -434,7 +443,17 @@ export function getAgentDefinition(name: string): AgentDefinition | undefined {
 /**
  * Get agent definitions for specific task
  */
-export function getAgentsForTask(task: 'generate' | 'review' | 'docs' | 'test' | 'architect' | 'security' | 'refactor' | 'optimize'): AgentDefinition {
+export function getAgentsForTask(
+  task:
+    | "generate"
+    | "review"
+    | "docs"
+    | "test"
+    | "architect"
+    | "security"
+    | "refactor"
+    | "optimize"
+): AgentDefinition {
   const taskMap: Record<string, AgentDefinition> = {
     generate: componentGeneratorAgent,
     review: codeReviewerAgent,
@@ -446,5 +465,9 @@ export function getAgentsForTask(task: 'generate' | 'review' | 'docs' | 'test' |
     optimize: performanceAgent,
   };
 
-  return taskMap[task];
+  const result = taskMap[task] || taskMap["default"];
+  if (!result) {
+    throw new Error(`No agent definition found for task: ${task}`);
+  }
+  return result;
 }

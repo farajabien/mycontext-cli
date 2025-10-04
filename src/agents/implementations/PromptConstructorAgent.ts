@@ -250,12 +250,12 @@ Return your response as a JSON object with these keys:
         return line.toLowerCase().includes("tic-tac-toe")
           ? "game"
           : line.toLowerCase().includes("e-commerce")
-            ? "ecommerce"
-            : line.toLowerCase().includes("dashboard")
-              ? "dashboard"
-              : line.toLowerCase().includes("social")
-                ? "social"
-                : "application";
+          ? "ecommerce"
+          : line.toLowerCase().includes("dashboard")
+          ? "dashboard"
+          : line.toLowerCase().includes("social")
+          ? "social"
+          : "application";
       }
     }
     return "application";
@@ -266,17 +266,21 @@ Return your response as a JSON object with these keys:
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
       if (
         line.includes("algorithm") ||
         line.includes("logic") ||
         line.includes("rules")
       ) {
-        logic.push(lines[i].trim());
+        logic.push(currentLine.trim());
         // Get next few lines for context
         for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
-          if (lines[j].trim() && !lines[j].startsWith("#")) {
-            logic.push(lines[j].trim());
+          const nextLine = lines[j];
+          if (nextLine && nextLine.trim() && !nextLine.startsWith("#")) {
+            logic.push(nextLine.trim());
           }
         }
       }
@@ -453,7 +457,11 @@ STACK CONFIGURATION:
 - Icons: ${context.stackConfig.stack?.icons || "lucide-react"}
 
 FORBIDDEN DEPENDENCIES (DO NOT USE):
-${context.stackConfig.quality?.forbiddenDependencies?.map((dep: string) => `- ${dep}`).join("\n") || "None specified"}
+${
+  context.stackConfig.quality?.forbiddenDependencies
+    ?.map((dep: string) => `- ${dep}`)
+    .join("\n") || "None specified"
+}
 
 REQUIRED PATTERNS:
 ${
@@ -461,7 +469,11 @@ ${
     ? `
 - Server Components: ${context.stackConfig.patterns.serverComponent}
 - Client Components: ${context.stackConfig.patterns.clientComponent}
-- Import Patterns: ${JSON.stringify(context.stackConfig.patterns.imports, null, 2)}
+- Import Patterns: ${JSON.stringify(
+        context.stackConfig.patterns.imports,
+        null,
+        2
+      )}
 `
     : ""
 }
@@ -500,7 +512,9 @@ USER EXPERIENCE CONTEXT:
 - User Actions: ${analysis.userActions.length} specific user operations
 - User Feedback: ${analysis.userFeedback.length} user response patterns
 - User Journey Flows: ${analysis.userJourneyFlows.length} complete user paths
-- User Decision Points: ${analysis.userDecisionPoints.length} user choice moments
+- User Decision Points: ${
+      analysis.userDecisionPoints.length
+    } user choice moments
 - User States: ${analysis.userStates.length} different user interface states
 - User Error Scenarios: ${analysis.userErrorScenarios.length} user failure modes
 - User Error Recovery: ${analysis.userErrorRecovery.length} user recovery paths
@@ -532,16 +546,22 @@ CRITICAL TECHNICAL REQUIREMENTS:
 - Use Tailwind CSS for all styling
 
 USER INTERFACE PATTERNS:
-${analysis.userInterfacePatterns.map((pattern: string) => `- ${pattern}`).join("\n")}
+${analysis.userInterfacePatterns
+  .map((pattern: string) => `- ${pattern}`)
+  .join("\n")}
 
 USER ACCESSIBILITY NEEDS:
 ${analysis.userAccessibilityNeeds.map((need: string) => `- ${need}`).join("\n")}
 
 USER PERFORMANCE EXPECTATIONS:
-${analysis.userPerformanceExpectations.map((expectation: string) => `- ${expectation}`).join("\n")}
+${analysis.userPerformanceExpectations
+  .map((expectation: string) => `- ${expectation}`)
+  .join("\n")}
 
 USER EXPERIENCE GUIDELINES:
-${analysis.userExperienceGuidelines.map((guideline: string) => `- ${guideline}`).join("\n")}
+${analysis.userExperienceGuidelines
+  .map((guideline: string) => `- ${guideline}`)
+  .join("\n")}
 
 IMPORTANT: This should be a complete, functional component that implements the actual user interactions, not just a layout wrapper. Include all necessary state management, event handlers, and user feedback systems.`;
 
@@ -550,7 +570,9 @@ IMPORTANT: This should be a complete, functional component that implements the a
     } component from user interaction documentation:
 
 🎯 **USER INTERACTIONS TO IMPLEMENT**:
-${analysis.userInteractions.map((interaction: string) => `- ${interaction}`).join("\n")}
+${analysis.userInteractions
+  .map((interaction: string) => `- ${interaction}`)
+  .join("\n")}
 
 👆 **USER ACTIONS TO HANDLE**:
 ${analysis.userActions.map((action: string) => `- ${action}`).join("\n")}
@@ -562,22 +584,30 @@ ${analysis.userFeedback.map((feedback: string) => `- ${feedback}`).join("\n")}
 ${analysis.userJourneyFlows.map((flow: string) => `- ${flow}`).join("\n")}
 
 ⚡ **USER DECISION POINTS TO ENABLE**:
-${analysis.userDecisionPoints.map((decision: string) => `- ${decision}`).join("\n")}
+${analysis.userDecisionPoints
+  .map((decision: string) => `- ${decision}`)
+  .join("\n")}
 
 📱 **USER STATES TO REPRESENT**:
 ${analysis.userStates.map((state: string) => `- ${state}`).join("\n")}
 
 🚨 **USER ERROR SCENARIOS TO HANDLE**:
-${analysis.userErrorScenarios.map((scenario: string) => `- ${scenario}`).join("\n")}
+${analysis.userErrorScenarios
+  .map((scenario: string) => `- ${scenario}`)
+  .join("\n")}
 
 🔧 **USER ERROR RECOVERY TO PROVIDE**:
-${analysis.userErrorRecovery.map((recovery: string) => `- ${recovery}`).join("\n")}
+${analysis.userErrorRecovery
+  .map((recovery: string) => `- ${recovery}`)
+  .join("\n")}
 
 ⚙️ **TECHNICAL REQUIREMENTS TO FULFILL**:
 ${requirements.map((req) => `- ${req}`).join("\n")}
 
 🎨 **USER EXPERIENCE GUIDELINES TO FOLLOW**:
-${analysis.userExperienceGuidelines.map((guideline: string) => `- ${guideline}`).join("\n")}
+${analysis.userExperienceGuidelines
+  .map((guideline: string) => `- ${guideline}`)
+  .join("\n")}
 
 IMPORTANT: This should be a complete, functional component that implements the actual user interactions, not just a layout wrapper. Every documented user action must have a corresponding event handler, and every system response must be reflected in the component's UI state. Include all necessary state management, event handlers, and user feedback systems to support the complete user experience.`;
 
@@ -716,7 +746,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for user action patterns
       if (
@@ -730,7 +763,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("browse") ||
           line.includes("search"))
       ) {
-        interactions.push(lines[i]);
+        interactions.push(currentLine);
       }
     }
 
@@ -742,7 +775,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for specific user actions
       if (
@@ -758,7 +794,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("upload") ||
           line.includes("download"))
       ) {
-        actions.push(lines[i]);
+        actions.push(currentLine);
       }
     }
 
@@ -770,7 +806,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for feedback patterns
       if (
@@ -786,7 +825,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("loading") ||
           line.includes("spinner"))
       ) {
-        feedback.push(lines[i]);
+        feedback.push(currentLine);
       }
     }
 
@@ -798,7 +837,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for journey patterns
       if (
@@ -809,7 +851,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("step") ||
           line.includes("navigate"))
       ) {
-        flows.push(lines[i]);
+        flows.push(currentLine);
       }
     }
 
@@ -821,7 +863,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for error patterns
       if (
@@ -835,7 +880,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("retry") ||
           line.includes("recover"))
       ) {
-        errors.push(lines[i]);
+        errors.push(currentLine);
       }
     }
 
@@ -847,7 +892,10 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const currentLine = lines[i];
+      if (!currentLine) continue;
+
+      const line = currentLine.toLowerCase();
 
       // Look for UX guidelines
       if (
@@ -860,7 +908,8 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("usability") ||
           line.includes("accessibility"))
       ) {
-        guidelines.push(lines[i]);
+        const currentLine = lines[i];
+        if (currentLine) guidelines.push(currentLine);
       }
     }
 
@@ -872,7 +921,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const line = lines[i]?.toLowerCase() || "";
 
       // Look for state patterns
       if (
@@ -885,7 +934,8 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("empty") ||
           line.includes("disabled"))
       ) {
-        states.push(lines[i]);
+        const currentLine = lines[i];
+        if (currentLine) states.push(currentLine);
       }
     }
 
@@ -897,7 +947,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const line = lines[i]?.toLowerCase() || "";
 
       // Look for decision patterns
       if (
@@ -911,7 +961,8 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("may") ||
           line.includes("either"))
       ) {
-        decisions.push(lines[i]);
+        const currentLine = lines[i];
+        if (currentLine) decisions.push(currentLine);
       }
     }
 
@@ -923,7 +974,7 @@ IMPORTANT: This should be a complete, functional component that implements the a
     const lines = prd.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].toLowerCase();
+      const line = lines[i]?.toLowerCase() || "";
 
       // Look for recovery patterns
       if (
@@ -936,7 +987,8 @@ IMPORTANT: This should be a complete, functional component that implements the a
           line.includes("handle") ||
           line.includes("manage"))
       ) {
-        recovery.push(lines[i]);
+        const currentLine = lines[i];
+        if (currentLine) recovery.push(currentLine);
       }
     }
 

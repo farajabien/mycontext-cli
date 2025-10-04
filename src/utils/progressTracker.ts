@@ -9,86 +9,14 @@
 import * as fs from "fs-extra";
 import path from "path";
 import chalk from "chalk";
-
-export type PhaseStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "failed"
-  | "validation_required";
-export type StepStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "failed"
-  | "skipped";
-
-export interface StepProgress {
-  status: StepStatus;
-  timestamp?: string;
-  duration?: number;
-  error?: string;
-  metadata?: Record<string, any>;
-}
-
-export interface PhaseProgress {
-  status: PhaseStatus;
-  steps: number;
-  completedSteps: number;
-  duration: number;
-  startTime?: string;
-  endTime?: string;
-  userValidations?: Record<string, boolean>;
-  errors?: Array<{
-    step: string;
-    error: string;
-    timestamp: string;
-  }>;
-}
-
-export interface MasterProgress {
-  version: string;
-  startTime: string;
-  endTime: string | null;
-  status: PhaseStatus;
-  currentPhase: string;
-  currentStep: number;
-  totalSteps: number;
-  percentComplete: number;
-  phases: Record<string, PhaseProgress>;
-  errors: Array<{
-    phase: string;
-    step: number;
-    error: string;
-    timestamp: string;
-  }>;
-  retries: {
-    total: number;
-    byPhase: Record<string, number>;
-  };
-  userInteractions: number;
-  buildChecks: {
-    typescript: { passed: number; failed: number };
-    eslint: { passed: number; failed: number };
-    build: { passed: number; failed: number };
-    tests: { passed: number; failed: number };
-  };
-}
-
-export interface ComponentProgress {
-  component: string;
-  group: string;
-  status: StepStatus;
-  steps: Record<string, StepProgress>;
-  retries: number;
-  duration: number;
-  metadata?: {
-    linesOfCode?: number;
-    dependencies?: string[];
-    props?: string[];
-    exports?: string[];
-  };
-}
+import {
+  PhaseStatus,
+  StepStatus,
+  StepProgress,
+  PhaseProgress,
+  MasterProgress,
+  ComponentProgress,
+} from "@/types/progress";
 
 export class ProgressTracker {
   private projectPath: string;
@@ -108,7 +36,7 @@ export class ProgressTracker {
       version: "2.0.8",
       startTime: new Date().toISOString(),
       endTime: null,
-      status: "pending",
+      status: "pending" as PhaseStatus,
       currentPhase: "preflight",
       currentStep: 0,
       totalSteps: 230,
@@ -144,7 +72,7 @@ export class ProgressTracker {
 
   private createPhaseProgress(steps: number): PhaseProgress {
     return {
-      status: "pending",
+      status: "pending" as PhaseStatus,
       steps,
       completedSteps: 0,
       duration: 0,
@@ -159,8 +87,11 @@ export class ProgressTracker {
 
   async startPhase(phaseName: string): Promise<void> {
     this.masterProgress.currentPhase = phaseName;
-    this.masterProgress.phases[phaseName].status = "in_progress";
-    this.masterProgress.phases[phaseName].startTime = new Date().toISOString();
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      phase.status = "in_progress";
+      phase.startTime = new Date().toISOString();
+    }
     this.phaseStartTimes.set(phaseName, Date.now());
 
     console.log(
@@ -173,11 +104,13 @@ export class ProgressTracker {
     const startTime = this.phaseStartTimes.get(phaseName);
     const duration = startTime ? Date.now() - startTime : 0;
 
-    this.masterProgress.phases[phaseName].status = "completed";
-    this.masterProgress.phases[phaseName].endTime = new Date().toISOString();
-    this.masterProgress.phases[phaseName].duration = duration;
-    this.masterProgress.phases[phaseName].completedSteps =
-      this.masterProgress.phases[phaseName].steps;
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      phase.status = "completed";
+      phase.endTime = new Date().toISOString();
+      phase.duration = duration;
+      phase.completedSteps = phase.steps;
+    }
 
     console.log(
       chalk.green(
@@ -190,7 +123,10 @@ export class ProgressTracker {
   }
 
   async failPhase(phaseName: string, error: string): Promise<void> {
-    this.masterProgress.phases[phaseName].status = "failed";
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      phase.status = "failed";
+    }
     this.masterProgress.errors.push({
       phase: phaseName,
       step: this.masterProgress.currentStep,
@@ -208,7 +144,10 @@ export class ProgressTracker {
     phaseName: string,
     validationType: string
   ): Promise<void> {
-    this.masterProgress.phases[phaseName].status = "validation_required";
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      phase.status = "validation_required";
+    }
     this.masterProgress.status = "validation_required";
     this.masterProgress.userInteractions++;
 
@@ -220,12 +159,14 @@ export class ProgressTracker {
     phaseName: string,
     validationType: string
   ): Promise<void> {
-    if (!this.masterProgress.phases[phaseName].userValidations) {
-      this.masterProgress.phases[phaseName].userValidations = {};
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      if (!phase.userValidations) {
+        phase.userValidations = {};
+      }
+      phase.userValidations[validationType] = true;
+      phase.status = "in_progress";
     }
-    this.masterProgress.phases[phaseName].userValidations![validationType] =
-      true;
-    this.masterProgress.phases[phaseName].status = "in_progress";
     this.masterProgress.status = "in_progress";
 
     console.log(chalk.green(`✅ Validation Approved: ${validationType}`));
@@ -234,7 +175,10 @@ export class ProgressTracker {
 
   async incrementStep(phaseName: string): Promise<void> {
     this.masterProgress.currentStep++;
-    this.masterProgress.phases[phaseName].completedSteps++;
+    const phase = this.masterProgress.phases[phaseName];
+    if (phase) {
+      phase.completedSteps++;
+    }
     this.masterProgress.percentComplete =
       (this.masterProgress.currentStep / this.masterProgress.totalSteps) * 100;
 
@@ -265,7 +209,10 @@ export class ProgressTracker {
   async setComponentCount(count: number): Promise<void> {
     // Each component has 12 steps (see BUILD_APP_PROCESS.md)
     const componentSteps = count * 12;
-    this.masterProgress.phases.component_generation.steps = componentSteps;
+    const phase = this.masterProgress.phases.component_generation;
+    if (phase) {
+      phase.steps = componentSteps;
+    }
     this.masterProgress.totalSteps = this.calculateTotalSteps();
     await this.saveMasterProgress();
   }
@@ -284,19 +231,19 @@ export class ProgressTracker {
     const componentProgress: ComponentProgress = {
       component: componentName,
       group,
-      status: "in_progress",
+      status: "in_progress" as StepStatus,
       steps: {
-        spec_loaded: { status: "pending" },
-        code_generated: { status: "pending" },
-        file_written: { status: "pending" },
-        lint_passed: { status: "pending" },
-        type_check_passed: { status: "pending" },
-        build_passed: { status: "pending" },
-        tests_generated: { status: "pending" },
-        tests_passed: { status: "pending" },
-        docs_generated: { status: "pending" },
-        registered: { status: "pending" },
-        preview_updated: { status: "pending" },
+        spec_loaded: { status: "pending" as StepStatus },
+        code_generated: { status: "pending" as StepStatus },
+        file_written: { status: "pending" as StepStatus },
+        lint_passed: { status: "pending" as StepStatus },
+        type_check_passed: { status: "pending" as StepStatus },
+        build_passed: { status: "pending" as StepStatus },
+        tests_generated: { status: "pending" as StepStatus },
+        tests_passed: { status: "pending" as StepStatus },
+        docs_generated: { status: "pending" as StepStatus },
+        registered: { status: "pending" as StepStatus },
+        preview_updated: { status: "pending" as StepStatus },
       },
       retries: 0,
       duration: 0,

@@ -227,7 +227,9 @@ const mcpServer = new MCPServer({
     : 'https://mcp.instantdb.com/sse',
   
   // Local development with personal access token
-  token: process.env.INSTANTDB_PERSONAL_ACCESS_TOKEN || '${token || "__YOUR_TOKEN__"}',
+  token: process.env.INSTANTDB_PERSONAL_ACCESS_TOKEN || '${
+    token || "__YOUR_TOKEN__"
+  }',
   
   // App configuration
   appId: process.env.NEXT_PUBLIC_INSTANT_APP_ID || '__APP_ID__',
@@ -569,15 +571,17 @@ const schema = i.schema({
       const fieldRegex = /(\w+)(\?)?\s*:\s*([^;,\n]+)/g;
       let fieldMatch;
 
-      while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-        fields.push({
-          name: fieldMatch[1],
-          type: fieldMatch[3].trim(),
-          optional: !!fieldMatch[2],
-        });
+      while ((fieldMatch = fieldRegex.exec(fieldsContent || "")) !== null) {
+        if (fieldMatch[1] && fieldMatch[3]) {
+          fields.push({
+            name: fieldMatch[1],
+            type: fieldMatch[3].trim(),
+            optional: !!fieldMatch[2],
+          });
+        }
       }
 
-      if (fields.length > 0) {
+      if (fields.length > 0 && name) {
         entities.push({ name: name.toLowerCase(), fields });
       }
     }

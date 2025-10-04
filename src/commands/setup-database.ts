@@ -324,15 +324,17 @@ const schema = i.schema({
       const fieldRegex = /(\w+)(\?)?\s*:\s*([^;,\n]+)/g;
       let fieldMatch;
 
-      while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-        fields.push({
-          name: fieldMatch[1],
-          type: fieldMatch[3].trim(),
-          optional: !!fieldMatch[2],
-        });
+      while ((fieldMatch = fieldRegex.exec(fieldsContent || "")) !== null) {
+        if (fieldMatch[1] && fieldMatch[3]) {
+          fields.push({
+            name: fieldMatch[1],
+            type: fieldMatch[3].trim(),
+            optional: !!fieldMatch[2],
+          });
+        }
       }
 
-      if (fields.length > 0) {
+      if (fields.length > 0 && name) {
         entities.push({ name: name.toLowerCase(), fields });
       }
     }

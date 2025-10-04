@@ -1,7 +1,10 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import chalk from "chalk";
-import { ProjectStructureValidator, ProjectStructureReport } from "./ProjectStructureValidator";
+import {
+  ProjectStructureValidator,
+  ProjectStructureReport,
+} from "./ProjectStructureValidator";
 
 export interface HealthMetrics {
   timestamp: string;
@@ -42,7 +45,7 @@ export class ProjectHealthMonitor {
   private alertThresholds = {
     critical: 0.3, // Below 30% health
     warning: 0.6, // Below 60% health
-    info: 0.8     // Below 80% health
+    info: 0.8, // Below 80% health
   };
 
   constructor(projectRoot: string = process.cwd()) {
@@ -57,67 +60,75 @@ export class ProjectHealthMonitor {
    */
   async performHealthCheck(): Promise<HealthMetrics> {
     console.log(chalk.blue("🏥 Performing comprehensive health check..."));
-    
+
     const report = await this.validator.validate();
     const metrics = await this.calculateHealthMetrics(report);
-    
+
     // Store metrics
     this.healthHistory.push(metrics);
     this.trimHealthHistory();
-    
+
     // Check for alerts
     await this.checkForAlerts(metrics);
-    
+
     // Save data
     await this.saveHealthHistory();
     await this.saveAlerts();
-    
+
     return metrics;
   }
 
   /**
    * Calculate health metrics from validation report
    */
-  private async calculateHealthMetrics(report: ProjectStructureReport): Promise<HealthMetrics> {
+  private async calculateHealthMetrics(
+    report: ProjectStructureReport
+  ): Promise<HealthMetrics> {
     const timestamp = new Date().toISOString();
-    
+
     // Calculate structure health (based on critical and high issues)
-    const structureIssues = report.issues.filter(issue => 
-      issue.severity === "critical" || issue.severity === "high"
+    const structureIssues = report.issues.filter(
+      (issue) => issue.severity === "critical" || issue.severity === "high"
     );
-    const structureHealth = Math.max(0, 100 - (structureIssues.length * 20));
-    
+    const structureHealth = Math.max(0, 100 - structureIssues.length * 20);
+
     // Calculate dependency health
-    const dependencyIssues = report.issues.filter(issue => 
-      issue.message.includes("package.json") || 
-      issue.message.includes("node_modules") ||
-      issue.message.includes("lock file") ||
-      issue.message.includes("dependencies")
+    const dependencyIssues = report.issues.filter(
+      (issue) =>
+        issue.message.includes("package.json") ||
+        issue.message.includes("node_modules") ||
+        issue.message.includes("lock file") ||
+        issue.message.includes("dependencies")
     );
-    const dependencyHealth = Math.max(0, 100 - (dependencyIssues.length * 15));
-    
+    const dependencyHealth = Math.max(0, 100 - dependencyIssues.length * 15);
+
     // Calculate configuration health
-    const configIssues = report.issues.filter(issue => 
-      issue.message.includes("configuration") ||
-      issue.message.includes("tsconfig") ||
-      issue.message.includes("build config")
+    const configIssues = report.issues.filter(
+      (issue) =>
+        issue.message.includes("configuration") ||
+        issue.message.includes("tsconfig") ||
+        issue.message.includes("build config")
     );
-    const configurationHealth = Math.max(0, 100 - (configIssues.length * 10));
-    
+    const configurationHealth = Math.max(0, 100 - configIssues.length * 10);
+
     // Calculate overall health
-    const overallHealth = Math.round((structureHealth + dependencyHealth + configurationHealth) / 3);
-    
+    const overallHealth = Math.round(
+      (structureHealth + dependencyHealth + configurationHealth) / 3
+    );
+
     // Count issues by severity
     const issues = {
-      critical: report.issues.filter(issue => issue.severity === "critical").length,
-      high: report.issues.filter(issue => issue.severity === "high").length,
-      medium: report.issues.filter(issue => issue.severity === "medium").length,
-      low: report.issues.filter(issue => issue.severity === "low").length
+      critical: report.issues.filter((issue) => issue.severity === "critical")
+        .length,
+      high: report.issues.filter((issue) => issue.severity === "high").length,
+      medium: report.issues.filter((issue) => issue.severity === "medium")
+        .length,
+      low: report.issues.filter((issue) => issue.severity === "low").length,
     };
-    
+
     // Get trends from last 10 measurements
     const trends = this.calculateTrends();
-    
+
     return {
       timestamp,
       projectPath: this.projectRoot,
@@ -126,7 +137,7 @@ export class ProjectHealthMonitor {
       configurationHealth,
       overallHealth,
       issues,
-      trends
+      trends,
     };
   }
 
@@ -135,12 +146,12 @@ export class ProjectHealthMonitor {
    */
   private calculateTrends(): HealthMetrics["trends"] {
     const recent = this.healthHistory.slice(-10);
-    
+
     return {
-      structureHealth: recent.map(m => m.structureHealth),
-      dependencyHealth: recent.map(m => m.dependencyHealth),
-      configurationHealth: recent.map(m => m.configurationHealth),
-      overallHealth: recent.map(m => m.overallHealth)
+      structureHealth: recent.map((m) => m.structureHealth),
+      dependencyHealth: recent.map((m) => m.dependencyHealth),
+      configurationHealth: recent.map((m) => m.configurationHealth),
+      overallHealth: recent.map((m) => m.overallHealth),
     };
   }
 
@@ -149,7 +160,7 @@ export class ProjectHealthMonitor {
    */
   private async checkForAlerts(metrics: HealthMetrics): Promise<void> {
     const alerts: HealthAlert[] = [];
-    
+
     // Check overall health
     if (metrics.overallHealth < this.alertThresholds.critical * 100) {
       alerts.push({
@@ -158,7 +169,7 @@ export class ProjectHealthMonitor {
         message: `Critical health alert: Overall health is ${metrics.overallHealth}%`,
         timestamp: metrics.timestamp,
         resolved: false,
-        autoResolved: false
+        autoResolved: false,
       });
     } else if (metrics.overallHealth < this.alertThresholds.warning * 100) {
       alerts.push({
@@ -167,10 +178,10 @@ export class ProjectHealthMonitor {
         message: `Warning: Overall health is ${metrics.overallHealth}%`,
         timestamp: metrics.timestamp,
         resolved: false,
-        autoResolved: false
+        autoResolved: false,
       });
     }
-    
+
     // Check structure health
     if (metrics.structureHealth < this.alertThresholds.critical * 100) {
       alerts.push({
@@ -179,10 +190,10 @@ export class ProjectHealthMonitor {
         message: `Critical structure alert: Structure health is ${metrics.structureHealth}%`,
         timestamp: metrics.timestamp,
         resolved: false,
-        autoResolved: false
+        autoResolved: false,
       });
     }
-    
+
     // Check dependency health
     if (metrics.dependencyHealth < this.alertThresholds.warning * 100) {
       alerts.push({
@@ -191,10 +202,10 @@ export class ProjectHealthMonitor {
         message: `Dependency warning: Dependency health is ${metrics.dependencyHealth}%`,
         timestamp: metrics.timestamp,
         resolved: false,
-        autoResolved: false
+        autoResolved: false,
       });
     }
-    
+
     // Check for new critical issues
     if (metrics.issues.critical > 0) {
       alerts.push({
@@ -203,13 +214,13 @@ export class ProjectHealthMonitor {
         message: `${metrics.issues.critical} critical issues detected`,
         timestamp: metrics.timestamp,
         resolved: false,
-        autoResolved: false
+        autoResolved: false,
       });
     }
-    
+
     // Add new alerts
     this.alerts.push(...alerts);
-    
+
     // Auto-resolve old alerts if health improved
     await this.autoResolveAlerts(metrics);
   }
@@ -218,11 +229,11 @@ export class ProjectHealthMonitor {
    * Auto-resolve alerts when health improves
    */
   private async autoResolveAlerts(metrics: HealthMetrics): Promise<void> {
-    const unresolvedAlerts = this.alerts.filter(alert => !alert.resolved);
-    
+    const unresolvedAlerts = this.alerts.filter((alert) => !alert.resolved);
+
     for (const alert of unresolvedAlerts) {
       let shouldResolve = false;
-      
+
       switch (alert.type) {
         case "critical":
           if (metrics.overallHealth >= this.alertThresholds.warning * 100) {
@@ -235,7 +246,7 @@ export class ProjectHealthMonitor {
           }
           break;
       }
-      
+
       if (shouldResolve) {
         alert.resolved = true;
         alert.autoResolved = true;
@@ -255,14 +266,14 @@ export class ProjectHealthMonitor {
   }> {
     const current = await this.performHealthCheck();
     const trends = this.calculateTrends();
-    const activeAlerts = this.alerts.filter(alert => !alert.resolved);
+    const activeAlerts = this.alerts.filter((alert) => !alert.resolved);
     const recommendations = this.generateRecommendations(current);
-    
+
     return {
       current,
       trends,
       alerts: activeAlerts,
-      recommendations
+      recommendations,
     };
   }
 
@@ -271,31 +282,37 @@ export class ProjectHealthMonitor {
    */
   private generateRecommendations(metrics: HealthMetrics): string[] {
     const recommendations: string[] = [];
-    
+
     if (metrics.structureHealth < 80) {
-      recommendations.push("Run 'mycontext health-check --fix' to resolve structure issues");
+      recommendations.push(
+        "Run 'mycontext health-check --fix' to resolve structure issues"
+      );
     }
-    
+
     if (metrics.dependencyHealth < 80) {
-      recommendations.push("Check for dependency conflicts and run 'pnpm install'");
+      recommendations.push(
+        "Check for dependency conflicts and run 'pnpm install'"
+      );
     }
-    
+
     if (metrics.configurationHealth < 80) {
       recommendations.push("Review and update project configuration files");
     }
-    
+
     if (metrics.issues.critical > 0) {
       recommendations.push("Address critical issues immediately");
     }
-    
+
     if (metrics.issues.high > 0) {
       recommendations.push("Plan to address high-priority issues soon");
     }
-    
+
     if (metrics.overallHealth < 60) {
-      recommendations.push("Consider running 'mycontext health-check --fix' to auto-resolve issues");
+      recommendations.push(
+        "Consider running 'mycontext health-check --fix' to auto-resolve issues"
+      );
     }
-    
+
     return recommendations;
   }
 
@@ -304,57 +321,86 @@ export class ProjectHealthMonitor {
    */
   async displayHealthDashboard(): Promise<void> {
     const dashboard = await this.getHealthDashboard();
-    
+
     console.log(chalk.blue.bold("🏥 MyContext Project Health Dashboard"));
     console.log(chalk.blue("=====================================\n"));
-    
+
     // Current health status
     console.log(chalk.blue("📊 Current Health Status:"));
-    console.log(`   Overall Health: ${this.getHealthColor(dashboard.current.overallHealth)}${dashboard.current.overallHealth}%`);
-    console.log(`   Structure Health: ${this.getHealthColor(dashboard.current.structureHealth)}${dashboard.current.structureHealth}%`);
-    console.log(`   Dependency Health: ${this.getHealthColor(dashboard.current.dependencyHealth)}${dashboard.current.dependencyHealth}%`);
-    console.log(`   Configuration Health: ${this.getHealthColor(dashboard.current.configurationHealth)}${dashboard.current.configurationHealth}%\n`);
-    
+    console.log(
+      `   Overall Health: ${this.getHealthColor(
+        dashboard.current.overallHealth
+      )}${dashboard.current.overallHealth}%`
+    );
+    console.log(
+      `   Structure Health: ${this.getHealthColor(
+        dashboard.current.structureHealth
+      )}${dashboard.current.structureHealth}%`
+    );
+    console.log(
+      `   Dependency Health: ${this.getHealthColor(
+        dashboard.current.dependencyHealth
+      )}${dashboard.current.dependencyHealth}%`
+    );
+    console.log(
+      `   Configuration Health: ${this.getHealthColor(
+        dashboard.current.configurationHealth
+      )}${dashboard.current.configurationHealth}%\n`
+    );
+
     // Issues breakdown
     console.log(chalk.blue("🚨 Issues Breakdown:"));
     console.log(`   Critical: ${chalk.red(dashboard.current.issues.critical)}`);
     console.log(`   High: ${chalk.yellow(dashboard.current.issues.high)}`);
     console.log(`   Medium: ${chalk.blue(dashboard.current.issues.medium)}`);
     console.log(`   Low: ${chalk.gray(dashboard.current.issues.low)}\n`);
-    
+
     // Active alerts
     if (dashboard.alerts.length > 0) {
       console.log(chalk.red("🚨 Active Alerts:"));
-      dashboard.alerts.forEach(alert => {
-        const color = alert.type === "critical" ? chalk.red : 
-                     alert.type === "warning" ? chalk.yellow : chalk.blue;
+      dashboard.alerts.forEach((alert) => {
+        const color =
+          alert.type === "critical"
+            ? chalk.red
+            : alert.type === "warning"
+            ? chalk.yellow
+            : chalk.blue;
         console.log(`   ${color(alert.type.toUpperCase())}: ${alert.message}`);
       });
       console.log();
     }
-    
+
     // Trends
     if (dashboard.trends.overallHealth.length > 1) {
       console.log(chalk.blue("📈 Health Trends (Last 10 Checks):"));
-      const trend = this.calculateTrendDirection(dashboard.trends.overallHealth);
-      const trendColor = trend > 0 ? chalk.green : trend < 0 ? chalk.red : chalk.gray;
+      const trend = this.calculateTrendDirection(
+        dashboard.trends.overallHealth
+      );
+      const trendColor =
+        trend > 0 ? chalk.green : trend < 0 ? chalk.red : chalk.gray;
       const trendSymbol = trend > 0 ? "📈" : trend < 0 ? "📉" : "➡️";
-      console.log(`   Overall Health: ${trendColor(trendSymbol)} ${trend > 0 ? "+" : ""}${trend.toFixed(1)}%`);
+      console.log(
+        `   Overall Health: ${trendColor(trendSymbol)} ${
+          trend > 0 ? "+" : ""
+        }${trend.toFixed(1)}%`
+      );
       console.log();
     }
-    
+
     // Recommendations
     if (dashboard.recommendations.length > 0) {
       console.log(chalk.blue("💡 Recommendations:"));
-      dashboard.recommendations.forEach(rec => {
+      dashboard.recommendations.forEach((rec) => {
         console.log(`   • ${rec}`);
       });
       console.log();
     }
-    
+
     // Health grade
     const grade = this.calculateHealthGrade(dashboard.current.overallHealth);
-    console.log(chalk.blue(`🏆 Health Grade: ${this.getGradeColor(grade)}${grade}`));
+    console.log(
+      chalk.blue(`🏆 Health Grade: ${this.getGradeColor(grade)}${grade}`)
+    );
   }
 
   /**
@@ -372,12 +418,18 @@ export class ProjectHealthMonitor {
    */
   private getGradeColor(grade: string): string {
     switch (grade) {
-      case "A": return chalk.green("A");
-      case "B": return chalk.yellow("B");
-      case "C": return chalk.yellow("C");
-      case "D": return chalk.red("D");
-      case "F": return chalk.red.bold("F");
-      default: return chalk.gray("?");
+      case "A":
+        return chalk.green("A");
+      case "B":
+        return chalk.yellow("B");
+      case "C":
+        return chalk.yellow("C");
+      case "D":
+        return chalk.red("D");
+      case "F":
+        return chalk.red.bold("F");
+      default:
+        return chalk.gray("?");
     }
   }
 
@@ -397,10 +449,10 @@ export class ProjectHealthMonitor {
    */
   private calculateTrendDirection(values: number[]): number {
     if (values.length < 2) return 0;
-    
+
     const first = values[0];
     const last = values[values.length - 1];
-    return last - first;
+    return (last || 0) - (first || 0);
   }
 
   /**
@@ -435,7 +487,7 @@ export class ProjectHealthMonitor {
    * Clear resolved alerts
    */
   clearResolvedAlerts(): void {
-    this.alerts = this.alerts.filter(alert => !alert.resolved);
+    this.alerts = this.alerts.filter((alert) => !alert.resolved);
   }
 
   /**
@@ -443,7 +495,11 @@ export class ProjectHealthMonitor {
    */
   private async loadHealthHistory(): Promise<void> {
     try {
-      const historyPath = path.join(this.projectRoot, ".mycontext", "health-history.json");
+      const historyPath = path.join(
+        this.projectRoot,
+        ".mycontext",
+        "health-history.json"
+      );
       if (await fs.pathExists(historyPath)) {
         const data = await fs.readJson(historyPath);
         this.healthHistory = data.history || [];
@@ -458,9 +514,17 @@ export class ProjectHealthMonitor {
    */
   private async saveHealthHistory(): Promise<void> {
     try {
-      const historyPath = path.join(this.projectRoot, ".mycontext", "health-history.json");
+      const historyPath = path.join(
+        this.projectRoot,
+        ".mycontext",
+        "health-history.json"
+      );
       await fs.ensureDir(path.dirname(historyPath));
-      await fs.writeJson(historyPath, { history: this.healthHistory }, { spaces: 2 });
+      await fs.writeJson(
+        historyPath,
+        { history: this.healthHistory },
+        { spaces: 2 }
+      );
     } catch (error) {
       console.log(chalk.yellow("⚠️  Could not save health history"));
     }
@@ -471,7 +535,11 @@ export class ProjectHealthMonitor {
    */
   private async loadAlerts(): Promise<void> {
     try {
-      const alertsPath = path.join(this.projectRoot, ".mycontext", "health-alerts.json");
+      const alertsPath = path.join(
+        this.projectRoot,
+        ".mycontext",
+        "health-alerts.json"
+      );
       if (await fs.pathExists(alertsPath)) {
         const data = await fs.readJson(alertsPath);
         this.alerts = data.alerts || [];
@@ -486,7 +554,11 @@ export class ProjectHealthMonitor {
    */
   private async saveAlerts(): Promise<void> {
     try {
-      const alertsPath = path.join(this.projectRoot, ".mycontext", "health-alerts.json");
+      const alertsPath = path.join(
+        this.projectRoot,
+        ".mycontext",
+        "health-alerts.json"
+      );
       await fs.ensureDir(path.dirname(alertsPath));
       await fs.writeJson(alertsPath, { alerts: this.alerts }, { spaces: 2 });
     } catch (error) {

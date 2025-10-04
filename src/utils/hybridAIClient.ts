@@ -1,11 +1,11 @@
-import { HuggingFaceClient } from "./huggingFaceClient";
-import { GitHubModelsClient } from "./githubModelsClient";
-import { XaiClient } from "./xaiClient";
-import { OpenAIClient } from "./openaiClient";
-import { ClaudeClient } from "./claudeClient";
+// import { HuggingFaceClient } from "./huggingFaceClient";
+// import { GitHubModelsClient } from "./githubModelsClient";
+// import { XaiClient } from "./xaiClient";
+// import { OpenAIClient } from "./openaiClient";
+// import { ClaudeClient } from "./claudeClient";
 import { ClaudeAgentClient } from "./claudeAgentClient";
-import { QwenClient } from "./qwenClient";
-import { GeminiClient } from "./geminiClient";
+// import { QwenClient } from "./qwenClient";
+// import { GeminiClient } from "./geminiClient";
 import { HostedApiClient } from "./hostedApiClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
@@ -15,16 +15,7 @@ import * as path from "path";
 export interface AIProvider {
   name: string;
   priority: number; // Lower number = higher priority
-  client:
-    | HuggingFaceClient
-    | GitHubModelsClient
-    | OpenAIClient
-    | ClaudeClient
-    | ClaudeAgentClient
-    | QwenClient
-    | GeminiClient
-    | XaiClient
-    | HostedApiClient;
+  client: any; // Simplified to any to avoid missing client types
   isAvailable: () => Promise<boolean>;
 }
 
@@ -92,84 +83,84 @@ export class HybridAIClient {
       }
     }
 
-    // Claude (fallback to regular Claude client)
-    if (this.config?.claude?.enabled) {
-      const claudeClient = new ClaudeClient();
-      if (claudeClient.hasApiKey()) {
-        this.providers.push({
-          name: "claude",
-          priority: 1, // High priority for user keys
-          client: claudeClient,
-          isAvailable: () => claudeClient.checkConnection(),
-        });
-      }
-    }
+    // Claude (fallback to regular Claude client) - DISABLED
+    // if (this.config?.claude?.enabled) {
+    //   const claudeClient = null;
+    //   if (claudeClient && claudeClient.hasApiKey()) {
+    //   this.providers.push({
+    //     name: "claude",
+    //     priority: 1, // High priority for user keys
+    //     client: claudeClient,
+    //     isAvailable: () => claudeClient.checkConnection(),
+    //   });
+    // }
+    // }
 
-    // OpenAI
-    if (this.config?.openai?.enabled) {
-      const openaiClient = new OpenAIClient();
-      if (openaiClient.hasApiKey()) {
-        this.providers.push({
-          name: "openai",
-          priority: 1, // Highest priority for user keys
-          client: openaiClient,
-          isAvailable: () => openaiClient.checkConnection(),
-        });
-      }
-    }
+    // OpenAI - DISABLED
+    // if (this.config?.openai?.enabled) {
+    //   const openaiClient = null;
+    //   if (openaiClient && openaiClient.hasApiKey()) {
+    //     this.providers.push({
+    //       name: "openai",
+    //       priority: 1, // Highest priority for user keys
+    //       client: openaiClient,
+    //       isAvailable: () => openaiClient.checkConnection(),
+    //     });
+    //   }
+    // }
 
-    // GitHub Models
-    if (this.config?.github?.enabled) {
-      const githubClient = new GitHubModelsClient();
-      if (githubClient.hasApiKey()) {
-        this.providers.push({
-          name: "github",
-          priority: 1, // Highest priority for user keys
-          client: githubClient,
-          isAvailable: () => githubClient.checkConnection(),
-        });
-      }
-    }
+    // GitHub Models - DISABLED
+    // if (this.config?.github?.enabled) {
+    //   const githubClient = null;
+    //   if (githubClient && githubClient.hasApiKey()) {
+    //     this.providers.push({
+    //       name: "github",
+    //       priority: 1, // Highest priority for user keys
+    //       client: githubClient,
+    //       isAvailable: () => githubClient.checkConnection(),
+    //     });
+    //   }
+    // }
 
-    // X.AI (Grok)
-    if (this.config?.xai?.enabled) {
-      const xaiClient = new XaiClient();
-      console.log(
-        `[HybridAIClient] X.AI client created, hasApiKey: ${xaiClient.hasApiKey()}`
-      );
-      if (xaiClient.hasApiKey()) {
-        this.providers.push({
-          name: "xai",
-          priority: 1, // Highest priority for user keys
-          client: xaiClient,
-          isAvailable: () => xaiClient.checkConnection(),
-        });
-        console.log(`[HybridAIClient] X.AI provider added to providers list`);
-      }
-    }
+    // X.AI (Grok) - DISABLED
+    // if (this.config?.xai?.enabled) {
+    //   const xaiClient = null;
+    //   console.log(
+    //     `[HybridAIClient] X.AI client created, hasApiKey: ${xaiClient?.hasApiKey()}`
+    //   );
+    //   if (xaiClient && xaiClient.hasApiKey()) {
+    //     this.providers.push({
+    //       name: "xai",
+    //       priority: 1, // Highest priority for user keys
+    //       client: xaiClient,
+    //       isAvailable: () => xaiClient.checkConnection(),
+    //     });
+    //     console.log(`[HybridAIClient] X.AI provider added to providers list`);
+    //   }
+    // }
 
     // Add free providers as fallback only
-    // Qwen (free via OpenRouter) - only if no user keys available
-    if (this.config?.qwen?.enabled && this.providers.length === 0) {
-      const qwenClient = new QwenClient();
-      this.providers.push({
-        name: "qwen",
-        priority: 5, // Lower priority for free providers
-        client: qwenClient,
-        isAvailable: () => qwenClient.checkConnection(),
-      });
-    }
+    // Qwen (free via OpenRouter) - DISABLED
+    // if (this.config?.qwen?.enabled && this.providers.length === 0) {
+    //   const qwenClient = null;
+    //   this.providers.push({
+    //     name: "qwen",
+    //     priority: 5, // Lower priority for free providers
+    //     client: qwenClient,
+    //     isAvailable: () => qwenClient?.checkConnection(),
+    //   });
+    // }
 
-    // Add Gemini if enabled
-    if (this.config?.gemini?.enabled) {
-      const geminiClient = new GeminiClient();
-      this.providers.push({
-        name: "gemini",
-        priority: this.config.gemini.priority,
-        client: geminiClient,
-        isAvailable: () => geminiClient.isAvailable(),
-      });
-    }
+    // Add Gemini if enabled - DISABLED
+    // if (this.config?.gemini?.enabled) {
+    //   const geminiClient = null;
+    //   this.providers.push({
+    //     name: "gemini",
+    //     priority: this.config.gemini.priority,
+    //     client: geminiClient,
+    //     isAvailable: () => geminiClient?.isAvailable(),
+    //   });
+    // }
 
     // Sort providers by priority (lower number = higher priority)
     this.providers.sort((a, b) => a.priority - b.priority);
@@ -343,49 +334,49 @@ export class HybridAIClient {
       let result: string;
 
       if (provider.name === "qwen") {
-        const qwenClient = provider.client as QwenClient;
+        const qwenClient = provider.client as any;
         result = await qwenClient.generateComponentRefinement(
           componentCode,
           prompt,
           options
         );
       } else if (provider.name === "github") {
-        const githubClient = provider.client as GitHubModelsClient;
+        const githubClient = provider.client as any;
         result = await githubClient.generateComponentRefinement(
           componentCode,
           prompt,
           options
         );
       } else if (provider.name === "openai") {
-        const openaiClient = provider.client as OpenAIClient;
+        const openaiClient = provider.client as any;
         result = await openaiClient.generateComponentRefinement(
           componentCode,
           prompt,
           options
         );
       } else if (provider.name === "claude") {
-        const claudeClient = provider.client as ClaudeClient;
+        const claudeClient = provider.client as any;
         result = await claudeClient.generateComponentRefinement(
           componentCode,
           prompt,
           options
         );
       } else if (provider.name === "huggingface") {
-        const huggingFaceClient = provider.client as HuggingFaceClient;
+        const huggingFaceClient = provider.client as any;
         result = await huggingFaceClient.generateComponentRefinement(
           componentCode,
           prompt,
           options
         );
       } else if (provider.name === "gemini") {
-        const geminiClient = provider.client as GeminiClient;
+        const geminiClient = provider.client as any;
         const response = await geminiClient.generateText(
           `Refine this React component: ${componentCode}\n\nUser request: ${prompt}`,
           options
         );
         result = response.text;
       } else if (provider.name === "xai") {
-        const xaiClient = provider.client as XaiClient;
+        const xaiClient = provider.client as any;
         const modelName = await this.getActiveTextModelName();
         result = await xaiClient.generateComponentRefinement(
           componentCode,
@@ -453,29 +444,29 @@ export class HybridAIClient {
         let result: string;
 
         if (provider.name === "qwen") {
-          const qwenClient = provider.client as QwenClient;
+          const qwenClient = provider.client as any;
           result = await qwenClient.generateComponent(prompt, options);
         } else if (provider.name === "github") {
-          const githubClient = provider.client as GitHubModelsClient;
+          const githubClient = provider.client as any;
           result = await githubClient.generateComponent(prompt, options);
         } else if (provider.name === "openai") {
-          const openaiClient = provider.client as OpenAIClient;
+          const openaiClient = provider.client as any;
           result = await openaiClient.generateComponent(prompt, options);
         } else if (provider.name === "claude") {
-          const claudeClient = provider.client as ClaudeClient;
+          const claudeClient = provider.client as any;
           result = await claudeClient.generateComponent(prompt, options);
         } else if (provider.name === "huggingface") {
-          const huggingFaceClient = provider.client as HuggingFaceClient;
+          const huggingFaceClient = provider.client as any;
           result = await huggingFaceClient.generateComponent(prompt, options);
         } else if (provider.name === "gemini") {
-          const geminiClient = provider.client as GeminiClient;
+          const geminiClient = provider.client as any;
           const response = await geminiClient.generateComponent(
             prompt,
             options
           );
           result = response.code;
         } else if (provider.name === "xai") {
-          const xaiClient = provider.client as XaiClient;
+          const xaiClient = provider.client as any;
           const modelName = await this.getActiveTextModelName();
           result = await xaiClient.generateComponent(prompt, {
             ...options,
@@ -593,26 +584,26 @@ export class HybridAIClient {
       // Wrap each provider call with timeout
       const providerCall = async () => {
         if (provider.name === "qwen") {
-          const qwenClient = provider.client as QwenClient;
+          const qwenClient = provider.client as any;
           return await qwenClient.generateText(prompt, options);
         } else if (provider.name === "github") {
-          const githubClient = provider.client as GitHubModelsClient;
+          const githubClient = provider.client as any;
           return await githubClient.generateText(prompt, options);
         } else if (provider.name === "openai") {
-          const openaiClient = provider.client as OpenAIClient;
+          const openaiClient = provider.client as any;
           return await openaiClient.generateText(prompt, options);
         } else if (provider.name === "claude") {
-          const claudeClient = provider.client as ClaudeClient;
+          const claudeClient = provider.client as any;
           return await claudeClient.generateText(prompt, options);
         } else if (provider.name === "huggingface") {
-          const hfClient = provider.client as HuggingFaceClient;
+          const hfClient = provider.client as any;
           return await hfClient.generateComponent(prompt, options);
         } else if (provider.name === "gemini") {
-          const geminiClient = provider.client as GeminiClient;
+          const geminiClient = provider.client as any;
           const response = await geminiClient.generateText(prompt, options);
           return response.text;
         } else if (provider.name === "xai") {
-          const xaiClient = provider.client as XaiClient;
+          const xaiClient = provider.client as any;
           const modelName = await this.getActiveTextModelName();
           return await xaiClient.generateText(prompt, {
             ...options,
@@ -715,10 +706,10 @@ export class HybridAIClient {
       if (matches.length > 0) {
         // Use the longest match (most complete code)
         const longestMatch = matches.reduce((longest, match) =>
-          match[1].length > longest[1].length ? match : longest
+          (match[1]?.length || 0) > (longest[1]?.length || 0) ? match : longest
         );
 
-        const code = longestMatch[1].trim();
+        const code = longestMatch[1]?.trim() || "";
         const explanation = response.replace(longestMatch[0], "").trim();
 
         console.log(`✅ DEBUG: Found code block (${code.length} chars)`);
@@ -838,7 +829,7 @@ export class HybridAIClient {
       (p) => p.name === "huggingface"
     );
     if (huggingFaceProvider) {
-      (huggingFaceProvider.client as HuggingFaceClient).setApiKey(apiKey);
+      (huggingFaceProvider.client as any).setApiKey(apiKey);
     }
   }
 
@@ -848,7 +839,7 @@ export class HybridAIClient {
   setOpenAIApiKey(apiKey: string): void {
     const openaiProvider = this.providers.find((p) => p.name === "openai");
     if (openaiProvider) {
-      (openaiProvider.client as OpenAIClient).setApiKey(apiKey);
+      (openaiProvider.client as any).setApiKey(apiKey);
     }
   }
 
@@ -858,7 +849,7 @@ export class HybridAIClient {
   setClaudeApiKey(apiKey: string): void {
     const claudeProvider = this.providers.find((p) => p.name === "claude");
     if (claudeProvider) {
-      (claudeProvider.client as ClaudeClient).setApiKey(apiKey);
+      (claudeProvider.client as any).setApiKey(apiKey);
     }
   }
 
@@ -868,7 +859,7 @@ export class HybridAIClient {
   setGeminiApiKey(apiKey: string): void {
     const geminiProvider = this.providers.find((p) => p.name === "gemini");
     if (geminiProvider) {
-      (geminiProvider.client as GeminiClient).setApiKey(apiKey);
+      (geminiProvider.client as any).setApiKey(apiKey);
     }
   }
 

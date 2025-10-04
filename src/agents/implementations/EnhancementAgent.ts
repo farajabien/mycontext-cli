@@ -11,7 +11,7 @@ import {
   DesignTokens,
   SubAgent,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 
 import { DesignTokenExtractor } from "../../utils/designTokenExtractor";
 import { ComponentValidator } from "../../utils/componentValidator";
@@ -185,7 +185,9 @@ export class EnhancementAgent
       {
         name: "fallback",
         generate: async (options: any) => {
-          return { content: this.generateBasicEnhancement(currentComponent, prompt) };
+          return {
+            content: this.generateBasicEnhancement(currentComponent, prompt),
+          };
         },
       },
     ];
@@ -632,7 +634,7 @@ Return only the enhanced React component code with TypeScript, nothing else.
 
   private extractComponentName(componentCode: string): string {
     const match = componentCode.match(/export\s+default\s+function\s+(\w+)/);
-    return match ? match[1] : "UnknownComponent";
+    return match?.[1] || "UnknownComponent";
   }
 
   private async generateSuggestions(
@@ -741,7 +743,10 @@ Return only the enhanced React component code with TypeScript, nothing else.
     return changes;
   }
 
-  private generateBasicEnhancement(currentComponent: string, prompt: string): string {
+  private generateBasicEnhancement(
+    currentComponent: string,
+    prompt: string
+  ): string {
     return `// Enhanced component based on: ${prompt}
 // This is a fallback enhancement template
 // Configure an AI provider for full enhancement generation

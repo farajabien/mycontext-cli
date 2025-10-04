@@ -14,10 +14,7 @@ import { PlaybooksCommand } from "./commands/playbooks";
 import { enhance } from "./commands/enhance";
 import { refine } from "./commands/refine";
 import { SetupCommand } from "./commands/setup";
-import { ModelCommand } from "./commands/model";
-import { PricingCommand } from "./commands/pricing";
 import { UpdateCommand } from "./commands/update";
-import { NormalizeCommand } from "./commands/normalize";
 import { AgentFlowCommand } from "./commands/agent-flow";
 import { runCleanCommand } from "./utils/clean";
 import { predict } from "./commands/predict";
@@ -306,7 +303,10 @@ const generateComponentsCmd = program
   });
 
 // Add validation hook to generate-components command
-PreCommandValidator.addValidationHook(generateComponentsCmd, { autoFix: true, strict: false });
+PreCommandValidator.addValidationHook(generateComponentsCmd, {
+  autoFix: true,
+  strict: false,
+});
 
 // Agent Flow command (BETA - Agentic workflow orchestration)
 program
@@ -377,28 +377,6 @@ program
   });
 
 // Model commands
-program
-  .command("model")
-  .description("Manage AI models and providers")
-  .option("--status", "Show model status")
-  .option("--test", "Test model connection")
-  .option("--list", "List available models")
-  .option("--info", "Show model information")
-  .action(async (options) => {
-    const modelCommand = new ModelCommand();
-    await modelCommand.execute(options);
-  });
-
-// Beta info commands
-program
-  .command("pricing")
-  .description("Show beta BYOK model and current configuration")
-  .option("--show", "Show beta model information")
-  .option("--current", "Show current configuration")
-  .action(async (options) => {
-    const pricingCommand = new PricingCommand();
-    await pricingCommand.execute(options);
-  });
 
 // Enhance command
 program.addCommand(enhance);
@@ -498,20 +476,6 @@ program
       });
     } catch (error) {
       console.error(chalk.red("❌ Preview failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Normalize command
-program
-  .command("normalize <type>")
-  .description("Normalize artifacts (e.g., preview layout)")
-  .action(async (type) => {
-    try {
-      const normalize = new NormalizeCommand();
-      await normalize.execute(type);
-    } catch (error) {
-      console.error(chalk.red("❌ Normalize failed:"), error);
       process.exit(1);
     }
   });
@@ -696,7 +660,10 @@ const buildAppCmd = program
   });
 
 // Add validation hook to build-app command
-PreCommandValidator.addValidationHook(buildAppCmd, { autoFix: true, strict: true });
+PreCommandValidator.addValidationHook(buildAppCmd, {
+  autoFix: true,
+  strict: true,
+});
 
 // Analyze command for existing projects
 program

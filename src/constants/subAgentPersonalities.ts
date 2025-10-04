@@ -1,5 +1,5 @@
 /**
- * Sub-Agent Personality Definitions
+ * Sub-Agent Personality Constants
  *
  * Each sub-agent has a unique personality, expertise, and LLM provider configuration
  * that determines how it approaches its specific tasks.

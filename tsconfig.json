@@ -4,18 +4,44 @@
     "module": "commonjs",
     "lib": ["ES2020", "DOM"],
     "outDir": "./dist",
+
+    // Strict type checking options
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    // "exactOptionalPropertyTypes": true, // Temporarily disabled for migration
+
+    // Additional type safety
+    // "noUnusedLocals": true, // Temporarily disabled for migration
+    // "noUnusedParameters": true, // Temporarily disabled for migration
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+
+    // Module resolution
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Build options
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "skipLibCheck": true,
+
+    // Decorators
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+
+    // Path mapping
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"],
@@ -25,6 +51,6 @@
       "@/templates/*": ["./templates/*"]
     }
   },
-  "include": ["src/**/*", "../../shared"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

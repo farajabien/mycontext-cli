@@ -19,7 +19,6 @@ import { ProjectSetupAgent } from "./ProjectSetupAgent";
 import { CodeGenSubAgent } from "./CodeGenSubAgent";
 import { QASubAgent } from "./QASubAgent";
 import { DocsSubAgent } from "./DocsSubAgent";
-import { ClaudeAgentWorkflow } from "./ClaudeAgentWorkflow";
 import { ProgressTracker } from "../../utils/progressTracker";
 import { ValidationGates } from "../../utils/validationGates";
 import { BuildValidator } from "../../utils/buildValidator";
@@ -46,7 +45,6 @@ export class WorkflowAgent implements SubAgent<WorkflowInput, WorkflowOutput> {
   private codeGenAgent = new CodeGenSubAgent();
   private qaAgent = new QASubAgent();
   private docsAgent = new DocsSubAgent();
-  private claudeAgentWorkflow = new ClaudeAgentWorkflow();
 
   // NEW: Validation and tracking utilities
   private progressTracker?: ProgressTracker;
@@ -88,21 +86,7 @@ export class WorkflowAgent implements SubAgent<WorkflowInput, WorkflowOutput> {
         )
       );
 
-      // Check if Claude Agent SDK is available and use it preferentially
-      if (this.claudeAgentWorkflow.isClaudeAgentAvailable()) {
-        console.log(
-          chalk.green(
-            "🤖 Using Claude Agent SDK for enhanced workflow execution"
-          )
-        );
-        return await this.claudeAgentWorkflow.run(input);
-      }
-
-      console.log(
-        chalk.yellow(
-          "⚠️ Claude Agent SDK not available, using standard workflow with validation"
-        )
-      );
+      console.log(chalk.green("🤖 Using standard workflow with validation"));
       const steps = this.defineWorkflowSteps(input);
 
       for (const step of steps) {
@@ -287,7 +271,9 @@ export class WorkflowAgent implements SubAgent<WorkflowInput, WorkflowOutput> {
       },
       {
         id: "generate-components",
-        name: input.completeArchitecture ? "Generate Complete Architecture" : "Generate Components",
+        name: input.completeArchitecture
+          ? "Generate Complete Architecture"
+          : "Generate Components",
         description: input.completeArchitecture
           ? "Generate components with server actions, routes, and documentation"
           : "Generate React components with tests",
@@ -406,7 +392,10 @@ export class WorkflowAgent implements SubAgent<WorkflowInput, WorkflowOutput> {
         }
 
         // Special handling for generate-components step with complete architecture
-        if (step.id === "generate-components" && step.input.options?.completeArchitecture) {
+        if (
+          step.id === "generate-components" &&
+          step.input.options?.completeArchitecture
+        ) {
           await this.executeCompleteArchitectureGeneration(step.input);
           success = true;
           this.completedSteps.add(step.id);
@@ -472,29 +461,57 @@ export class WorkflowAgent implements SubAgent<WorkflowInput, WorkflowOutput> {
   /**
    * Execute complete architecture generation using GenerateComponentsCommand
    */
-  private async executeCompleteArchitectureGeneration(stepInput: any): Promise<void> {
+  private async executeCompleteArchitectureGeneration(
+    stepInput: any
+  ): Promise<void> {
     const path = await import("path");
-    const { GenerateComponentsCommand } = await import("../../commands/generate-components");
+    const { GenerateComponentsCommand } = await import(
+      "../../commands/generate-components"
+    );
 
     const generateCmd = new GenerateComponentsCommand();
     const options = stepInput.options;
 
     console.log(chalk.blue("\n🏗️  Generating complete architecture..."));
-    console.log(chalk.gray(`   Architecture Type: ${options.architectureType}`));
-    console.log(chalk.gray(`   Server Actions: ${options.generateServerActions ? "Yes" : "No"}`));
-    console.log(chalk.gray(`   Routes: ${options.generateRoutes ? "Yes" : "No"}`));
-    console.log(chalk.gray(`   Self-Documenting: ${options.selfDocumenting ? "Yes" : "No"}`));
+    console.log(
+      chalk.gray(`   Architecture Type: ${options.architectureType}`)
+    );
+    console.log(
+      chalk.gray(
+        `   Server Actions: ${options.generateServerActions ? "Yes" : "No"}`
+      )
+    );
+    console.log(
+      chalk.gray(`   Routes: ${options.generateRoutes ? "Yes" : "No"}`)
+    );
+    console.log(
+      chalk.gray(
+        `   Self-Documenting: ${options.selfDocumenting ? "Yes" : "No"}`
+      )
+    );
 
     // The GenerateComponentsCommand handles all the complex logic
     // We just need to call it with the right options
     try {
       // This will trigger the complete architecture generation
       // which includes components, server actions, and routes
-      console.log(chalk.yellow("\n⚠️  Note: Complete architecture generation requires component list"));
-      console.log(chalk.gray("   If component list doesn't exist, basic generation will be used"));
+      console.log(
+        chalk.yellow(
+          "\n⚠️  Note: Complete architecture generation requires component list"
+        )
+      );
+      console.log(
+        chalk.gray(
+          "   If component list doesn't exist, basic generation will be used"
+        )
+      );
     } catch (error) {
       console.log(chalk.red("❌ Complete architecture generation failed:"));
-      console.log(chalk.gray(`   ${error instanceof Error ? error.message : "Unknown error"}`));
+      console.log(
+        chalk.gray(
+          `   ${error instanceof Error ? error.message : "Unknown error"}`
+        )
+      );
       throw error;
     }
   }

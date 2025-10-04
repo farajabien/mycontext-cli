@@ -208,7 +208,10 @@ export class SanitizeCommand {
 
     for (const [hash, fileList] of fileHashes) {
       if (fileList.length > 1) {
-        const size = (await fs.stat(fileList[0])).size;
+        const firstFile = fileList[0];
+        if (!firstFile) continue;
+        const stats = await fs.stat(firstFile);
+        const size = stats.size;
         duplicates.push({
           type: "exact",
           files: fileList,
@@ -405,7 +408,7 @@ export class SanitizeCommand {
     let match;
 
     while ((match = importRegex.exec(content)) !== null) {
-      imports.push(match[1]);
+      if (match[1]) imports.push(match[1]);
     }
 
     return imports;
@@ -419,13 +422,13 @@ export class SanitizeCommand {
       /export\s+(?:const|let|var|function|class|interface|type)\s+(\w+)/g;
     let match;
     while ((match = namedExportRegex.exec(content)) !== null) {
-      exports.push(match[1]);
+      if (match[1]) exports.push(match[1]);
     }
 
     // Default exports
     const defaultExportRegex = /export\s+default\s+(\w+)/g;
     while ((match = defaultExportRegex.exec(content)) !== null) {
-      exports.push(match[1]);
+      if (match[1]) exports.push(match[1]);
     }
 
     return exports;

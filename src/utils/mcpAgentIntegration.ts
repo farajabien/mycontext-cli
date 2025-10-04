@@ -127,7 +127,7 @@ export class MCPAgentIntegration {
       // Update active server if it was removed
       if (mcpConfig.activeServer === serverName) {
         mcpConfig.activeServer =
-          mcpConfig.servers.length > 0 ? mcpConfig.servers[0].name : undefined;
+          mcpConfig.servers.length > 0 ? mcpConfig.servers[0]?.name : undefined;
       }
 
       await this.saveMCPConfig(mcpConfig);
@@ -345,7 +345,11 @@ export class MCPAgentIntegration {
     }
 
     if (context.componentList) {
-      mcpPrompt += `\n## Available Components:\n${JSON.stringify(context.componentList, null, 2)}\n`;
+      mcpPrompt += `\n## Available Components:\n${JSON.stringify(
+        context.componentList,
+        null,
+        2
+      )}\n`;
     }
 
     mcpPrompt += `\nPlease use the available MCP tools to enhance your workflow execution.`;

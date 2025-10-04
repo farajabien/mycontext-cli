@@ -2,10 +2,8 @@ import {
   AgentMessage,
   AgentIntent,
   AgentContext,
-  AgentFeedback,
   AgentCommunicationHandler,
   IntentResolver,
-  CommunicationPattern,
   WorkflowConfig,
 } from "../interfaces/AgentCommunication";
 import { SubAgentOrchestrator } from "../orchestrator/SubAgentOrchestrator";
@@ -38,7 +36,7 @@ export class AgentCommunicationManager implements AgentCommunicationHandler {
   async receiveMessage(agentName: string): Promise<AgentMessage | null> {
     // Get the latest message for this agent
     const messages = this.messageHistory.filter((m) => m.to === agentName);
-    return messages.length > 0 ? messages[messages.length - 1] : null;
+    return messages.length > 0 ? messages[messages.length - 1]! : null;
   }
 
   async broadcastMessage(message: Omit<AgentMessage, "to">): Promise<void> {
@@ -220,7 +218,7 @@ export class AgentCommunicationManager implements AgentCommunicationHandler {
 export class DefaultIntentResolver implements IntentResolver {
   async analyzeOutput(
     output: any,
-    context: AgentContext
+    _context: AgentContext
   ): Promise<AgentIntent> {
     // Simple heuristic-based analysis
     const confidence = this.calculateConfidence(output);
@@ -253,7 +251,7 @@ export class DefaultIntentResolver implements IntentResolver {
 
   async shouldTriggerNextAgent(
     intent: AgentIntent,
-    context: AgentContext
+    _context: AgentContext
   ): Promise<boolean> {
     return (
       intent.action === "complete" ||
@@ -262,7 +260,7 @@ export class DefaultIntentResolver implements IntentResolver {
   }
 
   async getNextAgent(
-    intent: AgentIntent,
+    _intent: AgentIntent,
     context: AgentContext
   ): Promise<string | null> {
     // Simple sequential flow for now
@@ -272,13 +270,14 @@ export class DefaultIntentResolver implements IntentResolver {
     if (context.previousOutputs) {
       const completed = Object.keys(context.previousOutputs);
       for (let i = 0; i < sequence.length; i++) {
-        if (!completed.includes(sequence[i])) {
-          return sequence[i];
+        const agent = sequence[i];
+        if (agent && !completed.includes(agent)) {
+          return agent;
         }
       }
     }
 
-    return sequence[0]; // Default to first agent
+    return sequence[0]!; // Default to first agent
   }
 
   async createStarterPrompt(
@@ -289,7 +288,7 @@ export class DefaultIntentResolver implements IntentResolver {
 
     if (intent.action === "refine") {
       return `${basePrompt}\n\nPlease refine the previous output with these improvements:\n${
-        intent.nextSteps?.join("\n") || ""
+        intent.reason || "General improvements"
       }`;
     }
 

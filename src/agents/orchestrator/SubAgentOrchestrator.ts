@@ -14,7 +14,7 @@ import {
   OrchestratorStatus,
   SubAgentStatus,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 import { EnhancedSpinner } from "../../utils/spinner";
 import { logger } from "../../utils/logger";
 import chalk from "chalk";
@@ -217,7 +217,7 @@ export class SubAgentOrchestrator implements ISubAgentOrchestrator {
 
       return {
         success,
-        data: stepResults.get(workflow[workflow.length - 1].id),
+        data: stepResults.get(workflow[workflow.length - 1]?.id || ""),
         executionTime,
         steps: results,
       };
@@ -263,7 +263,9 @@ export class SubAgentOrchestrator implements ISubAgentOrchestrator {
         if (result.status === "fulfilled") {
           resultMap.set(result.value.name, result.value.result as TOutput);
         } else {
-          failures.push(`${agents[index].name}: ${result.reason}`);
+          failures.push(
+            `${agents[index]?.name || "Unknown"}: ${result.reason}`
+          );
         }
       });
 

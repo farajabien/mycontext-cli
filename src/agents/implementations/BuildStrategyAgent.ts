@@ -1,7 +1,7 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import { HybridAIClient } from "../../utils/hybridAIClient";
 import { ContextLoader } from "../../utils/contextLoader";
-import { getSubAgentPersonality } from "../personalities/definitions";
+import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
 import chalk from "chalk";
 import path from "path";
 
@@ -322,7 +322,9 @@ export class BuildStrategyAgent
 PROJECT CONTEXT:
 - Name: ${contextAnalysis.projectName}
 - Description: ${contextAnalysis.description}
-- Components: ${contextAnalysis.components.length} found (${contextAnalysis.components.join(", ")})
+- Components: ${
+      contextAnalysis.components.length
+    } found (${contextAnalysis.components.join(", ")})
 - User Roles: ${contextAnalysis.userRoles.join(", ")}
 - Tech Stack: ${contextAnalysis.techStack.join(", ")}
 - Context Completeness: ${contextAnalysis.contextCompleteness}/8 files
@@ -332,9 +334,16 @@ ${userPreferences ? JSON.stringify(userPreferences, null, 2) : "Not specified"}
 
 PROJECT DOCUMENTATION:
 PRD: ${contextAnalysis.rawContext.prd?.substring(0, 500) || "Not available"}
-Features: ${contextAnalysis.rawContext.features?.substring(0, 300) || "Not available"}
-User Flows: ${contextAnalysis.rawContext.userFlows?.substring(0, 300) || "Not available"}
-Technical Specs: ${contextAnalysis.rawContext.technicalSpecs?.substring(0, 300) || "Not available"}
+Features: ${
+      contextAnalysis.rawContext.features?.substring(0, 300) || "Not available"
+    }
+User Flows: ${
+      contextAnalysis.rawContext.userFlows?.substring(0, 300) || "Not available"
+    }
+Technical Specs: ${
+      contextAnalysis.rawContext.technicalSpecs?.substring(0, 300) ||
+      "Not available"
+    }
 
 Provide strategic analysis as JSON:
 {

@@ -811,7 +811,7 @@ export class RefineCommand {
         const match = imp.match(/from\s+['"]([^'"]+)['"]/);
         return match ? match[1] : "";
       })
-      .filter(Boolean);
+      .filter((item): item is string => Boolean(item));
   }
 
   /**
@@ -822,6 +822,7 @@ export class RefineCommand {
     if (!propsMatch) return null;
 
     const propsText = propsMatch[2];
+    if (!propsText) return [];
     const props = propsText
       .split("\n")
       .map((line) => line.trim())
@@ -831,7 +832,7 @@ export class RefineCommand {
         if (propMatch) {
           return {
             name: propMatch[1],
-            type: propMatch[2].trim(),
+            type: propMatch[2]?.trim() || "any",
             required: !line.includes("?"),
           };
         }
@@ -912,7 +913,7 @@ export class RefineCommand {
     }
 
     const latestBackup = backupFiles[0];
-    const backupPath = path.join(historyDir, latestBackup);
+    const backupPath = path.join(historyDir, latestBackup || "backup");
     const backupCode = await fs.readFile(backupPath, "utf-8");
 
     // Restore the backup
