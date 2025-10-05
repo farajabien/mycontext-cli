@@ -36,12 +36,18 @@ export class ProjectStructureValidator {
   private projectRoot: string;
   private issues: ProjectStructureIssue[] = [];
   private metrics: ProjectMetrics;
-  private nextjsValidator: NextJSProjectValidator;
+  private nextjsValidator?: NextJSProjectValidator;
 
   constructor(projectRoot: string = process.cwd()) {
     this.projectRoot = projectRoot;
     this.metrics = this.calculateMetrics();
-    this.nextjsValidator = new NextJSProjectValidator(projectRoot);
+  }
+
+  private getNextjsValidator(): NextJSProjectValidator {
+    if (!this.nextjsValidator) {
+      this.nextjsValidator = new NextJSProjectValidator(this.projectRoot);
+    }
+    return this.nextjsValidator;
   }
 
   /**
@@ -63,7 +69,8 @@ export class ProjectStructureValidator {
     await this.checkDependencyConflicts();
 
     // Run Next.js specific validation
-    const nextjsReport = await this.nextjsValidator.validateNextJSProject();
+    const nextjsReport =
+      await this.getNextjsValidator().validateNextJSProject();
     this.issues.push(
       ...nextjsReport.issues.map((issue) => ({
         type: issue.type,
@@ -289,7 +296,9 @@ export class ProjectStructureValidator {
           this.addIssue({
             type: "warning",
             severity: "low",
-            message: `Potential duplicate dependencies: ${duplicateDeps.join(", ")}`,
+            message: `Potential duplicate dependencies: ${duplicateDeps.join(
+              ", "
+            )}`,
             autoFixable: false,
           });
         }
@@ -693,7 +702,9 @@ export default nextConfig;
     healthReport += `- Project depth: ${report.metrics.projectDepth}\n\n`;
 
     healthReport += `## 🏥 Health Status\n\n`;
-    healthReport += `**Overall Status:** ${report.isValid ? "✅ HEALTHY" : "❌ NEEDS ATTENTION"}\n\n`;
+    healthReport += `**Overall Status:** ${
+      report.isValid ? "✅ HEALTHY" : "❌ NEEDS ATTENTION"
+    }\n\n`;
 
     if (report.issues.length > 0) {
       healthReport += `## 🚨 Issues Found\n\n`;
@@ -755,7 +766,9 @@ export default nextConfig;
     }
 
     healthReport += `## 🔧 Auto-Fix Available\n\n`;
-    healthReport += `**Auto-fixable issues:** ${report.autoFixable ? "✅ Yes" : "❌ No"}\n\n`;
+    healthReport += `**Auto-fixable issues:** ${
+      report.autoFixable ? "✅ Yes" : "❌ No"
+    }\n\n`;
 
     if (report.autoFixable) {
       healthReport += `Run \`mycontext health-check --fix\` to automatically fix issues.\n\n`;

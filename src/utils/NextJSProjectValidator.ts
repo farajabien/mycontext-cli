@@ -1,10 +1,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import chalk from "chalk";
-import {
-  ProjectStructureValidator,
-  ProjectStructureIssue,
-} from "./ProjectStructureValidator";
+import { ProjectStructureIssue } from "./ProjectStructureValidator";
 
 export interface NextJSValidationReport {
   isValid: boolean;
@@ -31,11 +28,9 @@ export interface NextJSIssue {
 
 export class NextJSProjectValidator {
   private projectRoot: string;
-  private validator: ProjectStructureValidator;
 
   constructor(projectRoot: string = process.cwd()) {
     this.projectRoot = projectRoot;
-    this.validator = new ProjectStructureValidator(projectRoot);
   }
 
   /**

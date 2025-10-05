@@ -48,7 +48,10 @@
       "@/commands/*": ["./commands/*"],
       "@/utils/*": ["./utils/*"],
       "@/types/*": ["./types/*"],
-      "@/templates/*": ["./templates/*"]
+      "@/templates/*": ["./templates/*"],
+      "@/constants/*": ["./constants/*"],
+      "@/agents/*": ["./agents/*"],
+      "@/config/*": ["./config/*"]
     }
   },
   "include": ["src/**/*"],
