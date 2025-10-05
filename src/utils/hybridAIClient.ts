@@ -5,6 +5,29 @@ import chalk from "chalk";
 import * as fs from "fs";
 import * as path from "path";
 
+// Load environment variables from project files
+function loadEnvironmentVariables(): void {
+  try {
+    const dotenv = require("dotenv");
+    const dotenvExpand = require("dotenv-expand");
+    const cwd = process.cwd();
+    const candidates = [
+      path.join(cwd, ".mycontext", ".env.local"),
+      path.join(cwd, ".mycontext", ".env"),
+      path.join(cwd, ".env.local"),
+      path.join(cwd, ".env"),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const result = dotenv.config({ path: p });
+        dotenvExpand.expand(result);
+      }
+    }
+  } catch {
+    // Ignore errors
+  }
+}
+
 export interface AIProvider {
   name: string;
   priority: number; // Lower number = higher priority
@@ -41,6 +64,9 @@ export class HybridAIClient {
   private static hasLoggedInitialization = false;
 
   constructor() {
+    // Load environment variables first
+    loadEnvironmentVariables();
+
     this.loadConfig();
     this.initializeProviders();
   }
@@ -65,16 +91,34 @@ export class HybridAIClient {
   private async initializeProviders() {
     // Add user API key providers first (highest priority)
     // Claude Agent SDK (highest priority for advanced features)
-    if (this.config?.claude?.enabled) {
-      const claudeAgentClient = new ClaudeAgentClient();
-      if (claudeAgentClient.hasApiKey()) {
-        this.providers.push({
-          name: "claude-agent",
-          priority: 0, // Highest priority for Agent SDK
-          client: claudeAgentClient,
-          isAvailable: () => claudeAgentClient.checkConnection(),
-        });
+    // Always try ClaudeAgentClient if it has an API key (simplified approach)
+    const claudeAgentClient = new ClaudeAgentClient();
+    if (claudeAgentClient.hasApiKey()) {
+      // Determine provider name based on mode
+      const providerName = claudeAgentClient.isGrokModeEnabled
+        ? "xai"
+        : "claude-agent";
+
+      // Log the provider being used (only once)
+      if (!HybridAIClient.hasLoggedInitialization) {
+        if (claudeAgentClient.isGrokModeEnabled) {
+          console.log(chalk.blue("🤖 Using Grok 4 via X AI API (direct)"));
+        } else {
+          console.log(
+            chalk.blue(
+              "🎯 Using Claude Agent SDK (supports Claude, Bedrock, Vertex AI)"
+            )
+          );
+        }
+        HybridAIClient.hasLoggedInitialization = true;
       }
+
+      this.providers.push({
+        name: providerName,
+        priority: 0, // Highest priority for Agent SDK
+        client: claudeAgentClient,
+        isAvailable: () => claudeAgentClient.checkConnection(),
+      });
     }
 
     // Sort providers by priority (lower number = higher priority)
@@ -96,13 +140,7 @@ export class HybridAIClient {
         HybridAIClient.hasLoggedInitialization = true;
       }
     } else {
-      // Only log once to avoid spam
-      if (!HybridAIClient.hasLoggedInitialization) {
-        console.log(
-          `Using local AI provider${this.providers.length > 1 ? "s" : ""}`
-        );
-        HybridAIClient.hasLoggedInitialization = true;
-      }
+      // Provider-specific message already logged above, no need for generic message
     }
 
     // Sort by priority
@@ -859,6 +897,5 @@ export class HybridAIClient {
       : null;
   }
 
-  // REMOVED: Dangerous fallback methods that compromise accuracy
   // MyContext requires 100% accuracy - no fallbacks allowed
 }

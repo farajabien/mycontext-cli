@@ -100,6 +100,8 @@ Copy this file to \`.env\` in your .mycontext directory and update with your act
 - Get API key from dashboard
 - Copy key to: MYCONTEXT_XAI_API_KEY
 - Set: MYCONTEXT_PROVIDER=xai
+- Set: MYCONTEXT_MODEL=grok-beta
+- ✅ **WORKING**: Direct integration with X AI API
 
 ### Step 2: Configure Your Environment
 
@@ -151,12 +153,14 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
 \`\`\`
 
-#### Option 4: Grok 4 (Direct X AI API)
+#### Option 4: Grok 4 (Direct X AI API) ✅ WORKING
 \`\`\`bash
 MYCONTEXT_PROVIDER=xai
 MYCONTEXT_XAI_API_KEY=your_xai_api_key
 MYCONTEXT_MODEL=grok-beta
 \`\`\`
+
+**✅ Tested and Working**: Grok 4 integration is fully functional!
 
 ## 📋 MyContext Workflow Steps
 
@@ -206,8 +210,15 @@ After setting up your environment:
 
 **"Rate limit exceeded" error?**
 - Claude Agent SDK handles rate limiting automatically
+- Grok 4 has its own rate limits - check X AI console
 - Consider upgrading to higher tier plans
 - Wait and try again later
+
+**"No AI providers available" error?**
+- Check your API key is correctly set in .mycontext/.env
+- Verify the provider name matches your configuration
+- For Grok 4: ensure MYCONTEXT_PROVIDER=xai
+- Run: mycontext status to verify setup
 
 **Need help?**
 - Check: mycontext status

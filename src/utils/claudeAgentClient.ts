@@ -82,6 +82,13 @@ export class ClaudeAgentClient implements AgentAIClient {
   }
 
   /**
+   * Check if Grok mode is enabled
+   */
+  get isGrokModeEnabled(): boolean {
+    return this.isGrokMode;
+  }
+
+  /**
    * Check if we should use Grok 4 (only provider not supported by Claude SDK)
    */
   private checkGrokMode(): void {
@@ -91,16 +98,9 @@ export class ClaudeAgentClient implements AgentAIClient {
     if (provider === "xai" || provider === "grok") {
       this.isGrokMode = true;
       this.grokApiKey = this.loadGrokApiKey();
-
-      if (this.grokApiKey) {
-        console.log(chalk.blue("🤖 Using Grok 4 via X AI API (direct)"));
-      }
+      // Logging moved to HybridAIClient to avoid duplicates
     } else {
-      console.log(
-        chalk.blue(
-          "🎯 Using Claude Agent SDK (supports Claude, Bedrock, Vertex AI)"
-        )
-      );
+      // Logging moved to HybridAIClient to avoid duplicates
     }
   }
 
@@ -166,7 +166,9 @@ export class ClaudeAgentClient implements AgentAIClient {
             if (
               trimmed.startsWith("MYCONTEXT_CLAUDE_API_KEY=") ||
               trimmed.startsWith("ANTHROPIC_API_KEY=") ||
-              trimmed.startsWith("CLAUDE_API_KEY=")
+              trimmed.startsWith("CLAUDE_API_KEY=") ||
+              trimmed.startsWith("MYCONTEXT_XAI_API_KEY=") ||
+              trimmed.startsWith("XAI_API_KEY=")
             ) {
               const keyValue = trimmed.split("=", 2);
               if (keyValue.length === 2) {
