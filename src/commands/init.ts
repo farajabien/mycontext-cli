@@ -103,10 +103,11 @@ export class InitCommand {
             name: "framework",
             message: "Choose your frontend framework:",
             choices: [
-              { title: "Next.js (Recommended)", value: "nextjs" },
+              { title: "InstantDB (Recommended)", value: "instantdb" },
+              { title: "Next.js", value: "nextjs" },
               { title: "Other (Manual setup)", value: "other" },
             ],
-            initial: 1, // Default to 'Other' to keep init lightweight
+            initial: 0, // Default to InstantDB
           },
         ]);
 
@@ -119,7 +120,7 @@ export class InitCommand {
           finalDescription ||
           "A MyContext AI-powered component generation project";
         // Keep lightweight by default when non-interactive
-        finalFramework = finalFramework || "other";
+        finalFramework = finalFramework || "instantdb";
       }
 
       // Validate required fields
@@ -130,7 +131,14 @@ export class InitCommand {
       spinner.start();
 
       // Setup framework-specific project only when explicitly selected
-      if (finalFramework === "nextjs") {
+      if (finalFramework === "instantdb") {
+        spinner.updateText("Setting up InstantDB project...");
+        await this.setupInstantDBProject(
+          finalProjectName,
+          workingDir,
+          useCurrentDir
+        );
+      } else if (finalFramework === "nextjs") {
         spinner.updateText("Setting up Next.js project...");
         await this.setupNextJSProject(
           finalProjectName,
@@ -176,8 +184,9 @@ export class InitCommand {
         const envDir = path.join(projectPath, ".mycontext");
         await fs.ensureDir(envDir);
         const envExamplePath = path.join(envDir, ".env.example");
-        const envExample =
-          await EnvExampleGenerator.generateForProject(projectPath);
+        const envExample = await EnvExampleGenerator.generateForProject(
+          projectPath
+        );
         await fs.writeFile(envExamplePath, envExample);
       } catch {}
 
@@ -270,10 +279,10 @@ export class InitCommand {
     );
 
     console.log(
-      chalk.yellow("3. Configure AI provider (Qwen3 Coder - FREE!):")
+      chalk.yellow("3. Configure AI provider (Claude SDK - RECOMMENDED!):")
     );
     console.log(
-      chalk.gray("   # Get FREE API key: https://openrouter.ai/keys\n")
+      chalk.gray("   # Get Claude API key: https://console.anthropic.com/\n")
     );
     console.log(
       chalk.gray("   # Copy .env.example to .env and add your key:\n")
@@ -281,7 +290,7 @@ export class InitCommand {
     console.log(chalk.cyan("   cp .mycontext/.env.example .mycontext/.env"));
     console.log(
       chalk.cyan(
-        "   # Edit .mycontext/.env and replace placeholder with your actual key\n"
+        "   # Edit .mycontext/.env and replace placeholder with your actual Claude API key\n"
       )
     );
 
@@ -299,14 +308,16 @@ export class InitCommand {
     );
 
     console.log(
-      chalk.yellow("7. Set up InstantDB (default for all MyContext apps):")
+      chalk.yellow(
+        "7. Set up InstantDB (already configured in InstantDB projects):"
+      )
     );
     console.log(
-      chalk.gray("   mycontext setup-instantdb   # with MCP integration")
+      chalk.gray("   # InstantDB is already set up! Check instant.schema.ts")
     );
-    console.log(chalk.gray("   # or for other databases:"));
+    console.log(chalk.gray("   # For other databases:"));
     console.log(chalk.gray("   mycontext setup-database"));
-    console.log(chalk.gray("   # or for other MCP providers:"));
+    console.log(chalk.gray("   # For other MCP providers:"));
     console.log(chalk.gray("   mycontext setup-mcp --provider github\n"));
 
     console.log(chalk.yellow("8. Generate components:"));
@@ -324,9 +335,7 @@ export class InitCommand {
 
     console.log(chalk.yellow("⚠️  IMPORTANT NOTES:"));
     console.log(
-      chalk.gray(
-        "• Get your FREE Qwen3 Coder API key at: https://openrouter.ai/keys"
-      )
+      chalk.gray("• Get your Claude API key at: https://console.anthropic.com/")
     );
     console.log(
       chalk.gray(
@@ -350,6 +359,60 @@ export class InitCommand {
   private isValidProjectName(name: string): boolean {
     // Allow alphanumeric, hyphens, and underscores
     return /^[a-zA-Z0-9_-]+$/.test(name);
+  }
+
+  private async setupInstantDBProject(
+    projectName: string,
+    workingDir: string,
+    useCurrentDir?: boolean
+  ): Promise<void> {
+    try {
+      const projectPath = useCurrentDir
+        ? workingDir
+        : path.join(workingDir, projectName);
+
+      // Check if InstantDB project already exists
+      const instantSchemaPath = path.join(projectPath, "instant.schema.ts");
+      const packageJsonPath = path.join(projectPath, "package.json");
+
+      if (
+        (await fs.pathExists(instantSchemaPath)) &&
+        (await fs.pathExists(packageJsonPath))
+      ) {
+        console.log(chalk.gray("   ✅ InstantDB project structure detected"));
+        return;
+      }
+
+      // Create InstantDB project
+      console.log(chalk.gray("   Creating InstantDB project..."));
+      try {
+        execSync(`npx create-instant-app@latest ${projectName} --yes`, {
+          cwd: workingDir,
+          stdio: "inherit",
+          timeout: 300000, // 5 minutes
+        });
+        console.log(chalk.green("   ✅ InstantDB project created"));
+      } catch (error) {
+        console.log(
+          chalk.yellow(`   ⚠️ Failed to create InstantDB project automatically`)
+        );
+        console.log(chalk.gray(`   Please create it manually:`));
+        console.log(
+          chalk.gray(`   npx create-instant-app@latest ${projectName} --yes`)
+        );
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          `   ⚠️ InstantDB setup encountered an issue: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        )
+      );
+      console.log(
+        chalk.gray("   You can create the InstantDB project manually if needed")
+      );
+    }
   }
 
   private async setupNextJSProject(
@@ -446,10 +509,12 @@ export class InitCommand {
 
   private async isExistingProject(projectPath: string): Promise<boolean> {
     const packageJsonPath = path.join(projectPath, "package.json");
+    const instantSchemaPath = path.join(projectPath, "instant.schema.ts");
     const nextConfigPath = path.join(projectPath, "next.config.js");
     const nextConfigTsPath = path.join(projectPath, "next.config.ts");
 
     const hasPackageJson = await fs.pathExists(packageJsonPath);
+    const hasInstantSchema = await fs.pathExists(instantSchemaPath);
     const hasNextConfig =
       (await fs.pathExists(nextConfigPath)) ||
       (await fs.pathExists(nextConfigTsPath));
@@ -460,9 +525,20 @@ export class InitCommand {
       const packageJson = JSON.parse(
         await fs.readFile(packageJsonPath, "utf-8")
       );
+
+      // Check for InstantDB project
+      const hasInstantDependency =
+        packageJson.dependencies?.["@instantdb/react"] ||
+        packageJson.dependencies?.["@instantdb/core"];
+
+      // Check for Next.js project
       const hasNextDependency =
         packageJson.dependencies?.next || packageJson.devDependencies?.next;
-      return hasNextDependency && hasNextConfig;
+
+      return (
+        (hasInstantDependency && hasInstantSchema) ||
+        (hasNextDependency && hasNextConfig)
+      );
     } catch {
       return false;
     }
