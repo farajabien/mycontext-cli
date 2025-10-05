@@ -427,7 +427,7 @@ export class GenerateComponentsCommand {
       }
     } catch (error) {
       spinner.error({ text: "Component generation failed" });
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 

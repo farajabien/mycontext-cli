@@ -130,7 +130,7 @@ export class CompilePRDCommand {
       );
     } catch (error) {
       console.error(chalk.red("❌ PRD compilation failed:"), error);
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 
@@ -210,7 +210,7 @@ export class CompilePRDCommand {
       spinner.succeed("PRD compiled");
     } catch (error) {
       spinner.fail("PRD compilation failed");
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 

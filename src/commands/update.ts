@@ -24,6 +24,16 @@ export class UpdateCommand {
           logger.info(
             "💡 Try running the update from your home directory or use: npm i -g mycontext-cli@latest"
           );
+        } else if (
+          packageJson.packageManager &&
+          packageJson.packageManager.includes("npm")
+        ) {
+          logger.warn(
+            "⚠️  You're in a project that uses npm. This might interfere with global updates."
+          );
+          logger.info(
+            "💡 Try running the update from your home directory or use: npm i -g mycontext-cli@latest"
+          );
         }
       } catch (e) {
         // Ignore errors reading package.json
@@ -125,6 +135,9 @@ export class UpdateCommand {
       logger.info("  npm i -g mycontext-cli@latest");
       logger.info("  npm i -g mycontext-cli@latest --force");
       logger.info("  npm cache clean --force && npm i -g mycontext-cli@latest");
+      logger.info("");
+      logger.info("💡 If you're in a project directory, try running from your home directory:");
+      logger.info("  cd ~ && mycontext --up");
       throw error;
     }
   }

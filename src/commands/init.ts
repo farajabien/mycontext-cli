@@ -206,7 +206,7 @@ export class InitCommand {
       this.showNextSteps(config, finalFramework, useCurrentDir);
     } catch (error) {
       spinner.error({ text: "Failed to initialize project" });
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 
@@ -669,7 +669,7 @@ export class InitCommand {
       );
     } catch (error) {
       console.error(chalk.red("❌ Analysis failed:"), error);
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 }

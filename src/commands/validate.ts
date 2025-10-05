@@ -58,7 +58,7 @@ export class ValidateCommand {
       }
     } catch (error) {
       spinner.error({ text: "PRD validation failed" });
-      throw error;
+      // Don't re-throw - let the CLI handle it
     }
   }
 
