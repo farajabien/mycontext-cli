@@ -117,6 +117,7 @@ export class GenerateContextFilesCommand {
     contextContent?: string
   ): Promise<void> {
     // Generate features file
+    try {
       const prompt = this.buildFeaturesPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -145,6 +146,7 @@ export class GenerateContextFilesCommand {
     contextContent?: string
   ): Promise<void> {
     // Generate user flows file
+    try {
       const prompt = this.buildUserFlowsPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -173,6 +175,7 @@ export class GenerateContextFilesCommand {
     contextContent?: string
   ): Promise<void> {
     // Generate edge cases file
+    try {
       const prompt = this.buildEdgeCasesPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -201,6 +204,7 @@ export class GenerateContextFilesCommand {
     contextContent?: string
   ): Promise<void> {
     // Generate technical specs file
+    try {
       const prompt = this.buildTechnicalSpecsPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
