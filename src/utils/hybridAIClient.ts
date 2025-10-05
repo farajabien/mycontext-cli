@@ -178,18 +178,14 @@ export class HybridAIClient {
 
       // Only log once to avoid spam
       if (!HybridAIClient.hasLoggedInitialization) {
-        console.log(
-          `[HybridAIClient] Using hosted service (no local API keys found)`
-        );
+        console.log(`Using hosted AI service`);
         HybridAIClient.hasLoggedInitialization = true;
       }
     } else {
       // Only log once to avoid spam
       if (!HybridAIClient.hasLoggedInitialization) {
         console.log(
-          `[HybridAIClient] Initialized ${this.providers.length} provider${
-            this.providers.length > 1 ? "s" : ""
-          }`
+          `Using local AI provider${this.providers.length > 1 ? "s" : ""}`
         );
         HybridAIClient.hasLoggedInitialization = true;
       }
@@ -542,16 +538,10 @@ export class HybridAIClient {
     // All providers failed
     const failedList = failedProviders.join(", ");
     console.log(chalk.red("❌ All AI providers failed"));
-    console.log(
-      chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
-    );
-    console.log(chalk.blue("🔄 Retry options:"));
+    console.log(chalk.yellow("💡 All AI providers failed. Retry options:"));
     console.log(chalk.gray("  1. Wait for rate limits to reset"));
-    console.log(chalk.gray("  2. Use a different AI provider"));
-    console.log(chalk.gray("  3. Check your API key configuration"));
-    console.log(
-      chalk.gray("  4. Try again later with: mycontext generate context --full")
-    );
+    console.log(chalk.gray("  2. Check API key configuration"));
+    console.log(chalk.gray("  3. Try again later"));
     throw new Error(
       `All AI providers failed: ${failedList}. Retry when conditions improve.`
     );
@@ -571,17 +561,7 @@ export class HybridAIClient {
     if (!provider) {
       // No providers available - fail cleanly
       console.log(chalk.red("❌ No AI providers available"));
-      console.log(
-        chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
-      );
-      console.log(chalk.blue("🔄 Retry options:"));
-      console.log(chalk.gray("  1. Configure an AI provider API key"));
-      console.log(chalk.gray("  2. Check your API key configuration"));
-      console.log(
-        chalk.gray(
-          "  3. Try again later with: mycontext generate context --full"
-        )
-      );
+      console.log(chalk.yellow("💡 Configure API keys and retry"));
       throw new Error(
         "No AI providers available - configure API keys and retry"
       );
