@@ -45,6 +45,7 @@ export class HybridAIClient {
   private providers: AIProvider[] = [];
   private currentProvider: AIProvider | null = null;
   private config: AIConfig | null = null;
+  private static hasLoggedInitialization = false;
 
   constructor() {
     this.loadConfig();
@@ -165,13 +166,6 @@ export class HybridAIClient {
     // Sort providers by priority (lower number = higher priority)
     this.providers.sort((a, b) => a.priority - b.priority);
 
-    console.log(
-      `[HybridAIClient] Initialized ${this.providers.length} providers:`,
-      this.providers
-        .map((p) => `${p.name} (priority: ${p.priority})`)
-        .join(", ")
-    );
-
     // Add hosted API as fallback if no local providers are available
     if (this.providers.length === 0) {
       const hostedClient = new HostedApiClient();
@@ -181,9 +175,24 @@ export class HybridAIClient {
         client: hostedClient,
         isAvailable: () => hostedClient.checkConnection(),
       });
-      console.log(
-        `[HybridAIClient] No local API keys found, using hosted service (billing enabled)`
-      );
+
+      // Only log once to avoid spam
+      if (!HybridAIClient.hasLoggedInitialization) {
+        console.log(
+          `[HybridAIClient] Using hosted service (no local API keys found)`
+        );
+        HybridAIClient.hasLoggedInitialization = true;
+      }
+    } else {
+      // Only log once to avoid spam
+      if (!HybridAIClient.hasLoggedInitialization) {
+        console.log(
+          `[HybridAIClient] Initialized ${this.providers.length} provider${
+            this.providers.length > 1 ? "s" : ""
+          }`
+        );
+        HybridAIClient.hasLoggedInitialization = true;
+      }
     }
 
     // Sort by priority
