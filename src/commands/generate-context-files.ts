@@ -113,13 +113,6 @@ export class GenerateContextFilesCommand {
       );
     } catch (error) {
       this.spinner.fail("Context file generation failed");
-
-      // Handle template PRD error more gracefully
-      if (error instanceof Error && error.message.includes("template")) {
-        // Error message already displayed above, just exit cleanly
-        return;
-      }
-
       logger.error(
         `Context file generation failed: ${
           error instanceof Error ? error.message : String(error)
@@ -813,9 +806,8 @@ ${response}
             chalk.gray("   Then run: mycontext generate-context-files")
           );
 
-          throw new Error(
-            "PRD template needs to be updated with actual project details"
-          );
+          // Exit gracefully instead of throwing error
+          process.exit(0);
         } else {
           console.log(
             chalk.blue(

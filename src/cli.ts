@@ -231,6 +231,21 @@ program
         ...options,
       });
     } catch (error) {
+      // soft fail
+      if (error instanceof Error && error.message.includes("template")) {
+        console.log(
+          chalk.yellow(
+            "⚠️  PRD is a template - please update with your project details first"
+          )
+        );
+        console.log(
+          chalk.gray("   Edit: .mycontext/01-prd.md with your project details")
+        );
+        console.log(
+          chalk.gray("   Then run: mycontext generate-context-files")
+        );
+        process.exit(1);
+      }
       console.error(chalk.red("❌ Context files generation failed:"), error);
       process.exit(1);
     }
