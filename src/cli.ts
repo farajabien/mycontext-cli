@@ -246,7 +246,7 @@ program
         );
         process.exit(1);
       }
-      console.error(chalk.red("❌ Context files generation failed:"), error);
+      // Don't log the error again - it's already been logged by the command
       process.exit(1);
     }
   });

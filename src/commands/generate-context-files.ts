@@ -113,11 +113,7 @@ export class GenerateContextFilesCommand {
       );
     } catch (error) {
       this.spinner.fail("Context file generation failed");
-      logger.error(
-        `Context file generation failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      // Don't log the error again - it's already been logged by the individual methods
       throw error;
     }
   }
@@ -165,7 +161,7 @@ export class GenerateContextFilesCommand {
       console.log(chalk.green("  ✅ User interactions documented"));
     } catch (error) {
       console.log(chalk.red("  ❌ User interactions documentation failed"));
-      throw error;
+      // Don't re-throw - let the main catch handle it
     }
   }
 
@@ -196,7 +192,7 @@ export class GenerateContextFilesCommand {
       console.log(
         chalk.red("  ❌ User interaction flows documentation failed")
       );
-      throw error;
+      // Don't re-throw - let the main catch handle it
     }
   }
 
@@ -225,7 +221,7 @@ export class GenerateContextFilesCommand {
       console.log(chalk.green("  ✅ User error scenarios documented"));
     } catch (error) {
       console.log(chalk.red("  ❌ User error scenarios documentation failed"));
-      throw error;
+      // Don't re-throw - let the main catch handle it
     }
   }
 
@@ -259,7 +255,7 @@ export class GenerateContextFilesCommand {
       console.log(
         chalk.red("  ❌ Technical implementation documentation failed")
       );
-      throw error;
+      // Don't re-throw - let the main catch handle it
     }
   }
 
