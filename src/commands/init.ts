@@ -383,34 +383,102 @@ export class InitCommand {
         return;
       }
 
-      // Create InstantDB project
-      console.log(chalk.gray("   Creating InstantDB project..."));
+      // Create InstantDB project with user interaction
+      console.log(chalk.blue("\n🚀 Starting InstantDB Project Creation"));
+      console.log(
+        chalk.gray(
+          "   You'll now go through the InstantDB setup process interactively."
+        )
+      );
+      console.log(
+        chalk.gray(
+          "   Complete the setup, and MyContext will continue automatically.\n"
+        )
+      );
+
       try {
-        execSync(`npx create-instant-app@latest ${projectName} --yes`, {
-          cwd: workingDir,
-          stdio: "inherit",
-          timeout: 300000, // 5 minutes
+        // Use spawn to handle interactive prompts properly
+        const { spawn } = await import("child_process");
+        const createInstantApp = spawn(
+          "npx",
+          ["create-instant-app@latest", projectName],
+          {
+            cwd: workingDir,
+            stdio: ["inherit", "inherit", "inherit"], // Allow stdin/stdout/stderr to pass through
+            shell: true,
+          }
+        );
+
+        await new Promise<void>((resolve, reject) => {
+          createInstantApp.on("close", (code) => {
+            if (code === 0) {
+              console.log(
+                chalk.green("\n✅ InstantDB project created successfully!")
+              );
+              console.log(
+                chalk.blue(
+                  "🔄 MyContext will now continue with project setup...\n"
+                )
+              );
+              resolve();
+            } else {
+              console.log(
+                chalk.yellow(`\n⚠️ InstantDB setup completed with code ${code}`)
+              );
+              console.log(
+                chalk.blue("🔄 MyContext will continue with project setup...\n")
+              );
+              resolve(); // Continue even if there was an issue
+            }
+          });
+
+          createInstantApp.on("error", (error) => {
+            console.log(
+              chalk.yellow(
+                `\n⚠️ InstantDB setup encountered an error: ${error.message}`
+              )
+            );
+            console.log(
+              chalk.blue("🔄 MyContext will continue with project setup...\n")
+            );
+            resolve(); // Continue even if there was an error
+          });
+
+          // Set timeout
+          setTimeout(() => {
+            createInstantApp.kill();
+            console.log(chalk.yellow("\n⚠️ InstantDB setup timed out"));
+            console.log(
+              chalk.blue("🔄 MyContext will continue with project setup...\n")
+            );
+            resolve(); // Continue even if it timed out
+          }, 600000); // 10 minutes - give more time for user interaction
         });
-        console.log(chalk.green("   ✅ InstantDB project created"));
       } catch (error) {
         console.log(
-          chalk.yellow(`   ⚠️ Failed to create InstantDB project automatically`)
+          chalk.yellow(`\n⚠️ Failed to create InstantDB project automatically`)
         );
-        console.log(chalk.gray(`   Please create it manually:`));
+        console.log(chalk.gray(`   You can create it manually later:`));
         console.log(
-          chalk.gray(`   npx create-instant-app@latest ${projectName} --yes`)
+          chalk.gray(`   npx create-instant-app@latest ${projectName}`)
+        );
+        console.log(
+          chalk.blue("🔄 MyContext will continue with project setup...\n")
         );
       }
     } catch (error) {
       console.log(
         chalk.yellow(
-          `   ⚠️ InstantDB setup encountered an issue: ${
+          `\n⚠️ InstantDB setup encountered an issue: ${
             error instanceof Error ? error.message : "Unknown error"
           }`
         )
       );
       console.log(
         chalk.gray("   You can create the InstantDB project manually if needed")
+      );
+      console.log(
+        chalk.blue("🔄 MyContext will continue with project setup...\n")
       );
     }
   }
