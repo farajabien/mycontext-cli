@@ -136,7 +136,9 @@ export class UpdateCommand {
       logger.info("  npm i -g mycontext-cli@latest --force");
       logger.info("  npm cache clean --force && npm i -g mycontext-cli@latest");
       logger.info("");
-      logger.info("💡 If you're in a project directory, try running from your home directory:");
+      logger.info(
+        "💡 If you're in a project directory, try running from your home directory:"
+      );
       logger.info("  cd ~ && mycontext --up");
       throw error;
     }
