@@ -113,8 +113,17 @@ export class GenerateContextFilesCommand {
       );
     } catch (error) {
       this.spinner.fail("Context file generation failed");
+
+      // Handle template PRD error more gracefully
+      if (error instanceof Error && error.message.includes("template")) {
+        // Error message already displayed above, just exit cleanly
+        return;
+      }
+
       logger.error(
-        `Context file generation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Context file generation failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       throw error;
     }
@@ -264,7 +273,11 @@ export class GenerateContextFilesCommand {
   private buildFeaturesPrompt(contextContent?: string): string {
     return `You are a user experience researcher documenting every user interaction for a web application.
 
-${contextContent ? `Project Context: ${contextContent}` : "Generate user interaction documentation for a modern web application."}
+${
+  contextContent
+    ? `Project Context: ${contextContent}`
+    : "Generate user interaction documentation for a modern web application."
+}
 
 Create a comprehensive user-centric features document that documents every user interaction:
 
@@ -368,7 +381,11 @@ Format the output as a well-structured markdown document with clear sections and
   private buildUserFlowsPrompt(contextContent?: string): string {
     return `You are a user experience researcher documenting every user interaction and system response for a web application.
 
-${contextContent ? `Project Context: ${contextContent}` : "Generate user interaction flows for a modern web application."}
+${
+  contextContent
+    ? `Project Context: ${contextContent}`
+    : "Generate user interaction flows for a modern web application."
+}
 
 Create comprehensive user-centric flow documentation that captures every user interaction:
 
@@ -485,7 +502,11 @@ Format the output as a well-structured markdown document with clear sections and
   private buildEdgeCasesPrompt(contextContent?: string): string {
     return `You are a user experience researcher documenting error scenarios and edge cases from the user's perspective.
 
-${contextContent ? `Project Context: ${contextContent}` : "Generate user error scenarios for a modern web application."}
+${
+  contextContent
+    ? `Project Context: ${contextContent}`
+    : "Generate user error scenarios for a modern web application."
+}
 
 Create comprehensive user-centric error documentation that captures what users experience when things go wrong:
 
@@ -599,7 +620,11 @@ Format the output as a well-structured markdown document with clear sections and
   private buildTechnicalSpecsPrompt(contextContent?: string): string {
     return `You are a user experience researcher documenting technical implementation details from the user's perspective.
 
-${contextContent ? `Project Context: ${contextContent}` : "Generate technical implementation details for a modern web application."}
+${
+  contextContent
+    ? `Project Context: ${contextContent}`
+    : "Generate technical implementation details for a modern web application."
+}
 
 Create user-centric technical documentation that explains how the system works behind the scenes to support user interactions:
 
@@ -778,26 +803,18 @@ ${response}
         if (this.isTemplatePRD(prdContent)) {
           console.log(
             chalk.yellow(
-              "⚠️  PRD appears to be a template and needs to be updated first"
+              "⚠️  PRD is a template - please update with your project details first"
             )
           );
           console.log(
-            chalk.blue(
-              "📝 Please update your PRD file with your actual project details:"
-            )
-          );
-          console.log(chalk.gray(`   ${prdPath}`));
-          console.log(
-            chalk.yellow(
-              "   Replace template content with your specific requirements"
-            )
+            chalk.gray(`   Edit: ${prdPath.replace(process.cwd(), ".")}`)
           );
           console.log(
-            chalk.gray("   Then run 'mycontext generate context' again")
+            chalk.gray("   Then run: mycontext generate-context-files")
           );
 
           throw new Error(
-            "PRD is a template and needs to be updated with actual project details first"
+            "PRD template needs to be updated with actual project details"
           );
         } else {
           console.log(
