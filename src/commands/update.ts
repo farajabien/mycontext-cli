@@ -6,11 +6,24 @@ export class UpdateCommand {
   async execute(): Promise<void> {
     logger.info("Updating mycontext CLI...");
 
+    // Check current version first
+    const currentVersion = this.getCurrentVersion();
+    logger.info(`Current version: ${currentVersion}`);
+
     // Try pnpm first (cleaner output)
     try {
       logger.progress("Checking for updates via pnpm...");
       await this.runCommand("pnpm", ["add", "-g", "mycontext-cli@latest"]);
-      logger.success("Updated successfully via pnpm");
+
+      // Verify the update actually happened
+      const newVersion = this.getCurrentVersion();
+      if (newVersion !== currentVersion) {
+        logger.success(
+          `Updated successfully via pnpm: ${currentVersion} → ${newVersion}`
+        );
+      } else {
+        logger.info("Already up to date via pnpm");
+      }
       this.printNextCommands();
       return;
     } catch (e) {
@@ -21,14 +34,76 @@ export class UpdateCommand {
     try {
       logger.progress("Checking for updates via npm...");
       await this.runCommand("npm", ["i", "-g", "mycontext-cli@latest"]);
-      logger.success("Updated successfully via npm");
+
+      // Verify the update actually happened
+      const newVersion = this.getCurrentVersion();
+      if (newVersion !== currentVersion) {
+        logger.success(
+          `Updated successfully via npm: ${currentVersion} → ${newVersion}`
+        );
+      } else {
+        logger.info("Already up to date via npm");
+      }
       this.printNextCommands();
     } catch (error) {
+      // Try alternative approaches
+      logger.warn("Standard update failed, trying alternative methods...");
+
+      try {
+        // Try with --force flag
+        logger.progress("Trying npm with --force flag...");
+        await this.runCommand("npm", [
+          "i",
+          "-g",
+          "mycontext-cli@latest",
+          "--force",
+        ]);
+
+        const newVersion = this.getCurrentVersion();
+        if (newVersion !== currentVersion) {
+          logger.success(
+            `Updated successfully via npm --force: ${currentVersion} → ${newVersion}`
+          );
+          this.printNextCommands();
+          return;
+        }
+      } catch (e) {
+        logger.verbose("npm --force also failed");
+      }
+
+      // Try clearing cache and updating
+      try {
+        logger.progress("Clearing npm cache and trying again...");
+        await this.runCommand("npm", ["cache", "clean", "--force"]);
+        await this.runCommand("npm", ["i", "-g", "mycontext-cli@latest"]);
+
+        const newVersion = this.getCurrentVersion();
+        if (newVersion !== currentVersion) {
+          logger.success(
+            `Updated successfully after cache clear: ${currentVersion} → ${newVersion}`
+          );
+          this.printNextCommands();
+          return;
+        }
+      } catch (e) {
+        logger.verbose("Cache clear approach also failed");
+      }
+
       logger.error("Failed to update CLI automatically");
       logger.info("Try manually:");
       logger.info("  pnpm add -g mycontext-cli@latest");
       logger.info("  npm i -g mycontext-cli@latest");
+      logger.info("  npm i -g mycontext-cli@latest --force");
+      logger.info("  npm cache clean --force && npm i -g mycontext-cli@latest");
       throw error;
+    }
+  }
+
+  private getCurrentVersion(): string {
+    try {
+      return require("../../package.json").version;
+    } catch {
+      return "unknown";
     }
   }
 
