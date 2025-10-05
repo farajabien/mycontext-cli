@@ -42,7 +42,17 @@ export class UpdateCommand {
 
     // Check current version first
     const currentVersion = this.getCurrentVersion();
+    const latestVersion = this.getLatestVersion();
+
     logger.info(`Current version: ${currentVersion}`);
+    if (latestVersion !== "unknown") {
+      logger.info(`Latest version: ${latestVersion}`);
+
+      if (currentVersion === latestVersion) {
+        logger.info("✅ You're already up to date!");
+        return;
+      }
+    }
 
     // Try pnpm first (cleaner output)
     try {
@@ -146,10 +156,13 @@ export class UpdateCommand {
 
   private getCurrentVersion(): string {
     try {
-      // Try to get the version from the actual installed package
+      // Get the installed version from the actual CLI
       const { execSync } = require("child_process");
       const result = execSync("mycontext --version", { encoding: "utf8" });
-      const versionMatch = result.match(/(\d+\.\d+\.\d+)/);
+      const lines = result.trim().split("\n");
+      const lastLine = lines[lines.length - 1];
+      const versionMatch = lastLine.match(/(\d+\.\d+\.\d+)/);
+
       if (versionMatch) {
         return versionMatch[1];
       }
@@ -160,6 +173,24 @@ export class UpdateCommand {
       } catch {
         return "unknown";
       }
+    }
+    return "unknown";
+  }
+
+  private getLatestVersion(): string {
+    try {
+      // Get the latest version from npm registry
+      const { execSync } = require("child_process");
+      const result = execSync("npm view mycontext-cli version", {
+        encoding: "utf8",
+      });
+      const versionMatch = result.trim().match(/(\d+\.\d+\.\d+)/);
+
+      if (versionMatch) {
+        return versionMatch[1];
+      }
+    } catch (error) {
+      return "unknown";
     }
     return "unknown";
   }
