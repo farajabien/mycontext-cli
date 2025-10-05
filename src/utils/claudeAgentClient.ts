@@ -22,8 +22,6 @@ import {
   SettingSource,
   MCPTool,
 } from "../interfaces/AIClient";
-// import { StreamingHandler, streamWithProgress } from "./streamingHandler";
-// DISABLED: StreamingHandler and streamWithProgress are not available
 import { getAllMCPTools } from "./mcpTools";
 import { getAllAgentDefinitions, getAgentDefinition } from "./agentDefinitions";
 
@@ -55,6 +53,10 @@ export class ClaudeAgentClient implements AgentAIClient {
   private workingDirectory: string;
   private options: Options = {};
 
+  // Grok 4 support (only provider not supported by Claude SDK)
+  private isGrokMode: boolean = false;
+  private grokApiKey: string | null = null;
+
   // New SDK features
   private registeredAgents: Record<string, AgentDefinition> = {};
   private registeredHooks: Partial<Record<HookEvent, HookCallback>> = {};
@@ -65,12 +67,61 @@ export class ClaudeAgentClient implements AgentAIClient {
     this.workingDirectory = workingDirectory || process.cwd();
     this.apiKey = this.loadApiKey();
 
+    // Check if we should use Grok 4 (only provider not supported by Claude SDK)
+    this.checkGrokMode();
+
     // Auto-register built-in agents
     this.registeredAgents = getAllAgentDefinitions();
   }
 
   hasApiKey(): boolean {
+    if (this.isGrokMode) {
+      return !!this.grokApiKey;
+    }
     return !!this.apiKey;
+  }
+
+  /**
+   * Check if we should use Grok 4 (only provider not supported by Claude SDK)
+   */
+  private checkGrokMode(): void {
+    const provider = process.env.MYCONTEXT_PROVIDER;
+
+    // Only use Grok mode if explicitly requested (since Claude SDK doesn't support it)
+    if (provider === "xai" || provider === "grok") {
+      this.isGrokMode = true;
+      this.grokApiKey = this.loadGrokApiKey();
+
+      if (this.grokApiKey) {
+        console.log(chalk.blue("🤖 Using Grok 4 via X AI API (direct)"));
+      }
+    } else {
+      console.log(
+        chalk.blue(
+          "🎯 Using Claude Agent SDK (supports Claude, Bedrock, Vertex AI)"
+        )
+      );
+    }
+  }
+
+  /**
+   * Load Grok API key from environment variables
+   */
+  private loadGrokApiKey(): string | null {
+    const candidates = [
+      process.env.MYCONTEXT_XAI_API_KEY,
+      process.env.XAI_API_KEY,
+    ];
+
+    // Check for API key in environment
+    for (const key of candidates) {
+      if (key && key.trim()) {
+        return key.trim();
+      }
+    }
+
+    // Load from project-level env files
+    return this.loadTokenFromEnvFiles();
   }
 
   /**
@@ -322,12 +373,19 @@ export class ClaudeAgentClient implements AgentAIClient {
   }
 
   /**
-   * Generate text using Claude Agent SDK
+   * Generate text using Claude Agent SDK or direct provider APIs
    */
   async generateText(
     prompt: string,
     options: ClaudeAgentOptions = {}
   ): Promise<string> {
+    // If using Grok directly, use X AI API
+    if (this.isGrokMode && this.grokApiKey) {
+      return this.generateWithGrok(prompt, options);
+    }
+
+    // For Claude, Bedrock, and Vertex AI, use Claude Agent SDK
+    // The SDK automatically handles routing based on environment variables
     if (!this.queryInstance) {
       await this.initialize(options);
     }
@@ -349,6 +407,55 @@ export class ClaudeAgentClient implements AgentAIClient {
       return response;
     } catch (error: any) {
       throw new Error(`Claude Agent generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generate text using Grok 4 via X AI API
+   */
+  private async generateWithGrok(
+    prompt: string,
+    options: ClaudeAgentOptions = {}
+  ): Promise<string> {
+    if (!this.grokApiKey) {
+      throw new Error("Grok API key not found");
+    }
+
+    const model = options.model || process.env.MYCONTEXT_MODEL || "grok-beta";
+
+    try {
+      const response = await fetch(`https://api.x.ai/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.grokApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: options.temperature || 0.7,
+          max_tokens: options.maxTokens || 4000,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Grok API error: ${response.status} - ${
+            errorData.error?.message || response.statusText
+          }`
+        );
+      }
+
+      const data = await response.json();
+      return data.choices[0]?.message?.content || "";
+    } catch (error: any) {
+      throw new Error(`Grok generation failed: ${error.message}`);
     }
   }
 
@@ -474,6 +581,11 @@ export class ClaudeAgentClient implements AgentAIClient {
    * Get available models
    */
   async listModels(): Promise<string[]> {
+    if (this.isGrokMode) {
+      // Return Grok models
+      return ["grok-beta", "grok-2-1212", "grok-2-vision-1212"];
+    }
+
     // Claude Agent SDK doesn't expose model listing directly
     // Return common Claude models
     return [

@@ -1,11 +1,4 @@
-// import { HuggingFaceClient } from "./huggingFaceClient";
-// import { GitHubModelsClient } from "./githubModelsClient";
-// import { XaiClient } from "./xaiClient";
-// import { OpenAIClient } from "./openaiClient";
-// import { ClaudeClient } from "./claudeClient";
 import { ClaudeAgentClient } from "./claudeAgentClient";
-// import { QwenClient } from "./qwenClient";
-// import { GeminiClient } from "./geminiClient";
 import { HostedApiClient } from "./hostedApiClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
@@ -83,85 +76,6 @@ export class HybridAIClient {
         });
       }
     }
-
-    // Claude (fallback to regular Claude client) - DISABLED
-    // if (this.config?.claude?.enabled) {
-    //   const claudeClient = null;
-    //   if (claudeClient && claudeClient.hasApiKey()) {
-    //   this.providers.push({
-    //     name: "claude",
-    //     priority: 1, // High priority for user keys
-    //     client: claudeClient,
-    //     isAvailable: () => claudeClient.checkConnection(),
-    //   });
-    // }
-    // }
-
-    // OpenAI - DISABLED
-    // if (this.config?.openai?.enabled) {
-    //   const openaiClient = null;
-    //   if (openaiClient && openaiClient.hasApiKey()) {
-    //     this.providers.push({
-    //       name: "openai",
-    //       priority: 1, // Highest priority for user keys
-    //       client: openaiClient,
-    //       isAvailable: () => openaiClient.checkConnection(),
-    //     });
-    //   }
-    // }
-
-    // GitHub Models - DISABLED
-    // if (this.config?.github?.enabled) {
-    //   const githubClient = null;
-    //   if (githubClient && githubClient.hasApiKey()) {
-    //     this.providers.push({
-    //       name: "github",
-    //       priority: 1, // Highest priority for user keys
-    //       client: githubClient,
-    //       isAvailable: () => githubClient.checkConnection(),
-    //     });
-    //   }
-    // }
-
-    // X.AI (Grok) - DISABLED
-    // if (this.config?.xai?.enabled) {
-    //   const xaiClient = null;
-    //   console.log(
-    //     `[HybridAIClient] X.AI client created, hasApiKey: ${xaiClient?.hasApiKey()}`
-    //   );
-    //   if (xaiClient && xaiClient.hasApiKey()) {
-    //     this.providers.push({
-    //       name: "xai",
-    //       priority: 1, // Highest priority for user keys
-    //       client: xaiClient,
-    //       isAvailable: () => xaiClient.checkConnection(),
-    //     });
-    //     console.log(`[HybridAIClient] X.AI provider added to providers list`);
-    //   }
-    // }
-
-    // Add free providers as fallback only
-    // Qwen (free via OpenRouter) - DISABLED
-    // if (this.config?.qwen?.enabled && this.providers.length === 0) {
-    //   const qwenClient = null;
-    //   this.providers.push({
-    //     name: "qwen",
-    //     priority: 5, // Lower priority for free providers
-    //     client: qwenClient,
-    //     isAvailable: () => qwenClient?.checkConnection(),
-    //   });
-    // }
-
-    // Add Gemini if enabled - DISABLED
-    // if (this.config?.gemini?.enabled) {
-    //   const geminiClient = null;
-    //   this.providers.push({
-    //     name: "gemini",
-    //     priority: this.config.gemini.priority,
-    //     client: geminiClient,
-    //     isAvailable: () => geminiClient?.isAvailable(),
-    //   });
-    // }
 
     // Sort providers by priority (lower number = higher priority)
     this.providers.sort((a, b) => a.priority - b.priority);

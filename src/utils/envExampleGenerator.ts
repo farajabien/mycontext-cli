@@ -22,42 +22,25 @@ export class EnvExampleGenerator {
     envVars.add("NODE_ENV=development");
     envVars.add("NEXT_PUBLIC_APP_URL=http://localhost:3000");
 
-    // MyContext AI Provider Configuration (User-Centric Workflow)
-    // Claude (Recommended starting point)
-    envVars.add("MYCONTEXT_CLAUDE_API_KEY=");
+    // MyContext AI Provider Configuration (Simplified)
+    // Claude Agent SDK handles Claude, Bedrock, and Vertex AI automatically
+    envVars.add("ANTHROPIC_API_KEY=");
 
-    // Optional: OpenRouter (FREE alternative)
-    envVars.add("MYCONTEXT_OPENROUTER_API_KEY=");
+    // Optional: Amazon Bedrock (via Claude SDK)
+    envVars.add("CLAUDE_CODE_USE_BEDROCK=0");
+    envVars.add("AWS_ACCESS_KEY_ID=");
+    envVars.add("AWS_SECRET_ACCESS_KEY=");
+    envVars.add("AWS_REGION=us-east-1");
 
-    // Optional: GitHub Models (requires GitHub account)
-    envVars.add("MYCONTEXT_GITHUB_TOKEN=");
+    // Optional: Google Vertex AI (via Claude SDK)
+    envVars.add("CLAUDE_CODE_USE_VERTEX=0");
+    envVars.add("GOOGLE_APPLICATION_CREDENTIALS=");
 
-    // Optional: X.AI Grok
+    // Optional: Grok 4 (direct X AI API - not supported by Claude SDK)
     envVars.add("MYCONTEXT_XAI_API_KEY=");
 
-    // Optional: OpenAI
-    envVars.add("MYCONTEXT_OPENAI_API_KEY=");
-
-    // Optional: Gemini
-    envVars.add("MYCONTEXT_GEMINI_API_KEY=");
-
-    // Optional: Groq
-    envVars.add("MYCONTEXT_GROQ_API_KEY=");
-
-    // Optional: Cerebras
-    envVars.add("MYCONTEXT_CEREBRAS_API_KEY=");
-
-    // Optional: Fireworks
-    envVars.add("MYCONTEXT_FIREWORKS_API_KEY=");
-
-    // Optional: Together
-    envVars.add("MYCONTEXT_TOGETHER_API_KEY=");
-
-    // Optional: Deepseek
-    envVars.add("MYCONTEXT_DEEPSEEK_API_KEY=");
-
-    // Provider selection (Claude is recommended default)
-    envVars.add("MYCONTEXT_PROVIDER=claude");
+    // Provider selection (Claude SDK handles most providers automatically)
+    envVars.add("MYCONTEXT_PROVIDER=claude-agent");
     envVars.add("MYCONTEXT_MODEL=claude-3-5-sonnet-20241022");
 
     // Generation settings
@@ -94,22 +77,29 @@ Copy this file to \`.env\` in your .mycontext directory and update with your act
 
 ### Step 1: Choose Your AI Provider
 
-**🎯 RECOMMENDED: Claude**
+**🎯 RECOMMENDED: Claude Agent SDK (Handles Everything Automatically)**
 - Go to: https://console.anthropic.com/
 - Create account
 - Get API key from dashboard
-- Copy key to: MYCONTEXT_CLAUDE_API_KEY
+- Copy key to: ANTHROPIC_API_KEY
+- The SDK automatically handles Claude, Bedrock, and Vertex AI
 
-**🔑 Alternative: OpenRouter (100% FREE)**
-- Go to: https://openrouter.ai/keys
-- Create account (free)
+**☁️ Alternative: Amazon Bedrock (via Claude SDK)**
+- Set: CLAUDE_CODE_USE_BEDROCK=1
+- Configure AWS credentials
+- The SDK automatically routes through Bedrock
+
+**☁️ Alternative: Google Vertex AI (via Claude SDK)**
+- Set: CLAUDE_CODE_USE_VERTEX=1
+- Configure Google Cloud credentials
+- The SDK automatically routes through Vertex AI
+
+**🤖 Alternative: Grok 4 (Direct X AI API)**
+- Go to: https://console.x.ai/
+- Create account and subscribe to SuperGrok
 - Get API key from dashboard
-- Copy key to: MYCONTEXT_OPENROUTER_API_KEY
-
-**🔑 Alternative: GitHub Models (Free with GitHub Account)**
-- Go to: https://github.com/settings/tokens
-- Create token with 'models:read' scope
-- Copy token to: MYCONTEXT_GITHUB_TOKEN
+- Copy key to: MYCONTEXT_XAI_API_KEY
+- Set: MYCONTEXT_PROVIDER=xai
 
 ### Step 2: Configure Your Environment
 
@@ -134,83 +124,38 @@ ${Array.from(envVars).join("\n")}
 
 ## 🔧 AI Provider Configuration
 
-### 🎯 Primary Setup (Choose One)
+### 🎯 Primary Setup (Claude Agent SDK Routes All)
 
-#### Option 1: Claude (Recommended)
+#### Option 1: Direct Claude API (Recommended)
 \`\`\`bash
-MYCONTEXT_PROVIDER=claude
-MYCONTEXT_CLAUDE_API_KEY=
+MYCONTEXT_PROVIDER=claude-agent
+ANTHROPIC_API_KEY=your_anthropic_api_key
 MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
 \`\`\`
 
-#### Option 2: OpenRouter (FREE)
+#### Option 2: Amazon Bedrock (via Claude SDK)
 \`\`\`bash
-MYCONTEXT_PROVIDER=openrouter
-MYCONTEXT_OPENROUTER_API_KEY=
-MYCONTEXT_MODEL=qwen/qwen-2.5-coder-32b-instruct
+MYCONTEXT_PROVIDER=claude-agent
+CLAUDE_CODE_USE_BEDROCK=1
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=us-east-1
+MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
 \`\`\`
 
-#### Option 3: GitHub Models (FREE with GitHub Account)
+#### Option 3: Google Vertex AI (via Claude SDK)
 \`\`\`bash
-MYCONTEXT_PROVIDER=github
-MYCONTEXT_GITHUB_TOKEN=
-MYCONTEXT_MODEL=gpt-4o
+MYCONTEXT_PROVIDER=claude-agent
+CLAUDE_CODE_USE_VERTEX=1
+GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
+MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
 \`\`\`
 
-#### Option 4: X.AI Grok
+#### Option 4: Grok 4 (Direct X AI API)
 \`\`\`bash
 MYCONTEXT_PROVIDER=xai
-MYCONTEXT_XAI_API_KEY=
+MYCONTEXT_XAI_API_KEY=your_xai_api_key
 MYCONTEXT_MODEL=grok-beta
-\`\`\`
-
-#### Option 5: OpenAI
-\`\`\`bash
-MYCONTEXT_PROVIDER=openai
-MYCONTEXT_OPENAI_API_KEY=
-MYCONTEXT_MODEL=gpt-4o
-\`\`\`
-
-#### Option 6: Gemini
-\`\`\`bash
-MYCONTEXT_PROVIDER=gemini
-MYCONTEXT_GEMINI_API_KEY=
-MYCONTEXT_MODEL=gemini-2.0-flash-exp
-\`\`\`
-
-#### Option 7: Groq
-\`\`\`bash
-MYCONTEXT_PROVIDER=groq
-MYCONTEXT_GROQ_API_KEY=
-MYCONTEXT_MODEL=llama-3.3-70b-versatile
-\`\`\`
-
-#### Option 8: Cerebras
-\`\`\`bash
-MYCONTEXT_PROVIDER=cerebras
-MYCONTEXT_CEREBRAS_API_KEY=
-MYCONTEXT_MODEL=llama3.1-70b
-\`\`\`
-
-#### Option 9: Fireworks
-\`\`\`bash
-MYCONTEXT_PROVIDER=fireworks
-MYCONTEXT_FIREWORKS_API_KEY=
-MYCONTEXT_MODEL=accounts/fireworks/models/llama-v3p3-70b-instruct
-\`\`\`
-
-#### Option 10: Together
-\`\`\`bash
-MYCONTEXT_PROVIDER=together
-MYCONTEXT_TOGETHER_API_KEY=
-MYCONTEXT_MODEL=meta-llama/Llama-3.3-70B-Instruct-Turbo
-\`\`\`
-
-#### Option 11: Deepseek
-\`\`\`bash
-MYCONTEXT_PROVIDER=deepseek
-MYCONTEXT_DEEPSEEK_API_KEY=
-MYCONTEXT_MODEL=deepseek-chat
 \`\`\`
 
 ## 📋 MyContext Workflow Steps
@@ -254,13 +199,14 @@ After setting up your environment:
 ## 🛠️ Troubleshooting
 
 **"Invalid API key" error?**
-- Double-check your API key is correct
+- Double-check your ANTHROPIC_API_KEY is correct
 - Ensure it has the right permissions
-- Try a different provider
+- For Bedrock: verify AWS credentials
+- For Vertex AI: verify Google Cloud credentials
 
 **"Rate limit exceeded" error?**
-- OpenRouter and GitHub have generous free tiers
-- Consider upgrading to paid plans for higher limits
+- Claude Agent SDK handles rate limiting automatically
+- Consider upgrading to higher tier plans
 - Wait and try again later
 
 **Need help?**
