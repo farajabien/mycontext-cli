@@ -132,12 +132,13 @@ export class InitCommand {
 
       // Setup framework-specific project only when explicitly selected
       if (finalFramework === "instantdb") {
-        spinner.updateText("Setting up InstantDB project...");
+        spinner.stop(); // Stop spinner before interactive InstantDB setup
         await this.setupInstantDBProject(
           finalProjectName,
           workingDir,
           useCurrentDir
         );
+        spinner.start(); // Restart spinner for remaining setup
       } else if (finalFramework === "nextjs") {
         spinner.updateText("Setting up Next.js project...");
         await this.setupNextJSProject(

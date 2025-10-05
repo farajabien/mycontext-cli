@@ -113,7 +113,7 @@ program
   .option("--force", "force reinitialization")
   .option(
     "--framework <type>",
-    "specify framework: nextjs, other (--next coming soon)"
+    "specify framework: instantdb, nextjs, other (--next coming soon)"
   )
   .option("--with-shadcn", "run shadcn/ui init before MyContext init")
   .option("--scaffold-next", "scaffold a Next.js app (optional)")
@@ -1056,9 +1056,10 @@ program
     );
     console.log(
       chalk.gray(
-        '  mycontext init clarity-app --framework nextjs --description "A Clarity app with Instant DB"'
+        '  mycontext init clarity-app --framework instantdb --description "A Clarity app with InstantDB"'
       )
     );
+    console.log(chalk.gray("  mycontext init my-app --framework instantdb"));
     console.log(chalk.gray("  mycontext init my-app --framework nextjs"));
     console.log(chalk.gray("  mycontext generate context --yes"));
     console.log(chalk.gray("  mycontext validate prd --interactive"));
