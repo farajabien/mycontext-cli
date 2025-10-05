@@ -6,6 +6,30 @@ export class UpdateCommand {
   async execute(): Promise<void> {
     logger.info("Updating mycontext CLI...");
 
+    // Check if we're in a project directory that might interfere
+    const fs = require("fs-extra");
+    const path = require("path");
+    const packageJsonPath = path.join(process.cwd(), "package.json");
+
+    if (await fs.pathExists(packageJsonPath)) {
+      try {
+        const packageJson = await fs.readJson(packageJsonPath);
+        if (
+          packageJson.packageManager &&
+          packageJson.packageManager.includes("pnpm")
+        ) {
+          logger.warn(
+            "⚠️  You're in a project that uses pnpm. This might interfere with global updates."
+          );
+          logger.info(
+            "💡 Try running the update from your home directory or use: npm i -g mycontext-cli@latest"
+          );
+        }
+      } catch (e) {
+        // Ignore errors reading package.json
+      }
+    }
+
     // Check current version first
     const currentVersion = this.getCurrentVersion();
     logger.info(`Current version: ${currentVersion}`);
@@ -14,6 +38,9 @@ export class UpdateCommand {
     try {
       logger.progress("Checking for updates via pnpm...");
       await this.runCommand("pnpm", ["add", "-g", "mycontext-cli@latest"]);
+
+      // Wait a moment for the update to take effect
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Verify the update actually happened
       const newVersion = this.getCurrentVersion();
@@ -34,6 +61,9 @@ export class UpdateCommand {
     try {
       logger.progress("Checking for updates via npm...");
       await this.runCommand("npm", ["i", "-g", "mycontext-cli@latest"]);
+
+      // Wait a moment for the update to take effect
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Verify the update actually happened
       const newVersion = this.getCurrentVersion();
@@ -101,10 +131,22 @@ export class UpdateCommand {
 
   private getCurrentVersion(): string {
     try {
-      return require("../../package.json").version;
-    } catch {
-      return "unknown";
+      // Try to get the version from the actual installed package
+      const { execSync } = require("child_process");
+      const result = execSync("mycontext --version", { encoding: "utf8" });
+      const versionMatch = result.match(/(\d+\.\d+\.\d+)/);
+      if (versionMatch) {
+        return versionMatch[1];
+      }
+    } catch (error) {
+      // Fallback to package.json
+      try {
+        return require("../../package.json").version;
+      } catch {
+        return "unknown";
+      }
     }
+    return "unknown";
   }
 
   private async runCommand(command: string, args: string[]): Promise<void> {
