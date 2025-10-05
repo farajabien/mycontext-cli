@@ -54,59 +54,35 @@ export class GenerateContextFilesCommand {
 
     try {
       // Generate each context file using the PRD content as context
-      await this.generateFeaturesFile(contextDir, contextContent);
-      await this.generateUserFlowsFile(contextDir, contextContent);
-      await this.generateEdgeCasesFile(contextDir, contextContent);
-      await this.generateTechnicalSpecsFile(contextDir, contextContent);
+      const results = await Promise.allSettled([
+        this.generateFeaturesFile(contextDir, contextContent),
+        this.generateUserFlowsFile(contextDir, contextContent),
+        this.generateEdgeCasesFile(contextDir, contextContent),
+        this.generateTechnicalSpecsFile(contextDir, contextContent),
+      ]);
 
-      logger.success(
-        "User-Centric Context Documentation Generated Successfully!"
-      );
-      logger.verbose("Generated user interaction documentation files:");
-      logger.verbose(
-        "  • 01a-features.md - Every user action and system response"
-      );
-      logger.verbose(
-        "  • 01b-user-flows.md - Complete user journey interactions"
-      );
-      logger.verbose(
-        "  • 01c-edge-cases.md - User error scenarios and recovery paths"
-      );
-      logger.verbose(
-        "  • 01d-technical-specs.md - Technical details supporting user experience"
-      );
+      // Check if any files were generated successfully
+      const successCount = results.filter(
+        (result) => result.status === "fulfilled"
+      ).length;
+      const failureCount = results.filter(
+        (result) => result.status === "rejected"
+      ).length;
 
-      logger.step("🚨 CRITICAL NEXT STEP - Human-in-the-Loop Validation:");
-      logger.info(
-        "1. 📖 Read each context file carefully - AI might miss requirements"
-      );
-      logger.info(
-        "2. ✏️ Edit files to correct mistakes and add missing business logic"
-      );
-      logger.info(
-        "3. 🎯 Add specific requirements AI doesn't know about your domain"
-      );
-      logger.info(
-        "4. 🔍 Clarify ambiguous areas and remove irrelevant content"
-      );
-      logger.step(
-        "💡 This is why MyContext works - you ensure accuracy at the source!"
-      );
-      logger.info(
-        "5. Run 'mycontext compile-prd' when satisfied with context files"
-      );
-      logger.verbose(
-        "6. Run 'mycontext generate types' to generate TypeScript types"
-      );
-      logger.verbose(
-        "7. Run 'mycontext generate brand-kit' to create brand guidelines"
-      );
-      logger.verbose(
-        "8. Run 'mycontext generate components-list' to plan components"
-      );
-      logger.verbose(
-        "9. Run 'mycontext generate-components all --with-tests' to generate components from your corrected context"
-      );
+      if (successCount === 0) {
+        logger.error("❌ All context file generation failed");
+        logger.info("💡 Configure API keys and try again");
+        throw new Error(
+          "All context file generation failed - configure API keys and retry"
+        );
+      } else if (failureCount > 0) {
+        logger.warn(
+          `⚠️  ${failureCount} of 4 context files failed to generate`
+        );
+        logger.info(`✅ ${successCount} context files generated successfully`);
+      } else {
+        logger.success("✅ Context files generated successfully!");
+      }
 
       this.spinner.succeed(
         "User-centric context documentation generated successfully!"
@@ -140,9 +116,7 @@ export class GenerateContextFilesCommand {
     contextDir: string,
     contextContent?: string
   ): Promise<void> {
-    this.spinner.updateText("🤖 Generating features...");
-
-    try {
+    // Generate features file
       const prompt = this.buildFeaturesPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -158,10 +132,11 @@ export class GenerateContextFilesCommand {
       const content = this.formatFeaturesContent(response.text);
       await fs.writeFile(path.join(contextDir, "01a-features.md"), content);
 
-      console.log(chalk.green("  ✅ User interactions documented"));
+      console.log(chalk.green("  ✅ Features documented"));
     } catch (error) {
-      console.log(chalk.red("  ❌ User interactions documentation failed"));
-      // Don't re-throw - let the main catch handle it
+      console.log(chalk.red("  ❌ Features failed"));
+      // Re-throw the error so Promise.allSettled can catch it
+      throw error;
     }
   }
 
@@ -169,9 +144,7 @@ export class GenerateContextFilesCommand {
     contextDir: string,
     contextContent?: string
   ): Promise<void> {
-    this.spinner.updateText("🤖 Generating user flows...");
-
-    try {
+    // Generate user flows file
       const prompt = this.buildUserFlowsPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -187,12 +160,11 @@ export class GenerateContextFilesCommand {
       const content = this.formatUserFlowsContent(response.text);
       await fs.writeFile(path.join(contextDir, "01b-user-flows.md"), content);
 
-      console.log(chalk.green("  ✅ User interaction flows documented"));
+      console.log(chalk.green("  ✅ User flows documented"));
     } catch (error) {
-      console.log(
-        chalk.red("  ❌ User interaction flows documentation failed")
-      );
-      // Don't re-throw - let the main catch handle it
+      console.log(chalk.red("  ❌ User flows failed"));
+      // Re-throw the error so Promise.allSettled can catch it
+      throw error;
     }
   }
 
@@ -200,9 +172,7 @@ export class GenerateContextFilesCommand {
     contextDir: string,
     contextContent?: string
   ): Promise<void> {
-    this.spinner.updateText("🤖 Generating edge cases...");
-
-    try {
+    // Generate edge cases file
       const prompt = this.buildEdgeCasesPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -218,10 +188,11 @@ export class GenerateContextFilesCommand {
       const content = this.formatEdgeCasesContent(response.text);
       await fs.writeFile(path.join(contextDir, "01c-edge-cases.md"), content);
 
-      console.log(chalk.green("  ✅ User error scenarios documented"));
+      console.log(chalk.green("  ✅ Edge cases documented"));
     } catch (error) {
-      console.log(chalk.red("  ❌ User error scenarios documentation failed"));
-      // Don't re-throw - let the main catch handle it
+      console.log(chalk.red("  ❌ Edge cases failed"));
+      // Re-throw the error so Promise.allSettled can catch it
+      throw error;
     }
   }
 
@@ -229,9 +200,7 @@ export class GenerateContextFilesCommand {
     contextDir: string,
     contextContent?: string
   ): Promise<void> {
-    this.spinner.updateText("🤖 Generating technical specs...");
-
-    try {
+    // Generate technical specs file
       const prompt = this.buildTechnicalSpecsPrompt(contextContent);
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.7,
@@ -250,12 +219,11 @@ export class GenerateContextFilesCommand {
         content
       );
 
-      console.log(chalk.green("  ✅ Technical implementation documented"));
+      console.log(chalk.green("  ✅ Technical specs documented"));
     } catch (error) {
-      console.log(
-        chalk.red("  ❌ Technical implementation documentation failed")
-      );
-      // Don't re-throw - let the main catch handle it
+      console.log(chalk.red("  ❌ Technical specs failed"));
+      // Re-throw the error so Promise.allSettled can catch it
+      throw error;
     }
   }
 
