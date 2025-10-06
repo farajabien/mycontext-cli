@@ -6,10 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-**Two powerful systems in one:**
+**🎨 MyContext CLI** - Component-first development with zero-error guarantees and production-ready code generation
 
-1. **🎯 mycontext PM** - Intelligent project planning, task decomposition, and real-time monitoring using Claude Agent SDK
-2. **🎨 MyContext CLI** - Component-first development with zero-error guarantees and production-ready code generation
+<!-- Future: mycontext PM - Intelligent project planning, task decomposition, and real-time monitoring using Claude Agent SDK -->
 
 **Result:** From client requirements to production deployment - fully automated with AI oversight.
 
@@ -92,6 +91,16 @@ mycontext workflow --interactive
 ## 🏗️ System Architecture
 
 ```
+┌─────────────────┐    ┌─────────────────┐
+│   Client Input  │───▶│  MyContext CLI  │
+│                 │    │                 │
+│ • Requirements  │    │ • Code Generation│
+│ • Description   │    │ • Component      │
+│ • Tech Stack    │    │   Creation      │
+└─────────────────┘    └─────────────────┘
+```
+
+<!-- Future PM Architecture:
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Client Input  │───▶│  mycontext PM   │───▶│  MyContext CLI  │
 │                 │    │  (Next.js App)  │    │                 │
@@ -107,29 +116,35 @@ mycontext workflow --interactive
                        │  Progress Sync  │
                        │  (Webhooks)     │
                        └─────────────────┘
-```
+-->
 
 ### **Data Flow:**
 
-1. **Client Requirements** → mycontext PM analyzes and decomposes into structured JSON
-2. **mycontext PM Plan** → MyContext CLI imports and generates project structure
-3. **Code Generation** → MyContext builds production-ready components
-4. **Progress Updates** → Real-time sync back to mycontext PM dashboard
-5. **AI Oversight** → Continuous monitoring and intelligent suggestions
+1. **Client Requirements** → AI analyzes and generates project structure
+2. **Code Generation** → MyContext builds production-ready components
+3. **AI Oversight** → Intelligent suggestions and validation throughout development
+
+<!-- Future PM Data Flow:
+1. Client Requirements → mycontext PM analyzes and decomposes into structured JSON
+2. mycontext PM Plan → MyContext CLI imports and generates project structure
+3. Code Generation → MyContext builds production-ready components
+4. Progress Updates → Real-time sync back to mycontext PM dashboard
+5. AI Oversight → Continuous monitoring and intelligent suggestions
+-->
 
 ## 🎯 Key Features
 
-### 🤖 **mycontext PM (NEW)**
-
-- **Intelligent Project Planning** - AI decomposes requirements into epics, user stories, and tasks
-- **Real-time Progress Monitoring** - Hourly checks, blocker detection, timeline adjustments
-- **Client Brief Processing** - Parse contracts, budgets, and timelines into structured plans
-- **Task Assignment & Tracking** - Automated task management with priority and dependency handling
-- **Progress Synchronization** - Webhook integration for live dashboard updates
+<!-- Future: mycontext PM (Coming Soon)
+- Intelligent Project Planning - AI decomposes requirements into epics, user stories, and tasks
+- Real-time Progress Monitoring - Hourly checks, blocker detection, timeline adjustments
+- Client Brief Processing - Parse contracts, budgets, and timelines into structured plans
+- Task Assignment & Tracking - Automated task management with priority and dependency handling
+- Progress Synchronization - Webhook integration for live dashboard updates
+-->
 
 ### ✅ **MyContext CLI (Component-First Development)**
 
-- **Streamlined Workflow** - Single `generate architecture` command replaces 5 separate steps
+- **Streamlined Workflow** - Single `setup-complete` command for full project setup
 - **Smart Next Steps** - Context-aware suggestions guide you through the development process
 - **Zero-Error Guarantee** - TypeScript/ESLint/build validation on every component
 - **UI Specification System** - Plain-English specs with accessibility & responsive guidance
@@ -291,18 +306,18 @@ mycontext refine spec RevenueCard --desc "A card showing total revenue prominent
 - Desktop (> 768px): Standard spacing, maintain layout
 ```
 
-## 🆚 MyContext + mycontext PM vs Others
+## 🆚 MyContext CLI vs Others
 
-| Feature                   | MyContext + mycontext PM | Lovable    | v0.dev      | Bolt        |
-| ------------------------- | ------------------------ | ---------- | ----------- | ----------- |
-| **AI Project Management** | ✅ Full System           | ❌ None    | ❌ None     | ❌ None     |
-| **Code Location**         | Your machine             | Cloud      | Cloud       | Cloud       |
-| **End-to-End Automation** | ✅ Requirements→Deploy   | ❌ Manual  | ❌ Manual   | ❌ Manual   |
-| **Progress Monitoring**   | ✅ Real-time             | ❌ None    | ❌ None     | ❌ None     |
-| **Validation Gates**      | 12+ checkpoints          | None       | None        | None        |
-| **TypeScript Guarantee**  | 100%                     | No         | No          | No          |
-| **PM Integration**        | ✅ Native                | ❌ None    | ❌ None     | ❌ None     |
-| **Pricing**               | BYOK ($0-20/mo)          | $20-200/mo | Usage-based | Usage-based |
+| Feature                   | MyContext CLI          | Lovable    | v0.dev      | Bolt        |
+| ------------------------- | ---------------------- | ---------- | ----------- | ----------- |
+| **AI Project Management** | 🚧 Coming Soon         | ❌ None    | ❌ None     | ❌ None     |
+| **Code Location**         | Your machine           | Cloud      | Cloud       | Cloud       |
+| **End-to-End Automation** | ✅ Requirements→Deploy | ❌ Manual  | ❌ Manual   | ❌ Manual   |
+| **Progress Monitoring**   | ✅ Context-Aware       | ❌ None    | ❌ None     | ❌ None     |
+| **Validation Gates**      | 12+ checkpoints        | None       | None        | None        |
+| **TypeScript Guarantee**  | 100%                   | No         | No          | No          |
+| **PM Integration**        | 🚧 Coming Soon         | ❌ None    | ❌ None     | ❌ None     |
+| **Pricing**               | BYOK ($0-20/mo)        | $20-200/mo | Usage-based | Usage-based |
 
 ## 🐛 Troubleshooting
 
@@ -359,9 +374,7 @@ mycontext export-progress --format summary
 ls -la .mycontext/
 ```
 
-**"mycontext PM Synchronization Failed"**
-
-```bash
+<!-- Future: mycontext PM Synchronization (Coming Soon)
 # Test webhook connectivity
 curl -X POST https://mycontext-pm.example.com/webhook \
   -H "Content-Type: application/json" \
@@ -369,7 +382,7 @@ curl -X POST https://mycontext-pm.example.com/webhook \
 
 # Check webhook URL format
 mycontext export-progress --webhook https://mycontext-pm.example.com/webhook
-```
+-->
 
 ## 📚 Documentation
 
@@ -389,6 +402,8 @@ MIT © MyContext
 
 ---
 
-**🤖 The future of AI-powered development: From requirements to production with mycontext PM oversight.**
+**🤖 The future of AI-powered development: From requirements to production with intelligent automation.**
 
 **Built by developers, for developers. Your code stays on your machine.** 🚀
+
+<!-- Future: 🤖 The future of AI-powered development: From requirements to production with mycontext PM oversight. -->
