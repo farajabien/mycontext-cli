@@ -6,6 +6,8 @@ import { HybridAIClient } from "../utils/hybridAIClient";
 import { EnhancedSpinner } from "../utils/spinner";
 import { logger } from "../utils/logger";
 import { progress } from "../utils/progress";
+import { ErrorHandler, ErrorType } from "../utils/errorHandler";
+import { NextStepsSuggester } from "../utils/nextStepsSuggester";
 
 interface ContextFilesOptions {
   description?: string;
@@ -70,8 +72,13 @@ export class GenerateContextFilesCommand {
       ).length;
 
       if (successCount === 0) {
-        logger.error("❌ All context file generation failed");
-        logger.info("💡 Configure API keys and try again");
+        const error = ErrorHandler.createError(
+          ErrorType.AI_PROVIDER_ERROR,
+          "All context file generation failed - no AI providers available",
+          undefined,
+          { successCount, failureCount }
+        );
+        ErrorHandler.handleErrorGracefully(error);
         throw new Error(
           "All context file generation failed - configure API keys and retry"
         );
@@ -87,6 +94,13 @@ export class GenerateContextFilesCommand {
       this.spinner.succeed(
         "User-centric context documentation generated successfully!"
       );
+
+      // Show next steps
+      const workflowContext = await NextStepsSuggester.getWorkflowContext();
+      workflowContext.lastCommand = "generate-context-files";
+      workflowContext.hasContextFiles = true;
+      const nextSteps = NextStepsSuggester.getNextSteps(workflowContext);
+      NextStepsSuggester.displayNextSteps(nextSteps);
     } catch (error) {
       this.spinner.fail("Context file generation failed");
       // Don't log the error again - it's already been logged by the individual methods

@@ -594,27 +594,44 @@ export default nextConfig;
   private async findFiles(...patterns: string[]): Promise<string[]> {
     const files: string[] = [];
 
-    for (const pattern of patterns) {
-      const glob = require("glob");
-      const matches = await glob(pattern, {
-        cwd: this.projectRoot,
-        absolute: true,
-        ignore: ["**/node_modules/**"],
-      });
-      files.push(...matches);
+    try {
+      // Use dynamic import to avoid module resolution issues
+      const globModule = await import("glob");
+      const { glob } = globModule;
+
+      for (const pattern of patterns) {
+        const matches = await glob(pattern, {
+          cwd: this.projectRoot,
+          absolute: true,
+          ignore: ["**/node_modules/**"],
+        });
+        files.push(...matches);
+      }
+    } catch (error) {
+      console.warn("Glob import failed, using fallback:", error);
+      // Fallback to fs-based file discovery if glob fails
+      return this.findFilesFallback(patterns);
     }
 
     return [...new Set(files)];
   }
 
   private async findDirectories(dirName: string): Promise<string[]> {
-    const glob = require("glob");
-    const matches = await glob(`**/${dirName}`, {
-      cwd: this.projectRoot,
-      absolute: true,
-      ignore: ["**/node_modules/**"],
-    });
-    return matches;
+    try {
+      // Use dynamic import to avoid module resolution issues
+      const globModule = await import("glob");
+      const { glob } = globModule;
+      const matches = await glob(`**/${dirName}`, {
+        cwd: this.projectRoot,
+        absolute: true,
+        ignore: ["**/node_modules/**"],
+      });
+      return matches;
+    } catch (error) {
+      console.warn("Glob import failed, using fallback:", error);
+      // Fallback to fs-based directory discovery if glob fails
+      return this.findDirectoriesFallback(dirName);
+    }
   }
 
   private calculateMetrics(): ProjectMetrics {
@@ -775,5 +792,97 @@ export default nextConfig;
     }
 
     return healthReport;
+  }
+
+  /**
+   * Fallback file discovery using fs-extra when glob fails
+   */
+  private async findFilesFallback(patterns: string[]): Promise<string[]> {
+    const files: string[] = [];
+
+    try {
+      const walkDir = async (dir: string): Promise<void> => {
+        const items = await fs.readdir(dir);
+
+        for (const item of items) {
+          if (item === "node_modules") continue;
+
+          const fullPath = path.join(dir, item);
+          const stat = await fs.stat(fullPath);
+
+          if (stat.isDirectory()) {
+            await walkDir(fullPath);
+          } else if (stat.isFile()) {
+            // Simple pattern matching for common cases
+            for (const pattern of patterns) {
+              if (this.matchesSimplePattern(fullPath, pattern)) {
+                files.push(fullPath);
+                break;
+              }
+            }
+          }
+        }
+      };
+
+      await walkDir(this.projectRoot);
+    } catch (error) {
+      console.warn("Fallback file discovery also failed:", error);
+    }
+
+    return [...new Set(files)];
+  }
+
+  /**
+   * Fallback directory discovery using fs-extra when glob fails
+   */
+  private async findDirectoriesFallback(dirName: string): Promise<string[]> {
+    const directories: string[] = [];
+
+    try {
+      const walkDir = async (dir: string): Promise<void> => {
+        const items = await fs.readdir(dir);
+
+        for (const item of items) {
+          if (item === "node_modules") continue;
+
+          const fullPath = path.join(dir, item);
+          const stat = await fs.stat(fullPath);
+
+          if (stat.isDirectory()) {
+            if (item === dirName) {
+              directories.push(fullPath);
+            }
+            await walkDir(fullPath);
+          }
+        }
+      };
+
+      await walkDir(this.projectRoot);
+    } catch (error) {
+      console.warn("Fallback directory discovery also failed:", error);
+    }
+
+    return directories;
+  }
+
+  /**
+   * Simple pattern matching for fallback when glob is not available
+   */
+  private matchesSimplePattern(filePath: string, pattern: string): boolean {
+    const relativePath = path.relative(this.projectRoot, filePath);
+
+    // Handle simple patterns like **/*.json, **/*.ts, etc.
+    if (pattern.startsWith("**/*") && pattern.endsWith("*")) {
+      const ext = pattern.slice(5, -1); // Remove **/* and trailing *
+      return relativePath.endsWith(ext);
+    }
+
+    // Handle exact file matches
+    if (!pattern.includes("*")) {
+      return relativePath === pattern;
+    }
+
+    // For more complex patterns, just check if the file exists
+    return true;
   }
 }

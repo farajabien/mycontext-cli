@@ -4,7 +4,12 @@ import * as fs from "fs-extra";
 import path from "path";
 import { HybridAIClient } from "../utils/hybridAIClient";
 import { EnhancedSpinner } from "../utils/spinner";
-import { CONTEXT_FILES, REQUIRED_FILES, getAllFileNameVariants } from "../constants/fileNames";
+import {
+  CONTEXT_FILES,
+  REQUIRED_FILES,
+  getAllFileNameVariants,
+} from "../constants/fileNames";
+import { NextStepsSuggester } from "../utils/nextStepsSuggester";
 
 interface CompilePRDOptions {
   projectPath?: string;
@@ -61,7 +66,9 @@ export class CompilePRDCommand {
     const prdPath = path.join(contextDir, CONTEXT_FILES.PRD);
     if ((await fs.pathExists(prdPath)) && !options.force) {
       console.log(
-        chalk.yellow(`⚠️  PRD already exists at .mycontext/${CONTEXT_FILES.PRD}`)
+        chalk.yellow(
+          `⚠️  PRD already exists at .mycontext/${CONTEXT_FILES.PRD}`
+        )
       );
       console.log(chalk.yellow("Use --force to overwrite existing PRD.\n"));
       return;
@@ -208,6 +215,13 @@ export class CompilePRDCommand {
       await fs.writeFile(path.join(contextDir, CONTEXT_FILES.PRD), content);
 
       spinner.succeed("PRD compiled");
+
+      // Show next steps
+      const workflowContext = await NextStepsSuggester.getWorkflowContext();
+      workflowContext.lastCommand = "compile-prd";
+      workflowContext.hasPRD = true;
+      const nextSteps = NextStepsSuggester.getNextSteps(workflowContext);
+      NextStepsSuggester.displayNextSteps(nextSteps);
     } catch (error) {
       spinner.fail("PRD compilation failed");
       // Don't re-throw - let the CLI handle it

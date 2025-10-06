@@ -748,3 +748,6 @@ export * from "./components";
 
 // Enhancement Types
 export * from "./enhancement";
+
+// PM Integration Types
+export * from "./pm-integration";

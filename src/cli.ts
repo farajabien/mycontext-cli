@@ -27,6 +27,14 @@ import { SanitizeCommand } from "./commands/sanitize";
 import { DatabaseSetupCommand } from "./commands/setup-database";
 import { InstantDBSetupCommand } from "./commands/setup-instantdb";
 import { MCPSetupCommand } from "./commands/setup-mcp";
+import { SetupShadcnCommand } from "./commands/setup-shadcn";
+import { SetupCompleteCommand } from "./commands/setup-complete";
+import { ImportProjectPlanCommand } from "./commands/import-project-plan";
+import { ExportProgressCommand } from "./commands/export-progress";
+import { PMIntegrationCommand } from "./commands/pm-integration";
+import { HelpCommand } from "./commands/help";
+import { SuggestCommand } from "./commands/suggest";
+import { WorkflowCommand } from "./commands/workflow";
 import { GenerateContextFilesCommand } from "./commands/generate-context-files";
 import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
@@ -77,7 +85,7 @@ try {
   ];
   for (const p of candidates) {
     if (fs.pathExistsSync(p)) {
-      const result = dotenv.config({ path: p });
+      const result = dotenv.config({ path: p, silent: true });
       dotenvExpand.expand(result);
     }
   }
@@ -193,6 +201,10 @@ program
     "--files-only",
     "Generate only A/B/C/D files (requires existing PRD) - for 'context' type only"
   )
+  .option(
+    "--auto-continue",
+    "Automatically continue to next logical steps after completion"
+  )
   .action(async (type: string, options: any) => {
     try {
       const generateCommand = new GenerateCommand();
@@ -267,6 +279,42 @@ program
       });
     } catch (error) {
       console.error(chalk.red("❌ PRD compilation failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Context-aware help command
+program
+  .command("help [topic]")
+  .description("Show context-aware help and guidance")
+  .option("--verbose", "Show detailed help information")
+  .action(async (topic: string | undefined, options: any) => {
+    try {
+      const helpCommand = new HelpCommand(program);
+      await helpCommand.execute({
+        topic,
+        verbose: Boolean(options.verbose),
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Help command failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Intelligent command suggestions
+program
+  .command("suggest [command]")
+  .description("Get intelligent command suggestions and recommendations")
+  .option("--limit <number>", "Limit number of suggestions", "5")
+  .action(async (command: string | undefined, options: any) => {
+    try {
+      const suggestCommand = new SuggestCommand(program);
+      await suggestCommand.execute({
+        command,
+        limit: parseInt(options.limit) || 5,
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Suggest command failed:"), error);
       process.exit(1);
     }
   });
@@ -495,102 +543,9 @@ program
     }
   });
 
-// Workflow command - streamlined development flow
-program
-  .command("workflow <step>")
-  .description(
-    "Streamlined development workflow: init → context → types → brand → components"
-  )
-  .option("--description <desc>", "Project description for context generation")
-  .option("--with-tests", "Generate tests for components")
-  .option("--skip-brand", "Skip brand generation step")
-  .action(async (step, options) => {
-    try {
-      const steps = ["init", "context", "types", "brand", "components"];
-      const currentIndex = steps.indexOf(step);
-
-      if (currentIndex === -1) {
-        console.error(chalk.red(`❌ Invalid step: ${step}`));
-        console.log(chalk.blue("Available steps: " + steps.join(" → ")));
-        process.exit(1);
-      }
-
-      console.log(chalk.blue(`🚀 Running workflow step: ${step}`));
-
-      // Run the current step and all previous steps if needed
-      for (let i = 0; i <= currentIndex; i++) {
-        const currentStep = steps[i];
-        console.log(
-          chalk.gray(`\n📋 Step ${i + 1}/${steps.length}: ${currentStep}`)
-        );
-
-        switch (currentStep) {
-          case "init":
-            // Skip if already initialized
-            if (await require("fs-extra").pathExists(".mycontext")) {
-              console.log(chalk.gray("   ✓ Already initialized"));
-              continue;
-            }
-            break;
-          case "context":
-            const generateCommand = new GenerateCommand();
-            await generateCommand.execute({
-              type: "context",
-              full: true,
-              description: options.description,
-              ...options,
-            });
-            break;
-          case "types":
-            const generateTypesCommand = new GenerateCommand();
-            await generateTypesCommand.execute({
-              type: "types",
-              ...options,
-            });
-            break;
-          case "brand":
-            if (options.skipBrand) {
-              console.log(chalk.gray("   ⏭️  Skipped (--skip-brand)"));
-              continue;
-            }
-            const generateBrandCommand = new GenerateCommand();
-            await generateBrandCommand.execute({
-              type: "brand",
-              ...options,
-            });
-            break;
-          case "components":
-            const generateComponentsCommand = new GenerateComponentsCommand();
-            await generateComponentsCommand.execute("all", {
-              withTests: options.withTests || false,
-              all: true,
-              ...options,
-            });
-            break;
-        }
-      }
-
-      console.log(
-        chalk.green(`\n✅ Workflow step '${step}' completed successfully!`)
-      );
-      if (currentIndex < steps.length - 1) {
-        console.log(
-          chalk.blue(
-            `\n➡️  Next step: mycontext workflow ${steps[currentIndex + 1]}`
-          )
-        );
-      } else {
-        console.log(
-          chalk.green(
-            `\n🎉 All workflow steps completed! Your project is ready.`
-          )
-        );
-      }
-    } catch (error) {
-      console.error(chalk.red("❌ Workflow failed:"), error);
-      process.exit(1);
-    }
-  });
+// Workflow command - pre-configured workflow templates
+const workflowCommand = new WorkflowCommand();
+workflowCommand.register(program);
 
 // Update command (mycontext update)
 program
@@ -630,6 +585,18 @@ program.addCommand(buildStrategyCommand);
 const healthCheckCommand = new HealthCheckCommand();
 healthCheckCommand.register(program);
 
+// Import Project Plan command (mycontext PM integration)
+const importProjectPlanCommand = new ImportProjectPlanCommand();
+importProjectPlanCommand.register(program);
+
+// Export Progress command (mycontext PM integration)
+const exportProgressCommand = new ExportProgressCommand();
+exportProgressCommand.register(program);
+
+// PM Integration command (comprehensive PM integration management)
+const pmIntegrationCommand = new PMIntegrationCommand();
+pmIntegrationCommand.register(program);
+
 // Build App command (agent-driven workflow with looping)
 const buildAppCmd = program
   .command("build-app")
@@ -653,6 +620,9 @@ const buildAppCmd = program
     "Maximum retry attempts for failed steps",
     "3"
   )
+  .option("--pm-plan <file>", "Use mycontext PM project plan JSON file")
+  .option("--auto-sync", "Automatically sync progress with mycontext PM")
+  .option("--webhook-url <url>", "Webhook URL for progress updates")
   .action(async (options) => {
     try {
       const command = new BuildAppCommand();
@@ -667,6 +637,9 @@ const buildAppCmd = program
         interactive: Boolean(options.interactive),
         skipValidation: Boolean(options.skipValidation),
         maxRetries: parseInt(options.maxRetries) || 3,
+        pmPlan: options.pmPlan,
+        autoSync: Boolean(options.autoSync),
+        webhookUrl: options.webhookUrl,
       });
     } catch (error) {
       console.error(chalk.red("❌ Build app failed:"), error);
@@ -826,6 +799,40 @@ program
       process.exit(1);
     }
   });
+
+// shadcn/ui setup command
+program
+  .command("setup-shadcn")
+  .description(
+    "Set up shadcn/ui components with interactive terminal installation"
+  )
+  .option("--all", "Install all essential components automatically")
+  .option(
+    "--components <list>",
+    "Comma-separated list of components to install"
+  )
+  .option("--force", "Force reinitialization even if already set up")
+  .option("--skip-prompts", "Skip interactive prompts")
+  .action(async (options) => {
+    try {
+      const command = new SetupShadcnCommand();
+      await command.execute({
+        all: Boolean(options.all),
+        components: options.components
+          ? options.components.split(",").map((c: string) => c.trim())
+          : undefined,
+        force: Boolean(options.force),
+        skipPrompts: Boolean(options.skipPrompts),
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ shadcn/ui setup failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Setup complete command - guided complete project setup
+const setupCompleteCommand = new SetupCompleteCommand();
+setupCompleteCommand.register(program);
 
 // Promote command for moving components to production
 program

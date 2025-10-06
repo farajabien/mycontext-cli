@@ -1,0 +1,20 @@
+{
+  "pmEndpoint": "https://your-mycontext-pm-instance.com/api",
+  "webhookUrl": "https://your-mycontext-pm-instance.com/webhook",
+  "apiKey": "your-api-key-here",
+  "projectId": "your-project-id",
+  "syncInterval": 60,
+  "enableRealTimeSync": true,
+  "retryAttempts": 3,
+  "timeout": 30000,
+  "_comments": {
+    "pmEndpoint": "The base URL of your mycontext PM instance",
+    "webhookUrl": "URL where progress updates should be sent",
+    "apiKey": "Authentication key for PM API access",
+    "projectId": "The specific project ID to integrate with",
+    "syncInterval": "How often to sync (minutes)",
+    "enableRealTimeSync": "Enable automatic periodic syncing",
+    "retryAttempts": "Number of retry attempts for failed requests",
+    "timeout": "Request timeout in milliseconds"
+  }
+}

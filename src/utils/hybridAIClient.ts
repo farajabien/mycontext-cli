@@ -19,7 +19,7 @@ function loadEnvironmentVariables(): void {
     ];
     for (const p of candidates) {
       if (fs.existsSync(p)) {
-        const result = dotenv.config({ path: p });
+        const result = dotenv.config({ path: p, silent: true });
         dotenvExpand.expand(result);
       }
     }

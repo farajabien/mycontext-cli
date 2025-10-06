@@ -469,16 +469,72 @@ export class ClaudeAgentClient implements AgentAIClient {
     context: AgentContext = {},
     options: ClaudeAgentOptions = {}
   ): Promise<string> {
+    // Build comprehensive context for component generation
+    const contextPrompt = this.buildComponentContextPrompt(prompt, context);
+
+    // Try primary provider first
+    if (this.isGrokMode && this.grokApiKey) {
+      try {
+        return await this.generateWithGrok(contextPrompt, options);
+      } catch (grokError: any) {
+        console.warn(`Grok component generation failed: ${grokError.message}`);
+        console.log("Falling back to Claude Agent SDK...");
+
+        // Fallback to Claude if available
+        if (this.apiKey) {
+          try {
+            return await this.generateWithClaudeSDK(contextPrompt, options);
+          } catch (claudeError: any) {
+            throw new Error(
+              `Both Grok and Claude failed. Grok: ${grokError.message}, Claude: ${claudeError.message}`
+            );
+          }
+        } else {
+          throw new Error(
+            `Grok failed and no Claude API key available: ${grokError.message}`
+          );
+        }
+      }
+    }
+
+    // For Claude, Bedrock, and Vertex AI, use Claude Agent SDK
+    try {
+      return await this.generateWithClaudeSDK(contextPrompt, options);
+    } catch (claudeError: any) {
+      console.warn(`Claude Agent SDK failed: ${claudeError.message}`);
+
+      // Fallback to Grok if Claude fails and Grok is available
+      if (this.grokApiKey) {
+        console.log("Falling back to Grok...");
+        try {
+          return await this.generateWithGrok(contextPrompt, options);
+        } catch (grokError: any) {
+          throw new Error(
+            `Both Claude and Grok failed. Claude: ${claudeError.message}, Grok: ${grokError.message}`
+          );
+        }
+      } else {
+        throw new Error(
+          `Claude Agent SDK failed and no Grok API key available: ${claudeError.message}`
+        );
+      }
+    }
+  }
+
+  /**
+   * Generate component using Claude Agent SDK
+   */
+  private async generateWithClaudeSDK(
+    prompt: string,
+    options: ClaudeAgentOptions = {}
+  ): Promise<string> {
     if (!this.queryInstance) {
       await this.initialize(options);
     }
 
-    // Build comprehensive context for component generation
-    const contextPrompt = this.buildComponentContextPrompt(prompt, context);
-
     try {
       this.queryInstance = query({
-        prompt: contextPrompt,
+        prompt,
         options: this.options,
       });
 
@@ -492,7 +548,7 @@ export class ClaudeAgentClient implements AgentAIClient {
 
       return response;
     } catch (error: any) {
-      throw new Error(`Component generation failed: ${error.message}`);
+      throw new Error(`Claude Agent SDK generation failed: ${error.message}`);
     }
   }
 
@@ -505,33 +561,61 @@ export class ClaudeAgentClient implements AgentAIClient {
     context: AgentContext = {},
     options: ClaudeAgentOptions = {}
   ): Promise<string> {
-    if (!this.queryInstance) {
-      await this.initialize(options);
-    }
-
+    // Build refinement prompt
     const refinementPrompt = this.buildRefinementPrompt(
       componentCode,
       prompt,
       context
     );
 
-    try {
-      this.queryInstance = query({
-        prompt: refinementPrompt,
-        options: this.options,
-      });
+    // Try primary provider first
+    if (this.isGrokMode && this.grokApiKey) {
+      try {
+        return await this.generateWithGrok(refinementPrompt, options);
+      } catch (grokError: any) {
+        console.warn(`Grok component refinement failed: ${grokError.message}`);
+        console.log("Falling back to Claude Agent SDK...");
 
-      // Get the response from the query
-      let response = "";
-      for await (const message of this.queryInstance) {
-        if (message.type === "assistant") {
-          response += message.message.content[0]?.text || "";
+        // Fallback to Claude if available
+        if (this.apiKey) {
+          try {
+            return await this.generateWithClaudeSDK(refinementPrompt, options);
+          } catch (claudeError: any) {
+            throw new Error(
+              `Both Grok and Claude refinement failed. Grok: ${grokError.message}, Claude: ${claudeError.message}`
+            );
+          }
+        } else {
+          throw new Error(
+            `Grok failed and no Claude API key available: ${grokError.message}`
+          );
         }
       }
+    }
 
-      return response;
-    } catch (error: any) {
-      throw new Error(`Component refinement failed: ${error.message}`);
+    // For Claude, Bedrock, and Vertex AI, use Claude Agent SDK
+    try {
+      return await this.generateWithClaudeSDK(refinementPrompt, options);
+    } catch (claudeError: any) {
+      console.warn(
+        `Claude Agent SDK refinement failed: ${claudeError.message}`
+      );
+
+      // Fallback to Grok if Claude fails and Grok is available
+      if (this.grokApiKey) {
+        console.log("Falling back to Grok...");
+        try {
+          return await this.generateWithGrok(refinementPrompt, options);
+        } catch (grokError: any) {
+          throw new Error(
+            `Both Claude and Grok refinement failed. Claude: ${claudeError.message}, Grok: ${grokError.message}`
+          );
+        }
+      } else {
+        throw new Error(
+          `Claude Agent SDK failed and no Grok API key available: ${claudeError.message}`
+        );
+      }
     }
   }
 
