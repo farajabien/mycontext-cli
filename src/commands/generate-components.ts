@@ -3,6 +3,7 @@ import { FileSystemManager } from "../utils/fileSystem";
 import { EnhancedSpinner } from "../utils/spinner";
 import { HostedApiClient } from "../utils/hostedApiClient";
 import { CompleteArchitectureEngine } from "../utils/completeArchitectureEngine";
+import { UnifiedDesignContextLoader } from "../utils/unifiedDesignContextLoader";
 import chalk from "chalk";
 import prompts from "prompts";
 import * as fs from "fs-extra";
@@ -33,6 +34,7 @@ export class GenerateComponentsCommand {
   private fs = new FileSystemManager();
   private hostedApi = new HostedApiClient();
   private architectureEngine = new CompleteArchitectureEngine();
+  private contextLoader = new UnifiedDesignContextLoader();
   private contextArtifacts: {
     prd: string;
     types: string;
@@ -368,13 +370,43 @@ export class GenerateComponentsCommand {
         userInfo = { userId: "local" };
       }
 
-      // Load context artifacts for richer generation (PRD + Types + Brand)
-      this.contextArtifacts = await this.loadContextArtifacts();
+      // Load unified design context (PRD + Types + Brand + Component List + Design Manifest)
+      console.log(chalk.blue("🔄 Loading unified design context..."));
+      const { enrichedContext } =
+        await this.contextLoader.loadUnifiedDesignContext();
+
+      // Convert enriched context to legacy format for compatibility
+      this.contextArtifacts = {
+        prd: enrichedContext.technical_context.prd,
+        types: enrichedContext.technical_context.types,
+        brand: enrichedContext.technical_context.brand,
+        compListRaw: JSON.stringify(enrichedContext.component_architecture),
+        compList: enrichedContext.component_architecture,
+      };
 
       // Load stack configuration for stack-aware generation
       await this.loadStackConfig();
 
-      // Check if brand context exists - critical for design-consistent components
+      // Display design context summary
+      console.log(chalk.green("✅ Unified design context loaded"));
+      console.log(
+        chalk.gray(
+          `   Design system: ${enrichedContext.design_system.colors.primary} primary color`
+        )
+      );
+      console.log(
+        chalk.gray(
+          `   Components: ${enrichedContext.component_architecture.components.length} defined`
+        )
+      );
+      console.log(
+        chalk.gray(
+          `   Design anchors: ${enrichedContext.design_intent.design_anchors.join(
+            ", "
+          )}`
+        )
+      );
+
       if (!this.contextArtifacts.brand) {
         console.log(
           chalk.yellow(
@@ -987,6 +1019,13 @@ export class GenerateComponentsCommand {
             // Use stack configuration timeout if available
             const timeout = this.stackConfig?.timeouts?.generation || 60000;
 
+            // Get enriched context for better AI generation
+            const { enrichedContext } =
+              await this.contextLoader.loadUnifiedDesignContext();
+            const formattedContext = this.contextLoader
+              .getContextEnricher()
+              .formatContextForModel(enrichedContext);
+
             codeResult = (await Promise.race([
               orchestrator.executeAgent("CodeGenSubAgent", {
                 component,
@@ -994,11 +1033,17 @@ export class GenerateComponentsCommand {
                 options: {
                   ...options,
                   context: {
+                    // Legacy format for compatibility
                     prd: this.contextArtifacts.prd,
                     types: this.contextArtifacts.types,
                     branding: this.contextArtifacts.brand,
                     componentList: this.contextArtifacts.compListRaw,
-                    stackConfig: this.stackConfig, // Pass stack config to AI
+                    stackConfig: this.stackConfig,
+                    // Enhanced context from design manifest
+                    enrichedContext: formattedContext,
+                    designSystem: enrichedContext.design_system,
+                    designIntent: enrichedContext.design_intent,
+                    visualTokens: enrichedContext.visual_tokens,
                   },
                 },
               }),
@@ -2169,11 +2214,18 @@ export default function PreviewPage() {
       console.log(chalk.gray(`  • ${totalRoutes} routes in ${appDir}`));
     }
 
-    console.log(chalk.blue("\n📖 Next Steps:"));
-    console.log(chalk.gray("  1. Review generated components in components/"));
-    console.log(chalk.gray("  2. Review server actions in actions/"));
-    console.log(chalk.gray("  3. Review routes in app/"));
-    console.log(chalk.gray("  4. Run: npm run dev"));
+    console.log(chalk.green("\n✅ All components generated successfully!"));
+    console.log(chalk.blue("\n➡️  Next Steps:"));
+    console.log(chalk.cyan("   1. Preview components:"));
+    console.log(chalk.white("      mycontext preview components"));
+    console.log(chalk.cyan("   2. Run tests:"));
+    console.log(chalk.white("      npm test"));
+    console.log(chalk.cyan("   3. Start development:"));
+    console.log(chalk.white("      npm run dev"));
+    console.log(chalk.gray("\n   Additional:"));
+    console.log(chalk.gray("   • Review generated components in components/"));
+    console.log(chalk.gray("   • Review server actions in actions/"));
+    console.log(chalk.gray("   • Review routes in app/"));
   }
 
   /**

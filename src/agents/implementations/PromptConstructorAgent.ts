@@ -1,6 +1,8 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import * as fs from "fs";
 import * as path from "path";
+import { UnifiedDesignContextLoader } from "../../utils/unifiedDesignContextLoader";
+import { DesignManifest, EnrichedContext } from "../../types/design-pipeline";
 
 export interface PromptConstructionContext {
   prd?: string;
@@ -48,34 +50,69 @@ export class PromptConstructorAgent
   ];
 
   async run(context: PromptConstructionContext): Promise<ConstructedPrompt> {
-    // Step 1: Analyze all context files
-    const contextAnalysis = await this.analyzeContextFiles(context);
+    // Step 1: Load unified design context (includes design manifest)
+    const designContext = await this.loadDesignContext(context);
 
-    // Step 2: Extract component-specific requirements
-    const componentRequirements = await this.extractComponentRequirements(
+    // Step 2: Analyze all context files with design context
+    const contextAnalysis = await this.analyzeContextFiles(
       context,
-      contextAnalysis
+      designContext
     );
 
-    // Step 3: Use AI to enhance and refine the prompt
+    // Step 3: Extract component-specific requirements with design system
+    const componentRequirements = await this.extractComponentRequirements(
+      context,
+      contextAnalysis,
+      designContext
+    );
+
+    // Step 4: Use AI to enhance and refine the prompt with design context
     const enhancedPrompt = await this.enhancePromptWithAI(
       context,
       contextAnalysis,
-      componentRequirements
+      componentRequirements,
+      designContext
     );
 
-    // Step 4: Construct final prompt with AI enhancements
+    // Step 5: Construct final prompt with AI enhancements and design system
     const constructedPrompt = await this.constructPrompt(
       context,
       enhancedPrompt,
-      componentRequirements
+      componentRequirements,
+      designContext
     );
 
     return constructedPrompt;
   }
 
+  private async loadDesignContext(context: PromptConstructionContext): Promise<{
+    enrichedContext?: EnrichedContext;
+    designManifest?: DesignManifest;
+  }> {
+    try {
+      const contextLoader = new UnifiedDesignContextLoader(context.projectPath);
+      const { enrichedContext } =
+        await contextLoader.loadUnifiedDesignContext();
+
+      return {
+        enrichedContext,
+        designManifest: undefined, // Design manifest is embedded in enrichedContext
+      };
+    } catch (error) {
+      console.warn(
+        "Failed to load design context, proceeding without design manifest:",
+        error
+      );
+      return {};
+    }
+  }
+
   private async analyzeContextFiles(
-    context: PromptConstructionContext
+    context: PromptConstructionContext,
+    designContext?: {
+      enrichedContext?: EnrichedContext;
+      designManifest?: DesignManifest;
+    }
   ): Promise<any> {
     const analysis: any = {
       userInteractions: [] as string[],
@@ -90,6 +127,11 @@ export class PromptConstructorAgent
       userAccessibilityNeeds: [] as string[],
       userPerformanceExpectations: [] as string[],
       userErrorScenarios: [] as string[],
+      // Design system context
+      designSystem: null as any,
+      designIntent: null as any,
+      visualTokens: null as any,
+      componentHierarchy: null as any,
     };
 
     // Analyze user-centric context files
@@ -139,13 +181,26 @@ export class PromptConstructorAgent
       analysis.userPerformanceExpectations = [];
     }
 
+    // Extract design system context if available
+    if (designContext?.enrichedContext) {
+      analysis.designSystem = designContext.enrichedContext.design_system;
+      analysis.designIntent = designContext.enrichedContext.design_intent;
+      analysis.visualTokens = designContext.enrichedContext.visual_tokens;
+      analysis.componentHierarchy =
+        designContext.enrichedContext.component_architecture;
+    }
+
     return analysis;
   }
 
   private async enhancePromptWithAI(
     context: PromptConstructionContext,
     analysis: any,
-    requirements: string[]
+    requirements: string[],
+    designContext?: {
+      enrichedContext?: EnrichedContext;
+      designManifest?: DesignManifest;
+    }
   ): Promise<any> {
     try {
       const { HybridAIClient } = await import("../../utils/hybridAIClient");
@@ -393,7 +448,11 @@ Return your response as a JSON object with these keys:
 
   private async extractComponentRequirements(
     context: PromptConstructionContext,
-    analysis: any
+    analysis: any,
+    designContext?: {
+      enrichedContext?: EnrichedContext;
+      designManifest?: DesignManifest;
+    }
   ): Promise<string[]> {
     const requirements: string[] = [];
 
@@ -442,7 +501,11 @@ Return your response as a JSON object with these keys:
   private async constructPrompt(
     context: PromptConstructionContext,
     analysis: any,
-    requirements: string[]
+    requirements: string[],
+    designContext?: {
+      enrichedContext?: EnrichedContext;
+      designManifest?: DesignManifest;
+    }
   ): Promise<ConstructedPrompt> {
     // Use stack configuration if available
     const stackInfo = context.stackConfig
@@ -562,6 +625,8 @@ USER EXPERIENCE GUIDELINES:
 ${analysis.userExperienceGuidelines
   .map((guideline: string) => `- ${guideline}`)
   .join("\n")}
+
+${this.formatDesignSystemForPrompt(analysis, designContext)}
 
 IMPORTANT: This should be a complete, functional component that implements the actual user interactions, not just a layout wrapper. Include all necessary state management, event handlers, and user feedback systems.`;
 
@@ -1042,5 +1107,84 @@ IMPORTANT: This should be a complete, functional component that implements the a
     }
 
     return performance;
+  }
+
+  private formatDesignSystemForPrompt(
+    analysis: any,
+    designContext?: {
+      enrichedContext?: EnrichedContext;
+      designManifest?: DesignManifest;
+    }
+  ): string {
+    if (
+      !analysis.designSystem &&
+      !analysis.designIntent &&
+      !analysis.visualTokens
+    ) {
+      return "";
+    }
+
+    let designSection = "\n🎨 **DESIGN SYSTEM CONTEXT**:\n";
+
+    if (analysis.designSystem) {
+      designSection += `\n**Visual Tokens:**
+- Primary Color: ${analysis.designSystem.colors?.primary || "Not specified"}
+- Secondary Color: ${analysis.designSystem.colors?.secondary || "Not specified"}
+- Typography: ${
+        analysis.designSystem.typography?.heading || "Not specified"
+      } (headings), ${
+        analysis.designSystem.typography?.body || "Not specified"
+      } (body)
+- Spacing Scale: ${
+        analysis.designSystem.spacing?.base || "Not specified"
+      }px base unit
+- Border Radius: ${
+        analysis.designSystem.borderRadius?.base || "Not specified"
+      }px
+- Shadows: ${analysis.designSystem.shadows?.base || "Not specified"}`;
+    }
+
+    if (analysis.designIntent) {
+      designSection += `\n\n**Design Principles:**
+- Design Anchors: ${
+        analysis.designIntent.design_anchors?.join(", ") || "Not specified"
+      }
+- Key Principles: ${
+        analysis.designIntent.key_principles?.join(", ") || "Not specified"
+      }
+- User Experience Focus: ${
+        analysis.designIntent.user_experience_focus || "Not specified"
+      }`;
+    }
+
+    if (analysis.visualTokens) {
+      designSection += `\n\n**Component Tokens:**
+- Button Styles: ${JSON.stringify(analysis.visualTokens.buttons || {})}
+- Input Styles: ${JSON.stringify(analysis.visualTokens.inputs || {})}
+- Card Styles: ${JSON.stringify(analysis.visualTokens.cards || {})}`;
+    }
+
+    if (analysis.componentHierarchy) {
+      designSection += `\n\n**Component Architecture:**
+- Total Components: ${analysis.componentHierarchy.components?.length || 0}
+- Component Groups: ${
+        analysis.componentHierarchy.groups
+          ?.map((g: any) => g.name)
+          .join(", ") || "Not specified"
+      }`;
+    }
+
+    designSection += "\n\n**Design Implementation Requirements:**\n";
+    designSection += "- Use the specified color palette for all UI elements\n";
+    designSection +=
+      "- Apply consistent typography scale throughout the component\n";
+    designSection +=
+      "- Follow the established spacing and border radius patterns\n";
+    designSection +=
+      "- Implement component tokens for buttons, inputs, and cards\n";
+    designSection +=
+      "- Ensure visual consistency with the overall design system";
+
+    return designSection;
   }
 }

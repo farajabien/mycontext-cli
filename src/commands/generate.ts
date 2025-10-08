@@ -2594,6 +2594,7 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     )
       .addStep("types", "Generate TypeScript types", 5000) // 5 seconds
       .addStep("brand", "Generate brand guidelines", 3000) // 3 seconds
+      .addStep("design-manifest", "Generate design manifest", 2000) // 2 seconds
       .addStep("component-list", "Generate component list", 4000) // 4 seconds
       .addStep("project-structure", "Generate project structure", 3000); // 3 seconds
 
@@ -2602,7 +2603,7 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     );
 
     // Display progress overview with time estimates
-    const totalSteps = 4;
+    const totalSteps = 5;
     const eta = progressTracker.getEstimatedCompletionTime();
     console.log(chalk.gray(`📋 Progress: 0/${totalSteps} steps completed`));
     console.log(
@@ -2645,6 +2646,33 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
         error instanceof Error ? error.message : "Unknown error"
       );
       throw error;
+    }
+
+    // Step 2.5: Generate Design Manifest
+    progressTracker.startStep("design-manifest");
+    try {
+      const { DesignAnalyzeCommand } = await import("./design-analyze");
+      const designCommand = new DesignAnalyzeCommand();
+      await designCommand.execute({});
+      results.push({
+        step: "design-manifest",
+        result: { success: true, metadata: { tokens: 0 } },
+      });
+      progressTracker.completeStep(
+        "design-manifest",
+        "✅ Design manifest generated"
+      );
+    } catch (error) {
+      progressTracker.failStep(
+        "design-manifest",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      // Don't throw error - design manifest is optional
+      console.log(
+        chalk.yellow(
+          "⚠️  Design manifest generation failed, continuing without it"
+        )
+      );
     }
 
     // Step 3: Generate Component List
@@ -2733,6 +2761,25 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       }
     } else {
       // Show next steps
+      console.log(chalk.green("\n✅ Architecture generation complete!"));
+      console.log(chalk.blue("\n📋 Generated Files:"));
+      console.log(chalk.gray("   • TypeScript types"));
+      console.log(chalk.gray("   • Brand guidelines"));
+      console.log(chalk.gray("   • Design manifest"));
+      console.log(chalk.gray("   • Component list"));
+      console.log(chalk.gray("   • Project structure"));
+
+      console.log(chalk.blue("\n➡️  Recommended Next Steps:"));
+      console.log(chalk.cyan("   1. Generate components:"));
+      console.log(
+        chalk.white("      mycontext generate-components all --with-tests")
+      );
+      console.log(chalk.cyan("   2. Preview components:"));
+      console.log(chalk.white("      mycontext preview components"));
+      console.log(chalk.cyan("   3. Build complete app:"));
+      console.log(chalk.white("      mycontext build-app --interactive"));
+
+      // Show additional next steps from NextStepsSuggester
       const { NextStepsSuggester } = await import(
         "../utils/nextStepsSuggester"
       );

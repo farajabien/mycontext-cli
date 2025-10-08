@@ -1,0 +1,1100 @@
+{
+  "name": "admin-dashboard-starter",
+  "description": "Production-ready admin dashboard starter with InstantDB, shadcn/ui, and authentication",
+  "source": "https://github.com/mycontext/admin-starter",
+  "version": "1.0.0",
+  "features": [
+    "user-management",
+    "authentication", 
+    "invite-system",
+    "settings",
+    "analytics",
+    "audit-logs"
+  ],
+  "stack": {
+    "framework": "nextjs",
+    "database": "instantdb",
+    "ui": "shadcn",
+    "auth": "instantdb-auth",
+    "deployment": "vercel"
+  },
+  "setup": {
+    "commands": [
+      "npm install",
+      "cp .env.example .env.local",
+      "npm run db:setup",
+      "npm run dev"
+    ],
+    "environment": {
+      "NEXT_PUBLIC_INSTANT_APP_ID": "your-app-id",
+      "INSTANT_API_KEY": "your-api-key",
+      "NEXTAUTH_SECRET": "your-secret",
+      "NEXTAUTH_URL": "http://localhost:3000"
+    },
+    "dependencies": [
+      "next@14",
+      "react@18",
+      "typescript@5",
+      "@instantdb/react@latest",
+      "@radix-ui/react-*",
+      "tailwindcss@3",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "structure": {
+    "directories": [
+      "app/",
+      "components/",
+      "lib/",
+      "actions/",
+      "hooks/",
+      "types/",
+      "utils/",
+      "public/"
+    ],
+    "files": [
+      "app/layout.tsx",
+      "app/page.tsx",
+      "app/admin/page.tsx",
+      "app/admin/users/page.tsx",
+      "app/admin/settings/page.tsx",
+      "lib/db.ts",
+      "lib/auth.ts",
+      "lib/utils.ts",
+      "components/ui/",
+      "actions/user-actions.ts",
+      "actions/invite-actions.ts",
+      "hooks/use-users.ts",
+      "hooks/use-invites.ts",
+      "types/database.ts",
+      "types/auth.ts"
+    ],
+    "configs": [
+      "next.config.js",
+      "tailwind.config.js",
+      "tsconfig.json",
+      "package.json",
+      ".env.example"
+    ]
+  },
+  "features": {
+    "user-management": {
+      "name": "User Management",
+      "description": "Complete user management system with CRUD operations",
+      "category": "user-management",
+      "components": [
+        {
+          "name": "UserTable",
+          "type": "table",
+          "description": "Data table for displaying and managing users",
+          "props": [
+            {
+              "name": "users",
+              "type": "User[]",
+              "required": true,
+              "description": "Array of user objects"
+            },
+            {
+              "name": "onEdit",
+              "type": "(user: User) => void",
+              "required": false,
+              "description": "Callback for editing a user"
+            },
+            {
+              "name": "onDelete",
+              "type": "(userId: string) => void",
+              "required": false,
+              "description": "Callback for deleting a user"
+            }
+          ],
+          "dependencies": ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"]
+        },
+        {
+          "name": "UserForm",
+          "type": "form",
+          "description": "Form for creating and editing users",
+          "props": [
+            {
+              "name": "user",
+              "type": "User | null",
+              "required": false,
+              "description": "User object for editing, null for creating"
+            },
+            {
+              "name": "onSubmit",
+              "type": "(data: UserFormData) => void",
+              "required": true,
+              "description": "Callback for form submission"
+            },
+            {
+              "name": "onCancel",
+              "type": "() => void",
+              "required": false,
+              "description": "Callback for canceling the form"
+            }
+          ],
+          "dependencies": ["react-hook-form", "@hookform/resolvers", "zod"]
+        },
+        {
+          "name": "UserCard",
+          "type": "card",
+          "description": "Card component for displaying user information",
+          "props": [
+            {
+              "name": "user",
+              "type": "User",
+              "required": true,
+              "description": "User object to display"
+            },
+            {
+              "name": "showActions",
+              "type": "boolean",
+              "required": false,
+              "defaultValue": true,
+              "description": "Whether to show action buttons"
+            }
+          ],
+          "dependencies": ["@radix-ui/react-avatar"]
+        }
+      ],
+      "actions": [
+        {
+          "name": "getUsers",
+          "description": "Fetch all users with pagination and filtering",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "defaultValue": 1
+            },
+            {
+              "name": "limit",
+              "type": "number",
+              "required": false,
+              "defaultValue": 10
+            },
+            {
+              "name": "search",
+              "type": "string",
+              "required": false
+            }
+          ],
+          "returnType": "Promise<{ users: User[]; total: number; page: number }>",
+          "permissions": ["users:read"]
+        },
+        {
+          "name": "createUser",
+          "description": "Create a new user",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "userData",
+              "type": "CreateUserData",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<User>",
+          "permissions": ["users:create"]
+        },
+        {
+          "name": "updateUser",
+          "description": "Update an existing user",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "userId",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "userData",
+              "type": "UpdateUserData",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<User>",
+          "permissions": ["users:update"]
+        },
+        {
+          "name": "deleteUser",
+          "description": "Delete a user",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "userId",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<void>",
+          "permissions": ["users:delete"]
+        }
+      ],
+      "hooks": [
+        {
+          "name": "useUsers",
+          "description": "Hook for managing user data and operations",
+          "type": "data",
+          "parameters": [
+            {
+              "name": "options",
+              "type": "UseUsersOptions",
+              "required": false
+            }
+          ],
+          "returnType": "UseUsersReturn",
+          "dependencies": ["@instantdb/react", "actions/user-actions"]
+        },
+        {
+          "name": "useUserForm",
+          "description": "Hook for managing user form state and validation",
+          "type": "form",
+          "parameters": [
+            {
+              "name": "initialData",
+              "type": "UserFormData | null",
+              "required": false
+            }
+          ],
+          "returnType": "UseUserFormReturn",
+          "dependencies": ["react-hook-form", "zod"]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/api/users",
+          "method": "GET",
+          "description": "Get users with pagination and filtering",
+          "parameters": [
+            {
+              "name": "page",
+              "type": "query",
+              "dataType": "number",
+              "required": false
+            },
+            {
+              "name": "limit",
+              "type": "query",
+              "dataType": "number",
+              "required": false
+            },
+            {
+              "name": "search",
+              "type": "query",
+              "dataType": "string",
+              "required": false
+            }
+          ],
+          "responseType": "{ users: User[]; total: number; page: number }",
+          "permissions": ["users:read"]
+        },
+        {
+          "path": "/api/users",
+          "method": "POST",
+          "description": "Create a new user",
+          "parameters": [
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "CreateUserData",
+              "required": true
+            }
+          ],
+          "responseType": "User",
+          "permissions": ["users:create"]
+        },
+        {
+          "path": "/api/users/[id]",
+          "method": "PUT",
+          "description": "Update a user",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "params",
+              "dataType": "string",
+              "required": true
+            },
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "UpdateUserData",
+              "required": true
+            }
+          ],
+          "responseType": "User",
+          "permissions": ["users:update"]
+        },
+        {
+          "path": "/api/users/[id]",
+          "method": "DELETE",
+          "description": "Delete a user",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "params",
+              "dataType": "string",
+              "required": true
+            }
+          ],
+          "responseType": "void",
+          "permissions": ["users:delete"]
+        }
+      ],
+      "database": {
+        "tables": [
+          {
+            "name": "users",
+            "description": "User accounts and profile information",
+            "columns": [
+              {
+                "name": "id",
+                "type": "string",
+                "nullable": false,
+                "description": "Unique user identifier"
+              },
+              {
+                "name": "email",
+                "type": "string",
+                "nullable": false,
+                "description": "User email address"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "nullable": false,
+                "description": "User display name"
+              },
+              {
+                "name": "role",
+                "type": "string",
+                "nullable": false,
+                "defaultValue": "user",
+                "description": "User role (admin, user, guest)"
+              },
+              {
+                "name": "avatar",
+                "type": "string",
+                "nullable": true,
+                "description": "User avatar URL"
+              },
+              {
+                "name": "createdAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Account creation timestamp"
+              },
+              {
+                "name": "updatedAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Last update timestamp"
+              },
+              {
+                "name": "lastLoginAt",
+                "type": "timestamp",
+                "nullable": true,
+                "description": "Last login timestamp"
+              }
+            ],
+            "primaryKey": ["id"],
+            "uniqueKeys": [["email"]]
+          }
+        ],
+        "relationships": [
+          {
+            "from": {
+              "table": "users",
+              "column": "id"
+            },
+            "to": {
+              "table": "invites",
+              "column": "invitedBy"
+            },
+            "type": "one-to-many",
+            "onDelete": "set-null"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_users_email",
+            "table": "users",
+            "columns": ["email"],
+            "unique": true
+          },
+          {
+            "name": "idx_users_role",
+            "table": "users",
+            "columns": ["role"],
+            "unique": false
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "role": "admin",
+          "resource": "users",
+          "actions": ["create", "read", "update", "delete", "manage"]
+        },
+        {
+          "role": "user",
+          "resource": "users",
+          "actions": ["read"],
+          "conditions": [
+            {
+              "field": "id",
+              "operator": "equals",
+              "value": "{{userId}}"
+            }
+          ]
+        },
+        {
+          "role": "guest",
+          "resource": "users",
+          "actions": []
+        }
+      ],
+      "dependencies": [
+        "@instantdb/react",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu",
+        "@radix-ui/react-avatar",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "zod"
+      ],
+      "setupInstructions": [
+        "1. Install dependencies: npm install",
+        "2. Set up InstantDB schema with users table",
+        "3. Configure authentication with InstantDB auth",
+        "4. Import components and hooks in your admin pages",
+        "5. Set up API routes for user management",
+        "6. Configure permissions based on user roles"
+      ]
+    },
+    "authentication": {
+      "name": "Authentication",
+      "description": "Complete authentication system with login, logout, and session management",
+      "category": "authentication",
+      "components": [
+        {
+          "name": "LoginForm",
+          "type": "form",
+          "description": "Login form with email and password",
+          "props": [
+            {
+              "name": "onSuccess",
+              "type": "() => void",
+              "required": false,
+              "description": "Callback for successful login"
+            },
+            {
+              "name": "redirectTo",
+              "type": "string",
+              "required": false,
+              "description": "URL to redirect to after login"
+            }
+          ],
+          "dependencies": ["react-hook-form", "zod"]
+        },
+        {
+          "name": "SignupForm",
+          "type": "form",
+          "description": "Signup form for new user registration",
+          "props": [
+            {
+              "name": "onSuccess",
+              "type": "() => void",
+              "required": false,
+              "description": "Callback for successful signup"
+            },
+            {
+              "name": "requireInvite",
+              "type": "boolean",
+              "required": false,
+              "defaultValue": true,
+              "description": "Whether to require an invite code"
+            }
+          ],
+          "dependencies": ["react-hook-form", "zod"]
+        },
+        {
+          "name": "AuthGuard",
+          "type": "component",
+          "description": "Component to protect routes requiring authentication",
+          "props": [
+            {
+              "name": "children",
+              "type": "React.ReactNode",
+              "required": true,
+              "description": "Content to protect"
+            },
+            {
+              "name": "requiredRole",
+              "type": "string",
+              "required": false,
+              "description": "Minimum required role"
+            },
+            {
+              "name": "fallback",
+              "type": "React.ReactNode",
+              "required": false,
+              "description": "Component to show when not authenticated"
+            }
+          ],
+          "dependencies": ["@instantdb/react"]
+        }
+      ],
+      "actions": [
+        {
+          "name": "signIn",
+          "description": "Sign in with email and password",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "email",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<{ user: User; session: Session }>",
+          "permissions": []
+        },
+        {
+          "name": "signUp",
+          "description": "Create a new user account",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "userData",
+              "type": "SignupData",
+              "required": true
+            },
+            {
+              "name": "inviteCode",
+              "type": "string",
+              "required": false
+            }
+          ],
+          "returnType": "Promise<{ user: User; session: Session }>",
+          "permissions": []
+        },
+        {
+          "name": "signOut",
+          "description": "Sign out the current user",
+          "type": "server",
+          "parameters": [],
+          "returnType": "Promise<void>",
+          "permissions": []
+        }
+      ],
+      "hooks": [
+        {
+          "name": "useAuth",
+          "description": "Hook for authentication state and operations",
+          "type": "auth",
+          "parameters": [],
+          "returnType": "UseAuthReturn",
+          "dependencies": ["@instantdb/react"]
+        },
+        {
+          "name": "useSession",
+          "description": "Hook for session management",
+          "type": "auth",
+          "parameters": [],
+          "returnType": "UseSessionReturn",
+          "dependencies": ["@instantdb/react"]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/api/auth/signin",
+          "method": "POST",
+          "description": "Sign in endpoint",
+          "parameters": [
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "SigninData",
+              "required": true
+            }
+          ],
+          "responseType": "{ user: User; session: Session }",
+          "permissions": []
+        },
+        {
+          "path": "/api/auth/signup",
+          "method": "POST",
+          "description": "Sign up endpoint",
+          "parameters": [
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "SignupData",
+              "required": true
+            }
+          ],
+          "responseType": "{ user: User; session: Session }",
+          "permissions": []
+        },
+        {
+          "path": "/api/auth/signout",
+          "method": "POST",
+          "description": "Sign out endpoint",
+          "parameters": [],
+          "responseType": "void",
+          "permissions": []
+        }
+      ],
+      "database": {
+        "tables": [
+          {
+            "name": "sessions",
+            "description": "User session information",
+            "columns": [
+              {
+                "name": "id",
+                "type": "string",
+                "nullable": false,
+                "description": "Session identifier"
+              },
+              {
+                "name": "userId",
+                "type": "string",
+                "nullable": false,
+                "description": "User ID this session belongs to"
+              },
+              {
+                "name": "expiresAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Session expiration time"
+              },
+              {
+                "name": "createdAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Session creation time"
+              }
+            ],
+            "primaryKey": ["id"],
+            "uniqueKeys": []
+          }
+        ],
+        "relationships": [
+          {
+            "from": {
+              "table": "sessions",
+              "column": "userId"
+            },
+            "to": {
+              "table": "users",
+              "column": "id"
+            },
+            "type": "many-to-one",
+            "onDelete": "cascade"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_sessions_userId",
+            "table": "sessions",
+            "columns": ["userId"],
+            "unique": false
+          },
+          {
+            "name": "idx_sessions_expiresAt",
+            "table": "sessions",
+            "columns": ["expiresAt"],
+            "unique": false
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "role": "admin",
+          "resource": "sessions",
+          "actions": ["read", "delete", "manage"]
+        },
+        {
+          "role": "user",
+          "resource": "sessions",
+          "actions": ["read", "delete"],
+          "conditions": [
+            {
+              "field": "userId",
+              "operator": "equals",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "@instantdb/react",
+        "react-hook-form",
+        "zod"
+      ],
+      "setupInstructions": [
+        "1. Configure InstantDB authentication",
+        "2. Set up session management",
+        "3. Create login and signup pages",
+        "4. Implement AuthGuard for protected routes",
+        "5. Set up API routes for authentication",
+        "6. Configure session cleanup and expiration"
+      ]
+    },
+    "invite-system": {
+      "name": "Invite System",
+      "description": "User invitation system with email invites and role-based access",
+      "category": "user-management",
+      "components": [
+        {
+          "name": "InviteForm",
+          "type": "form",
+          "description": "Form for sending user invitations",
+          "props": [
+            {
+              "name": "onSuccess",
+              "type": "() => void",
+              "required": false,
+              "description": "Callback for successful invite"
+            },
+            {
+              "name": "defaultRole",
+              "type": "string",
+              "required": false,
+              "defaultValue": "user",
+              "description": "Default role for invited users"
+            }
+          ],
+          "dependencies": ["react-hook-form", "zod"]
+        },
+        {
+          "name": "InviteTable",
+          "type": "table",
+          "description": "Table for managing pending invitations",
+          "props": [
+            {
+              "name": "invites",
+              "type": "Invite[]",
+              "required": true,
+              "description": "Array of invite objects"
+            },
+            {
+              "name": "onResend",
+              "type": "(inviteId: string) => void",
+              "required": false,
+              "description": "Callback for resending invite"
+            },
+            {
+              "name": "onRevoke",
+              "type": "(inviteId: string) => void",
+              "required": false,
+              "description": "Callback for revoking invite"
+            }
+          ],
+          "dependencies": ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"]
+        },
+        {
+          "name": "AcceptInviteForm",
+          "type": "form",
+          "description": "Form for accepting an invitation",
+          "props": [
+            {
+              "name": "inviteCode",
+              "type": "string",
+              "required": true,
+              "description": "Invitation code"
+            },
+            {
+              "name": "onSuccess",
+              "type": "() => void",
+              "required": false,
+              "description": "Callback for successful acceptance"
+            }
+          ],
+          "dependencies": ["react-hook-form", "zod"]
+        }
+      ],
+      "actions": [
+        {
+          "name": "sendInvite",
+          "description": "Send an invitation to a user",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "email",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "role",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "required": false,
+              "description": "Personal message for the invite"
+            }
+          ],
+          "returnType": "Promise<Invite>",
+          "permissions": ["invites:create"]
+        },
+        {
+          "name": "acceptInvite",
+          "description": "Accept an invitation and create user account",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "inviteCode",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "userData",
+              "type": "AcceptInviteData",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<{ user: User; session: Session }>",
+          "permissions": []
+        },
+        {
+          "name": "revokeInvite",
+          "description": "Revoke a pending invitation",
+          "type": "server",
+          "parameters": [
+            {
+              "name": "inviteId",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "returnType": "Promise<void>",
+          "permissions": ["invites:delete"]
+        }
+      ],
+      "hooks": [
+        {
+          "name": "useInvites",
+          "description": "Hook for managing invitations",
+          "type": "data",
+          "parameters": [
+            {
+              "name": "options",
+              "type": "UseInvitesOptions",
+              "required": false
+            }
+          ],
+          "returnType": "UseInvitesReturn",
+          "dependencies": ["@instantdb/react", "actions/invite-actions"]
+        },
+        {
+          "name": "useInviteForm",
+          "description": "Hook for invite form management",
+          "type": "form",
+          "parameters": [],
+          "returnType": "UseInviteFormReturn",
+          "dependencies": ["react-hook-form", "zod"]
+        }
+      ],
+      "routes": [
+        {
+          "path": "/api/invites",
+          "method": "POST",
+          "description": "Send an invitation",
+          "parameters": [
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "SendInviteData",
+              "required": true
+            }
+          ],
+          "responseType": "Invite",
+          "permissions": ["invites:create"]
+        },
+        {
+          "path": "/api/invites/accept",
+          "method": "POST",
+          "description": "Accept an invitation",
+          "parameters": [
+            {
+              "name": "body",
+              "type": "body",
+              "dataType": "AcceptInviteData",
+              "required": true
+            }
+          ],
+          "responseType": "{ user: User; session: Session }",
+          "permissions": []
+        },
+        {
+          "path": "/api/invites/[id]",
+          "method": "DELETE",
+          "description": "Revoke an invitation",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "params",
+              "dataType": "string",
+              "required": true
+            }
+          ],
+          "responseType": "void",
+          "permissions": ["invites:delete"]
+        }
+      ],
+      "database": {
+        "tables": [
+          {
+            "name": "invites",
+            "description": "User invitations",
+            "columns": [
+              {
+                "name": "id",
+                "type": "string",
+                "nullable": false,
+                "description": "Invite identifier"
+              },
+              {
+                "name": "email",
+                "type": "string",
+                "nullable": false,
+                "description": "Email address to invite"
+              },
+              {
+                "name": "role",
+                "type": "string",
+                "nullable": false,
+                "description": "Role to assign to invited user"
+              },
+              {
+                "name": "code",
+                "type": "string",
+                "nullable": false,
+                "description": "Unique invitation code"
+              },
+              {
+                "name": "invitedBy",
+                "type": "string",
+                "nullable": false,
+                "description": "User ID who sent the invite"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "nullable": false,
+                "defaultValue": "pending",
+                "description": "Invite status (pending, accepted, expired, revoked)"
+              },
+              {
+                "name": "expiresAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Invitation expiration time"
+              },
+              {
+                "name": "acceptedAt",
+                "type": "timestamp",
+                "nullable": true,
+                "description": "When the invitation was accepted"
+              },
+              {
+                "name": "createdAt",
+                "type": "timestamp",
+                "nullable": false,
+                "description": "Invitation creation time"
+              }
+            ],
+            "primaryKey": ["id"],
+            "uniqueKeys": [["code"], ["email", "status"]]
+          }
+        ],
+        "relationships": [
+          {
+            "from": {
+              "table": "invites",
+              "column": "invitedBy"
+            },
+            "to": {
+              "table": "users",
+              "column": "id"
+            },
+            "type": "many-to-one",
+            "onDelete": "set-null"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "idx_invites_code",
+            "table": "invites",
+            "columns": ["code"],
+            "unique": true
+          },
+          {
+            "name": "idx_invites_email",
+            "table": "invites",
+            "columns": ["email"],
+            "unique": false
+          },
+          {
+            "name": "idx_invites_status",
+            "table": "invites",
+            "columns": ["status"],
+            "unique": false
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "role": "admin",
+          "resource": "invites",
+          "actions": ["create", "read", "update", "delete", "manage"]
+        },
+        {
+          "role": "user",
+          "resource": "invites",
+          "actions": []
+        },
+        {
+          "role": "guest",
+          "resource": "invites",
+          "actions": ["read"],
+          "conditions": [
+            {
+              "field": "status",
+              "operator": "equals",
+              "value": "pending"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "@instantdb/react",
+        "react-hook-form",
+        "zod",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu"
+      ],
+      "setupInstructions": [
+        "1. Set up invites table in InstantDB",
+        "2. Configure email service for sending invites",
+        "3. Create invite management pages",
+        "4. Implement invite acceptance flow",
+        "5. Set up API routes for invite operations",
+        "6. Configure invite expiration and cleanup"
+      ]
+    }
+  }
+}

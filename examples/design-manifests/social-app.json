@@ -1,0 +1,248 @@
+{
+  "project_summary": {
+    "app_name": "ConnectHub",
+    "purpose": "Social networking platform for professional communities and knowledge sharing",
+    "key_features": [
+      "user profiles",
+      "posts and updates",
+      "messaging system",
+      "groups and communities",
+      "content sharing",
+      "notifications",
+      "search and discovery",
+      "events and meetups"
+    ],
+    "user_types": ["members", "moderators", "admins", "guests"],
+    "success_metrics": [
+      "user engagement",
+      "content creation rate",
+      "community growth",
+      "message response time",
+      "user retention"
+    ]
+  },
+  "design_system": {
+    "colors": {
+      "primary": "#6366F1",
+      "secondary": "#8B5CF6",
+      "accent": "#EC4899",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "info": "#06B6D4"
+    },
+    "typography": {
+      "heading": "Inter",
+      "body": "Inter",
+      "mono": "JetBrains Mono"
+    },
+    "spacing": {
+      "base": 6,
+      "scale": [3, 6, 9, 12, 15, 18, 24, 30, 36, 48, 60, 72]
+    },
+    "borderRadius": {
+      "base": "12px",
+      "large": "16px",
+      "small": "8px",
+      "full": "9999px"
+    },
+    "shadows": {
+      "base": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "large": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      "card": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+    }
+  },
+  "design_intent": {
+    "design_anchors": [
+      "connection",
+      "authenticity",
+      "engagement",
+      "community"
+    ],
+    "key_principles": [
+      "mobile-first",
+      "accessibility",
+      "inclusive",
+      "conversation-focused",
+      "real-time"
+    ],
+    "user_experience_focus": "Foster meaningful connections and conversations within professional communities"
+  },
+  "component_architecture": {
+    "components": [
+      {
+        "name": "PostCard",
+        "description": "Individual post display with content, author, and interactions",
+        "type": "display",
+        "group": "posts"
+      },
+      {
+        "name": "MessageBubble",
+        "description": "Chat message with sender info and timestamp",
+        "type": "display",
+        "group": "messaging"
+      },
+      {
+        "name": "UserProfile",
+        "description": "User profile card with avatar, name, and bio",
+        "type": "display",
+        "group": "profiles"
+      },
+      {
+        "name": "NotificationItem",
+        "description": "Notification display with action and timestamp",
+        "type": "display",
+        "group": "notifications"
+      },
+      {
+        "name": "CommentThread",
+        "description": "Nested comment display with replies",
+        "type": "interactive",
+        "group": "posts"
+      }
+    ],
+    "groups": [
+      {
+        "name": "posts",
+        "description": "Content creation and display",
+        "components": ["PostCard", "CommentThread", "PostComposer", "MediaUpload"]
+      },
+      {
+        "name": "messaging",
+        "description": "Direct messaging system",
+        "components": ["MessageBubble", "ChatInput", "MessageList", "TypingIndicator"]
+      },
+      {
+        "name": "profiles",
+        "description": "User profile management",
+        "components": ["UserProfile", "ProfileEdit", "AvatarUpload", "BioEditor"]
+      },
+      {
+        "name": "notifications",
+        "description": "Notification system",
+        "components": ["NotificationItem", "NotificationList", "NotificationSettings"]
+      },
+      {
+        "name": "navigation",
+        "description": "App navigation and discovery",
+        "components": ["NavBar", "Sidebar", "SearchBar", "MenuButton"]
+      }
+    ],
+    "screens": [
+      {
+        "name": "Feed",
+        "description": "Main social feed with posts and updates",
+        "layout_type": "single_column",
+        "components": ["PostCard", "PostComposer", "FilterTabs"],
+        "navigation_flow": ["Feed", "Profile", "Messages"],
+        "user_journey_position": "main"
+      },
+      {
+        "name": "Messages",
+        "description": "Direct messaging interface",
+        "layout_type": "multi_column",
+        "components": ["MessageList", "MessageBubble", "ChatInput"],
+        "navigation_flow": ["Feed", "Messages", "Profile"],
+        "user_journey_position": "main"
+      },
+      {
+        "name": "Profile",
+        "description": "User profile page with posts and info",
+        "layout_type": "single_column",
+        "components": ["UserProfile", "PostCard", "BioEditor"],
+        "navigation_flow": ["Feed", "Profile", "Settings"],
+        "user_journey_position": "secondary"
+      }
+    ]
+  },
+  "visual_tokens": {
+    "buttons": {
+      "primary": {
+        "background": "var(--primary)",
+        "color": "white",
+        "padding": "10px 20px",
+        "borderRadius": "var(--radius-full)",
+        "fontWeight": "500"
+      },
+      "secondary": {
+        "background": "transparent",
+        "color": "var(--primary)",
+        "border": "2px solid var(--primary)",
+        "padding": "8px 18px",
+        "borderRadius": "var(--radius-full)"
+      },
+      "icon": {
+        "background": "transparent",
+        "color": "var(--secondary)",
+        "padding": "8px",
+        "borderRadius": "var(--radius-full)",
+        "minWidth": "40px",
+        "minHeight": "40px"
+      }
+    },
+    "inputs": {
+      "default": {
+        "border": "2px solid var(--border)",
+        "padding": "12px 16px",
+        "borderRadius": "var(--radius-base)",
+        "fontSize": "16px",
+        "backgroundColor": "var(--background)"
+      },
+      "message": {
+        "border": "none",
+        "padding": "12px 16px",
+        "borderRadius": "var(--radius-full)",
+        "fontSize": "16px",
+        "backgroundColor": "var(--muted)",
+        "resize": "none"
+      }
+    },
+    "cards": {
+      "post": {
+        "background": "white",
+        "border": "1px solid var(--border)",
+        "borderRadius": "var(--radius-large)",
+        "padding": "20px",
+        "boxShadow": "var(--shadow-card)"
+      },
+      "message": {
+        "background": "var(--primary)",
+        "color": "white",
+        "padding": "12px 16px",
+        "borderRadius": "var(--radius-large)",
+        "maxWidth": "70%"
+      }
+    }
+  },
+  "technical_context": {
+    "prd": "ConnectHub is a professional social networking platform that enables communities to connect, share knowledge, and collaborate. It focuses on meaningful conversations and professional relationships.",
+    "types": "interface Post { id: string; content: string; author: User; createdAt: Date; likes: number; comments: Comment[]; }",
+    "brand": "Friendly, professional, inclusive, engaging, modern"
+  },
+  "implementation_guidelines": {
+    "tech_stack": ["Next.js", "React", "TypeScript", "Tailwind CSS", "Socket.io"],
+    "patterns": ["real-time", "optimistic-updates", "infinite-scroll"],
+    "performance": ["virtualization", "lazy-loading", "image-optimization"]
+  },
+  "design_principles": [
+    "Foster authentic connections",
+    "Encourage meaningful conversations",
+    "Provide clear social cues and feedback",
+    "Support diverse content types",
+    "Enable real-time interaction"
+  ],
+  "interaction_patterns": [
+    "Like and reaction animations",
+    "Real-time typing indicators",
+    "Smooth scrolling and transitions",
+    "Pull-to-refresh functionality",
+    "Infinite scroll for feeds"
+  ],
+  "accessibility_requirements": [
+    "WCAG 2.1 AA compliance",
+    "Keyboard navigation for all features",
+    "Screen reader support for content",
+    "High contrast mode support",
+    "Focus management for modals and overlays"
+  ]
+}

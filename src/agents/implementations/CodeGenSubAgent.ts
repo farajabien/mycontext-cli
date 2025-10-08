@@ -349,7 +349,14 @@ export class CodeGenSubAgent
           constructedPrompt = await this.constructPromptWithLLM(
             compObj,
             group,
-            { prd, types, enhancedContext }
+            {
+              prd,
+              types,
+              enhancedContext,
+              designSystem: options?.context?.designSystem,
+              designIntent: options?.context?.designIntent,
+              visualTokens: options?.context?.visualTokens,
+            }
           );
           console.log(
             `✅ Intelligent prompt constructed via LLM: ${constructedPrompt.contextSummary}`
@@ -411,7 +418,14 @@ export class CodeGenSubAgent
   private async constructPromptWithLLM(
     component: any,
     group: any,
-    context: { prd: string; types: string; enhancedContext: string }
+    context: {
+      prd: string;
+      types: string;
+      enhancedContext: string;
+      designSystem?: any;
+      designIntent?: any;
+      visualTokens?: any;
+    }
   ): Promise<{
     systemPrompt: string;
     userPrompt: string;
@@ -542,7 +556,14 @@ Focus on:
   private createFallbackPrompt(
     component: any,
     group: any,
-    context: { prd: string; types: string; enhancedContext: string }
+    context: {
+      prd: string;
+      types: string;
+      enhancedContext: string;
+      designSystem?: any;
+      designIntent?: any;
+      visualTokens?: any;
+    }
   ): {
     systemPrompt: string;
     userPrompt: string;
@@ -551,6 +572,60 @@ Focus on:
   } {
     const componentName = component.name || "Component";
     const componentDescription = component.description || "A React component";
+
+    // Add design system context if available
+    let designSystemContext = "";
+    if (context.designSystem || context.designIntent || context.visualTokens) {
+      designSystemContext = "\n\n🎨 **DESIGN SYSTEM CONTEXT**:\n";
+
+      if (context.designSystem) {
+        designSystemContext += `\n**Visual Tokens:**
+- Primary Color: ${context.designSystem.colors?.primary || "Not specified"}
+- Secondary Color: ${context.designSystem.colors?.secondary || "Not specified"}
+- Typography: ${
+          context.designSystem.typography?.heading || "Not specified"
+        } (headings), ${
+          context.designSystem.typography?.body || "Not specified"
+        } (body)
+- Spacing Scale: ${
+          context.designSystem.spacing?.base || "Not specified"
+        }px base unit
+- Border Radius: ${context.designSystem.borderRadius?.base || "Not specified"}px
+- Shadows: ${context.designSystem.shadows?.base || "Not specified"}`;
+      }
+
+      if (context.designIntent) {
+        designSystemContext += `\n\n**Design Principles:**
+- Design Anchors: ${
+          context.designIntent.design_anchors?.join(", ") || "Not specified"
+        }
+- Key Principles: ${
+          context.designIntent.key_principles?.join(", ") || "Not specified"
+        }
+- User Experience Focus: ${
+          context.designIntent.user_experience_focus || "Not specified"
+        }`;
+      }
+
+      if (context.visualTokens) {
+        designSystemContext += `\n\n**Component Tokens:**
+- Button Styles: ${JSON.stringify(context.visualTokens.buttons || {})}
+- Input Styles: ${JSON.stringify(context.visualTokens.inputs || {})}
+- Card Styles: ${JSON.stringify(context.visualTokens.cards || {})}`;
+      }
+
+      designSystemContext += "\n\n**Design Implementation Requirements:**\n";
+      designSystemContext +=
+        "- Use the specified color palette for all UI elements\n";
+      designSystemContext +=
+        "- Apply consistent typography scale throughout the component\n";
+      designSystemContext +=
+        "- Follow the established spacing and border radius patterns\n";
+      designSystemContext +=
+        "- Implement component tokens for buttons, inputs, and cards\n";
+      designSystemContext +=
+        "- Ensure visual consistency with the overall design system";
+    }
 
     const systemPrompt = `You are an expert React/TypeScript developer specializing in production-ready Next.js 14+ components with shadcn/ui.
 
@@ -587,7 +662,7 @@ CRITICAL REQUIREMENTS:
 - Server Components for page.tsx files (no "use client")
 - Client Components for interactive functionality
 
-Generate production-ready, maintainable code that follows industry best practices.`;
+Generate production-ready, maintainable code that follows industry best practices.${designSystemContext}`;
 
     const userPrompt = `Create a React component: ${componentName}
 

@@ -28,6 +28,7 @@ interface ProjectPreferences {
   techStack: string[];
   features: string[];
   timeline: "quick" | "standard" | "extended";
+  useAdminStarter: boolean;
 }
 
 export class SetupCompleteCommand {
@@ -99,6 +100,7 @@ export class SetupCompleteCommand {
         techStack: ["Next.js", "TypeScript", "Tailwind CSS"],
         features: ["responsive", "modern"],
         timeline: "standard",
+        useAdminStarter: false, // default
       };
     }
 
@@ -170,6 +172,15 @@ export class SetupCompleteCommand {
       hint: "Use space to select, enter to confirm",
     });
 
+    // Admin starter option
+    const adminStarterResponse = await prompts({
+      type: "confirm",
+      name: "useAdminStarter",
+      message: "Include admin starter template? (Auth + User Management)",
+      initial: false,
+      hint: "Adds pre-built admin dashboard with authentication and user management features",
+    });
+
     // Timeline preference
     const timelineResponse = await prompts({
       type: "select",
@@ -189,6 +200,7 @@ export class SetupCompleteCommand {
       techStack: techStackResponse.techStack,
       features: this.getDefaultFeatures(complexityResponse.type),
       timeline: timelineResponse.timeline,
+      useAdminStarter: adminStarterResponse.useAdminStarter,
     };
   }
 
@@ -224,6 +236,11 @@ export class SetupCompleteCommand {
     console.log(
       `   Key Features: ${chalk.white(preferences.features.join(", "))}`
     );
+    console.log(
+      `   Admin Starter: ${chalk.white(
+        preferences.useAdminStarter ? "Yes" : "No"
+      )}`
+    );
     console.log("");
 
     const confirmResponse = await prompts({
@@ -253,6 +270,15 @@ export class SetupCompleteCommand {
       .addStep("context", "Generate context files", 8000)
       .addStep("architecture", "Generate project architecture", 15000)
       .addStep("components", "Generate components", 20000);
+
+    // Add admin starter step if requested
+    if (preferences.useAdminStarter) {
+      progressTracker.addStep(
+        "admin-starter",
+        "Setup admin starter template",
+        5000
+      );
+    }
 
     console.log(chalk.blue.bold(`\n🏗️ Creating project: ${preferences.name}`));
     console.log(chalk.gray(`Location: ${projectPath}`));
@@ -343,10 +369,35 @@ export class SetupCompleteCommand {
         chalk.gray(`   Generated types, components, and project structure`)
       );
 
-      // Step 4: Generate components (if auto-continue enabled)
+      // Step 4: Setup admin starter (if requested)
+      if (preferences.useAdminStarter) {
+        progressTracker.startStep("admin-starter");
+        console.log(
+          chalk.cyan("🚀 Step 4: Setting up admin starter template...")
+        );
+
+        const { CloneStarterCommand } = await import("./clone-starter");
+        const cloneCommand = new CloneStarterCommand();
+
+        // TODO: Replace with actual admin starter repo URL
+        await cloneCommand.execute({
+          url: "https://github.com/your-username/admin-starter-template", // Placeholder
+          output: projectPath,
+          install: true,
+          setup: true,
+          verbose: false,
+        });
+
+        progressTracker.completeStep("admin-starter", "✅ Admin starter setup");
+        console.log(
+          chalk.gray(`   Cloned and configured admin starter template`)
+        );
+      }
+
+      // Step 5: Generate components (if auto-continue enabled)
       if (options.autoContinue) {
         progressTracker.startStep("components");
-        console.log(chalk.cyan("🧩 Step 4: Generating components..."));
+        console.log(chalk.cyan("🧩 Step 5: Generating components..."));
 
         const { GenerateComponentsCommand } = await import(
           "./generate-components"
@@ -382,6 +433,11 @@ export class SetupCompleteCommand {
     };
 
     let totalMinutes = baseTimes[preferences.type];
+
+    // Add time for admin starter
+    if (preferences.useAdminStarter) {
+      totalMinutes += 2;
+    }
 
     // Add time for component generation if auto-continue is enabled
     if (

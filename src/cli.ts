@@ -39,6 +39,9 @@ import { GenerateContextFilesCommand } from "./commands/generate-context-files";
 import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
+import { DesignAnalyzeCommand } from "./commands/design-analyze";
+import { AssembleFeaturesCommand } from "./commands/assemble-features";
+import { CloneStarterCommand } from "./commands/clone-starter";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 
 // Import sub-agent system
@@ -370,6 +373,80 @@ PreCommandValidator.addValidationHook(generateComponentsCmd, {
   autoFix: true,
   strict: false,
 });
+
+// Design analyze command
+program
+  .command("design")
+  .description("Design system analysis and manifest generation")
+  .option("--analyze", "Analyze context files and generate design manifest")
+  .option("--validate", "Validate all context files")
+  .option("--summary", "Show design manifest summary")
+  .option("--regenerate", "Force regenerate design manifest")
+  .option("--resume", "Resume from last failed phase")
+  .action(async (options: any) => {
+    try {
+      const designCommand = new DesignAnalyzeCommand();
+      await designCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Design analysis failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Feature Assembly command
+program
+  .command("assemble-features")
+  .description("🔧 Assemble components into complete working features")
+  .option("--from-components", "Assemble from generated components")
+  .option("--use-starter", "Use admin starter template")
+  .option(
+    "--role <role>",
+    "Generate for specific role (admin/user/guest)",
+    "admin"
+  )
+  .option("--feature <name>", "Generate specific feature")
+  .option("--output <path>", "Output directory for features", "./features")
+  .option("--template <name>", "Use specific feature template")
+  .option("--include-tests", "Include test files")
+  .option("--include-docs", "Include documentation")
+  .option("--verbose", "Verbose output")
+  .action(async (options: any) => {
+    try {
+      const assembleCommand = new AssembleFeaturesCommand();
+      await assembleCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Feature assembly failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Clone Starter command
+program
+  .command("clone-starter")
+  .description("📦 Clone admin starter repository and set up project")
+  .option(
+    "--url <url>",
+    "GitHub repository URL",
+    "https://github.com/mycontext/admin-starter"
+  )
+  .option(
+    "--output <path>",
+    "Output directory for cloned project",
+    "./admin-starter"
+  )
+  .option("--branch <branch>", "Git branch to clone", "main")
+  .option("--install", "Install dependencies after cloning", true)
+  .option("--setup", "Run setup commands after cloning", true)
+  .option("--verbose", "Verbose output")
+  .action(async (options: any) => {
+    try {
+      const cloneCommand = new CloneStarterCommand();
+      await cloneCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Clone starter failed:"), error);
+      process.exit(1);
+    }
+  });
 
 // Agent Flow command (BETA - Agentic workflow orchestration)
 program

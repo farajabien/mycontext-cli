@@ -75,18 +75,159 @@ mycontext workflow --interactive
 # 5. Continue development with AI-generated architecture
 ```
 
-## 💡 Philosophy: Component-First Development
+## 🎨 Design-Driven Development
 
-**Start Small, Scale Gradually:**
+MyContext uses a revolutionary design pipeline that treats all context files as a unified design system foundation:
+
+### **Design Workflow**
+
+1. **Context Files** (PRD + Types + Brand + Component List) serve as design foundation
+2. **Design Pipeline** analyzes and generates rich design manifest with 8-phase reasoning
+3. **Components** inherit design system automatically with visual tokens and design principles
+
+### **Design Commands**
+
+```bash
+# Generate design manifest from all context files
+mycontext design analyze
+
+# Resume from last failure (auto-detected or explicit)
+mycontext design analyze --resume
+
+# Validate context files for design consistency
+mycontext design validate
+
+# View design manifest summary
+mycontext design summary
+
+# Regenerate design manifest with updated context
+mycontext design regenerate
+```
+
+### **Error Recovery Example**
+
+```bash
+# Pipeline fails at Phase 6 due to rate limit
+mycontext design analyze
+# ... Phase 1-5 complete, Phase 6 fails
+
+# Wait 60 seconds, then resume
+mycontext design analyze --resume
+# ... Resumes from Phase 6, skips 1-5
+```
+
+### **Design System Integration**
+
+- **Visual Tokens** - Colors, typography, spacing automatically applied to components
+- **Design Principles** - Consistent design patterns across all generated components
+- **Component Architecture** - Hierarchical component structure with design relationships
+- **Design Intent** - User experience focus and design anchors guide component generation
+
+## 🚀 Feature Assembly (NEW)
+
+MyContext doesn't stop at components - we assemble them into **working features**:
+
+### From Components to Features
+
+```
+Components → Features → Role-Based Access → Production App
+```
+
+### What is a Feature?
+
+A Feature bundles:
+
+- **Components**: UI elements (buttons, forms, cards)
+- **Types**: TypeScript interfaces and types
+- **Actions**: Server actions for data mutations
+- **Hooks**: Custom React hooks for state management
+- **Routes**: API routes and page routes
+- **Database**: InstantDB schema and queries
+- **Permissions**: Role-based access control
+
+### Quick Start with Admin Starter
+
+```bash
+# Option 1: Complete setup with admin starter
+mycontext setup-complete --with-admin-starter
+
+# Option 2: Add to existing project
+mycontext clone-starter --url <your-admin-repo>
+mycontext assemble-features --role admin
+```
+
+### Admin-First Development
+
+1. **Build Admin Features First** - Full CRUD permissions
+2. **Cascade to User Role** - Subset of admin (read-only, limited actions)
+3. **Add Guest Features** - Public-only features
+
+**Why Admin First?** If admin CRUD works, user READ-ONLY is trivial to generate.
+
+### Feature Assembly Commands
+
+```bash
+# Assemble from generated components
+mycontext assemble-features --from-components
+
+# Use admin starter template
+mycontext assemble-features --use-starter --role admin
+
+# Generate specific feature
+mycontext assemble-features --feature user-management --role admin
+
+# Generate for specific role
+mycontext assemble-features --role user --from-components
+```
+
+### Example: User Management Feature
+
+```bash
+mycontext assemble-features --feature user-management --role admin
+```
+
+**Generated**:
+
+- 5 Components (UserList, UserCard, UserForm, InviteDialog, UserSettings)
+- 12 Server Actions (createUser, updateUser, deleteUser, inviteUser, etc.)
+- 3 Custom Hooks (useUsers, useInvites, useUserPermissions)
+- 2 API Routes (/api/users, /api/invites)
+- InstantDB Schema (users, invites, permissions tables)
+- Role Permissions (admin: full access, user: read own profile)
+
+### The MyContext Promise
+
+**Before** (Component Library Only):
+
+- Generate 50 components ✅
+- Developer manually assembles features ⏱️ 2-3 days
+- Wire up actions, hooks, routes ⏱️ 1-2 days
+- Add auth and permissions ⏱️ 1 day
+
+**After** (Feature Assembly):
+
+- Generate 50 components ✅
+- MyContext assembles into 10 features ⚡ 10 minutes
+- Generate for admin role ⚡ 5 minutes
+- Adapt for user role ⚡ 3 minutes
+
+**Total**: Production-ready app with auth, features, and role-based access in **under 30 minutes**.
+
+## 💡 Philosophy: Component-First to Feature-Complete
+
+**Start Small, Scale Fast:**
 
 1. **Context Files** → Define your app (PRD, features, technical specs)
-2. **Component List** → AI automatically generates list of needed components
-3. **Build Strategy** → Choose how to approach development
-4. **Component Generation** → Build components one by one with validation
-5. **Visual Preview** → See components in browser before integration
-6. **Scale to App** → Assemble validated components into full application
+2. **Design Pipeline** → AI analyzes context files as unified design system
+3. **Design Manifest** → Rich design tokens, principles, and component architecture
+4. **Component List** → AI automatically generates list of needed components
+5. **Component Generation** → Build components with design system integration
+6. **Feature Assembly** → Combine components into working features (NEW)
+7. **Role-Based Access** → Generate for admin, then cascade to other roles (NEW)
+8. **Visual Preview** → See features in browser before deployment
+9. **Production Deploy** → Complete app with auth, features, and permissions
 
-**Result:** Production-ready apps with 0 errors, built incrementally.
+**Result:** Production-ready apps with working features, auth, and role-based access in hours, not weeks.
 
 ## 🏗️ System Architecture
 
@@ -145,6 +286,9 @@ mycontext workflow --interactive
 ### ✅ **MyContext CLI (Component-First Development)**
 
 - **Streamlined Workflow** - Single `setup-complete` command for full project setup
+- **Design-Driven Development** - Revolutionary design pipeline treats all context files as unified design system
+- **Feature Assembly** - Combine components into working features with auth, actions, and role-based access
+- **Admin-First Development** - Build admin features first, then cascade to user roles automatically
 - **Smart Next Steps** - Context-aware suggestions guide you through the development process
 - **Zero-Error Guarantee** - TypeScript/ESLint/build validation on every component
 - **UI Specification System** - Plain-English specs with accessibility & responsive guidance
@@ -173,6 +317,29 @@ mycontext setup-complete --name "MyApp"      # Direct setup with options
 mycontext workflow analyze                   # Analyze project with AI
 mycontext workflow generate                  # Generate and execute workflow
 mycontext workflow --interactive             # Interactive workflow planning
+```
+
+### Design Pipeline (NEW)
+
+```bash
+mycontext design analyze                     # Generate design manifest from context files
+mycontext design validate                    # Validate context files for design consistency
+mycontext design summary                     # View design manifest summary
+mycontext design regenerate                  # Regenerate design manifest with updated context
+```
+
+### Feature Assembly (NEW)
+
+```bash
+# Assemble components into features
+mycontext assemble-features --from-components    # From generated components
+mycontext assemble-features --use-starter        # With admin starter
+mycontext assemble-features --role admin         # For specific role
+mycontext assemble-features --feature <name>     # Specific feature only
+
+# Clone admin starter
+mycontext clone-starter --url <repo-url>         # Clone from GitHub
+mycontext clone-starter --install --setup        # Clone and setup
 ```
 
 ### Streamlined Workflow (Recommended)

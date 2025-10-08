@@ -9,6 +9,8 @@ import prompts from "prompts";
 import { GenerateContextFilesCommand } from "./generate-context-files";
 import { GenerateCommand } from "./generate";
 import { CompilePRDCommand } from "./compile-prd";
+import { GenerateComponentsCommand } from "./generate-components";
+import { PreviewCommand } from "./preview";
 import { HybridAIClient } from "../utils/hybridAIClient";
 
 interface AIWorkflowAnalysis {
@@ -78,7 +80,11 @@ export class WorkflowCommand {
       .option(
         "--auto-continue",
         "Automatically continue to component generation"
-      );
+      )
+      .option("--skip-components", "Skip component generation step")
+      .option("--skip-preview", "Skip preview setup step")
+      .option("--deploy", "Include deployment setup")
+      .option("--with-tests", "Generate tests for components", true);
 
     command
       .command("analyze")
@@ -100,6 +106,16 @@ export class WorkflowCommand {
       .option("--output <dir>", "Output directory", "mycontext-workflow")
       .option("--force", "Overwrite existing files")
       .option("--auto-continue", "Continue to component generation")
+      .option("--skip-components", "Skip component generation step")
+      .option("--skip-features", "Skip feature assembly step")
+      .option("--skip-preview", "Skip preview setup step")
+      .option(
+        "--role <role>",
+        "Role for feature assembly (admin/user/guest)",
+        "admin"
+      )
+      .option("--deploy", "Include deployment setup")
+      .option("--with-tests", "Generate tests for components", true)
       .action(async (options) => {
         await this.generateWorkflow(options);
       });
@@ -536,12 +552,48 @@ Be specific and actionable. Focus on realistic components and features for the d
         force: options.force,
       });
 
+      // Step 4: Generate Components
+      if (!options.skipComponents) {
+        console.log(chalk.cyan("🎨 Step 4: Generating components..."));
+        const componentsCommand = new GenerateComponentsCommand();
+        await componentsCommand.execute("all", {
+          all: true,
+          withTests: options.withTests !== false,
+          output: path.join(process.cwd(), outputDir),
+          verbose: options.verbose,
+        });
+      }
+
+      // Step 5: Assemble Features
+      if (!options.skipFeatures) {
+        console.log(chalk.cyan("📦 Step 5: Assembling features..."));
+        const { AssembleFeaturesCommand } = await import("./assemble-features");
+        const assembleFeaturesCommand = new AssembleFeaturesCommand();
+        await assembleFeaturesCommand.execute({
+          fromComponents: true,
+          role: options.role || "admin",
+          output: path.join(process.cwd(), outputDir),
+          verbose: options.verbose,
+        });
+      }
+
+      // Step 6: Setup Preview
+      if (!options.skipPreview) {
+        console.log(chalk.cyan("👁️  Step 6: Setting up preview..."));
+        const previewCommand = new PreviewCommand();
+        await previewCommand.execute("components", {
+          type: "components",
+          open: true,
+        });
+      }
+
+      // Step 7: Summary and Next Steps
       console.log(
         chalk.green.bold(`\n✅ ${analysis.workflowType} workflow completed!`)
       );
       console.log(chalk.cyan("📁 Project created in:"), outputDir);
       console.log(
-        chalk.cyan("🧩 Generated components:"),
+        chalk.cyan("🧩 Components generated:"),
         analysis.components?.length || 0
       );
       console.log(
@@ -549,11 +601,14 @@ Be specific and actionable. Focus on realistic components and features for the d
         analysis.features?.length || 0
       );
 
-      if (!options.autoContinue) {
-        console.log(chalk.yellow("\n💡 Next steps:"));
-        console.log(`   cd ${outputDir}`);
-        console.log("   pnpm install");
-        console.log("   pnpm dev");
+      console.log(chalk.blue("\n📋 Next Steps:"));
+      console.log(chalk.gray("   1. Review components: cd " + outputDir));
+      console.log(
+        chalk.gray("   2. Open preview: mycontext preview components --open")
+      );
+      console.log(chalk.gray("   3. Start development: npm run dev"));
+      if (options.deploy) {
+        console.log(chalk.gray("   4. Deploy: mycontext deploy"));
       }
     } catch (error) {
       console.error(chalk.red(`❌ Workflow execution failed: ${error}`));
