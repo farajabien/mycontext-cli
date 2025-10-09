@@ -169,9 +169,26 @@ interface IntentMapping {
 
 ### External APIs
 
-- **OpenAI API**: Fine-tuned GPT-4o Mini model
-- **Claude SDK**: Fallback AI provider
-- **XAI API**: Secondary fallback provider
+**Primary (Optional)**:
+
+- **MyContext AI API** (api.mycontext.dev) - Fine-tuned model (paid, coming soon)
+
+**Fallback Providers** (BYOK):
+
+- **Claude SDK**: Anthropic API fallback
+- **XAI API**: Secondary fallback (Grok)
+
+**Architecture**:
+
+```
+MyContext AI (optional, hosted)
+    ↓ (if unavailable or BYOK mode)
+Claude SDK (your API key)
+    ↓ (if unavailable)
+XAI API (your API key)
+```
+
+**No vendor lock-in**: CLI works with any provider, MyContext AI is optional premium service.
 
 ### File System Integration
 

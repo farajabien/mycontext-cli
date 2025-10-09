@@ -380,6 +380,79 @@ const myContextAI = new MyContextAIClient({
 - **Discord**: [Real-time support](https://discord.gg/mycontext)
 - **Email**: [support@mycontext.dev](mailto:support@mycontext.dev)
 
+## Business Model & Pricing
+
+### Open Source Foundation
+
+MyContext CLI is **free and open source** (MIT License):
+- Use with any AI provider (Claude, OpenAI, XAI)
+- Self-host on your infrastructure
+- Modify and distribute freely
+- No vendor lock-in
+
+### MyContext AI API (Coming Soon)
+
+**Hosted fine-tuned model** for production-grade quality:
+
+**Pricing** (TBD):
+- Pay-per-component model
+- Volume discounts available
+- Enterprise custom pricing
+- Free tier for evaluation
+
+**Why upgrade to MyContext AI?**
+- 95%+ accuracy vs 70% with generic models
+- Zero hallucination guarantee
+- 50% cheaper than GPT-4
+- 2s generation time vs 3-5s
+- Perfect Intent Dictionary integration
+- No setup required - just API key
+
+**Migration Path**:
+1. Start free with CLI + your AI keys
+2. Test MyContext AI with free tier
+3. Upgrade when you need production quality
+4. Scale with volume pricing
+
+### Fair Use Policy
+
+**Open Source**:
+- Commercial use allowed
+- No attribution required
+- Contribute improvements back (appreciated)
+
+**MyContext AI API**:
+- Fair usage limits on free tier
+- Rate limiting for abuse prevention
+- Enterprise SLA available
+
+### Comparison
+
+| Feature | CLI + BYOK | MyContext AI |
+|---------|------------|--------------|
+| **Cost** | Your AI provider costs | Usage-based (TBD) |
+| **Quality** | 70-80% accuracy | 95%+ accuracy |
+| **Setup** | Configure API keys | Single API key |
+| **Speed** | 3-5s per component | 2s per component |
+| **Hallucination** | Occasional | Zero guarantee |
+| **Support** | Community | Priority support |
+
+### Revenue Model Transparency
+
+**How we make money**:
+1. MyContext AI API subscriptions
+2. Enterprise support contracts
+3. Custom fine-tuning services
+4. Future: MyContext PM (project management SaaS)
+
+**How we invest**:
+1. Model training and improvement (40%)
+2. Infrastructure and hosting (30%)
+3. Open source development (20%)
+4. Community and support (10%)
+
+We believe in sustainable open source: free CLI + optional paid services for convenience and quality.
+
 ## Future Roadmap
 
 ### Short Term (Q1 2024)

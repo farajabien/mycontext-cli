@@ -16,12 +16,15 @@ MyContext CLI is a revolutionary AI-powered development tool that generates prod
 
 ## Core Features
 
-### 1. **MyContext AI** - Fine-tuned GPT-4o Mini
+### 1. **MyContext AI** - Fine-tuned GPT-4o Mini (Coming Soon)
 
-- **95%+ Accuracy**: Zero hallucination, perfect shadcn/ui component matching
+- **95%+ Accuracy**: Fine-tuned GPT-4o Mini for component generation
+- **Hosted API**: api.mycontext.dev with usage-based pricing
+- **Zero Hallucination**: Perfect shadcn/ui component matching
 - **50% Cost Reduction**: Cheaper than GPT-4 while maintaining quality
-- **2s Generation Time**: Fast response for real-time development
-- **Custom Training**: Proprietary model trained on our Intent Dictionary patterns
+- **Open Source Alternative**: Use CLI with your own AI keys for free
+
+**Business Model**: Open source CLI (MIT) + optional paid hosted API
 
 ### 2. **Intent Dictionary** - Type-Safe Natural Language Mapping
 

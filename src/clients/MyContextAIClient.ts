@@ -1,31 +1,59 @@
-import OpenAI from 'openai'
-import { AIClient, AIClientOptions, AgentContext } from '../interfaces/AIClient'
-import { EnrichedContext } from '../types/design-pipeline'
+import OpenAI from "openai";
+import {
+  AIClient,
+  AIClientOptions,
+  AgentContext,
+} from "../interfaces/AIClient";
+import { EnrichedContext } from "../types/design-pipeline";
 
 /**
  * MyContext AI Client - Fine-tuned GPT-4o Mini for component generation
- * 
+ *
  * This client uses our proprietary fine-tuned model trained on the Intent Dictionary System
  * to achieve 95%+ accuracy in generating shadcn/ui components from natural language.
+ *
+ * **Usage Options**:
+ * 1. Hosted API (coming soon): Set MYCONTEXT_API_KEY for api.mycontext.dev
+ * 2. Self-hosted fine-tuned model: Train your own using fine-tuning-strategy.md
+ * 3. Fallback to Claude SDK or XAI: Use BYOK mode with your provider keys
+ *
+ * **Business Model**: Open source CLI, optional paid hosted API
  */
 export class MyContextAIClient implements AIClient {
-  readonly clientType = 'direct-api' as const
-  readonly supportsTools = false
-  readonly supportsStreaming = false
+  readonly clientType = "direct-api" as const;
+  readonly supportsTools = false;
+  readonly supportsStreaming = false;
 
-  private openai: OpenAI
-  private modelId: string
-  private apiKey: string | null = null
+  private openai: OpenAI | null = null;
+  private modelId: string;
+  private apiKey: string | null = null;
+  private isHostedAPI: boolean = false; // Future: detect api.mycontext.dev vs self-hosted
 
   constructor(modelId?: string) {
-    this.modelId = modelId || process.env.MYCONTEXT_MODEL_ID || 'ft:gpt-4o-mini-2024-07-18:mycontext:intent-dict:abc123'
-    
-    // Initialize OpenAI client
-    this.apiKey = process.env.OPENAI_API_KEY || null
+    // Check for MyContext AI API key (future hosted service)
+    const myContextApiKey = process.env.MYCONTEXT_API_KEY;
+
+    if (myContextApiKey) {
+      // Future: Route to api.mycontext.dev
+      this.apiKey = myContextApiKey;
+      this.isHostedAPI = true;
+      this.modelId = "mycontext-ai"; // Hosted model alias
+    } else {
+      // Self-hosted fine-tuned model
+      this.modelId =
+        modelId ||
+        process.env.MYCONTEXT_MODEL_ID ||
+        "ft:gpt-4o-mini-2024-07-18:mycontext:intent-dict:abc123";
+      this.apiKey = process.env.OPENAI_API_KEY || null;
+      this.isHostedAPI = false;
+    }
+
     if (this.apiKey) {
       this.openai = new OpenAI({
-        apiKey: this.apiKey
-      })
+        apiKey: this.apiKey,
+        // Future: baseURL for hosted API
+        ...(this.isHostedAPI && { baseURL: "https://api.mycontext.dev/v1" }),
+      });
     }
   }
 
@@ -33,17 +61,17 @@ export class MyContextAIClient implements AIClient {
    * Check if API key is available
    */
   hasApiKey(): boolean {
-    return !!this.apiKey
+    return !!this.apiKey;
   }
 
   /**
    * Set API key for OpenAI client
    */
   setApiKey(apiKey: string): void {
-    this.apiKey = apiKey
+    this.apiKey = apiKey;
     this.openai = new OpenAI({
-      apiKey: this.apiKey
-    })
+      apiKey: this.apiKey,
+    });
   }
 
   /**
@@ -51,15 +79,15 @@ export class MyContextAIClient implements AIClient {
    */
   async checkConnection(): Promise<boolean> {
     if (!this.apiKey) {
-      return false
+      return false;
     }
 
     try {
-      await this.openai.models.list()
-      return true
+      await this.openai?.models.list();
+      return true;
     } catch (error) {
-      console.warn('MyContext AI connection check failed:', error)
-      return false
+      console.warn("MyContext AI connection check failed:", error);
+      return false;
     }
   }
 
@@ -71,30 +99,29 @@ export class MyContextAIClient implements AIClient {
     options: AIClientOptions = {}
   ): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured for MyContext AI')
+      throw new Error("OpenAI API key not configured for MyContext AI");
     }
 
     try {
-      const response = await this.openai.chat.completions.create({
+      const response = await this.openai!.chat.completions.create({
         model: this.modelId,
         messages: [
           {
-            role: 'system',
-            content: this.buildSystemPrompt(options.context)
+            role: "system",
+            content: this.buildSystemPrompt(),
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: options.temperature || 0.1, // Low temperature for consistency
         max_tokens: options.maxTokens || 4000,
-        timeout: options.timeout || 30000
-      })
+      });
 
-      return response.choices[0].message.content || ''
+      return response.choices[0]?.message?.content || "";
     } catch (error) {
-      throw new Error(`MyContext AI generation failed: ${error}`)
+      throw new Error(`MyContext AI generation failed: ${error}`);
     }
   }
 
@@ -107,33 +134,32 @@ export class MyContextAIClient implements AIClient {
     options: AIClientOptions = {}
   ): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured for MyContext AI')
+      throw new Error("OpenAI API key not configured for MyContext AI");
     }
 
     try {
       // Build enriched context with Intent Dictionary
-      const enrichedContext = this.buildEnrichedContext(context)
-      
-      const response = await this.openai.chat.completions.create({
+      const enrichedContext = this.buildEnrichedContext(context);
+
+      const response = await this.openai!.chat.completions.create({
         model: this.modelId,
         messages: [
           {
-            role: 'system',
-            content: this.buildComponentSystemPrompt(enrichedContext)
+            role: "system",
+            content: this.buildComponentSystemPrompt(enrichedContext),
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: options.temperature || 0.1,
         max_tokens: options.maxTokens || 4000,
-        timeout: options.timeout || 30000
-      })
+      });
 
-      return response.choices[0].message.content || ''
+      return response.choices[0]?.message?.content || "";
     } catch (error) {
-      throw new Error(`MyContext AI component generation failed: ${error}`)
+      throw new Error(`MyContext AI component generation failed: ${error}`);
     }
   }
 
@@ -147,32 +173,31 @@ export class MyContextAIClient implements AIClient {
     options: AIClientOptions = {}
   ): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured for MyContext AI')
+      throw new Error("OpenAI API key not configured for MyContext AI");
     }
 
     try {
-      const enrichedContext = this.buildEnrichedContext(context)
-      
-      const response = await this.openai.chat.completions.create({
+      const enrichedContext = this.buildEnrichedContext(context);
+
+      const response = await this.openai!.chat.completions.create({
         model: this.modelId,
         messages: [
           {
-            role: 'system',
-            content: this.buildRefinementSystemPrompt(enrichedContext)
+            role: "system",
+            content: this.buildRefinementSystemPrompt(enrichedContext),
           },
           {
-            role: 'user',
-            content: `Component to refine:\n\`\`\`tsx\n${componentCode}\n\`\`\n\nRefinement request: ${prompt}`
-          }
+            role: "user",
+            content: `Component to refine:\n\`\`\`tsx\n${componentCode}\n\`\`\n\nRefinement request: ${prompt}`,
+          },
         ],
         temperature: options.temperature || 0.1,
         max_tokens: options.maxTokens || 4000,
-        timeout: options.timeout || 30000
-      })
+      });
 
-      return response.choices[0].message.content || ''
+      return response.choices[0]?.message?.content || "";
     } catch (error) {
-      throw new Error(`MyContext AI refinement failed: ${error}`)
+      throw new Error(`MyContext AI refinement failed: ${error}`);
     }
   }
 
@@ -180,13 +205,13 @@ export class MyContextAIClient implements AIClient {
    * List available models (returns our fine-tuned model)
    */
   async listModels(): Promise<string[]> {
-    return [this.modelId]
+    return [this.modelId];
   }
 
   /**
    * Build system prompt for general text generation
    */
-  private buildSystemPrompt(context?: AgentContext): string {
+  private buildSystemPrompt(): string {
     return `You are MyContext AI, a specialized AI model fine-tuned for generating high-quality React components and UI code.
 
 Key capabilities:
@@ -196,19 +221,29 @@ Key capabilities:
 - Follow modern React best practices
 - Provide complete, runnable code
 
-Always provide complete, production-ready code with proper imports and TypeScript types.`
+Always provide complete, production-ready code with proper imports and TypeScript types.`;
   }
 
   /**
    * Build system prompt for component generation with Intent Dictionary context
    */
-  private buildComponentSystemPrompt(enrichedContext: EnrichedContext): string {
-    const intentContext = enrichedContext.enriched_intents
-      ?.map(intent => `- ${intent.canonical_intent}: ${intent.shadcn_components.join(', ')}`)
-      .join('\n') || ''
+  private buildComponentSystemPrompt(
+    enrichedContext: Partial<EnrichedContext>
+  ): string {
+    const intentContext =
+      enrichedContext.enriched_intents
+        ?.map(
+          (intent) =>
+            `- ${intent.canonical_intent}: ${intent.shadcn_components.join(
+              ", "
+            )}`
+        )
+        .join("\n") || "";
 
-    const validationReport = enrichedContext.intent_validation_report
-    const confidenceScore = validationReport ? (validationReport.confidence_score * 100).toFixed(0) : 'N/A'
+    const validationReport = enrichedContext.intent_validation_report;
+    const confidenceScore = validationReport
+      ? (validationReport.confidence_score * 100).toFixed(0)
+      : "N/A";
 
     return `You are MyContext AI, fine-tuned for 95%+ accurate shadcn/ui component generation using the Intent Dictionary System.
 
@@ -240,13 +275,15 @@ OUTPUT FORMAT:
 - Responsive design classes
 - Error handling and loading states
 
-Never generate incomplete or placeholder code. Always provide production-ready components.`
+Never generate incomplete or placeholder code. Always provide production-ready components.`;
   }
 
   /**
    * Build system prompt for component refinement
    */
-  private buildRefinementSystemPrompt(enrichedContext: EnrichedContext): string {
+  private buildRefinementSystemPrompt(
+    enrichedContext: Partial<EnrichedContext>
+  ): string {
     return `You are MyContext AI, specialized in refining and improving React components.
 
 REFINEMENT RULES:
@@ -259,32 +296,25 @@ REFINEMENT RULES:
 7. Maintain responsive design
 8. Preserve existing imports and structure
 
-Always provide the complete refined component, not just the changes.`
+Always provide the complete refined component, not just the changes.`;
   }
 
   /**
    * Build enriched context from agent context
    */
-  private buildEnrichedContext(context?: AgentContext): EnrichedContext {
-    if (!context) {
-      return {
-        prd: '',
-        types: '',
-        branding: '',
-        enriched_intents: [],
-        intent_validation_report: undefined,
-        intent_clarifications: []
-      }
-    }
-
+  private buildEnrichedContext(
+    context?: AgentContext
+  ): Partial<EnrichedContext> {
     return {
-      prd: context.prd || '',
-      types: context.types || '',
-      branding: context.branding || '',
-      enriched_intents: context.enriched_intents || [],
-      intent_validation_report: context.intent_validation_report,
-      intent_clarifications: context.intent_clarifications || []
-    }
+      technical_context: {
+        prd: context?.prd || "",
+        types: context?.types || "",
+        brand: context?.brand || "",
+      },
+      enriched_intents: [],
+      intent_validation_report: undefined,
+      intent_clarifications: [],
+    };
   }
 
   /**

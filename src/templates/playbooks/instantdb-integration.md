@@ -6,8 +6,8 @@ category: database
 tags: ["instantdb", "realtime", "auth", "react", "nextjs"]
 author: MyContext
 version: 1.0.0
-createdAt: 2025-01-27T10:00:00.000Z
-updatedAt: 2025-01-27T10:00:00.000Z
+createdAt: 2025-10-09T10:00:00.000Z
+updatedAt: 2025-10-09T10:00:00.000Z
 difficulty: intermediate
 estimatedTime: "2-3 hours"
 prerequisites: ["Next.js project", "Node.js 18+", "MyContext context files"]
