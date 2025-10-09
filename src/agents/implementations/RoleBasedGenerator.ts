@@ -40,6 +40,16 @@ export interface RoleBasedGenerationResult {
 }
 
 export class RoleBasedGenerator implements SubAgent {
+  public readonly name = "RoleBasedGenerator";
+  public readonly description = "Generates role-based feature adaptations";
+  public readonly personality = "adaptive and security-focused";
+  public readonly llmProvider = "hybrid";
+  public readonly expertise = [
+    "role-based-access",
+    "permission-mapping",
+    "feature-adaptation",
+  ];
+
   private aiClient: HybridAIClient;
   private projectPath: string;
 
@@ -326,6 +336,12 @@ export class RoleBasedGenerator implements SubAgent {
     // Filter dependencies based on role needs
     const roleSpecificDeps = {
       admin: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "zod"],
+      moderator: [
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-avatar",
+        "react-hook-form",
+      ],
+      editor: ["@radix-ui/react-avatar", "react-hook-form"],
       user: ["@radix-ui/react-avatar", "react-hook-form"],
       guest: ["@radix-ui/react-avatar"],
     };

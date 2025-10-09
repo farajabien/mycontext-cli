@@ -1,0 +1,1279 @@
+{
+  "version": "1.0.0",
+  "schema_version": "1.0.0",
+  "last_updated": "2025-01-09T00:00:00Z",
+  "validation_config": {
+    "min_confidence_threshold": 0.7,
+    "ambiguity_threshold": 0.3,
+    "require_design_tokens": true,
+    "strict_mode": false
+  },
+  "categories": [
+    {
+      "name": "forms",
+      "description": "Form inputs, validation, and submission components",
+      "common_patterns": ["input-field", "submit-button", "form-validation", "auth-form"],
+      "shadcn_components": ["form", "input", "button", "label", "select", "textarea", "checkbox"]
+    },
+    {
+      "name": "navigation",
+      "description": "Navigation and routing components",
+      "common_patterns": ["nav-menu", "breadcrumb", "tabs", "sidebar"],
+      "shadcn_components": ["navigation-menu", "breadcrumb", "tabs", "sheet"]
+    },
+    {
+      "name": "feedback",
+      "description": "User feedback, notifications, and dialogs",
+      "common_patterns": ["alert", "toast", "dialog", "confirmation"],
+      "shadcn_components": ["alert", "toast", "dialog", "alert-dialog", "sonner"]
+    },
+    {
+      "name": "data-display",
+      "description": "Data presentation and visualization components",
+      "common_patterns": ["data-table", "card-grid", "list-view"],
+      "shadcn_components": ["table", "card", "scroll-area", "skeleton"]
+    },
+    {
+      "name": "layout",
+      "description": "Layout and container components",
+      "common_patterns": ["card-layout", "container", "grid"],
+      "shadcn_components": ["card", "separator", "aspect-ratio"]
+    }
+  ],
+  "mappings": {
+    "primary-button": {
+      "canonical_name": "primary-button",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "submit button",
+          "aliases": ["submit btn", "save button", "confirm button", "primary button"],
+          "context_keywords": ["form", "submit", "save", "confirm", "primary", "action"],
+          "confidence_boost": 0.9
+        },
+        {
+          "phrase": "call to action",
+          "aliases": ["cta", "main action", "primary action"],
+          "context_keywords": ["cta", "primary", "main", "action"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Button",
+            "import_path": "@/components/ui/button",
+            "exports": ["Button", "buttonVariants"],
+            "peer_components": ["Form", "Label"]
+          }
+        ],
+        "template_code": "<Button\n  type=\"submit\"\n  variant=\"default\"\n  size=\"{{size}}\"\n  disabled={{{disabled}}}\n  onClick={{{handler}}}\n  aria-label=\"{{aria_label}}\"\n>\n  {{label}}\n</Button>",
+        "required_props": [
+          {
+            "name": "onClick",
+            "type": "() => void | Promise<void>",
+            "description": "Click handler for button action"
+          },
+          {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Button label or content"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "variant",
+            "type": "'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'",
+            "default_value": "default",
+            "description": "Visual variant of the button"
+          },
+          {
+            "name": "size",
+            "type": "'default' | 'sm' | 'lg' | 'icon'",
+            "default_value": "default",
+            "description": "Size variant of the button"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether button is disabled"
+          },
+          {
+            "name": "loading",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Show loading state"
+          }
+        ],
+        "default_variants": {
+          "variant": "default",
+          "size": "default"
+        }
+      },
+      "interaction_spec": {
+        "events": ["onClick", "onFocus", "onBlur", "onKeyDown"],
+        "states": [
+          {
+            "name": "loading",
+            "initial_value": false,
+            "type": "boolean",
+            "transitions": ["idle → loading", "loading → idle"]
+          },
+          {
+            "name": "disabled",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onClick",
+            "action": "Execute handler and optionally show loading state",
+            "requirements": ["onClick handler must be provided"]
+          },
+          {
+            "trigger": "onKeyDown[Enter|Space]",
+            "action": "Trigger onClick handler",
+            "requirements": ["Keyboard focus on button"]
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Descriptive button label",
+          "aria-disabled": "true when disabled",
+          "aria-busy": "true when loading"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Activate button"
+          },
+          {
+            "key": "Space",
+            "action": "Activate button"
+          }
+        ],
+        "role": "button",
+        "focus_management": "Maintain focus on button during loading"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "primary-foreground"],
+          "css_var_mapping": {
+            "background": "var(--primary)",
+            "color": "var(--primary-foreground)"
+          }
+        },
+        {
+          "token_category": "spacing",
+          "required_tokens": ["md", "lg"],
+          "css_var_mapping": {
+            "padding": "var(--spacing-md)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width on mobile",
+          "md": "Auto width on tablet+",
+          "lg": "Auto width on desktop"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [
+        {
+          "rule_type": "required",
+          "rule_value": "onClick",
+          "error_message": "Button must have onClick handler"
+        },
+        {
+          "rule_type": "required",
+          "rule_value": "children",
+          "error_message": "Button must have children or aria-label"
+        }
+      ],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a submit button that saves the form",
+          "extracted_intent": "primary-button",
+          "generated_code_sample": "<Button type=\"submit\" onClick={handleSubmit}>Save</Button>"
+        },
+        {
+          "natural_language": "Include a primary action button to confirm",
+          "extracted_intent": "primary-button",
+          "generated_code_sample": "<Button onClick={handleConfirm}>Confirm</Button>"
+        }
+      ]
+    },
+    "secondary-button": {
+      "canonical_name": "secondary-button",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "cancel button",
+          "aliases": ["cancel btn", "secondary button", "back button", "close button"],
+          "context_keywords": ["cancel", "back", "close", "secondary", "dismiss"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Button",
+            "import_path": "@/components/ui/button",
+            "exports": ["Button"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Button\n  type=\"button\"\n  variant=\"outline\"\n  size=\"{{size}}\"\n  onClick={{{handler}}}\n>\n  {{label}}\n</Button>",
+        "required_props": [
+          {
+            "name": "onClick",
+            "type": "() => void",
+            "description": "Click handler"
+          },
+          {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Button label"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "size",
+            "type": "'default' | 'sm' | 'lg'",
+            "default_value": "default",
+            "description": "Button size"
+          }
+        ],
+        "default_variants": {
+          "variant": "outline",
+          "size": "default"
+        }
+      },
+      "interaction_spec": {
+        "events": ["onClick"],
+        "states": [],
+        "behaviors": [
+          {
+            "trigger": "onClick",
+            "action": "Execute handler (usually cancels or goes back)",
+            "requirements": ["onClick handler provided"]
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Descriptive label"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Activate"
+          },
+          {
+            "key": "Space",
+            "action": "Activate"
+          },
+          {
+            "key": "Escape",
+            "action": "Activate if cancel button",
+            "condition": "When focused"
+          }
+        ],
+        "role": "button"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border", "foreground"],
+          "css_var_mapping": {
+            "border": "var(--border)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Auto width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a cancel button to dismiss the dialog",
+          "extracted_intent": "secondary-button",
+          "generated_code_sample": "<Button variant=\"outline\" onClick={onClose}>Cancel</Button>"
+        }
+      ]
+    },
+    "auth-form": {
+      "canonical_name": "auth-form",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "login form",
+          "aliases": ["sign in form", "authentication form", "auth form", "signin form"],
+          "context_keywords": ["login", "signin", "auth", "authenticate", "credentials", "email", "password"],
+          "confidence_boost": 0.95
+        },
+        {
+          "phrase": "registration form",
+          "aliases": ["signup form", "sign up form", "register form", "create account"],
+          "context_keywords": ["register", "signup", "sign up", "create account", "new user"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Form",
+            "import_path": "@/components/ui/form",
+            "exports": ["Form", "FormControl", "FormField", "FormItem", "FormLabel", "FormMessage"],
+            "peer_components": ["Input", "Button"]
+          },
+          {
+            "name": "Input",
+            "import_path": "@/components/ui/input",
+            "exports": ["Input"]
+          },
+          {
+            "name": "Button",
+            "import_path": "@/components/ui/button",
+            "exports": ["Button"]
+          }
+        ],
+        "template_code": "<Form {...form}>\n  <form onSubmit={form.handleSubmit(onSubmit)} className=\"space-y-6\">\n    <FormField\n      control={form.control}\n      name=\"email\"\n      render={({ field }) => (\n        <FormItem>\n          <FormLabel>Email</FormLabel>\n          <FormControl>\n            <Input type=\"email\" placeholder=\"Email\" {...field} />\n          </FormControl>\n          <FormMessage />\n        </FormItem>\n      )}\n    />\n    <FormField\n      control={form.control}\n      name=\"password\"\n      render={({ field }) => (\n        <FormItem>\n          <FormLabel>Password</FormLabel>\n          <FormControl>\n            <Input type=\"password\" placeholder=\"Password\" {...field} />\n          </FormControl>\n          <FormMessage />\n        </FormItem>\n      )}\n    />\n    <Button type=\"submit\" className=\"w-full\" disabled={{{loading}}}>{{submit_label}}</Button>\n  </form>\n</Form>",
+        "required_props": [
+          {
+            "name": "onSubmit",
+            "type": "(data: { email: string; password: string }) => void | Promise<void>",
+            "description": "Form submission handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "loading",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Loading state during submission"
+          },
+          {
+            "name": "defaultValues",
+            "type": "{ email?: string; password?: string }",
+            "description": "Initial form values"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onSubmit", "onChange", "onBlur"],
+        "states": [
+          {
+            "name": "email",
+            "initial_value": "",
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "initial_value": "",
+            "type": "string"
+          },
+          {
+            "name": "loading",
+            "initial_value": false,
+            "type": "boolean"
+          },
+          {
+            "name": "errors",
+            "initial_value": {},
+            "type": "Record<string, string>"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onSubmit",
+            "action": "Validate inputs and call onSubmit handler",
+            "requirements": ["Valid email format", "Password length >= 8"]
+          },
+          {
+            "trigger": "onChange",
+            "action": "Update field value and clear error",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Authentication form",
+          "aria-describedby": "form-description"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between fields"
+          },
+          {
+            "key": "Enter",
+            "action": "Submit form",
+            "condition": "When focused on submit button or last field"
+          }
+        ],
+        "role": "form",
+        "focus_management": "Auto-focus first field on mount"
+      },
+      "design_tokens": [
+        {
+          "token_category": "spacing",
+          "required_tokens": ["md", "lg"],
+          "css_var_mapping": {
+            "gap": "var(--spacing-lg)"
+          }
+        },
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "destructive"],
+          "css_var_mapping": {
+            "button-bg": "var(--primary)",
+            "error-color": "var(--destructive)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Single column, full width",
+          "md": "Single column, max-width: 400px",
+          "lg": "Single column, max-width: 400px"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "48px"
+        }
+      },
+      "validation_rules": [
+        {
+          "rule_type": "required",
+          "rule_value": "onSubmit",
+          "error_message": "Form must have onSubmit handler"
+        },
+        {
+          "rule_type": "pattern",
+          "rule_value": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+          "error_message": "Must include email validation"
+        },
+        {
+          "rule_type": "min",
+          "rule_value": 8,
+          "error_message": "Password must be at least 8 characters"
+        }
+      ],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.85,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Users need a login form with email and password",
+          "extracted_intent": "auth-form",
+          "generated_code_sample": "<Form>...</Form>"
+        }
+      ]
+    },
+    "text-input": {
+      "canonical_name": "text-input",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "text input",
+          "aliases": ["input field", "text field", "input box", "text box"],
+          "context_keywords": ["input", "field", "text", "enter", "type"],
+          "confidence_boost": 0.8
+        },
+        {
+          "phrase": "email input",
+          "aliases": ["email field"],
+          "context_keywords": ["email", "address"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Input",
+            "import_path": "@/components/ui/input",
+            "exports": ["Input"],
+            "peer_components": ["Label", "FormControl"]
+          },
+          {
+            "name": "Label",
+            "import_path": "@/components/ui/label",
+            "exports": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <Input\n    id=\"{{id}}\"\n    type=\"{{type}}\"\n    placeholder=\"{{placeholder}}\"\n    value={{{value}}}\n    onChange={{{onChange}}}\n    disabled={{{disabled}}}\n  />\n</div>",
+        "required_props": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "Input ID for label association"
+          },
+          {
+            "name": "onChange",
+            "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+            "description": "Change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "type",
+            "type": "'text' | 'email' | 'password' | 'number' | 'tel' | 'url'",
+            "default_value": "text",
+            "description": "Input type"
+          },
+          {
+            "name": "placeholder",
+            "type": "string",
+            "description": "Placeholder text"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether input is disabled"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onChange", "onBlur", "onFocus"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "",
+            "type": "string"
+          },
+          {
+            "name": "focused",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onChange",
+            "action": "Update value state",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Use label element instead",
+          "aria-describedby": "For error or help text"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate to next field"
+          },
+          {
+            "key": "Shift+Tab",
+            "action": "Navigate to previous field"
+          }
+        ],
+        "focus_management": "Clear focus indication on blur"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border", "background", "foreground"],
+          "css_var_mapping": {
+            "border": "var(--border)",
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        },
+        {
+          "token_category": "spacing",
+          "required_tokens": ["sm", "md"],
+          "css_var_mapping": {
+            "padding": "var(--spacing-sm)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.7,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add an input field for the user's name",
+          "extracted_intent": "text-input",
+          "generated_code_sample": "<div><Label>Name</Label><Input type=\"text\" /></div>"
+        }
+      ]
+    },
+    "confirmation-dialog": {
+      "canonical_name": "confirmation-dialog",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "confirmation dialog",
+          "aliases": ["confirm dialog", "are you sure", "confirmation modal", "confirm popup"],
+          "context_keywords": ["confirm", "confirmation", "are you sure", "dialog", "modal"],
+          "confidence_boost": 0.9
+        },
+        {
+          "phrase": "delete confirmation",
+          "aliases": ["confirm delete", "delete dialog"],
+          "context_keywords": ["delete", "remove", "confirmation"],
+          "confidence_boost": 0.95
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "AlertDialog",
+            "import_path": "@/components/ui/alert-dialog",
+            "exports": ["AlertDialog", "AlertDialogAction", "AlertDialogCancel", "AlertDialogContent", "AlertDialogDescription", "AlertDialogFooter", "AlertDialogHeader", "AlertDialogTitle", "AlertDialogTrigger"],
+            "peer_components": ["Button"]
+          }
+        ],
+        "template_code": "<AlertDialog>\n  <AlertDialogTrigger asChild>\n    <Button variant=\"{{trigger_variant}}\">{{trigger_label}}</Button>\n  </AlertDialogTrigger>\n  <AlertDialogContent>\n    <AlertDialogHeader>\n      <AlertDialogTitle>{{title}}</AlertDialogTitle>\n      <AlertDialogDescription>\n        {{description}}\n      </AlertDialogDescription>\n    </AlertDialogHeader>\n    <AlertDialogFooter>\n      <AlertDialogCancel>Cancel</AlertDialogCancel>\n      <AlertDialogAction onClick={{{onConfirm}}}>{{confirm_label}}</AlertDialogAction>\n    </AlertDialogFooter>\n  </AlertDialogContent>\n</AlertDialog>",
+        "required_props": [
+          {
+            "name": "onConfirm",
+            "type": "() => void | Promise<void>",
+            "description": "Action to perform on confirmation"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Dialog title"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Description text"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "trigger_label",
+            "type": "string",
+            "default_value": "Open",
+            "description": "Trigger button label"
+          },
+          {
+            "name": "confirm_label",
+            "type": "string",
+            "default_value": "Confirm",
+            "description": "Confirm button label"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onConfirm", "onCancel", "onOpenChange"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onConfirm",
+            "action": "Execute confirmation action and close dialog",
+            "requirements": ["onConfirm handler provided"]
+          },
+          {
+            "trigger": "onCancel",
+            "action": "Close dialog without action",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "alertdialog",
+          "aria-labelledby": "Dialog title",
+          "aria-describedby": "Dialog description"
+        },
+        "keyboard_support": [
+          {
+            "key": "Escape",
+            "action": "Close dialog (cancel)"
+          },
+          {
+            "key": "Tab",
+            "action": "Navigate between buttons"
+          },
+          {
+            "key": "Enter",
+            "action": "Activate focused button"
+          }
+        ],
+        "focus_management": "Trap focus within dialog, restore on close"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground", "destructive"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full screen on mobile",
+          "md": "Centered modal on tablet+",
+          "lg": "Centered modal"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [
+        {
+          "rule_type": "required",
+          "rule_value": "onConfirm",
+          "error_message": "Dialog must have onConfirm handler"
+        }
+      ],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Show a confirmation dialog before deleting",
+          "extracted_intent": "confirmation-dialog",
+          "generated_code_sample": "<AlertDialog><AlertDialogTrigger>Delete</AlertDialogTrigger><AlertDialogContent>...</AlertDialogContent></AlertDialog>"
+        }
+      ]
+    },
+    "data-table": {
+      "canonical_name": "data-table",
+      "category": "data-display",
+      "intent_phrases": [
+        {
+          "phrase": "data table",
+          "aliases": ["table", "data grid", "list of items", "table view"],
+          "context_keywords": ["table", "data", "list", "rows", "columns", "grid"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Table",
+            "import_path": "@/components/ui/table",
+            "exports": ["Table", "TableHeader", "TableBody", "TableHead", "TableRow", "TableCell"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Table>\n  <TableHeader>\n    <TableRow>\n      {{{columns}}.map(col => <TableHead key={col}>{col}</TableHead>)}\n    </TableRow>\n  </TableHeader>\n  <TableBody>\n    {{{data}}.map((row, i) => (\n      <TableRow key={i}>\n        {Object.values(row).map((cell, j) => <TableCell key={j}>{cell}</TableCell>)}\n      </TableRow>\n    ))}\n  </TableBody>\n</Table>",
+        "required_props": [
+          {
+            "name": "data",
+            "type": "Array<Record<string, any>>",
+            "description": "Array of data objects"
+          },
+          {
+            "name": "columns",
+            "type": "string[]",
+            "description": "Column names"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "onRowClick",
+            "type": "(row: any) => void",
+            "description": "Row click handler"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onRowClick", "onSort"],
+        "states": [],
+        "behaviors": [
+          {
+            "trigger": "onRowClick",
+            "action": "Handle row selection or navigation",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "table",
+          "aria-label": "Data table"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between focusable cells"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border", "muted"],
+          "css_var_mapping": {
+            "border": "var(--border)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Horizontal scroll on mobile",
+          "md": "Full table on tablet+",
+          "lg": "Full table"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Display a table of users with name, email, and status",
+          "extracted_intent": "data-table",
+          "generated_code_sample": "<Table>...</Table>"
+        }
+      ]
+    },
+    "card-layout": {
+      "canonical_name": "card-layout",
+      "category": "layout",
+      "intent_phrases": [
+        {
+          "phrase": "card",
+          "aliases": ["card component", "card layout", "info card", "content card"],
+          "context_keywords": ["card", "panel", "box", "container"],
+          "confidence_boost": 0.8
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Card",
+            "import_path": "@/components/ui/card",
+            "exports": ["Card", "CardHeader", "CardTitle", "CardDescription", "CardContent", "CardFooter"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Card>\n  <CardHeader>\n    <CardTitle>{{title}}</CardTitle>\n    <CardDescription>{{description}}</CardDescription>\n  </CardHeader>\n  <CardContent>\n    {{content}}\n  </CardContent>\n  <CardFooter>\n    {{footer}}\n  </CardFooter>\n</Card>",
+        "required_props": [],
+        "optional_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Card title"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Card description"
+          },
+          {
+            "name": "children",
+            "type": "React.ReactNode",
+            "description": "Card content"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {},
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["card", "card-foreground"],
+          "css_var_mapping": {
+            "background": "var(--card)",
+            "color": "var(--card-foreground)"
+          }
+        },
+        {
+          "token_category": "spacing",
+          "required_tokens": ["md", "lg"],
+          "css_var_mapping": {
+            "padding": "var(--spacing-lg)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Grid layout",
+          "lg": "Grid layout"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.7,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Display user profile information in a card",
+          "extracted_intent": "card-layout",
+          "generated_code_sample": "<Card><CardHeader><CardTitle>Profile</CardTitle></CardHeader><CardContent>...</CardContent></Card>"
+        }
+      ]
+    },
+    "navigation-menu": {
+      "canonical_name": "navigation-menu",
+      "category": "navigation",
+      "intent_phrases": [
+        {
+          "phrase": "navigation menu",
+          "aliases": ["nav menu", "navigation", "main menu", "navbar", "nav bar"],
+          "context_keywords": ["navigation", "menu", "nav", "navbar", "links"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "NavigationMenu",
+            "import_path": "@/components/ui/navigation-menu",
+            "exports": ["NavigationMenu", "NavigationMenuList", "NavigationMenuItem", "NavigationMenuTrigger", "NavigationMenuContent", "NavigationMenuLink"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<NavigationMenu>\n  <NavigationMenuList>\n    {{{items}}.map(item => (\n      <NavigationMenuItem key={item.href}>\n        <NavigationMenuLink href={item.href}>\n          {item.label}\n        </NavigationMenuLink>\n      </NavigationMenuItem>\n    ))}\n  </NavigationMenuList>\n</NavigationMenu>",
+        "required_props": [
+          {
+            "name": "items",
+            "type": "Array<{ href: string; label: string }>",
+            "description": "Navigation items"
+          }
+        ],
+        "optional_props": [],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onClick", "onHover"],
+        "states": [
+          {
+            "name": "activeItem",
+            "initial_value": null,
+            "type": "string | null"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onClick",
+            "action": "Navigate to href",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "navigation",
+          "aria-label": "Main navigation"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between menu items"
+          },
+          {
+            "key": "Enter",
+            "action": "Activate link"
+          },
+          {
+            "key": "Escape",
+            "action": "Close submenu if open"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "muted"],
+          "css_var_mapping": {
+            "active-color": "var(--primary)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Hamburger menu",
+          "md": "Horizontal menu",
+          "lg": "Horizontal menu"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a navigation menu with Home, About, and Contact links",
+          "extracted_intent": "navigation-menu",
+          "generated_code_sample": "<NavigationMenu>...</NavigationMenu>"
+        }
+      ]
+    },
+    "alert-message": {
+      "canonical_name": "alert-message",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "alert",
+          "aliases": ["alert message", "notification", "banner", "message"],
+          "context_keywords": ["alert", "message", "notification", "warning", "error", "success"],
+          "confidence_boost": 0.8
+        },
+        {
+          "phrase": "error message",
+          "aliases": ["error alert", "error notification"],
+          "context_keywords": ["error", "failure"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Alert",
+            "import_path": "@/components/ui/alert",
+            "exports": ["Alert", "AlertTitle", "AlertDescription"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Alert variant=\"{{variant}}\">\n  <AlertTitle>{{title}}</AlertTitle>\n  <AlertDescription>{{description}}</AlertDescription>\n</Alert>",
+        "required_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Alert title"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Alert message"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "variant",
+            "type": "'default' | 'destructive'",
+            "default_value": "default",
+            "description": "Alert style variant"
+          }
+        ],
+        "default_variants": {
+          "variant": "default"
+        }
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "alert",
+          "aria-live": "polite"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["destructive", "muted"],
+          "css_var_mapping": {
+            "error-color": "var(--destructive)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.7,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Show an error message when login fails",
+          "extracted_intent": "alert-message",
+          "generated_code_sample": "<Alert variant=\"destructive\"><AlertTitle>Error</AlertTitle><AlertDescription>Login failed</AlertDescription></Alert>"
+        }
+      ]
+    },
+    "loading-spinner": {
+      "canonical_name": "loading-spinner",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "loading spinner",
+          "aliases": ["loader", "loading indicator", "spinner", "loading animation"],
+          "context_keywords": ["loading", "spinner", "loader", "progress", "wait"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Skeleton",
+            "import_path": "@/components/ui/skeleton",
+            "exports": ["Skeleton"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<div className=\"flex items-center justify-center p-4\">\n  <div className=\"animate-spin rounded-full h-8 w-8 border-b-2 border-primary\" />\n  <span className=\"sr-only\">Loading...</span>\n</div>",
+        "required_props": [],
+        "optional_props": [
+          {
+            "name": "size",
+            "type": "'sm' | 'md' | 'lg'",
+            "default_value": "md",
+            "description": "Spinner size"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "status",
+          "aria-label": "Loading",
+          "aria-live": "polite"
+        },
+        "keyboard_support": [],
+        "screen_reader_text": "Loading content, please wait"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary"],
+          "css_var_mapping": {
+            "border-color": "var(--primary)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Center aligned",
+          "md": "Center aligned",
+          "lg": "Center aligned"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Show a loading spinner while data is being fetched",
+          "extracted_intent": "loading-spinner",
+          "generated_code_sample": "<div className=\"animate-spin\">...</div>"
+        }
+      ]
+    }
+  },
+  "synonyms": {
+    "cta": "primary-button",
+    "submit": "primary-button",
+    "save": "primary-button",
+    "signin": "auth-form",
+    "login": "auth-form",
+    "signup": "auth-form",
+    "register": "auth-form",
+    "cancel": "secondary-button",
+    "back": "secondary-button",
+    "close": "secondary-button",
+    "confirm": "confirmation-dialog",
+    "are you sure": "confirmation-dialog",
+    "table": "data-table",
+    "grid": "data-table",
+    "card": "card-layout",
+    "panel": "card-layout",
+    "nav": "navigation-menu",
+    "navbar": "navigation-menu",
+    "menu": "navigation-menu",
+    "error": "alert-message",
+    "warning": "alert-message",
+    "success": "alert-message",
+    "loader": "loading-spinner",
+    "spinner": "loading-spinner"
+  },
+  "usage_analytics": {
+    "total_validations": 0,
+    "intent_usage_counts": {},
+    "validation_failures": [],
+    "average_confidence": 0
+  }
+}

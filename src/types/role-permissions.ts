@@ -16,7 +16,9 @@ export type Resource =
   | "files"
   | "notifications"
   | "reports"
-  | "audit-logs";
+  | "audit-logs"
+  | "all"
+  | "public";
 
 export type Action =
   | "create"

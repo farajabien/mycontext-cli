@@ -175,7 +175,7 @@ export class GitHubCloner {
         .split("\n")
         .filter((line) => line.trim())
         .map((line) => line.split("refs/heads/")[1])
-        .filter((branch) => branch);
+        .filter((branch): branch is string => Boolean(branch));
 
       return { branches };
     } catch (error) {
@@ -197,7 +197,7 @@ export class GitHubCloner {
       const command = `git ls-remote ${url} refs/heads/${branch}`;
       const { stdout } = await execAsync(command);
 
-      const commitHash = stdout.split("\t")[0];
+      const commitHash = stdout.split("\t")[0] || "";
       return { commitHash };
     } catch (error) {
       return {

@@ -10,7 +10,6 @@ import { HybridAIClient } from "../../utils/hybridAIClient";
 import {
   FeatureBundle,
   FeatureAssemblyOptions,
-  FeatureAssemblyResult,
   FeatureTemplate,
 } from "../../types/feature-bundle";
 import { Role, RoleDefinition, Permission } from "../../types/role-permissions";
@@ -49,6 +48,17 @@ export interface FeatureAssemblyResult {
 }
 
 export class FeatureAssemblyAgent implements SubAgent {
+  public readonly name = "FeatureAssemblyAgent";
+  public readonly description =
+    "Combines generated components into complete working features";
+  public readonly personality = "systematic and thorough";
+  public readonly llmProvider = "hybrid";
+  public readonly expertise = [
+    "feature-assembly",
+    "role-based-access",
+    "component-integration",
+  ];
+
   private aiClient: HybridAIClient;
   private projectPath: string;
 
@@ -478,14 +488,24 @@ Return a JSON object matching the FeatureBundle interface:
   }
 
   private hasPermissionForRole(permission: Permission, role: Role): boolean {
-    // Simple role hierarchy: admin > user > guest
-    const roleLevels = { admin: 3, user: 2, guest: 1 };
+    // Role hierarchy: admin > moderator > editor > user > guest
+    const roleLevels = {
+      admin: 5,
+      moderator: 4,
+      editor: 3,
+      user: 2,
+      guest: 1,
+    };
     const permissionLevels = {
-      manage: 4,
-      create: 3,
-      update: 2,
+      manage: 5,
+      create: 4,
+      update: 3,
+      delete: 3,
+      approve: 4,
+      reject: 4,
+      export: 2,
+      import: 3,
       read: 1,
-      delete: 2,
     };
 
     const roleLevel = roleLevels[role] || 1;

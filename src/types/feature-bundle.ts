@@ -5,10 +5,19 @@
  * types, actions, hooks, and routes into complete working features.
  */
 
+import {
+  Role,
+  Resource,
+  Action,
+  PermissionOperator,
+  Permission,
+  PermissionCondition,
+} from "./role-permissions";
+
 export interface FeatureBundle {
   name: string;
   description: string;
-  role: "admin" | "user" | "guest";
+  role: Role;
   components: string[];
   types: string[];
   actions: ServerAction[];
@@ -94,26 +103,6 @@ export interface RouteParameter {
   dataType: string;
   required: boolean;
   description?: string;
-}
-
-export interface Permission {
-  resource: string;
-  action: "create" | "read" | "update" | "delete" | "manage";
-  conditions?: PermissionCondition[];
-  description?: string;
-}
-
-export interface PermissionCondition {
-  field: string;
-  operator:
-    | "equals"
-    | "notEquals"
-    | "in"
-    | "notIn"
-    | "contains"
-    | "startsWith"
-    | "endsWith";
-  value: any;
 }
 
 export interface FeatureTemplate {
@@ -261,6 +250,7 @@ export interface FeatureAssemblyResult {
 export interface AdminStarterBundle {
   name: string;
   description: string;
+  version: string;
   source: string;
   features: string[];
   stack: {
@@ -280,7 +270,7 @@ export interface AdminStarterBundle {
     files: string[];
     configs: string[];
   };
-  features: {
+  featureTemplates: {
     [key: string]: FeatureTemplate;
   };
 }
