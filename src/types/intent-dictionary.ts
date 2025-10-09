@@ -154,7 +154,13 @@ export interface KeyboardSupport {
  */
 export interface DesignTokenMapping {
   /** Category of design token */
-  token_category: "color" | "spacing" | "typography" | "shadow" | "radius" | "motion";
+  token_category:
+    | "color"
+    | "spacing"
+    | "typography"
+    | "shadow"
+    | "radius"
+    | "motion";
   /** Required tokens from the design system */
   required_tokens: string[];
   /** Mapping to CSS variables */
@@ -530,7 +536,13 @@ export interface ValidationIssue {
   /** Severity of the issue */
   severity: "error" | "warning" | "info";
   /** Category of issue */
-  category: "missing_component" | "missing_prop" | "accessibility" | "design_tokens" | "pattern_match" | "other";
+  category:
+    | "missing_component"
+    | "missing_prop"
+    | "accessibility"
+    | "design_tokens"
+    | "pattern_match"
+    | "other";
   /** Human-readable message */
   message: string;
   /** Intent this issue relates to */
@@ -585,4 +597,36 @@ export interface ExtractionContext {
   keywords: string[];
   /** Section of PRD this came from */
   section: string;
+}
+
+// ============================================================================
+// CODE VALIDATION TYPES
+// ============================================================================
+
+/**
+ * Result of validating generated code against intent specifications
+ */
+export interface ValidationResult {
+  /** Whether the code passes all validation checks */
+  valid: boolean;
+  /** List of validation issues found */
+  issues: ValidationIssue[];
+  /** Suggested improvements */
+  suggestions: string[];
+}
+
+/**
+ * Individual validation issue found in generated code
+ */
+export interface ValidationIssue {
+  /** Type of validation check that failed */
+  type: "component" | "props" | "accessibility" | "state" | "tokens";
+  /** Severity level of the issue */
+  severity: "error" | "warning" | "info";
+  /** Human-readable description of the issue */
+  message: string;
+  /** Suggested fix for the issue */
+  fix: string;
+  /** Line number where issue was found (if applicable) */
+  line_number?: number;
 }

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "schema_version": "1.0.0",
-  "last_updated": "2025-01-09T00:00:00Z",
+  "last_updated": "2025-10-09T00:00:00Z",
   "validation_config": {
     "min_confidence_threshold": 0.7,
     "ambiguity_threshold": 0.3,

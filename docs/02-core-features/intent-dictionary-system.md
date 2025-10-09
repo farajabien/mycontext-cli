@@ -1190,7 +1190,7 @@ mycontext validate-intents --test "your test phrase"
 
 ## Changelog
 
-### v1.0.0 (2025-01-09)
+### v1.0.0 (2025-10-09)
 
 - Initial design document
 - Complete type system specification
@@ -1201,6 +1201,6 @@ mycontext validate-intents --test "your test phrase"
 
 **Status**: Phase 1 - Foundation (In Progress)
 
-**Last Updated**: 2025-01-09
+**Last Updated**: 2025-10-09
 
 **Contributors**: MyContext CLI Team
