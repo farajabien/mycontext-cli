@@ -10,6 +10,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import chalk from "chalk";
+import Fuse from "fuse.js";
 import {
   IntentDictionary,
   IntentValidationReport,
@@ -29,6 +30,7 @@ import {
 export class IntentValidator {
   private dictionary: IntentDictionary;
   private dictionaryPath: string;
+  private fuse: Fuse<any>;
 
   /**
    * @param dictionaryPath - Optional path to custom dictionary (defaults to built-in)
@@ -38,6 +40,7 @@ export class IntentValidator {
       dictionaryPath ||
       path.join(__dirname, "..", "config", "intent-dictionary.json");
     this.dictionary = this.loadDictionary();
+    this.fuse = this.initializeFuse();
   }
 
   /**
@@ -64,12 +67,64 @@ export class IntentValidator {
 
       return dictionary;
     } catch (error) {
-      console.error(
-        chalk.red("❌ Failed to load intent dictionary:"),
-        error
-      );
+      console.error(chalk.red("❌ Failed to load intent dictionary:"), error);
       return this.getDefaultDictionary();
     }
+  }
+
+  /**
+   * Initialize Fuse.js for fuzzy matching
+   */
+  private initializeFuse(): Fuse<any> {
+    const searchableItems: any[] = [];
+
+    // Build searchable items from dictionary mappings
+    for (const [canonicalName, mapping] of Object.entries(
+      this.dictionary.mappings
+    )) {
+      // Add canonical name
+      searchableItems.push({
+        canonical_name: canonicalName,
+        search_text: canonicalName,
+        type: "canonical",
+        mapping: mapping,
+      });
+
+      // Add intent phrases
+      for (const phrase of mapping.intent_phrases) {
+        searchableItems.push({
+          canonical_name: canonicalName,
+          search_text: phrase.phrase,
+          aliases: phrase.aliases || [],
+          context_keywords: phrase.context_keywords || [],
+          type: "phrase",
+          mapping: mapping,
+        });
+      }
+    }
+
+    // Add synonyms
+    for (const [synonym, canonicalName] of Object.entries(
+      this.dictionary.synonyms
+    )) {
+      searchableItems.push({
+        canonical_name: canonicalName,
+        search_text: synonym,
+        type: "synonym",
+        mapping: this.dictionary.mappings[canonicalName],
+      });
+    }
+
+    return new Fuse(searchableItems, {
+      keys: [
+        { name: "search_text", weight: 0.7 },
+        { name: "aliases", weight: 0.3 },
+        { name: "context_keywords", weight: 0.2 },
+      ],
+      threshold: 0.4, // Lower threshold = more strict matching
+      includeScore: true,
+      includeMatches: true,
+    });
   }
 
   /**
@@ -175,37 +230,81 @@ export class IntentValidator {
     // Define extraction patterns for common UI descriptions
     const patterns: Array<{ regex: RegExp; confidence: number }> = [
       // Buttons
-      { regex: /\b(button|btn)\s+(to|for|that)\s+([^.!?\n]+)/gi, confidence: 0.8 },
-      { regex: /\b(submit|save|cancel|delete|edit|create)\s+(button|btn)/gi, confidence: 0.85 },
+      {
+        regex: /\b(button|btn)\s+(to|for|that)\s+([^.!?\n]+)/gi,
+        confidence: 0.8,
+      },
+      {
+        regex: /\b(submit|save|cancel|delete|edit|create)\s+(button|btn)/gi,
+        confidence: 0.85,
+      },
       { regex: /\b(cta|call to action)\b/gi, confidence: 0.9 },
 
       // Forms
-      { regex: /\b(login|signin|sign in|authentication|auth)\s+(form|page)/gi, confidence: 0.95 },
-      { regex: /\b(registration|signup|sign up|register)\s+(form|page)/gi, confidence: 0.9 },
+      {
+        regex: /\b(login|signin|sign in|authentication|auth)\s+(form|page)/gi,
+        confidence: 0.95,
+      },
+      {
+        regex: /\b(registration|signup|sign up|register)\s+(form|page)/gi,
+        confidence: 0.9,
+      },
       { regex: /\b(form)\s+(to|for|with)\s+([^.!?\n]+)/gi, confidence: 0.75 },
 
       // Inputs
-      { regex: /\b(input|field|text box)\s+(for|to enter)\s+([^.!?\n]+)/gi, confidence: 0.8 },
-      { regex: /\b(email|password|text|number)\s+(input|field)/gi, confidence: 0.85 },
+      {
+        regex: /\b(input|field|text box)\s+(for|to enter)\s+([^.!?\n]+)/gi,
+        confidence: 0.8,
+      },
+      {
+        regex: /\b(email|password|text|number)\s+(input|field)/gi,
+        confidence: 0.85,
+      },
 
       // Dialogs & Modals
-      { regex: /\b(confirmation|confirm)\s+(dialog|modal|popup)/gi, confidence: 0.9 },
-      { regex: /\b(alert|dialog|modal|popup)\s+(for|to|that)\s+([^.!?\n]+)/gi, confidence: 0.75 },
+      {
+        regex: /\b(confirmation|confirm)\s+(dialog|modal|popup)/gi,
+        confidence: 0.9,
+      },
+      {
+        regex: /\b(alert|dialog|modal|popup)\s+(for|to|that)\s+([^.!?\n]+)/gi,
+        confidence: 0.75,
+      },
       { regex: /\b(are you sure|confirm|confirmation)\b/gi, confidence: 0.8 },
 
       // Navigation
       { regex: /\b(navigation|nav)\s+(menu|bar)/gi, confidence: 0.9 },
-      { regex: /\b(menu|navbar|sidebar)\s+(with|showing|for)\s+([^.!?\n]+)/gi, confidence: 0.8 },
+      {
+        regex: /\b(menu|navbar|sidebar)\s+(with|showing|for)\s+([^.!?\n]+)/gi,
+        confidence: 0.8,
+      },
 
       // Data Display
-      { regex: /\b(table|data table|grid)\s+(of|showing|displaying|with)\s+([^.!?\n]+)/gi, confidence: 0.85 },
-      { regex: /\b(list|grid)\s+(of|showing)\s+([^.!?\n]+)/gi, confidence: 0.7 },
-      { regex: /\b(card|panel)\s+(for|showing|displaying)\s+([^.!?\n]+)/gi, confidence: 0.75 },
+      {
+        regex:
+          /\b(table|data table|grid)\s+(of|showing|displaying|with)\s+([^.!?\n]+)/gi,
+        confidence: 0.85,
+      },
+      {
+        regex: /\b(list|grid)\s+(of|showing)\s+([^.!?\n]+)/gi,
+        confidence: 0.7,
+      },
+      {
+        regex: /\b(card|panel)\s+(for|showing|displaying)\s+([^.!?\n]+)/gi,
+        confidence: 0.75,
+      },
 
       // Feedback
-      { regex: /\b(error|warning|success)\s+(message|alert|notification)/gi, confidence: 0.85 },
+      {
+        regex: /\b(error|warning|success)\s+(message|alert|notification)/gi,
+        confidence: 0.85,
+      },
       { regex: /\b(loading|spinner|loader)\b/gi, confidence: 0.9 },
-      { regex: /\b(toast|notification|alert)\s+(for|to|showing)\s+([^.!?\n]+)/gi, confidence: 0.8 },
+      {
+        regex:
+          /\b(toast|notification|alert)\s+(for|to|showing)\s+([^.!?\n]+)/gi,
+        confidence: 0.8,
+      },
     ];
 
     for (const { regex, confidence } of patterns) {
@@ -231,8 +330,7 @@ export class IntentValidator {
     // Remove duplicates (same text)
     const unique = extracted.filter(
       (item, index, self) =>
-        index ===
-        self.findIndex((t) => t.original_text === item.original_text)
+        index === self.findIndex((t) => t.original_text === item.original_text)
     );
 
     return unique;
@@ -241,19 +339,13 @@ export class IntentValidator {
   /**
    * Extract surrounding context for an intent match
    */
-  private extractContext(
-    text: string,
-    matchIndex: number
-  ): ExtractionContext {
+  private extractContext(text: string, matchIndex: number): ExtractionContext {
     const contextRadius = 100;
     const before = text
       .slice(Math.max(0, matchIndex - contextRadius), matchIndex)
       .trim();
     const after = text
-      .slice(
-        matchIndex,
-        Math.min(text.length, matchIndex + contextRadius)
-      )
+      .slice(matchIndex, Math.min(text.length, matchIndex + contextRadius))
       .trim();
 
     // Extract keywords from context
@@ -347,8 +439,9 @@ export class IntentValidator {
       if (fuzzyMatches.length > 0) {
         const bestMatch = fuzzyMatches[0];
         if (
+          bestMatch &&
           bestMatch.confidence >=
-          this.dictionary.validation_config.min_confidence_threshold
+            this.dictionary.validation_config.min_confidence_threshold
         ) {
           matches.push({
             original_text: intent.original_text,
@@ -411,68 +504,63 @@ export class IntentValidator {
   }
 
   /**
-   * Fuzzy match using similarity scoring
+   * Fuzzy match using Fuse.js for better accuracy
    */
   private fuzzyMatch(
     text: string,
     extracted: ExtractedIntent
   ): FuzzyMatchResult[] {
     const results: FuzzyMatchResult[] = [];
-    const lowerText = text.toLowerCase();
 
-    for (const [canonicalName, mapping] of Object.entries(
-      this.dictionary.mappings
-    )) {
-      for (const intentPhrase of mapping.intent_phrases) {
-        // Calculate similarity score
-        let score = 0;
+    // Use Fuse.js to search
+    const fuseResults = this.fuse.search(text);
 
-        // Keyword matching
-        const keywords = intentPhrase.context_keywords;
-        const matchedKeywords = keywords.filter((kw) =>
-          lowerText.includes(kw.toLowerCase())
+    for (const result of fuseResults) {
+      const item = result.item;
+      const score = result.score || 0;
+
+      // Convert Fuse.js score (0-1, lower is better) to confidence (0-1, higher is better)
+      const confidence = 1 - score;
+
+      // Apply context keyword bonus
+      let contextBonus = 0;
+      if (item.context_keywords && extracted.context.keywords) {
+        const contextMatches = item.context_keywords.filter((kw: string) =>
+          extracted.context.keywords.includes(kw.toLowerCase())
         );
-        const keywordScore =
-          keywords.length > 0 ? matchedKeywords.length / keywords.length : 0;
+        contextBonus =
+          (contextMatches.length / item.context_keywords.length) * 0.2;
+      }
 
-        // Context keyword bonus
-        const contextKeywords = extracted.context.keywords;
-        const contextMatches = keywords.filter((kw) =>
-          contextKeywords.includes(kw.toLowerCase())
-        );
-        const contextScore =
-          keywords.length > 0 ? contextMatches.length / keywords.length : 0;
+      const finalConfidence = Math.min(confidence + contextBonus, 1.0);
 
-        // Partial phrase matching
-        const phraseWords = intentPhrase.phrase.toLowerCase().split(/\s+/);
-        const matchedWords = phraseWords.filter((word) =>
-          lowerText.includes(word)
-        );
-        const phraseScore = matchedWords.length / phraseWords.length;
-
-        // Combine scores
-        score =
-          phraseScore * 0.5 +
-          keywordScore * 0.3 +
-          contextScore * 0.2;
-
-        // Apply confidence boost
-        score *= intentPhrase.confidence_boost;
-
-        // Only include if above threshold
-        if (score >= this.dictionary.validation_config.ambiguity_threshold) {
-          results.push({
-            canonical_name: canonicalName,
-            confidence: Math.min(score, 1.0),
-            mapping,
-            matched_phrase: intentPhrase.phrase,
-          });
-        }
+      // Only include if above threshold
+      if (
+        finalConfidence >= this.dictionary.validation_config.ambiguity_threshold
+      ) {
+        results.push({
+          canonical_name: item.canonical_name,
+          confidence: finalConfidence,
+          mapping: item.mapping,
+          matched_phrase: item.search_text,
+        });
       }
     }
 
-    // Sort by confidence (highest first)
-    return results.sort((a, b) => b.confidence - a.confidence);
+    // Sort by confidence (highest first) and remove duplicates
+    const uniqueResults = results.reduce((acc, current) => {
+      const existing = acc.find(
+        (item) => item.canonical_name === current.canonical_name
+      );
+      if (!existing || current.confidence > existing.confidence) {
+        return acc
+          .filter((item) => item.canonical_name !== current.canonical_name)
+          .concat(current);
+      }
+      return acc;
+    }, [] as FuzzyMatchResult[]);
+
+    return uniqueResults.sort((a, b) => b.confidence - a.confidence);
   }
 
   /**
@@ -489,7 +577,7 @@ export class IntentValidator {
 
     // label: try to extract from "button to X" or "button for X"
     const labelMatch = text.match(/(?:to|for|that)\s+(.+)$/i);
-    if (labelMatch) {
+    if (labelMatch && labelMatch[1]) {
       placeholders.label = this.capitalize(labelMatch[1].trim());
     } else {
       placeholders.label = "Submit";
@@ -539,7 +627,11 @@ export class IntentValidator {
         const top = highConfidenceMatches[0];
         const second = highConfidenceMatches[1];
 
-        if (top && second && Math.abs(top.confidence - second.confidence) < 0.15) {
+        if (
+          top &&
+          second &&
+          Math.abs(top.confidence - second.confidence) < 0.15
+        ) {
           ambiguities.push({
             original_text: intent.original_text,
             possible_intents: highConfidenceMatches
@@ -549,7 +641,11 @@ export class IntentValidator {
                 confidence: match.confidence,
                 reasoning: this.generateReasoning(match.mapping, intent),
               })),
-            context_needed: ["Component type", "User interaction", "Visual style"],
+            context_needed: [
+              "Component type",
+              "User interaction",
+              "Visual style",
+            ],
           });
         }
       }
@@ -599,7 +695,8 @@ export class IntentValidator {
         unknowns.push({
           original_text: intent.original_text,
           similar_intents: similar,
-          suggested_fallback: similar.length > 0 ? similar[0].canonical_name : "",
+          suggested_fallback:
+            similar.length > 0 ? similar[0]?.canonical_name || "" : "",
         });
       }
     }
@@ -630,12 +727,13 @@ export class IntentValidator {
         const mapping = this.dictionary.mappings[pi.canonical_name];
         return {
           canonical_name: pi.canonical_name,
-          description: mapping?.component_pattern.shadcn_components
-            .map((c) => c.name)
-            .join(", ") || "",
-          components: mapping?.component_pattern.shadcn_components.map(
-            (c) => c.name
-          ) || [],
+          description:
+            mapping?.component_pattern.shadcn_components
+              ?.map((c) => c.name)
+              .join(", ") || "",
+          components:
+            mapping?.component_pattern.shadcn_components?.map((c) => c.name) ||
+            [],
         };
       }),
     }));
@@ -688,7 +786,7 @@ export class IntentValidator {
 
       const uniqueUnknowns = unknowns.slice(0, 3);
       for (const unknown of uniqueUnknowns) {
-        if (unknown.similar_intents.length > 0) {
+        if (unknown.similar_intents.length > 0 && unknown.similar_intents[0]) {
           suggestions.push(
             `"${unknown.original_text}" might be: ${unknown.similar_intents[0].canonical_name}`
           );

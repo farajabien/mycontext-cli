@@ -280,6 +280,11 @@ export interface DesignManifest {
     component_hierarchy: ComponentHierarchy;
     implementation_plan: ImplementationPlan;
     design_intent: DesignIntent;
+    intent_validation?: {
+      validation_report: import("./intent-dictionary").IntentValidationReport;
+      enriched_intents: import("./intent-dictionary").EnrichedComponentSpec[];
+      clarifications: import("./intent-dictionary").ClarificationResponse[];
+    };
   };
   metadata: {
     ai_model_used?: string;
@@ -357,6 +362,11 @@ export interface EnrichedContext {
   visual_tokens: Record<string, any>;
   interaction_patterns: string[];
   accessibility_requirements: string[];
+
+  // NEW: Intent-based specifications
+  enriched_intents?: import("./intent-dictionary").EnrichedComponentSpec[];
+  intent_validation_report?: import("./intent-dictionary").IntentValidationReport;
+  intent_clarifications?: import("./intent-dictionary").ClarificationResponse[];
 }
 
 // ============================================================================

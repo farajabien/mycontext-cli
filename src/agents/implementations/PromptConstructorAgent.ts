@@ -456,6 +456,18 @@ Return your response as a JSON object with these keys:
   ): Promise<string[]> {
     const requirements: string[] = [];
 
+    // NEW: Load intent-based requirements from enriched context
+    if (designContext?.enrichedContext?.enriched_intents) {
+      const relevantIntents = this.filterRelevantIntents(
+        designContext.enrichedContext.enriched_intents,
+        context.componentName
+      );
+
+      for (const intent of relevantIntents) {
+        requirements.push(...this.formatIntentAsRequirements(intent));
+      }
+    }
+
     // Component-specific requirements based on name and group
     const componentName = context.componentName.toLowerCase();
     const componentGroup = context.componentGroup.toLowerCase();
@@ -1186,5 +1198,111 @@ IMPORTANT: This should be a complete, functional component that implements the a
       "- Ensure visual consistency with the overall design system";
 
     return designSection;
+  }
+
+  /**
+   * Filter enriched intents to find those relevant to the current component
+   */
+  private filterRelevantIntents(
+    enrichedIntents: any[],
+    componentName: string
+  ): any[] {
+    const componentNameLower = componentName.toLowerCase();
+    
+    return enrichedIntents.filter(intent => {
+      // Check if component name matches any shadcn components
+      const matchesShadcnComponent = intent.shadcn_components.some((comp: string) =>
+        componentNameLower.includes(comp.toLowerCase())
+      );
+      
+      // Check if component name matches canonical intent
+      const matchesCanonicalIntent = componentNameLower.includes(
+        intent.canonical_intent.toLowerCase()
+      );
+      
+      // Check if component name matches original description
+      const matchesDescription = intent.original_description.toLowerCase().includes(
+        componentNameLower
+      );
+      
+      return matchesShadcnComponent || matchesCanonicalIntent || matchesDescription;
+    });
+  }
+
+  /**
+   * Format an enriched intent as requirement strings
+   */
+  private formatIntentAsRequirements(intent: any): string[] {
+    const requirements: string[] = [];
+    
+    // Add intent-based requirements
+    requirements.push(
+      `REQUIRED IMPLEMENTATION (Intent: ${intent.canonical_intent}):`
+    );
+    requirements.push(`- Original description: "${intent.original_description}"`);
+    requirements.push(`- Confidence: ${(intent.intent_confidence * 100).toFixed(0)}%`);
+    
+    // Add shadcn component requirements
+    if (intent.shadcn_components && intent.shadcn_components.length > 0) {
+      requirements.push(`- Required shadcn/ui components: ${intent.shadcn_components.join(", ")}`);
+    }
+    
+    // Add component imports
+    if (intent.component_imports && intent.component_imports.length > 0) {
+      requirements.push(`- Required imports: ${intent.component_imports.join(", ")}`);
+    }
+    
+    // Add design pattern requirements
+    if (intent.design_pattern) {
+      requirements.push(`- Design pattern: ${intent.design_pattern.name || 'Custom pattern'}`);
+    }
+    
+    // Add props requirements
+    if (intent.props_spec && intent.props_spec.length > 0) {
+      const requiredProps = intent.props_spec.filter((prop: any) => 
+        intent.design_pattern?.required_props?.some((req: any) => req.name === prop.name)
+      );
+      const optionalProps = intent.props_spec.filter((prop: any) => 
+        !intent.design_pattern?.required_props?.some((req: any) => req.name === prop.name)
+      );
+      
+      if (requiredProps.length > 0) {
+        requirements.push(`- Required props: ${requiredProps.map((p: any) => `${p.name}: ${p.type}`).join(", ")}`);
+      }
+      if (optionalProps.length > 0) {
+        requirements.push(`- Optional props: ${optionalProps.map((p: any) => `${p.name}: ${p.type}`).join(", ")}`);
+      }
+    }
+    
+    // Add accessibility requirements
+    if (intent.accessibility_spec) {
+      const a11yReqs: string[] = [];
+      if (intent.accessibility_spec.aria_attributes) {
+        a11yReqs.push(`ARIA attributes: ${Object.keys(intent.accessibility_spec.aria_attributes).join(", ")}`);
+      }
+      if (intent.accessibility_spec.keyboard_support && intent.accessibility_spec.keyboard_support.length > 0) {
+        a11yReqs.push(`Keyboard support: ${intent.accessibility_spec.keyboard_support.map((k: any) => k.key).join(", ")}`);
+      }
+      if (a11yReqs.length > 0) {
+        requirements.push(`- Accessibility: ${a11yReqs.join("; ")}`);
+      }
+    }
+    
+    // Add state management requirements
+    if (intent.state_management && intent.state_management.length > 0) {
+      requirements.push(`- State management: ${intent.state_management.map((s: any) => s.name).join(", ")}`);
+    }
+    
+    // Add design token requirements
+    if (intent.design_tokens_used && Object.keys(intent.design_tokens_used).length > 0) {
+      requirements.push(`- Design tokens: ${Object.keys(intent.design_tokens_used).join(", ")}`);
+    }
+    
+    // Add code template if available
+    if (intent.code_template) {
+      requirements.push(`- Code template: ${intent.code_template.substring(0, 200)}${intent.code_template.length > 200 ? '...' : ''}`);
+    }
+    
+    return requirements;
   }
 }

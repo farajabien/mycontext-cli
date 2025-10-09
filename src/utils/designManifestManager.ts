@@ -532,6 +532,14 @@ export class DesignManifestManager {
         manifest.phases.component_hierarchy.interaction_flows,
       accessibility_requirements:
         manifest.phases.design_brief.accessibility_focus || [],
+
+      // NEW: Intent-based specifications
+      enriched_intents:
+        manifest.phases.intent_validation?.enriched_intents || [],
+      intent_validation_report:
+        manifest.phases.intent_validation?.validation_report || undefined,
+      intent_clarifications:
+        manifest.phases.intent_validation?.clarifications || [],
     };
   }
 

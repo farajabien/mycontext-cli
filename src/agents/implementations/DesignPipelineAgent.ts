@@ -20,6 +20,8 @@ import {
   FallbackResult,
   ValidationResult,
 } from "../../types/design-pipeline";
+import { IntentValidator } from "../../services/IntentValidator";
+import { IntentEnricher } from "../../services/IntentEnricher";
 import chalk from "chalk";
 
 /**
@@ -144,6 +146,33 @@ export class DesignPipelineAgent
         partialResults.contextGaps = partialResults.contextGaps;
       }
 
+      // Phase 3.5: Validate & Enrich UI Intents (NEW)
+      if (!completedPhases.includes(3.5)) {
+        console.log(chalk.gray("  Phase 3.5: Validating UI intents..."));
+        const intentValidation = await this.executePhaseWithErrorHandling(
+          3.5,
+          () => this.validateIntents(input, partialResults.functionalSummary),
+          partialResults
+        );
+        partialResults.intentValidation = intentValidation;
+        completedPhases.push(3.5);
+        await this.saveProgress(3.5, completedPhases, partialResults);
+
+        // If confidence is too low, prompt for clarifications
+        if (intentValidation.confidence_score < 0.7) {
+          console.log(
+            chalk.yellow(
+              `⚠️  Low confidence (${(
+                intentValidation.confidence_score * 100
+              ).toFixed(0)}%) - some intents may need clarification`
+            )
+          );
+        }
+      } else {
+        console.log(chalk.gray("  Phase 3.5: Using cached result..."));
+        partialResults.intentValidation = partialResults.intentValidation;
+      }
+
       // Phase 4: Generate Design Brief
       if (!completedPhases.includes(4)) {
         console.log(chalk.gray("  Phase 4: Creating design brief..."));
@@ -192,7 +221,8 @@ export class DesignPipelineAgent
           () =>
             this.defineHierarchy(
               partialResults.functionalSummary,
-              partialResults.designBrief
+              partialResults.designBrief,
+              partialResults.intentValidation?.enriched_intents
             ),
           partialResults
         );
@@ -912,8 +942,29 @@ Output JSON:
 
   private async defineHierarchy(
     summary: FunctionalSummary,
-    brief: DesignBrief
+    brief: DesignBrief,
+    enrichedIntents?: any[]
   ): Promise<ComponentHierarchy> {
+    // Build intent context for the prompt
+    let intentContext = "";
+    if (enrichedIntents && enrichedIntents.length > 0) {
+      intentContext = `
+
+VALIDATED UI INTENTS:
+${enrichedIntents
+  .map(
+    (intent) => `
+- ${intent.canonical_intent}: ${intent.original_description}
+  Components: ${intent.shadcn_components.join(", ")}
+  Pattern: ${intent.design_pattern.name}
+  Confidence: ${(intent.confidence * 100).toFixed(0)}%
+`
+  )
+  .join("")}
+
+Use these validated intents to inform component design and ensure consistency.`;
+    }
+
     const prompt = `
 Define the component hierarchy for this project.
 
@@ -922,7 +973,7 @@ Features: ${summary.key_features.join(", ")}
 User Actions: ${summary.primary_user_actions.join(", ")}
 Platform: ${summary.platform}
 
-Design Principles: ${brief.ui_principles.join(", ")}
+Design Principles: ${brief.ui_principles.join(", ")}${intentContext}
 
 Create screens and components needed to implement this app.
 
@@ -1568,6 +1619,95 @@ Output JSON:
         generation_time_ms: 0,
       },
     };
+  }
+
+  // ============================================================================
+  // INTENT VALIDATION (Phase 3.5)
+  // ============================================================================
+
+  /**
+   * Validate UI intents from PRD and context files
+   */
+  private async validateIntents(
+    input: DesignPipelineInput,
+    summary: FunctionalSummary
+  ): Promise<any> {
+    try {
+      console.log(chalk.blue("🔍 Validating UI intents..."));
+
+      const intentValidator = new IntentValidator();
+      const validationReport = await intentValidator.validateContextFiles(
+        input.prd,
+        input.types || "",
+        input.branding || ""
+      );
+
+      console.log(
+        chalk.gray(
+          `   Found ${validationReport.validated_intents.length} validated intents`
+        )
+      );
+      console.log(
+        chalk.gray(
+          `   Confidence: ${(validationReport.confidence_score * 100).toFixed(
+            0
+          )}%`
+        )
+      );
+
+      if (validationReport.ambiguous_intents.length > 0) {
+        console.log(
+          chalk.yellow(
+            `   ⚠️  ${validationReport.ambiguous_intents.length} ambiguous intents detected`
+          )
+        );
+      }
+
+      if (validationReport.unknown_intents.length > 0) {
+        console.log(
+          chalk.yellow(
+            `   ❓ ${validationReport.unknown_intents.length} unknown intents detected`
+          )
+        );
+      }
+
+      // Enrich validated intents into component specifications
+      const intentEnricher = new IntentEnricher();
+      const enrichedIntents = await intentEnricher.enrichComponentDefinitions(
+        summary,
+        validationReport
+      );
+
+      console.log(
+        chalk.green(
+          `✅ Intent validation complete - ${enrichedIntents.length} component specs generated`
+        )
+      );
+
+      return {
+        validation_report: validationReport,
+        enriched_intents: enrichedIntents,
+        confidence_score: validationReport.confidence_score,
+        needs_clarification: validationReport.confidence_score < 0.7,
+      };
+    } catch (error) {
+      console.error(chalk.red("❌ Intent validation failed:"), error);
+
+      // Return fallback result
+      return {
+        validation_report: {
+          validated_intents: [],
+          ambiguous_intents: [],
+          unknown_intents: [],
+          confidence_score: 0,
+          clarifications_needed: [],
+        },
+        enriched_intents: [],
+        confidence_score: 0,
+        needs_clarification: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
   }
 
   // ============================================================================

@@ -1242,6 +1242,2374 @@
           "generated_code_sample": "<div className=\"animate-spin\">...</div>"
         }
       ]
+    },
+    "select-dropdown": {
+      "canonical_name": "select-dropdown",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "select dropdown",
+          "aliases": ["dropdown", "select menu", "dropdown menu", "select field"],
+          "context_keywords": ["select", "dropdown", "choose", "option", "menu"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Select",
+            "import_path": "@/components/ui/select",
+            "exports": ["Select", "SelectContent", "SelectItem", "SelectTrigger", "SelectValue"],
+            "peer_components": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <Select value={{{value}}} onValueChange={{{onChange}}}>\n    <SelectTrigger>\n      <SelectValue placeholder=\"{{placeholder}}\" />\n    </SelectTrigger>\n    <SelectContent>\n      {{{options}}.map(option => (\n        <SelectItem key={option.value} value={option.value}>\n          {option.label}\n        </SelectItem>\n      ))}\n    </SelectContent>\n  </Select>\n</div>",
+        "required_props": [
+          {
+            "name": "options",
+            "type": "Array<{ value: string; label: string }>",
+            "description": "Dropdown options"
+          },
+          {
+            "name": "onChange",
+            "type": "(value: string) => void",
+            "description": "Value change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "Selected value"
+          },
+          {
+            "name": "placeholder",
+            "type": "string",
+            "description": "Placeholder text"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onValueChange", "onOpenChange"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "",
+            "type": "string"
+          },
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onValueChange",
+            "action": "Update selected value",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "combobox",
+          "aria-expanded": "true when open",
+          "aria-haspopup": "listbox"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Open dropdown"
+          },
+          {
+            "key": "ArrowDown",
+            "action": "Navigate options"
+          },
+          {
+            "key": "Escape",
+            "action": "Close dropdown"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border", "background"],
+          "css_var_mapping": {
+            "border": "var(--border)",
+            "background": "var(--background)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a dropdown to select user role",
+          "extracted_intent": "select-dropdown",
+          "generated_code_sample": "<Select><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>...</SelectContent></Select>"
+        }
+      ]
+    },
+    "checkbox-group": {
+      "canonical_name": "checkbox-group",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "checkbox group",
+          "aliases": ["multiple checkboxes", "checkbox list", "checkboxes"],
+          "context_keywords": ["checkbox", "multiple", "group", "list", "select multiple"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Checkbox",
+            "import_path": "@/components/ui/checkbox",
+            "exports": ["Checkbox"],
+            "peer_components": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-3\">\n  <Label className=\"text-sm font-medium\">{{group_label}}</Label>\n  <div className=\"space-y-2\">\n    {{{options}}.map(option => (\n      <div key={option.value} className=\"flex items-center space-x-2\">\n        <Checkbox\n          id={option.value}\n          checked={{{checked_values}}.includes(option.value)}\n          onCheckedChange={{{onChange}}}\n        />\n        <Label htmlFor={option.value}>{option.label}</Label>\n      </div>\n    ))}\n  </div>\n</div>",
+        "required_props": [
+          {
+            "name": "options",
+            "type": "Array<{ value: string; label: string }>",
+            "description": "Checkbox options"
+          },
+          {
+            "name": "checked_values",
+            "type": "string[]",
+            "description": "Currently checked values"
+          },
+          {
+            "name": "onChange",
+            "type": "(checkedValues: string[]) => void",
+            "description": "Change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "group_label",
+            "type": "string",
+            "description": "Group label"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onCheckedChange"],
+        "states": [
+          {
+            "name": "checkedValues",
+            "initial_value": [],
+            "type": "string[]"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onCheckedChange",
+            "action": "Update checked values array",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "group",
+          "aria-labelledby": "Group label"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between checkboxes"
+          },
+          {
+            "key": "Space",
+            "action": "Toggle checkbox"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary"],
+          "css_var_mapping": {
+            "checked-color": "var(--primary)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Vertical layout",
+          "md": "Vertical layout",
+          "lg": "Vertical layout"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add checkboxes for selecting multiple categories",
+          "extracted_intent": "checkbox-group",
+          "generated_code_sample": "<div><Checkbox /><Label>Option 1</Label></div>"
+        }
+      ]
+    },
+    "radio-group": {
+      "canonical_name": "radio-group",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "radio group",
+          "aliases": ["radio buttons", "radio list", "single choice"],
+          "context_keywords": ["radio", "single", "choice", "one option", "exclusive"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "RadioGroup",
+            "import_path": "@/components/ui/radio-group",
+            "exports": ["RadioGroup", "RadioGroupItem"],
+            "peer_components": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-3\">\n  <Label className=\"text-sm font-medium\">{{group_label}}</Label>\n  <RadioGroup value={{{value}}} onValueChange={{{onChange}}}>\n    {{{options}}.map(option => (\n      <div key={option.value} className=\"flex items-center space-x-2\">\n        <RadioGroupItem value={option.value} id={option.value} />\n        <Label htmlFor={option.value}>{option.label}</Label>\n      </div>\n    ))}\n  </RadioGroup>\n</div>",
+        "required_props": [
+          {
+            "name": "options",
+            "type": "Array<{ value: string; label: string }>",
+            "description": "Radio options"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "description": "Selected value"
+          },
+          {
+            "name": "onChange",
+            "type": "(value: string) => void",
+            "description": "Change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "group_label",
+            "type": "string",
+            "description": "Group label"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onValueChange"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "",
+            "type": "string"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onValueChange",
+            "action": "Update selected value",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "radiogroup",
+          "aria-labelledby": "Group label"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate to group"
+          },
+          {
+            "key": "ArrowDown",
+            "action": "Select next option"
+          },
+          {
+            "key": "ArrowUp",
+            "action": "Select previous option"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary"],
+          "css_var_mapping": {
+            "checked-color": "var(--primary)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Vertical layout",
+          "md": "Vertical layout",
+          "lg": "Vertical layout"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add radio buttons for selecting payment method",
+          "extracted_intent": "radio-group",
+          "generated_code_sample": "<RadioGroup><RadioGroupItem /><Label>Option 1</Label></RadioGroup>"
+        }
+      ]
+    },
+    "textarea-field": {
+      "canonical_name": "textarea-field",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "textarea",
+          "aliases": ["text area", "multiline input", "comment box", "message box"],
+          "context_keywords": ["textarea", "multiline", "comment", "message", "description"],
+          "confidence_boost": 0.8
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Textarea",
+            "import_path": "@/components/ui/textarea",
+            "exports": ["Textarea"],
+            "peer_components": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <Textarea\n    id=\"{{id}}\"\n    placeholder=\"{{placeholder}}\"\n    value={{{value}}}\n    onChange={{{onChange}}}\n    rows={{{rows}}}\n    disabled={{{disabled}}}\n  />\n</div>",
+        "required_props": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "Textarea ID"
+          },
+          {
+            "name": "onChange",
+            "type": "(e: React.ChangeEvent<HTMLTextAreaElement>) => void",
+            "description": "Change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "Textarea value"
+          },
+          {
+            "name": "placeholder",
+            "type": "string",
+            "description": "Placeholder text"
+          },
+          {
+            "name": "rows",
+            "type": "number",
+            "default_value": 3,
+            "description": "Number of rows"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether disabled"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onChange", "onBlur", "onFocus"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "",
+            "type": "string"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onChange",
+            "action": "Update value",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Use label element instead"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate to textarea"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border", "background"],
+          "css_var_mapping": {
+            "border": "var(--border)",
+            "background": "var(--background)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.7,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a textarea for user comments",
+          "extracted_intent": "textarea-field",
+          "generated_code_sample": "<Textarea placeholder=\"Enter your comment...\" />"
+        }
+      ]
+    },
+    "file-upload": {
+      "canonical_name": "file-upload",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "file upload",
+          "aliases": ["upload file", "file input", "file picker", "upload component"],
+          "context_keywords": ["upload", "file", "input", "picker", "attach"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Button",
+            "import_path": "@/components/ui/button",
+            "exports": ["Button"],
+            "peer_components": ["Input"]
+          },
+          {
+            "name": "Input",
+            "import_path": "@/components/ui/input",
+            "exports": ["Input"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <div className=\"flex items-center space-x-2\">\n    <Input\n      id=\"{{id}}\"\n      type=\"file\"\n      onChange={{{onChange}}}\n      accept=\"{{accept}}\"\n      multiple={{{multiple}}}\n      disabled={{{disabled}}}\n    />\n    <Button type=\"button\" variant=\"outline\" onClick={{{onClear}}}>\n      Clear\n    </Button>\n  </div>\n  {{{files}}.length > 0 && (\n    <div className=\"text-sm text-muted-foreground\">\n      {{{files}}.length} file(s) selected\n    </div>\n  )}\n</div>",
+        "required_props": [
+          {
+            "name": "onChange",
+            "type": "(files: FileList | null) => void",
+            "description": "File change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "accept",
+            "type": "string",
+            "description": "Accepted file types"
+          },
+          {
+            "name": "multiple",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Allow multiple files"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether disabled"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onChange", "onClear"],
+        "states": [
+          {
+            "name": "files",
+            "initial_value": [],
+            "type": "File[]"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onChange",
+            "action": "Update files state",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "File upload input"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate to input"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border"],
+          "css_var_mapping": {
+            "border": "var(--border)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a file upload for profile pictures",
+          "extracted_intent": "file-upload",
+          "generated_code_sample": "<Input type=\"file\" accept=\"image/*\" />"
+        }
+      ]
+    },
+    "date-picker": {
+      "canonical_name": "date-picker",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "date picker",
+          "aliases": ["date input", "calendar picker", "date selector"],
+          "context_keywords": ["date", "calendar", "picker", "select date"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Calendar",
+            "import_path": "@/components/ui/calendar",
+            "exports": ["Calendar"],
+            "peer_components": ["Popover", "Button"]
+          },
+          {
+            "name": "Popover",
+            "import_path": "@/components/ui/popover",
+            "exports": ["Popover", "PopoverContent", "PopoverTrigger"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <Popover>\n    <PopoverTrigger asChild>\n      <Button\n        id=\"{{id}}\"\n        variant=\"outline\"\n        className=\"w-full justify-start text-left font-normal\"\n      >\n        {{{value}} ? format({{value}}, \"PPP\") : \"{{placeholder}}\"}\n      </Button>\n    </PopoverTrigger>\n    <PopoverContent className=\"w-auto p-0\">\n      <Calendar\n        mode=\"single\"\n        selected={{{value}}}\n        onSelect={{{onChange}}}\n        initialFocus\n      />\n    </PopoverContent>\n  </Popover>\n</div>",
+        "required_props": [
+          {
+            "name": "value",
+            "type": "Date | undefined",
+            "description": "Selected date"
+          },
+          {
+            "name": "onChange",
+            "type": "(date: Date | undefined) => void",
+            "description": "Date change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "default_value": "Pick a date",
+            "description": "Placeholder text"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether disabled"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onSelect", "onOpenChange"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "undefined",
+            "type": "Date | undefined"
+          },
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onSelect",
+            "action": "Update selected date",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "combobox",
+          "aria-expanded": "true when open"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Open calendar"
+          },
+          {
+            "key": "Escape",
+            "action": "Close calendar"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "border"],
+          "css_var_mapping": {
+            "selected-color": "var(--primary)",
+            "border": "var(--border)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a date picker for selecting birth date",
+          "extracted_intent": "date-picker",
+          "generated_code_sample": "<Popover><PopoverTrigger><Button>Pick date</Button></PopoverTrigger><PopoverContent><Calendar /></PopoverContent></Popover>"
+        }
+      ]
+    },
+    "time-picker": {
+      "canonical_name": "time-picker",
+      "category": "forms",
+      "intent_phrases": [
+        {
+          "phrase": "time picker",
+          "aliases": ["time input", "time selector", "time field"],
+          "context_keywords": ["time", "hour", "minute", "clock", "schedule"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Input",
+            "import_path": "@/components/ui/input",
+            "exports": ["Input"],
+            "peer_components": ["Label"]
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Label htmlFor=\"{{id}}\">{{label}}</Label>\n  <Input\n    id=\"{{id}}\"\n    type=\"time\"\n    value={{{value}}}\n    onChange={{{onChange}}}\n    disabled={{{disabled}}}\n  />\n</div>",
+        "required_props": [
+          {
+            "name": "value",
+            "type": "string",
+            "description": "Time value (HH:MM format)"
+          },
+          {
+            "name": "onChange",
+            "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+            "description": "Time change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether disabled"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onChange"],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": "",
+            "type": "string"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onChange",
+            "action": "Update time value",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "aria-label": "Time input"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate to input"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["border"],
+          "css_var_mapping": {
+            "border": "var(--border)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a time picker for appointment scheduling",
+          "extracted_intent": "time-picker",
+          "generated_code_sample": "<Input type=\"time\" />"
+        }
+      ]
+    },
+    "breadcrumb-nav": {
+      "canonical_name": "breadcrumb-nav",
+      "category": "navigation",
+      "intent_phrases": [
+        {
+          "phrase": "breadcrumb navigation",
+          "aliases": ["breadcrumb", "breadcrumbs", "navigation breadcrumb"],
+          "context_keywords": ["breadcrumb", "navigation", "path", "trail", "location"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Breadcrumb",
+            "import_path": "@/components/ui/breadcrumb",
+            "exports": ["Breadcrumb", "BreadcrumbItem", "BreadcrumbLink", "BreadcrumbList", "BreadcrumbPage", "BreadcrumbSeparator"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Breadcrumb>\n  <BreadcrumbList>\n    {{{items}}.map((item, index) => (\n      <BreadcrumbItem key={item.href}>\n        {index === {{items}}.length - 1 ? (\n          <BreadcrumbPage>{item.label}</BreadcrumbPage>\n        ) : (\n          <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>\n        )}\n        {index < {{items}}.length - 1 && <BreadcrumbSeparator />}\n      </BreadcrumbItem>\n    ))}\n  </BreadcrumbList>\n</Breadcrumb>",
+        "required_props": [
+          {
+            "name": "items",
+            "type": "Array<{ href: string; label: string }>",
+            "description": "Breadcrumb items"
+          }
+        ],
+        "optional_props": [],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onClick"],
+        "states": [],
+        "behaviors": [
+          {
+            "trigger": "onClick",
+            "action": "Navigate to href",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "navigation",
+          "aria-label": "Breadcrumb"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between links"
+          },
+          {
+            "key": "Enter",
+            "action": "Activate link"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["muted-foreground"],
+          "css_var_mapping": {
+            "separator-color": "var(--muted-foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Horizontal scroll if needed",
+          "md": "Full display",
+          "lg": "Full display"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add breadcrumb navigation showing current page path",
+          "extracted_intent": "breadcrumb-nav",
+          "generated_code_sample": "<Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink>Home</BreadcrumbLink></BreadcrumbItem></BreadcrumbList></Breadcrumb>"
+        }
+      ]
+    },
+    "tabs-navigation": {
+      "canonical_name": "tabs-navigation",
+      "category": "navigation",
+      "intent_phrases": [
+        {
+          "phrase": "tabs",
+          "aliases": ["tab navigation", "tabbed interface", "tab panel"],
+          "context_keywords": ["tabs", "tab", "navigation", "panel", "section"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Tabs",
+            "import_path": "@/components/ui/tabs",
+            "exports": ["Tabs", "TabsContent", "TabsList", "TabsTrigger"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Tabs defaultValue=\"{{default_tab}}\" className=\"w-full\">\n  <TabsList>\n    {{{tabs}}.map(tab => (\n      <TabsTrigger key={tab.value} value={tab.value}>\n        {tab.label}\n      </TabsTrigger>\n    ))}\n  </TabsList>\n  {{{tabs}}.map(tab => (\n    <TabsContent key={tab.value} value={tab.value}>\n      {tab.content}\n    </TabsContent>\n  ))}\n</Tabs>",
+        "required_props": [
+          {
+            "name": "tabs",
+            "type": "Array<{ value: string; label: string; content: React.ReactNode }>",
+            "description": "Tab definitions"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "default_tab",
+            "type": "string",
+            "description": "Default active tab"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onValueChange"],
+        "states": [
+          {
+            "name": "activeTab",
+            "initial_value": "",
+            "type": "string"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onValueChange",
+            "action": "Switch active tab",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "tablist",
+          "aria-label": "Tab navigation"
+        },
+        "keyboard_support": [
+          {
+            "key": "ArrowLeft",
+            "action": "Previous tab"
+          },
+          {
+            "key": "ArrowRight",
+            "action": "Next tab"
+          },
+          {
+            "key": "Home",
+            "action": "First tab"
+          },
+          {
+            "key": "End",
+            "action": "Last tab"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "muted"],
+          "css_var_mapping": {
+            "active-color": "var(--primary)",
+            "inactive-color": "var(--muted)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Scrollable tabs",
+          "md": "Full tabs",
+          "lg": "Full tabs"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add tabs for different sections of the form",
+          "extracted_intent": "tabs-navigation",
+          "generated_code_sample": "<Tabs><TabsList><TabsTrigger>Tab 1</TabsTrigger></TabsList><TabsContent>Content</TabsContent></Tabs>"
+        }
+      ]
+    },
+    "sidebar-menu": {
+      "canonical_name": "sidebar-menu",
+      "category": "navigation",
+      "intent_phrases": [
+        {
+          "phrase": "sidebar menu",
+          "aliases": ["sidebar", "side menu", "navigation sidebar"],
+          "context_keywords": ["sidebar", "side", "menu", "navigation", "panel"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Sheet",
+            "import_path": "@/components/ui/sheet",
+            "exports": ["Sheet", "SheetContent", "SheetTrigger"],
+            "peer_components": ["Button"]
+          }
+        ],
+        "template_code": "<div className=\"flex h-screen\">\n  <Sheet>\n    <SheetTrigger asChild>\n      <Button variant=\"outline\" size=\"icon\">\n        <Menu className=\"h-4 w-4\" />\n      </Button>\n    </SheetTrigger>\n    <SheetContent side=\"left\" className=\"w-64\">\n      <nav className=\"space-y-2\">\n        {{{items}}.map(item => (\n          <a\n            key={item.href}\n            href={item.href}\n            className=\"flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-accent\"\n          >\n            {item.icon && <item.icon className=\"h-4 w-4\" />}\n            <span>{item.label}</span>\n          </a>\n        ))}\n      </nav>\n    </SheetContent>\n  </Sheet>\n</div>",
+        "required_props": [
+          {
+            "name": "items",
+            "type": "Array<{ href: string; label: string; icon?: React.ComponentType }>",
+            "description": "Sidebar menu items"
+          }
+        ],
+        "optional_props": [],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onClick", "onOpenChange"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onClick",
+            "action": "Navigate to href",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "navigation",
+          "aria-label": "Sidebar navigation"
+        },
+        "keyboard_support": [
+          {
+            "key": "Escape",
+            "action": "Close sidebar"
+          },
+          {
+            "key": "Tab",
+            "action": "Navigate between items"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["accent"],
+          "css_var_mapping": {
+            "hover-color": "var(--accent)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Overlay sidebar",
+          "md": "Overlay sidebar",
+          "lg": "Persistent sidebar"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a sidebar menu for navigation",
+          "extracted_intent": "sidebar-menu",
+          "generated_code_sample": "<Sheet><SheetTrigger><Button>Menu</Button></SheetTrigger><SheetContent>...</SheetContent></Sheet>"
+        }
+      ]
+    },
+    "pagination-control": {
+      "canonical_name": "pagination-control",
+      "category": "navigation",
+      "intent_phrases": [
+        {
+          "phrase": "pagination",
+          "aliases": ["page navigation", "page controls", "pager"],
+          "context_keywords": ["pagination", "page", "navigation", "next", "previous"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Pagination",
+            "import_path": "@/components/ui/pagination",
+            "exports": ["Pagination", "PaginationContent", "PaginationEllipsis", "PaginationItem", "PaginationLink", "PaginationNext", "PaginationPrevious"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Pagination>\n  <PaginationContent>\n    <PaginationItem>\n      <PaginationPrevious \n        href=\"{{previous_href}}\"\n        onClick={{{onPrevious}}}\n        disabled={{{!has_previous}}}\n      />\n    </PaginationItem>\n    {{{pages}}.map(page => (\n      <PaginationItem key={page}>\n        <PaginationLink \n          href=\"{{base_href}}?page={{page}}\"\n          isActive={page === {{current_page}}}\n        >\n          {page}\n        </PaginationLink>\n      </PaginationItem>\n    ))}\n    <PaginationItem>\n      <PaginationNext \n        href=\"{{next_href}}\"\n        onClick={{{onNext}}}\n        disabled={{{!has_next}}}\n      />\n    </PaginationItem>\n  </PaginationContent>\n</Pagination>",
+        "required_props": [
+          {
+            "name": "current_page",
+            "type": "number",
+            "description": "Current page number"
+          },
+          {
+            "name": "total_pages",
+            "type": "number",
+            "description": "Total number of pages"
+          },
+          {
+            "name": "onPageChange",
+            "type": "(page: number) => void",
+            "description": "Page change handler"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "base_href",
+            "type": "string",
+            "description": "Base URL for page links"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onPageChange"],
+        "states": [
+          {
+            "name": "currentPage",
+            "initial_value": 1,
+            "type": "number"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onPageChange",
+            "action": "Navigate to new page",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "navigation",
+          "aria-label": "Pagination navigation"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Navigate between page links"
+          },
+          {
+            "key": "Enter",
+            "action": "Activate page link"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "muted"],
+          "css_var_mapping": {
+            "active-color": "var(--primary)",
+            "inactive-color": "var(--muted)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Compact pagination",
+          "md": "Full pagination",
+          "lg": "Full pagination"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add pagination controls for the data table",
+          "extracted_intent": "pagination-control",
+          "generated_code_sample": "<Pagination><PaginationContent><PaginationPrevious /><PaginationNext /></PaginationContent></Pagination>"
+        }
+      ]
+    },
+    "toast-notification": {
+      "canonical_name": "toast-notification",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "toast notification",
+          "aliases": ["toast", "notification", "popup message", "snackbar"],
+          "context_keywords": ["toast", "notification", "message", "popup", "alert"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Sonner",
+            "import_path": "@/components/ui/sonner",
+            "exports": ["Toaster", "toast"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<>\n  <Toaster />\n  <Button onClick={() => toast({{toast_type}}, {\n    title: \"{{title}}\",\n    description: \"{{description}}\",\n    action: {\n      label: \"{{action_label}}\",\n      onClick: {{action_handler}}\n    }\n  })}>\n    Show Toast\n  </Button>\n</>",
+        "required_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Toast title"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Toast description"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "type",
+            "type": "'default' | 'success' | 'error' | 'warning' | 'info'",
+            "default_value": "default",
+            "description": "Toast type"
+          },
+          {
+            "name": "action_label",
+            "type": "string",
+            "description": "Action button label"
+          },
+          {
+            "name": "action_handler",
+            "type": "() => void",
+            "description": "Action button handler"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onAction", "onDismiss"],
+        "states": [],
+        "behaviors": [
+          {
+            "trigger": "onAction",
+            "action": "Execute action handler",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "alert",
+          "aria-live": "polite"
+        },
+        "keyboard_support": [
+          {
+            "key": "Escape",
+            "action": "Dismiss toast"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Bottom positioned",
+          "md": "Top-right positioned",
+          "lg": "Top-right positioned"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Show a success toast when form is submitted",
+          "extracted_intent": "toast-notification",
+          "generated_code_sample": "toast('success', { title: 'Success', description: 'Form submitted' })"
+        }
+      ]
+    },
+    "progress-bar": {
+      "canonical_name": "progress-bar",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "progress bar",
+          "aliases": ["progress indicator", "loading bar", "progress meter"],
+          "context_keywords": ["progress", "loading", "bar", "indicator", "meter"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Progress",
+            "import_path": "@/components/ui/progress",
+            "exports": ["Progress"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <div className=\"flex justify-between text-sm\">\n    <span>{{label}}</span>\n    <span>{{{value}}}%</span>\n  </div>\n  <Progress value={{{value}}} className=\"w-full\" />\n</div>",
+        "required_props": [
+          {
+            "name": "value",
+            "type": "number",
+            "description": "Progress value (0-100)"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "label",
+            "type": "string",
+            "description": "Progress label"
+          },
+          {
+            "name": "show_percentage",
+            "type": "boolean",
+            "default_value": true,
+            "description": "Show percentage"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [
+          {
+            "name": "value",
+            "initial_value": 0,
+            "type": "number"
+          }
+        ],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "progressbar",
+          "aria-valuenow": "Current progress value",
+          "aria-valuemin": "0",
+          "aria-valuemax": "100"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary"],
+          "css_var_mapping": {
+            "progress-color": "var(--primary)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a progress bar showing upload progress",
+          "extracted_intent": "progress-bar",
+          "generated_code_sample": "<Progress value={75} />"
+        }
+      ]
+    },
+    "skeleton-loader": {
+      "canonical_name": "skeleton-loader",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "skeleton loader",
+          "aliases": ["skeleton", "loading skeleton", "placeholder", "shimmer"],
+          "context_keywords": ["skeleton", "loading", "placeholder", "shimmer", "placeholder"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Skeleton",
+            "import_path": "@/components/ui/skeleton",
+            "exports": ["Skeleton"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<div className=\"space-y-2\">\n  <Skeleton className=\"h-4 w-[250px]\" />\n  <Skeleton className=\"h-4 w-[200px]\" />\n  <Skeleton className=\"h-4 w-[150px]\" />\n</div>",
+        "required_props": [],
+        "optional_props": [
+          {
+            "name": "lines",
+            "type": "number",
+            "default_value": 3,
+            "description": "Number of skeleton lines"
+          },
+          {
+            "name": "width",
+            "type": "string",
+            "description": "Skeleton width"
+          },
+          {
+            "name": "height",
+            "type": "string",
+            "description": "Skeleton height"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "status",
+          "aria-label": "Loading content"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["muted"],
+          "css_var_mapping": {
+            "background": "var(--muted)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Show skeleton loading while content loads",
+          "extracted_intent": "skeleton-loader",
+          "generated_code_sample": "<Skeleton className=\"h-4 w-[250px]\" />"
+        }
+      ]
+    },
+    "error-message": {
+      "canonical_name": "error-message",
+      "category": "feedback",
+      "intent_phrases": [
+        {
+          "phrase": "error message",
+          "aliases": ["error alert", "error notification", "error display"],
+          "context_keywords": ["error", "message", "alert", "notification", "failure"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Alert",
+            "import_path": "@/components/ui/alert",
+            "exports": ["Alert", "AlertTitle", "AlertDescription"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Alert variant=\"destructive\">\n  <AlertCircle className=\"h-4 w-4\" />\n  <AlertTitle>Error</AlertTitle>\n  <AlertDescription>\n    {{message}}\n  </AlertDescription>\n</Alert>",
+        "required_props": [
+          {
+            "name": "message",
+            "type": "string",
+            "description": "Error message"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "default_value": "Error",
+            "description": "Error title"
+          },
+          {
+            "name": "dismissible",
+            "type": "boolean",
+            "default_value": false,
+            "description": "Whether dismissible"
+          }
+        ],
+        "default_variants": {
+          "variant": "destructive"
+        }
+      },
+      "interaction_spec": {
+        "events": ["onDismiss"],
+        "states": [
+          {
+            "name": "visible",
+            "initial_value": true,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onDismiss",
+            "action": "Hide error message",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "alert",
+          "aria-live": "assertive"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["destructive"],
+          "css_var_mapping": {
+            "error-color": "var(--destructive)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Full width",
+          "lg": "Full width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Display an error message when validation fails",
+          "extracted_intent": "error-message",
+          "generated_code_sample": "<Alert variant=\"destructive\"><AlertTitle>Error</AlertTitle><AlertDescription>Validation failed</AlertDescription></Alert>"
+        }
+      ]
+    },
+    "modal-dialog": {
+      "canonical_name": "modal-dialog",
+      "category": "overlay",
+      "intent_phrases": [
+        {
+          "phrase": "modal dialog",
+          "aliases": ["modal", "dialog", "popup", "overlay"],
+          "context_keywords": ["modal", "dialog", "popup", "overlay", "window"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Dialog",
+            "import_path": "@/components/ui/dialog",
+            "exports": ["Dialog", "DialogContent", "DialogDescription", "DialogFooter", "DialogHeader", "DialogTitle", "DialogTrigger"],
+            "peer_components": ["Button"]
+          }
+        ],
+        "template_code": "<Dialog>\n  <DialogTrigger asChild>\n    <Button variant=\"{{trigger_variant}}\">{{trigger_label}}</Button>\n  </DialogTrigger>\n  <DialogContent className=\"sm:max-w-[425px]\">\n    <DialogHeader>\n      <DialogTitle>{{title}}</DialogTitle>\n      <DialogDescription>\n        {{description}}\n      </DialogDescription>\n    </DialogHeader>\n    <div className=\"py-4\">\n      {{content}}\n    </div>\n    <DialogFooter>\n      <Button type=\"button\" variant=\"outline\" onClick={{{onCancel}}}>\n        Cancel\n      </Button>\n      <Button type=\"button\" onClick={{{onConfirm}}}>\n        {{confirm_label}}\n      </Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
+        "required_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Dialog title"
+          },
+          {
+            "name": "content",
+            "type": "React.ReactNode",
+            "description": "Dialog content"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Dialog description"
+          },
+          {
+            "name": "trigger_label",
+            "type": "string",
+            "default_value": "Open",
+            "description": "Trigger button label"
+          },
+          {
+            "name": "confirm_label",
+            "type": "string",
+            "default_value": "Confirm",
+            "description": "Confirm button label"
+          },
+          {
+            "name": "onConfirm",
+            "type": "() => void",
+            "description": "Confirm handler"
+          },
+          {
+            "name": "onCancel",
+            "type": "() => void",
+            "description": "Cancel handler"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onOpenChange", "onConfirm", "onCancel"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onConfirm",
+            "action": "Execute confirm action and close",
+            "requirements": []
+          },
+          {
+            "trigger": "onCancel",
+            "action": "Close dialog",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "dialog",
+          "aria-labelledby": "Dialog title",
+          "aria-describedby": "Dialog description"
+        },
+        "keyboard_support": [
+          {
+            "key": "Escape",
+            "action": "Close dialog"
+          },
+          {
+            "key": "Tab",
+            "action": "Navigate between focusable elements"
+          }
+        ],
+        "focus_management": "Trap focus within dialog, restore on close"
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full screen on mobile",
+          "md": "Centered modal on tablet+",
+          "lg": "Centered modal"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a modal dialog for editing user details",
+          "extracted_intent": "modal-dialog",
+          "generated_code_sample": "<Dialog><DialogTrigger><Button>Edit</Button></DialogTrigger><DialogContent>...</DialogContent></Dialog>"
+        }
+      ]
+    },
+    "dropdown-menu": {
+      "canonical_name": "dropdown-menu",
+      "category": "overlay",
+      "intent_phrases": [
+        {
+          "phrase": "dropdown menu",
+          "aliases": ["dropdown", "menu", "context menu", "action menu"],
+          "context_keywords": ["dropdown", "menu", "context", "action", "options"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "DropdownMenu",
+            "import_path": "@/components/ui/dropdown-menu",
+            "exports": ["DropdownMenu", "DropdownMenuContent", "DropdownMenuItem", "DropdownMenuLabel", "DropdownMenuSeparator", "DropdownMenuTrigger"],
+            "peer_components": ["Button"]
+          }
+        ],
+        "template_code": "<DropdownMenu>\n  <DropdownMenuTrigger asChild>\n    <Button variant=\"outline\">{{trigger_label}}</Button>\n  </DropdownMenuTrigger>\n  <DropdownMenuContent>\n    <DropdownMenuLabel>{{label}}</DropdownMenuLabel>\n    <DropdownMenuSeparator />\n    {{{items}}.map(item => (\n      <DropdownMenuItem key={item.value} onClick={item.onClick}>\n        {item.icon && <item.icon className=\"mr-2 h-4 w-4\" />}\n        {item.label}\n      </DropdownMenuItem>\n    ))}\n  </DropdownMenuContent>\n</DropdownMenu>",
+        "required_props": [
+          {
+            "name": "items",
+            "type": "Array<{ value: string; label: string; onClick: () => void; icon?: React.ComponentType }>",
+            "description": "Menu items"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "trigger_label",
+            "type": "string",
+            "default_value": "Options",
+            "description": "Trigger button label"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "description": "Menu label"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onSelect", "onOpenChange"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onSelect",
+            "action": "Execute item action",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "menu",
+          "aria-label": "Dropdown menu"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Open menu"
+          },
+          {
+            "key": "ArrowDown",
+            "action": "Navigate menu items"
+          },
+          {
+            "key": "Escape",
+            "action": "Close menu"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Auto width",
+          "lg": "Auto width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a dropdown menu with edit and delete options",
+          "extracted_intent": "dropdown-menu",
+          "generated_code_sample": "<DropdownMenu><DropdownMenuTrigger><Button>Options</Button></DropdownMenuTrigger><DropdownMenuContent>...</DropdownMenuContent></DropdownMenu>"
+        }
+      ]
+    },
+    "tooltip": {
+      "canonical_name": "tooltip",
+      "category": "overlay",
+      "intent_phrases": [
+        {
+          "phrase": "tooltip",
+          "aliases": ["tool tip", "hint", "help text", "popover hint"],
+          "context_keywords": ["tooltip", "hint", "help", "tip", "information"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Tooltip",
+            "import_path": "@/components/ui/tooltip",
+            "exports": ["Tooltip", "TooltipContent", "TooltipProvider", "TooltipTrigger"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<TooltipProvider>\n  <Tooltip>\n    <TooltipTrigger asChild>\n      {{trigger_element}}\n    </TooltipTrigger>\n    <TooltipContent>\n      <p>{{content}}</p>\n    </TooltipContent>\n  </Tooltip>\n</TooltipProvider>",
+        "required_props": [
+          {
+            "name": "content",
+            "type": "string",
+            "description": "Tooltip content"
+          },
+          {
+            "name": "trigger_element",
+            "type": "React.ReactNode",
+            "description": "Element that triggers tooltip"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "side",
+            "type": "'top' | 'right' | 'bottom' | 'left'",
+            "default_value": "top",
+            "description": "Tooltip position"
+          },
+          {
+            "name": "delay_duration",
+            "type": "number",
+            "default_value": 400,
+            "description": "Delay before showing tooltip"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onOpenChange"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "hover",
+            "action": "Show tooltip after delay",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "tooltip"
+        },
+        "keyboard_support": [
+          {
+            "key": "Tab",
+            "action": "Focus trigger element"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Auto position",
+          "md": "Auto position",
+          "lg": "Auto position"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a tooltip explaining what this button does",
+          "extracted_intent": "tooltip",
+          "generated_code_sample": "<Tooltip><TooltipTrigger><Button>?</Button></TooltipTrigger><TooltipContent>Help text</TooltipContent></Tooltip>"
+        }
+      ]
+    },
+    "popover": {
+      "canonical_name": "popover",
+      "category": "overlay",
+      "intent_phrases": [
+        {
+          "phrase": "popover",
+          "aliases": ["pop up", "floating panel", "overlay panel"],
+          "context_keywords": ["popover", "popup", "floating", "panel", "overlay"],
+          "confidence_boost": 0.8
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Popover",
+            "import_path": "@/components/ui/popover",
+            "exports": ["Popover", "PopoverContent", "PopoverTrigger"],
+            "peer_components": ["Button"]
+          }
+        ],
+        "template_code": "<Popover>\n  <PopoverTrigger asChild>\n    <Button variant=\"outline\">{{trigger_label}}</Button>\n  </PopoverTrigger>\n  <PopoverContent className=\"w-80\">\n    <div className=\"space-y-2\">\n      <h4 className=\"font-medium leading-none\">{{title}}</h4>\n      <p className=\"text-sm text-muted-foreground\">\n        {{description}}\n      </p>\n      {{content}}\n    </div>\n  </PopoverContent>\n</Popover>",
+        "required_props": [
+          {
+            "name": "content",
+            "type": "React.ReactNode",
+            "description": "Popover content"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "trigger_label",
+            "type": "string",
+            "default_value": "Open",
+            "description": "Trigger button label"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Popover title"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Popover description"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onOpenChange"],
+        "states": [
+          {
+            "name": "open",
+            "initial_value": false,
+            "type": "boolean"
+          }
+        ],
+        "behaviors": [
+          {
+            "trigger": "onOpenChange",
+            "action": "Toggle popover visibility",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "dialog",
+          "aria-expanded": "true when open"
+        },
+        "keyboard_support": [
+          {
+            "key": "Enter",
+            "action": "Open popover"
+          },
+          {
+            "key": "Escape",
+            "action": "Close popover"
+          }
+        ]
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["background", "foreground"],
+          "css_var_mapping": {
+            "background": "var(--background)",
+            "color": "var(--foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width on mobile",
+          "md": "Auto width",
+          "lg": "Auto width"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a popover with additional information",
+          "extracted_intent": "popover",
+          "generated_code_sample": "<Popover><PopoverTrigger><Button>Info</Button></PopoverTrigger><PopoverContent>Content</PopoverContent></Popover>"
+        }
+      ]
+    },
+    "badge": {
+      "canonical_name": "badge",
+      "category": "data-display",
+      "intent_phrases": [
+        {
+          "phrase": "badge",
+          "aliases": ["label", "tag", "chip", "status indicator"],
+          "context_keywords": ["badge", "label", "tag", "chip", "status", "indicator"],
+          "confidence_boost": 0.8
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Badge",
+            "import_path": "@/components/ui/badge",
+            "exports": ["Badge"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Badge variant=\"{{variant}}\" className=\"{{className}}\">\n  {{content}}\n</Badge>",
+        "required_props": [
+          {
+            "name": "content",
+            "type": "string",
+            "description": "Badge content"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "variant",
+            "type": "'default' | 'secondary' | 'destructive' | 'outline'",
+            "default_value": "default",
+            "description": "Badge variant"
+          },
+          {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        ],
+        "default_variants": {
+          "variant": "default"
+        }
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {},
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["primary", "secondary", "destructive"],
+          "css_var_mapping": {
+            "default-color": "var(--primary)",
+            "secondary-color": "var(--secondary)",
+            "destructive-color": "var(--destructive)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Auto size",
+          "md": "Auto size",
+          "lg": "Auto size"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.7,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a badge showing user status",
+          "extracted_intent": "badge",
+          "generated_code_sample": "<Badge variant=\"default\">Active</Badge>"
+        }
+      ]
+    },
+    "avatar": {
+      "canonical_name": "avatar",
+      "category": "data-display",
+      "intent_phrases": [
+        {
+          "phrase": "avatar",
+          "aliases": ["profile picture", "user image", "profile photo"],
+          "context_keywords": ["avatar", "profile", "picture", "image", "photo", "user"],
+          "confidence_boost": 0.9
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Avatar",
+            "import_path": "@/components/ui/avatar",
+            "exports": ["Avatar", "AvatarFallback", "AvatarImage"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Avatar className=\"{{className}}\">\n  <AvatarImage src=\"{{src}}\" alt=\"{{alt}}\" />\n  <AvatarFallback>{{fallback}}</AvatarFallback>\n</Avatar>",
+        "required_props": [
+          {
+            "name": "fallback",
+            "type": "string",
+            "description": "Fallback text when image fails to load"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "src",
+            "type": "string",
+            "description": "Image source URL"
+          },
+          {
+            "name": "alt",
+            "type": "string",
+            "description": "Image alt text"
+          },
+          {
+            "name": "className",
+            "type": "string",
+            "description": "Additional CSS classes"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": ["onError"],
+        "states": [],
+        "behaviors": [
+          {
+            "trigger": "onError",
+            "action": "Show fallback text",
+            "requirements": []
+          }
+        ]
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "img",
+          "aria-label": "User avatar"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["muted"],
+          "css_var_mapping": {
+            "fallback-bg": "var(--muted)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Small size",
+          "md": "Medium size",
+          "lg": "Large size"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.8,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add an avatar for the user profile",
+          "extracted_intent": "avatar",
+          "generated_code_sample": "<Avatar><AvatarImage src=\"/user.jpg\" /><AvatarFallback>JD</AvatarFallback></Avatar>"
+        }
+      ]
+    },
+    "stat-card": {
+      "canonical_name": "stat-card",
+      "category": "data-display",
+      "intent_phrases": [
+        {
+          "phrase": "stat card",
+          "aliases": ["statistics card", "metric card", "kpi card", "dashboard card"],
+          "context_keywords": ["stat", "statistics", "metric", "kpi", "dashboard", "card"],
+          "confidence_boost": 0.85
+        }
+      ],
+      "component_pattern": {
+        "shadcn_components": [
+          {
+            "name": "Card",
+            "import_path": "@/components/ui/card",
+            "exports": ["Card", "CardContent", "CardHeader", "CardTitle"],
+            "peer_components": []
+          }
+        ],
+        "template_code": "<Card>\n  <CardHeader className=\"flex flex-row items-center justify-between space-y-0 pb-2\">\n    <CardTitle className=\"text-sm font-medium\">{{title}}</CardTitle>\n    {{icon}}\n  </CardHeader>\n  <CardContent>\n    <div className=\"text-2xl font-bold\">{{value}}</div>\n    <p className=\"text-xs text-muted-foreground\">\n      {{description}}\n    </p>\n  </CardContent>\n</Card>",
+        "required_props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "Card title"
+          },
+          {
+            "name": "value",
+            "type": "string | number",
+            "description": "Statistic value"
+          }
+        ],
+        "optional_props": [
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Description text"
+          },
+          {
+            "name": "icon",
+            "type": "React.ReactNode",
+            "description": "Icon element"
+          }
+        ],
+        "default_variants": {}
+      },
+      "interaction_spec": {
+        "events": [],
+        "states": [],
+        "behaviors": []
+      },
+      "accessibility_spec": {
+        "aria_attributes": {
+          "role": "region",
+          "aria-label": "Statistics card"
+        },
+        "keyboard_support": []
+      },
+      "design_tokens": [
+        {
+          "token_category": "color",
+          "required_tokens": ["card", "card-foreground"],
+          "css_var_mapping": {
+            "background": "var(--card)",
+            "color": "var(--card-foreground)"
+          }
+        }
+      ],
+      "responsive_behavior": {
+        "breakpoint_behaviors": {
+          "sm": "Full width",
+          "md": "Grid layout",
+          "lg": "Grid layout"
+        },
+        "mobile_first": true,
+        "touch_targets": {
+          "min_size": "44px"
+        }
+      },
+      "validation_rules": [],
+      "conflict_resolution": [],
+      "confidence_threshold": 0.75,
+      "usage_frequency": 0,
+      "examples": [
+        {
+          "natural_language": "Add a card showing total users count",
+          "extracted_intent": "stat-card",
+          "generated_code_sample": "<Card><CardHeader><CardTitle>Total Users</CardTitle></CardHeader><CardContent><div className=\"text-2xl font-bold\">1,234</div></CardContent></Card>"
+        }
+      ]
     }
   },
   "synonyms": {
@@ -1268,7 +3636,60 @@
     "warning": "alert-message",
     "success": "alert-message",
     "loader": "loading-spinner",
-    "spinner": "loading-spinner"
+    "spinner": "loading-spinner",
+    "dropdown": "select-dropdown",
+    "select": "select-dropdown",
+    "checkboxes": "checkbox-group",
+    "multiple choice": "checkbox-group",
+    "radio buttons": "radio-group",
+    "single choice": "radio-group",
+    "textarea": "textarea-field",
+    "multiline": "textarea-field",
+    "file input": "file-upload",
+    "upload": "file-upload",
+    "date input": "date-picker",
+    "calendar": "date-picker",
+    "time input": "time-picker",
+    "clock": "time-picker",
+    "breadcrumbs": "breadcrumb-nav",
+    "path": "breadcrumb-nav",
+    "tabs": "tabs-navigation",
+    "tabbed": "tabs-navigation",
+    "sidebar": "sidebar-menu",
+    "side menu": "sidebar-menu",
+    "pagination": "pagination-control",
+    "pager": "pagination-control",
+    "toast": "toast-notification",
+    "notification": "toast-notification",
+    "snackbar": "toast-notification",
+    "progress": "progress-bar",
+    "loading bar": "progress-bar",
+    "skeleton": "skeleton-loader",
+    "placeholder": "skeleton-loader",
+    "shimmer": "skeleton-loader",
+    "error alert": "error-message",
+    "failure": "error-message",
+    "modal": "modal-dialog",
+    "dialog": "modal-dialog",
+    "popup": "modal-dialog",
+    "context menu": "dropdown-menu",
+    "action menu": "dropdown-menu",
+    "tool tip": "tooltip",
+    "hint": "tooltip",
+    "help": "tooltip",
+    "pop up": "popover",
+    "floating panel": "popover",
+    "label": "badge",
+    "tag": "badge",
+    "chip": "badge",
+    "status": "badge",
+    "profile picture": "avatar",
+    "user image": "avatar",
+    "photo": "avatar",
+    "statistics": "stat-card",
+    "metric": "stat-card",
+    "kpi": "stat-card",
+    "dashboard": "stat-card"
   },
   "usage_analytics": {
     "total_validations": 0,
