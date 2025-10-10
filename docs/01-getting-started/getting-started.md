@@ -1,5 +1,7 @@
 # Getting Started with MyContext CLI
 
+**AI-Powered Context & Component Library Generation**
+
 ## 🚀 **Installation**
 
 ### **Prerequisites**
@@ -47,24 +49,40 @@ mycontext setup
 export CLAUDE_API_KEY="your-claude-api-key"
 ```
 
-### **3. Generate Your First Component**
+### **3. Generate Your First Component Library**
 
 ```bash
-# Generate all components from context
-mycontext generate components
+# Generate context files
+mycontext generate:context
 
-# Or generate specific component
-mycontext generate components Button
+# Generate InstantDB schema
+mycontext generate:schema
+
+# Generate types from schema
+mycontext generate:types --from-schema
+
+# Generate core 10 components
+mycontext generate:components --core-only
+
+# Preview and validate components
+mycontext preview:components
+
+# Generate all remaining components
+mycontext generate:components --all
 ```
 
 ### **4. Start Building**
 
 ```bash
-# Build complete application
-mycontext build-app
+# Export validated components to your app
+mycontext export:components --validated-only
 
-# Or enhance existing components
-mycontext enhance Button --prompt "Add loading state"
+# Or manually copy from .mycontext/components/ to components/
+cp -r .mycontext/components/mobile/* components/
+cp -r .mycontext/components/desktop/* components/
+
+# Start your Next.js app
+npm run dev
 ```
 
 ## 🏗️ **Project Structure**
@@ -74,16 +92,20 @@ After initialization, your project will have this structure:
 ```
 my-awesome-app/
 ├── .mycontext/           # MyContext configuration
-│   ├── prd.md           # Product Requirements Document
-│   ├── types.ts         # TypeScript type definitions
-│   ├── brand.md         # Brand guidelines and design system
-│   ├── components.json  # Component specifications
-│   └── .env            # Environment variables
-├── components/          # Generated components
-│   ├── ui/             # shadcn/ui components
-│   ├── forms/          # Form components
-│   └── layout/         # Layout components
+│   ├── context/         # Context files
+│   │   ├── 01-prd.md    # Product Requirements Document
+│   │   ├── 02-brand.md  # Brand guidelines
+│   │   └── 03-tech-stack.json
+│   ├── schema.ts        # InstantDB schema
+│   ├── types.ts         # Generated from schema
+│   ├── 04-component-list.json # Project components
+│   └── components/      # Generated component library
+│       ├── mobile/      # Mobile variants
+│       └── desktop/     # Desktop variants
 ├── app/                # Next.js app directory
+│   └── mycontext-preview/ # Component preview
+├── components/          # Your app components
+│   └── ui/             # shadcn/ui (foundation)
 ├── lib/                # Utility functions
 ├── public/             # Static assets
 └── package.json        # Dependencies
@@ -109,6 +131,17 @@ mycontext status
 # Get API key from: https://platform.openai.com/
 export OPENAI_API_KEY="sk-..."
 
+# Verify connection
+mycontext status
+```
+
+#### **OpenRouter (Free Tier - DeepSeek-R1)**
+
+```bash
+# Get free API key from: https://openrouter.ai/keys
+export MYCONTEXT_OPENROUTER_API_KEY="sk-or-..."
+
+# Uses DeepSeek-R1 for advanced reasoning and better code generation
 # Verify connection
 mycontext status
 ```
@@ -151,58 +184,38 @@ mycontext setup --with-shadcn
 pnpm dlx shadcn@latest init
 ```
 
-## 🎯 **Core Workflows**
+## 🎯 **Core Workflow**
 
-### **1. Component Generation Workflow**
+### **Component-First Development**
 
-```bash
-# 1. Analyze existing project
-mycontext analyze
-
-# 2. Generate context files
-mycontext generate context
-
-# 3. Generate components
-mycontext generate components
-
-# 4. Validate and test
-mycontext validate
-
-# 5. Build and deploy
-mycontext build-app
-```
-
-### **2. Enhancement Workflow**
+MyContext follows a Component-First approach - generate context, schema, types, then build your component library step by step:
 
 ```bash
-# 1. Enhance existing component
-mycontext enhance Button --prompt "Add dark mode support"
+# 1. Generate context files from your PRD
+mycontext generate:context
 
-# 2. Generate UI specification
-mycontext refine spec Button --desc "Dark mode toggle button"
+# 2. Generate InstantDB schema from requirements
+mycontext generate:schema
 
-# 3. Validate changes
-mycontext validate Button
+# 3. Generate TypeScript types from schema
+mycontext generate:types --from-schema
 
-# 4. Update documentation
-mycontext docs Button
+# 4. Generate core 10 components (Button, Input, Card, etc.)
+mycontext generate:components --core-only
+
+# 5. Preview and validate components
+mycontext preview:components
+
+# 6. Generate all remaining components
+mycontext generate:components --all
 ```
 
-### **3. Project Migration Workflow**
+This workflow ensures:
 
-```bash
-# 1. Analyze existing project
-mycontext analyze existing-project
-
-# 2. Migrate to MyContext
-mycontext migrate --all
-
-# 3. Generate missing components
-mycontext generate components --all
-
-# 4. Validate migration
-mycontext validate --all
-```
+- **Type Safety**: Types generated from schema, not assumptions
+- **Quality Control**: Preview and validate before using components
+- **Mobile + Desktop**: Separate variants for easy debugging
+- **Incremental Development**: Start with core components, expand as needed
 
 ## 🛠️ **Essential Commands**
 
@@ -225,30 +238,30 @@ mycontext update
 ### **Component Generation**
 
 ```bash
+# Generate core 10 components
+mycontext generate:components --core-only
+
 # Generate all components
-mycontext generate components
+mycontext generate:components --all
 
 # Generate specific component
-mycontext generate components <component-name>
+mycontext generate:components <component-name>
 
 # Generate with tests
-mycontext generate components --with-tests
-
-# Generate complete architecture
-mycontext generate components --complete-architecture
+mycontext generate:components --with-tests
 ```
 
-### **Enhancement & Refinement**
+### **Preview & Validation**
 
 ```bash
-# Enhance component
-mycontext enhance <component> --prompt "<description>"
+# Preview components in browser
+mycontext preview:components
 
-# Refine component
-mycontext refine <component> --prompt "<description>"
+# Refine specific component
+mycontext refine:component <component-name>
 
-# Generate UI specification
-mycontext refine spec <component> --desc "<description>"
+# Review context and approve features
+mycontext review:context
 ```
 
 ### **Database & Backend**
@@ -268,16 +281,16 @@ mycontext setup-mcp
 
 ```bash
 # Preview components
-mycontext preview
+mycontext preview:components
 
 # List components
-mycontext list
+mycontext list:components
 
 # Validate project
-mycontext validate
+mycontext validate:project
 
-# Sanitize code
-mycontext sanitize
+# Check project status
+mycontext status
 ```
 
 ## 🎯 **Best Practices**

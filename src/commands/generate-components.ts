@@ -9,10 +9,13 @@ import prompts from "prompts";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { execSync } from "child_process";
+import { ReviewContextCommand } from "./review-context";
+import { TriggerLogger } from "../services/TriggerLogger";
 
 interface GenerateComponentsOptions extends CommandOptions {
   group?: string;
   all?: boolean;
+  coreOnly?: boolean; // Generate only first 10 components for validation
   output?: string;
   template?: string;
   local?: boolean; // Enable local generation without API authentication
@@ -26,6 +29,8 @@ interface GenerateComponentsOptions extends CommandOptions {
   routes?: boolean; // Generate Next.js routes only
   selfDocumenting?: boolean; // Add comprehensive documentation
   architectureType?: "nextjs-app-router" | "nextjs-pages" | "react-spa"; // Architecture type
+  temperature?: number;
+  maxTokens?: number;
 }
 
 // --- Orchestration in GenerateComponentsCommand ---
@@ -35,6 +40,7 @@ export class GenerateComponentsCommand {
   private hostedApi = new HostedApiClient();
   private architectureEngine = new CompleteArchitectureEngine();
   private contextLoader = new UnifiedDesignContextLoader();
+  private triggerLogger = new TriggerLogger();
   private contextArtifacts: {
     prd: string;
     types: string;
@@ -429,9 +435,15 @@ export class GenerateComponentsCommand {
       // Determine if we're generating a specific group or all components
       const isAll =
         target === "all" || options.all || (options as any)["--all"];
-      const groupName = isAll ? undefined : target;
+      const isCoreOnly =
+        target === "core" ||
+        options.coreOnly ||
+        (options as any)["--core-only"];
+      const groupName = isAll || isCoreOnly ? undefined : target;
 
-      if (isAll) {
+      if (isCoreOnly) {
+        await this.generateCoreComponents(options, spinner, userInfo.userId);
+      } else if (isAll) {
         await this.generateAllComponents(options, spinner, userInfo.userId);
       } else if (groupName) {
         await this.generateComponentGroup(
@@ -442,7 +454,7 @@ export class GenerateComponentsCommand {
         );
       } else {
         throw new Error(
-          "Please specify a group name or 'all' to generate components"
+          "Please specify a group name, 'all', or use --core-only to generate components"
         );
       }
 
@@ -762,6 +774,470 @@ export class GenerateComponentsCommand {
             : "xdg-open";
         execSync(`${opener} ${url}`, { stdio: "ignore" });
       } catch {}
+    }
+  }
+
+  private async generateCoreComponents(
+    options: GenerateComponentsOptions,
+    spinner: EnhancedSpinner,
+    userId: string
+  ): Promise<void> {
+    spinner.updateText("Generating core 10 components for validation...");
+
+    // Check if critical gaps are addressed
+    const criticalGapsAddressed =
+      await ReviewContextCommand.areCriticalGapsAddressed();
+    if (!criticalGapsAddressed) {
+      console.log(
+        chalk.red(
+          "❌ Critical gaps must be addressed before generating components"
+        )
+      );
+      console.log(
+        chalk.blue("💡 Run 'mycontext review:context' to address critical gaps")
+      );
+      return;
+    }
+
+    // Read component list
+    let componentListPath = ".mycontext/04-component-list.json";
+    if (!(await this.fs.exists(componentListPath))) {
+      componentListPath = ".mycontext/component-list.json";
+    }
+    if (!(await this.fs.exists(componentListPath))) {
+      componentListPath = "context/component-list.json";
+    }
+    if (!(await this.fs.exists(componentListPath))) {
+      throw new Error(
+        "Component list not found. Run 'mycontext generate components-list' first."
+      );
+    }
+
+    const componentList = JSON.parse(await this.fs.readFile(componentListPath));
+    const groups = this.convertHierarchicalToFlat(componentList);
+
+    if (groups.length === 0) {
+      throw new Error("No component groups found in component-list.json");
+    }
+
+    // Select first 10 components across all groups
+    const coreComponents: any[] = [];
+    let componentCount = 0;
+    const maxCoreComponents = 10;
+
+    for (const group of groups) {
+      if (componentCount >= maxCoreComponents) break;
+
+      const components = group.components || [];
+      for (const component of components) {
+        if (componentCount >= maxCoreComponents) break;
+
+        coreComponents.push({
+          ...component,
+          groupName: group.name,
+          group: group,
+        });
+        componentCount++;
+      }
+    }
+
+    if (coreComponents.length === 0) {
+      throw new Error("No components found in component-list.json");
+    }
+
+    console.log(
+      chalk.blue(
+        `🎯 Generating ${coreComponents.length} core components for validation`
+      )
+    );
+
+    // Ensure shadcn/ui components are available
+    await this.ensureShadcnComponentsInstalled(groups, spinner);
+
+    // Ensure form dependencies exist
+    await this.ensureFormDeps(spinner);
+
+    // Ensure test scaffold exists (optional)
+    if (options.withTests) {
+      await this.ensureTestsScaffold(spinner);
+    }
+
+    // Create core components directory structure
+    const componentsDir =
+      options.output || path.join(".mycontext", "components");
+    const mobileDir = path.join(componentsDir, "mobile");
+    const desktopDir = path.join(componentsDir, "desktop");
+
+    await this.fs.ensureDir(mobileDir);
+    await this.fs.ensureDir(desktopDir);
+
+    let generatedCount = 0;
+
+    // Generate mobile and desktop variants for each core component
+    for (const component of coreComponents) {
+      spinner.updateText(
+        `Generating ${component.name} (${generatedCount + 1}/${
+          coreComponents.length
+        })...`
+      );
+
+      // Check if component feature is approved
+      const featureId = component.name.toLowerCase().replace(/\s+/g, "-");
+      const approval = await ReviewContextCommand.getFeatureApproval(featureId);
+
+      if (approval === false) {
+        console.log(
+          chalk.yellow(`   ⏭️  Skipping ${component.name} (rejected in review)`)
+        );
+        continue;
+      }
+
+      if (approval === null) {
+        console.log(
+          chalk.yellow(
+            `   ⚠️  ${component.name} not reviewed yet - generating anyway`
+          )
+        );
+      }
+
+      // Generate mobile variant
+      await this.generateComponentVariant(
+        component,
+        "mobile",
+        mobileDir,
+        options,
+        userId
+      );
+
+      // Generate desktop variant
+      await this.generateComponentVariant(
+        component,
+        "desktop",
+        desktopDir,
+        options,
+        userId
+      );
+
+      // Generate tests if requested
+      if (options.withTests) {
+        await this.generateComponentTest(component, mobileDir);
+        await this.generateComponentTest(component, desktopDir);
+      }
+
+      generatedCount++;
+    }
+
+    // Generate index files for both variants
+    await this.generateCoreIndexFiles(coreComponents, mobileDir, desktopDir);
+
+    // Update preview registry
+    if (options.updatePreview !== false) {
+      await this.updatePreviewRegistry(componentsDir);
+      await this.ensurePreviewRoute();
+    }
+
+    // Post-generation checks
+    if (options.check) {
+      await this.runPostGenerationChecks(componentsDir);
+    }
+
+    // Open preview if requested
+    if (options.openPreview !== false) {
+      await this.openPreview();
+    }
+
+    console.log(
+      chalk.green(
+        `✅ Generated ${generatedCount} core components with mobile and desktop variants`
+      )
+    );
+    console.log(
+      chalk.blue(
+        `📁 Components saved to: ${componentsDir}/mobile/ and ${componentsDir}/desktop/`
+      )
+    );
+    console.log(
+      chalk.yellow(
+        `🔍 Next: Run 'mycontext preview:components' to validate the core components`
+      )
+    );
+
+    // Log trigger event
+    await this.triggerLogger.logTrigger(
+      "component-refinement",
+      `Generated ${generatedCount} core components for validation`,
+      coreComponents.map((c) => c.name),
+      "Core component generation completed"
+    );
+  }
+
+  private async generateComponentVariant(
+    component: any,
+    variant: "mobile" | "desktop",
+    outputDir: string,
+    options: GenerateComponentsOptions,
+    userId: string
+  ): Promise<void> {
+    try {
+      // Check if user has local AI keys configured
+      const hasLocalKeys = this.hasLocalAIKeys();
+
+      let codeResult: { code: string; metadata: any } | undefined;
+
+      if (hasLocalKeys) {
+        // Use local AI first (user's own keys) - sub-agent orchestration
+        const { orchestrator } = await import(
+          "../agents/orchestrator/SubAgentOrchestrator"
+        );
+
+        // Execute code generation with retry logic
+        let retryCount = 0;
+        const maxRetries = 3;
+        const baseDelay = 2000; // 2 seconds base delay
+
+        while (retryCount <= maxRetries) {
+          try {
+            console.log(
+              `🔍 DEBUG: About to call orchestrator.executeAgent for CodeGenSubAgent (attempt ${
+                retryCount + 1
+              }/${maxRetries + 1})`
+            );
+
+            // Use stack configuration timeout if available
+            const timeout = this.stackConfig?.timeouts?.generation || 60000;
+
+            // Get enriched context for better AI generation
+            const { enrichedContext } =
+              await this.contextLoader.loadUnifiedDesignContext();
+            const formattedContext = this.contextLoader
+              .getContextEnricher()
+              .formatContextForModel(enrichedContext);
+
+            const result = await orchestrator.executeAgent("CodeGenSubAgent", {
+              componentName: component.name,
+              componentDescription: component.description,
+              componentType: component.type,
+              variant: variant,
+              groupName: component.groupName,
+              dependencies: component.dependencies || [],
+              enrichedContext: formattedContext,
+              userId: userId,
+              timeout: timeout,
+              temperature: options.temperature || 0.7,
+              maxTokens: options.maxTokens || 4000,
+            });
+
+            if (result && (result as any).code) {
+              codeResult = result as { code: string; metadata: any };
+              break; // Success, exit retry loop
+            } else {
+              throw new Error("No code generated");
+            }
+          } catch (error) {
+            console.log(
+              chalk.yellow(
+                `⚠️  Generation attempt ${retryCount + 1} failed: ${
+                  error instanceof Error ? error.message : "Unknown error"
+                }`
+              )
+            );
+
+            retryCount++;
+            if (retryCount <= maxRetries) {
+              const delay = baseDelay * Math.pow(2, retryCount - 1); // Exponential backoff
+              console.log(
+                chalk.gray(`   Retrying in ${delay / 1000} seconds...`)
+              );
+              await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+          }
+        }
+
+        if (!codeResult) {
+          throw new Error("All generation attempts failed");
+        }
+      } else {
+        // No local keys - try hosted API only
+        console.log(
+          chalk.blue("🔧 Using hosted API for component generation...")
+        );
+
+        try {
+          const hostedResult = await this.hostedApi.generateComponent(
+            component.description,
+            {
+              componentName: component.name,
+              model: "mycontext",
+              context: {
+                prd: this.contextArtifacts.prd,
+                types: this.contextArtifacts.types,
+                brand: this.contextArtifacts.brand,
+                componentList: this.contextArtifacts.compList,
+              },
+              variant: variant,
+            }
+          );
+
+          if (hostedResult.success && hostedResult.data) {
+            codeResult = {
+              code: hostedResult.data,
+              metadata: {
+                model: "hosted",
+                tokens: hostedResult.data.length / 4,
+                latency: 600,
+              },
+            };
+          } else {
+            throw new Error("Hosted API generation failed");
+          }
+        } catch (error) {
+          console.log(chalk.red("❌ Hosted API failed"));
+          console.log(
+            chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
+          );
+          console.log(chalk.blue("🔄 Retry options:"));
+          console.log(chalk.gray("  1. Configure a local AI provider API key"));
+          console.log(chalk.gray("  2. Check your API key configuration"));
+          console.log(
+            chalk.gray(
+              "  3. Try again later with: mycontext generate components"
+            )
+          );
+          throw new Error(
+            "Hosted API unavailable - configure local AI provider"
+          );
+        }
+      }
+
+      // Write component file
+      const fileName = `${component.name}.tsx`;
+      const filePath = path.join(outputDir, fileName);
+
+      // Add variant-specific styling and imports
+      const variantCode = this.addVariantSpecificCode(codeResult.code, variant);
+
+      await this.fs.writeFile(filePath, variantCode);
+
+      console.log(
+        chalk.green(`   ✅ Generated ${variant} variant: ${fileName}`)
+      );
+    } catch (error) {
+      console.log(
+        chalk.red(
+          `   ❌ Failed to generate ${variant} variant for ${component.name}: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        )
+      );
+      throw error;
+    }
+  }
+
+  private addVariantSpecificCode(
+    code: string,
+    variant: "mobile" | "desktop"
+  ): string {
+    // Add variant-specific styling and responsive behavior
+    const variantImports =
+      variant === "mobile"
+        ? `import { cn } from "@/lib/utils";\n`
+        : `import { cn } from "@/lib/utils";\n`;
+
+    const variantStyles =
+      variant === "mobile"
+        ? `className={cn("min-h-[44px] min-w-[44px] p-2 text-sm", className)}`
+        : `className={cn("min-h-[32px] min-w-[32px] p-4 text-base", className)}`;
+
+    // Replace className patterns with variant-specific ones
+    let modifiedCode = code.replace(
+      /className=\{cn\([^}]+\)\}/g,
+      variantStyles
+    );
+
+    // Add variant-specific imports if not present
+    if (!modifiedCode.includes("import { cn }")) {
+      modifiedCode = variantImports + modifiedCode;
+    }
+
+    return modifiedCode;
+  }
+
+  private async generateCoreIndexFiles(
+    coreComponents: any[],
+    mobileDir: string,
+    desktopDir: string
+  ): Promise<void> {
+    // Generate mobile index
+    const mobileIndexContent = coreComponents
+      .map((comp) => `export { ${comp.name} } from './${comp.name}';`)
+      .join("\n");
+
+    await this.fs.writeFile(
+      path.join(mobileDir, "index.ts"),
+      mobileIndexContent
+    );
+
+    // Generate desktop index
+    const desktopIndexContent = coreComponents
+      .map((comp) => `export { ${comp.name} } from './${comp.name}';`)
+      .join("\n");
+
+    await this.fs.writeFile(
+      path.join(desktopDir, "index.ts"),
+      desktopIndexContent
+    );
+
+    console.log(
+      chalk.green("   ✅ Generated index files for mobile and desktop variants")
+    );
+  }
+
+  private async openPreview(): Promise<void> {
+    try {
+      // Try to open in browser
+      const url = "http://localhost:3000/mycontext-preview";
+
+      // Check if Next.js dev server is running
+      try {
+        execSync("curl -s http://localhost:3000 > /dev/null", {
+          stdio: "pipe",
+        });
+        console.log(chalk.green(`✅ Opening preview at ${url}`));
+
+        // Open in browser
+        execSync(`open ${url}`, { stdio: "pipe" });
+      } catch {
+        console.log(chalk.yellow("⚠️  Next.js dev server not running"));
+        console.log(chalk.blue("💡 Start your Next.js app with: npm run dev"));
+        console.log(chalk.blue(`   Then visit: ${url}`));
+      }
+    } catch (error) {
+      console.log(chalk.yellow("⚠️  Could not open browser automatically"));
+      console.log(
+        chalk.blue("💡 Manually visit: http://localhost:3000/mycontext-preview")
+      );
+    }
+  }
+
+  private async runPostGenerationChecks(componentsDir: string): Promise<void> {
+    console.log(chalk.blue("🔍 Running post-generation checks..."));
+
+    try {
+      // TypeScript check
+      console.log(chalk.gray("   Running TypeScript check..."));
+      execSync("npx tsc --noEmit", { stdio: "pipe" });
+      console.log(chalk.green("   ✅ TypeScript check passed"));
+
+      // Lint check
+      console.log(chalk.gray("   Running ESLint..."));
+      execSync("npx eslint .mycontext/components --ext .ts,.tsx", {
+        stdio: "pipe",
+      });
+      console.log(chalk.green("   ✅ ESLint check passed"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Some checks failed, but components were generated")
+      );
     }
   }
 

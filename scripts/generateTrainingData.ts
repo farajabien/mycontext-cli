@@ -11,8 +11,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = process.cwd();
 
 interface TrainingExample {
   messages: Array<{
@@ -168,7 +167,7 @@ class TrainingDataGenerator {
   ): string {
     // Extract component template and expand it
     const template = mapping.component_pattern.template_code;
-    const expandedCode = this.expandTemplate(template, mapping);
+    const expandedCode = this.expandTemplate(template, mapping, canonicalName);
 
     // Add intent mapping explanation
     const explanation = this.generateIntentExplanation(
@@ -180,7 +179,11 @@ class TrainingDataGenerator {
     return `${expandedCode}\n\n**Intent Mapping Applied:**\n${explanation}`;
   }
 
-  private expandTemplate(template: string, mapping: IntentMapping): string {
+  private expandTemplate(
+    template: string,
+    mapping: IntentMapping,
+    canonicalName: string
+  ): string {
     // Replace placeholders with actual values
     let expanded = template;
 
@@ -204,9 +207,7 @@ class TrainingDataGenerator {
     expanded = expanded.replace("{{PROPS}}", props);
 
     // Replace component name
-    const componentName = this.generateComponentName(
-      mapping.component_pattern.pattern_name
-    );
+    const componentName = this.generateComponentName(canonicalName);
     expanded = expanded.replace("{{COMPONENT_NAME}}", componentName);
 
     return expanded;
@@ -214,6 +215,8 @@ class TrainingDataGenerator {
 
   private generateComponentName(patternName: string): string {
     // Convert pattern name to PascalCase component name
+    if (!patternName) return "Component";
+
     return patternName
       .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -755,7 +758,7 @@ export function ThemedComponent({ children }: ThemedComponentProps) {
 }
 
 // CLI Usage
-async function main() {
+async function generateTrainingData() {
   const args = process.argv.slice(2);
   const dictionaryPath =
     args[0] || path.join(__dirname, "..", "config", "intent-dictionary.json");
@@ -770,8 +773,7 @@ async function main() {
   await generator.generateAllTrainingData();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(console.error);
-}
+// Run if called directly
+generateTrainingData().catch(console.error);
 
 export { TrainingDataGenerator };

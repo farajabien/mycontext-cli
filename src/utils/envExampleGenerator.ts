@@ -30,6 +30,11 @@ export class EnvExampleGenerator {
     envVars.add("XAI_API_KEY=");
     envVars.add("");
 
+    // Add OpenRouter
+    envVars.add("# OpenRouter (Fallback 3 - Free Tier for Testing)");
+    envVars.add("MYCONTEXT_OPENROUTER_API_KEY=");
+    envVars.add("");
+
     // Generation settings
     envVars.add("# Optional: Generation Settings");
     envVars.add("MYCONTEXT_TEMPERATURE=0.1");
@@ -57,17 +62,19 @@ MYCONTEXT_API_KEY=mctx-xxx
 
 ### Option 2: Bring Your Own Keys (Free)
 \`\`\`bash
-ANTHROPIC_API_KEY=sk-ant-xxx   # Claude (primary)
-XAI_API_KEY=xai-xxx             # Grok (fallback)
+ANTHROPIC_API_KEY=sk-ant-xxx      # Claude (primary)
+XAI_API_KEY=xai-xxx                # Grok (fallback 1)
+MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx  # OpenRouter free tier (fallback 2)
 \`\`\`
 
 ## Provider Chain
-MyContext AI → Claude SDK → XAI (automatic fallback)
+MyContext AI → Claude SDK → XAI → OpenRouter (automatic fallback)
 
 ## Get API Keys
 
 - **Claude**: https://console.anthropic.com/
 - **XAI**: https://console.x.ai/
+- **OpenRouter**: https://openrouter.ai/keys (free tier available)
 - **MyContext AI**: Coming soon at api.mycontext.dev
 
 ## Environment Variables

@@ -127,6 +127,13 @@ export XAI_API_KEY="your-xai-key"
 export XAI_MODEL="grok-beta"
 ```
 
+#### **OpenRouter (Free Tier)**
+
+```bash
+export MYCONTEXT_OPENROUTER_API_KEY="sk-or-..."
+export OPENROUTER_MODEL="deepseek-ai/DeepSeek-R1"  # Advanced reasoning for better code generation
+```
+
 ## 🏗️ **Project Configuration**
 
 ### **Framework Selection**
@@ -729,8 +736,3 @@ mycontext agent-flow configure
 - **[Examples](examples.md)** - See configuration in action
 - **[Troubleshooting](troubleshooting.md)** - Resolve configuration issues
 - **[Advanced Usage](advanced.md)** - Master advanced configuration techniques
-
-
-
-
-

@@ -1,5 +1,6 @@
 import { ClaudeAgentClient } from "./claudeAgentClient";
 import { HostedApiClient } from "./hostedApiClient";
+import { OpenRouterClient } from "./openRouterClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
 import * as fs from "fs";
@@ -119,6 +120,21 @@ export class HybridAIClient {
         client: claudeAgentClient,
         isAvailable: () => claudeAgentClient.checkConnection(),
       });
+    }
+
+    // OpenRouter (free tier - testing only)
+    const openRouterClient = new OpenRouterClient();
+    if (openRouterClient.hasApiKey()) {
+      this.providers.push({
+        name: "openrouter",
+        priority: 3, // Lower than Claude/XAI, higher than hosted
+        client: openRouterClient,
+        isAvailable: () => openRouterClient.checkConnection(),
+      });
+
+      if (!HybridAIClient.hasLoggedInitialization) {
+        console.log(chalk.blue("🆓 Using OpenRouter free tier (DeepSeek-R1)"));
+      }
     }
 
     // Sort providers by priority (lower number = higher priority)
@@ -264,6 +280,9 @@ export class HybridAIClient {
         this.config?.xai?.models?.["text-generator"]?.name ||
         "grok-4-fast-reasoning"
       );
+    }
+    if (provider.name === "openrouter") {
+      return "deepseek-ai/DeepSeek-R1";
     }
     // Default model name
     return "qwen3-coder";
@@ -550,6 +569,9 @@ export class HybridAIClient {
             ...options,
             model: modelName,
           });
+        } else if (provider.name === "openrouter") {
+          const openRouterClient = provider.client as any;
+          return await openRouterClient.generateText(prompt, options);
         } else if (provider.name === "hosted") {
           const hostedClient = provider.client as HostedApiClient;
           const response = await hostedClient.generateText(prompt, options);

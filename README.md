@@ -1,12 +1,12 @@
 # MyContext CLI + MyContext AI
 
-**Open Source AI-Powered Component Generation**
+**AI-Powered Context & Component Library Generation for Your Next.js App**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-Generate production-ready React components from natural language descriptions. Built with 11 specialized AI agents and our proprietary Intent Dictionary System for 95%+ accuracy.
+Generate your context files and component library. That's it. Use it inside Cursor or any IDE. Built on top of shadcn/ui with our Intent Dictionary System for 95%+ accuracy.
 
 ## 🚀 Quick Start
 
@@ -21,22 +21,39 @@ cd my-app
 # Configure your AI provider
 echo 'ANTHROPIC_API_KEY=your-key' > .mycontext/.env
 
-# Generate your first component
-mycontext generate:component "Create a login form with email and password"
+# Generate context files
+mycontext generate:context
+
+# Generate InstantDB schema
+mycontext generate:schema
+
+# Generate types from schema
+mycontext generate:types --from-schema
+
+# Generate core 10 components
+mycontext generate:components --core-only
+
+# Preview and validate components
+mycontext preview:components
+
+# Generate all remaining components
+mycontext generate:components --all
 ```
 
 ## ✨ What You Get
 
-- **Production-Ready Components** - TypeScript + shadcn/ui + Tailwind CSS
+- **Context Files** - PRD, branding, tech stack from your project analysis
+- **InstantDB Schema** - Database schema generated from your requirements
+- **TypeScript Types** - Generated from schema for type safety
+- **Component Library** - Mobile + desktop variants built on shadcn/ui
+- **Preview System** - Validate components before using in your app
 - **Zero Hallucination** - Intent Dictionary maps natural language to exact components
-- **Type Safety** - Complete TypeScript definitions with proper interfaces
-- **Accessibility First** - Built-in ARIA compliance and semantic HTML
-- **Design System** - Automatic shadcn/ui adherence with design tokens
+- **Clarification System** - Detects gaps and tracks auto-generated features for approval
 
 ## 💰 Pricing
 
 - **MyContext CLI** - Free and open source (MIT License)
-- **MyContext AI API** - Coming soon - Fine-tuned model for 95%+ accuracy
+- **MyContext AI API** - Hosted fine-tuned model (beta)
 
 Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free, or upgrade to our hosted API for best-in-class quality.
 
@@ -54,11 +71,57 @@ Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free, or up
 
 ## 🎯 Key Features
 
-- **11 Specialized AI Agents** - Expert AI for design, validation, and generation
+- **Component-First Workflow** - Generate context → schema → types → core 10 → validate → all components
+- **Mobile + Desktop Variants** - Separate files for easy debugging and validation
+- **Schema-Driven Types** - TypeScript types generated from InstantDB schema
+- **Preview & Validation** - Interactive component gallery with quality checks
 - **Intent Dictionary** - 30+ UI patterns with type-safe natural language mapping
-- **Design Pipeline** - 8-phase design analysis for rich, contextual components
-- **Feature Assembly** - Combine components into working features with auth & permissions
-- **Zero-Error Guarantee** - 12+ validation checkpoints ensure production quality
+- **shadcn/ui Foundation** - Built on top of shadcn/ui, respecting its design principles
+- **Clarification System** - Prevents vague requests by detecting gaps and tracking assumptions
+
+## 🔍 How MyContext Ensures Accuracy
+
+### Gap Detection
+
+MyContext analyzes your requirements and detects missing critical information:
+
+```bash
+❌ Critical information missing:
+
+1. What type of game is this?
+   - a) Turn-based (Tic-tac-toe, Chess)
+   - b) Real-time (Racing, Shooting)
+   - c) Puzzle (Matching, Strategy)
+```
+
+### Auto-Generated Feature Tracking
+
+All assumptions are tracked for your approval:
+
+```bash
+📋 Auto-generated Features Review
+
+1. Real-time multiplayer with Socket.io
+   Reasoning: You mentioned "play against each other"
+   Confidence: Medium
+   [Y] Accept  [N] Reject  [E] Edit
+```
+
+### Interactive Approval System
+
+Review and approve features before component generation:
+
+```bash
+mycontext review:context
+```
+
+### Iterative Refinement
+
+Refine components with AI suggestions:
+
+```bash
+mycontext refine:component UserCard --in-place
+```
 
 ## 🤝 Contributing
 

@@ -120,6 +120,7 @@ interface GenerateOptions extends CommandOptions {
   full?: boolean;
   autoContinue?: boolean;
   filesOnly?: boolean;
+  fromSchema?: boolean; // Generate types from InstantDB schema
 }
 
 export class GenerateCommand {
@@ -876,6 +877,11 @@ export class GenerateCommand {
     projectContext: any,
     options: GenerateOptions
   ): Promise<GenerationResult> {
+    // Check if --from-schema flag is used
+    if (options.fromSchema) {
+      return this.generateTypesFromSchema();
+    }
+
     // Load context files for accurate type generation
     const contextContent = await this.loadContextForTypesGeneration();
 
@@ -1033,6 +1039,81 @@ Use the business entities from the context above, not generic types.`;
           error instanceof Error ? error.message : "Unknown error"
         }`,
         provider: "hybrid",
+      };
+    }
+  }
+
+  /**
+   * Generate types from InstantDB schema
+   */
+  private async generateTypesFromSchema(): Promise<GenerationResult> {
+    try {
+      this.spinner.updateText("🔄 Generating types from InstantDB schema...");
+
+      // Check if schema file exists
+      const schemaPath = ".mycontext/schema.ts";
+      if (!(await this.fs.exists(schemaPath))) {
+        throw new Error(
+          `Schema file not found: ${schemaPath}. Run 'mycontext generate:schema' first.`
+        );
+      }
+
+      // Run the schema types generator script
+      const { spawn } = require("child_process");
+      const tsx = require.resolve("tsx");
+
+      return new Promise((resolve, reject) => {
+        const child = spawn(
+          "node",
+          [tsx, "scripts/generateTypesFromSchema.ts"],
+          {
+            stdio: "pipe",
+            cwd: process.cwd(),
+          }
+        );
+
+        let output = "";
+        let error = "";
+
+        child.stdout.on("data", (data: any) => {
+          output += data.toString();
+        });
+
+        child.stderr.on("data", (data: any) => {
+          error += data.toString();
+        });
+
+        child.on("close", async (code: any) => {
+          if (code === 0) {
+            // Read the generated types file
+            const typesPath = ".mycontext/types.ts";
+            if (await this.fs.exists(typesPath)) {
+              const typesContent = await this.fs.readFile(typesPath);
+              resolve({
+                success: true,
+                content: typesContent,
+                provider: "schema-generator" as any,
+                metadata: {
+                  model: "schema-generator",
+                  tokens: typesContent.length / 4,
+                  latency: 200,
+                },
+              });
+            } else {
+              reject(new Error("Types file was not generated"));
+            }
+          } else {
+            reject(new Error(`Schema types generation failed: ${error}`));
+          }
+        });
+      });
+    } catch (error) {
+      return {
+        success: false,
+        error: `Schema types generation failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        provider: "hybrid" as any,
       };
     }
   }
@@ -4563,6 +4644,7 @@ ${
       openai: !!process.env.OPENAI_API_KEY,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
       huggingface: !!process.env.HUGGINGFACE_API_KEY,
+      openrouter: !!process.env.MYCONTEXT_OPENROUTER_API_KEY, // Add this
     };
 
     console.log(`[GenerateCommand] API Keys detected:`, keys);
@@ -4575,7 +4657,8 @@ ${
       process.env.MYCONTEXT_CLAUDE_API_KEY ||
       process.env.OPENAI_API_KEY ||
       process.env.ANTHROPIC_API_KEY ||
-      process.env.HUGGINGFACE_API_KEY
+      process.env.HUGGINGFACE_API_KEY ||
+      process.env.MYCONTEXT_OPENROUTER_API_KEY
     );
   }
 

@@ -18,7 +18,6 @@ import { UpdateCommand } from "./commands/update";
 import { AgentFlowCommand } from "./commands/agent-flow";
 import { runCleanCommand } from "./utils/clean";
 import { predict } from "./commands/predict";
-import { BuildAppCommand } from "./commands/build-app";
 import { AnalyzeCommand } from "./commands/analyze";
 import { PromoteCommand } from "./commands/promote";
 import { MigrateCommand } from "./commands/migrate";
@@ -40,8 +39,6 @@ import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
 import { DesignAnalyzeCommand } from "./commands/design-analyze";
-import { AssembleFeaturesCommand } from "./commands/assemble-features";
-import { CloneStarterCommand } from "./commands/clone-starter";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 
 // Import sub-agent system
@@ -208,6 +205,10 @@ program
     "--auto-continue",
     "Automatically continue to next logical steps after completion"
   )
+  .option(
+    "--from-schema",
+    "Generate types from InstantDB schema (for 'types' type only)"
+  )
   .action(async (type: string, options: any) => {
     try {
       const generateCommand = new GenerateCommand();
@@ -322,12 +323,77 @@ program
     }
   });
 
+// Preview components command
+program
+  .command("preview:components")
+  .description("Open component library preview in browser")
+  .option("--validate", "Run validation checks on all components")
+  .action(async (options: any) => {
+    try {
+      const { PreviewComponentsCommand } = await import(
+        "./commands/preview-components"
+      );
+      const previewCommand = new PreviewComponentsCommand();
+      await previewCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Preview command failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Review context command
+program
+  .command("review:context")
+  .description("Review auto-generated features and address context gaps")
+  .option("--auto-approve", "Automatically approve all features")
+  .option("--skip-gaps", "Skip gap resolution")
+  .action(async (options: any) => {
+    try {
+      const { ReviewContextCommand } = await import(
+        "./commands/review-context"
+      );
+      const reviewCommand = new ReviewContextCommand();
+      await reviewCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Review context failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Refine component command
+program
+  .command("refine:component <componentName>")
+  .description("Refine a specific component with AI suggestions")
+  .option(
+    "--variant <variant>",
+    "Component variant (mobile/desktop/both)",
+    "both"
+  )
+  .option(
+    "--update-context",
+    "Update context files and regenerate all components"
+  )
+  .option("--in-place", "Refine only this component file")
+  .action(async (componentName: string, options: any) => {
+    try {
+      const { RefineComponentCommand } = await import(
+        "./commands/refine-component"
+      );
+      const refineCommand = new RefineComponentCommand();
+      await refineCommand.execute(componentName, options);
+    } catch (error) {
+      console.error(chalk.red("❌ Component refinement failed:"), error);
+      process.exit(1);
+    }
+  });
+
 // Generate components command
 const generateComponentsCmd = program
   .command("generate-components [target]")
   .description("Generate React components using local AI")
   .option("--group <group>", "Component group to generate")
   .option("--all", "Generate all components (alias for target 'all')")
+  .option("--core-only", "Generate only the first 10 components for validation")
   .option("--temperature <number>", "Generation temperature (0.1-1.0)", "0.7")
   .option("--max-tokens <number>", "Maximum tokens for generation", "4000")
   .option("--local", "Use local AI generation (no authentication required)")
@@ -351,10 +417,14 @@ const generateComponentsCmd = program
     try {
       const generateComponentsCommand = new GenerateComponentsCommand();
       // If --all is provided but no target, use 'all' as target
-      const actualTarget = target || (options.all ? "all" : undefined);
+      // If --core-only is provided, use 'core' as target
+      const actualTarget =
+        target || (options.all ? "all" : options.coreOnly ? "core" : undefined);
       if (!actualTarget) {
         console.error(
-          chalk.red("❌ Please specify a target or use --all flag")
+          chalk.red(
+            "❌ Please specify a target, use --all flag, or use --core-only flag"
+          )
         );
         process.exit(1);
       }
@@ -394,59 +464,7 @@ program
   });
 
 // Feature Assembly command
-program
-  .command("assemble-features")
-  .description("🔧 Assemble components into complete working features")
-  .option("--from-components", "Assemble from generated components")
-  .option("--use-starter", "Use admin starter template")
-  .option(
-    "--role <role>",
-    "Generate for specific role (admin/user/guest)",
-    "admin"
-  )
-  .option("--feature <name>", "Generate specific feature")
-  .option("--output <path>", "Output directory for features", "./features")
-  .option("--template <name>", "Use specific feature template")
-  .option("--include-tests", "Include test files")
-  .option("--include-docs", "Include documentation")
-  .option("--verbose", "Verbose output")
-  .action(async (options: any) => {
-    try {
-      const assembleCommand = new AssembleFeaturesCommand();
-      await assembleCommand.execute(options);
-    } catch (error) {
-      console.error(chalk.red("❌ Feature assembly failed:"), error);
-      process.exit(1);
-    }
-  });
-
 // Clone Starter command
-program
-  .command("clone-starter")
-  .description("📦 Clone admin starter repository and set up project")
-  .option(
-    "--url <url>",
-    "GitHub repository URL",
-    "https://github.com/mycontext/admin-starter"
-  )
-  .option(
-    "--output <path>",
-    "Output directory for cloned project",
-    "./admin-starter"
-  )
-  .option("--branch <branch>", "Git branch to clone", "main")
-  .option("--install", "Install dependencies after cloning", true)
-  .option("--setup", "Run setup commands after cloning", true)
-  .option("--verbose", "Verbose output")
-  .action(async (options: any) => {
-    try {
-      const cloneCommand = new CloneStarterCommand();
-      await cloneCommand.execute(options);
-    } catch (error) {
-      console.error(chalk.red("❌ Clone starter failed:"), error);
-      process.exit(1);
-    }
-  });
 
 // Agent Flow command (BETA - Agentic workflow orchestration)
 program
@@ -673,62 +691,6 @@ exportProgressCommand.register(program);
 // PM Integration command (comprehensive PM integration management)
 const pmIntegrationCommand = new PMIntegrationCommand();
 pmIntegrationCommand.register(program);
-
-// Build App command (agent-driven workflow with looping)
-const buildAppCmd = program
-  .command("build-app")
-  .description(
-    "Build a complete app with agent-driven workflow and user interaction"
-  )
-  .option("--description <desc>", "App description/PRD")
-  .option("--output <dir>", "Output directory", "mycontext-app")
-  .option("--framework <type>", "Framework type", "nextjs")
-  .option("--with-tests", "Generate unit tests")
-  .option("--existing", "Work with existing project")
-  .option("--migrate", "Migrate existing project to MyContext structure")
-  .option("--verbose", "Verbose output")
-  .option(
-    "--interactive",
-    "Enable interactive mode with user prompts and confirmations"
-  )
-  .option("--skip-validation", "Skip validation and quality assurance steps")
-  .option(
-    "--max-retries <number>",
-    "Maximum retry attempts for failed steps",
-    "3"
-  )
-  .option("--pm-plan <file>", "Use mycontext PM project plan JSON file")
-  .option("--auto-sync", "Automatically sync progress with mycontext PM")
-  .option("--webhook-url <url>", "Webhook URL for progress updates")
-  .action(async (options) => {
-    try {
-      const command = new BuildAppCommand();
-      await command.execute({
-        description: options.description,
-        output: options.output,
-        framework: options.framework,
-        withTests: Boolean(options.withTests),
-        existing: Boolean(options.existing),
-        migrate: Boolean(options.migrate),
-        verbose: Boolean(options.verbose),
-        interactive: Boolean(options.interactive),
-        skipValidation: Boolean(options.skipValidation),
-        maxRetries: parseInt(options.maxRetries) || 3,
-        pmPlan: options.pmPlan,
-        autoSync: Boolean(options.autoSync),
-        webhookUrl: options.webhookUrl,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Build app failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Add validation hook to build-app command
-PreCommandValidator.addValidationHook(buildAppCmd, {
-  autoFix: true,
-  strict: true,
-});
 
 // Analyze command for existing projects
 program
@@ -987,7 +949,6 @@ program
       )
     );
     console.log(chalk.gray("  mycontext compile-prd"));
-    console.log(chalk.gray("  mycontext build-app --interactive"));
     console.log(chalk.gray("  mycontext validate prd"));
     console.log(chalk.gray("  mycontext generate components-list"));
     console.log(
@@ -1001,11 +962,6 @@ program
     console.log(
       chalk.gray(
         "  analyze                 - Analyze existing project and generate context"
-      )
-    );
-    console.log(
-      chalk.gray(
-        "  build-app               - Build complete app from PRD (v0-like)"
       )
     );
     console.log(
@@ -1122,26 +1078,6 @@ program
     console.log(chalk.yellow("Examples:"));
     console.log(
       chalk.gray(
-        '  mycontext build-app --description "A modern todo app with dark mode" --output "todo-app"'
-      )
-    );
-    console.log(
-      chalk.gray(
-        '  mycontext build-app --description "Enhance my existing app" --existing --migrate'
-      )
-    );
-    console.log(
-      chalk.gray(
-        '  mycontext build-app --description "Interactive app building" --interactive --max-retries 5'
-      )
-    );
-    console.log(
-      chalk.gray(
-        '  mycontext build-app --description "Fast build without validation" --skip-validation'
-      )
-    );
-    console.log(
-      chalk.gray(
         '  mycontext init todo-app --description "A simple todo application"'
       )
     );
@@ -1216,7 +1152,6 @@ program.action(() => {
     )
   );
   console.log(chalk.gray("  mycontext compile-prd"));
-  console.log(chalk.gray("  mycontext build-app --interactive\n"));
   console.log(chalk.gray('Run "mycontext help" for detailed information.\n'));
 });
 

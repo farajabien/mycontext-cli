@@ -7,12 +7,14 @@ The heart of MyContext CLI - our AI agents, Intent Dictionary, and specialized m
 - [AI Agents System](ai-agents.md) - How the 11 agents work together
 - [Intent Dictionary](intent-dictionary-system.md) - Natural language mapping
 - [Design Pipeline](design-pipeline.md) - 8-phase design analysis
-- [Feature Assembly](feature-assembly.md) - Building complex UIs
+- [Component Library Workflow](component-library-workflow.md) - Building component libraries
+- [Clarification Workflow](clarification-workflow.md) - Gap detection and approval system
 - [MyContext AI Model](mycontext-ai-model.md) - Fine-tuned model details
 
 ## Key Features
 
 ### 🤖 **11 Specialized AI Agents**
+
 - **DesignPipelineAgent**: Orchestrates 8-phase design analysis
 - **PromptConstructorAgent**: Builds context-aware generation prompts
 - **CodeGenSubAgent**: Generates production-ready React components
@@ -26,18 +28,29 @@ The heart of MyContext CLI - our AI agents, Intent Dictionary, and specialized m
 - **ErrorHandler**: Comprehensive error handling and recovery
 
 ### 🎯 **Intent Dictionary System**
+
 - **30+ UI Patterns**: Comprehensive coverage of shadcn/ui components
 - **Fuzzy Matching**: Intelligent phrase recognition with Fuse.js
 - **Context Awareness**: Domain-specific variations
 - **Validation Rules**: Built-in accessibility and design system compliance
 
+### 🔍 **Clarification System**
+
+- **Gap Detection**: Identifies missing critical information in requirements
+- **Auto-Generated Feature Tracking**: Tracks all assumptions for user approval
+- **Interactive Approval**: Review and approve features before generation
+- **Trigger Logging**: Transparent tracking of what causes regeneration
+- **Iterative Refinement**: Refine components with AI suggestions
+
 ### 🧠 **MyContext AI Model**
-- **95%+ Accuracy**: Fine-tuned GPT-4o Mini for component generation
-- **50% Cost Reduction**: Cheaper than GPT-4 while maintaining quality
-- **2s Generation Time**: Fast response for real-time development
-- **Zero Hallucination**: Perfect shadcn/ui component matching
+
+- **Fine-tuned for Component Generation**: Optimized specifically for UI component patterns
+- **Intent Dictionary-driven**: Uses our pattern library for accurate component matching
+- **shadcn/ui Optimized**: Trained on shadcn/ui patterns and best practices
+- **Fast Generation**: Optimized for real-time development workflows
 
 ### 🔄 **Design Pipeline**
+
 - **8 Phases**: Comprehensive design analysis and component generation
 - **Context Loading**: Unified design system foundation
 - **Intent Validation**: Natural language to component mapping
@@ -47,11 +60,13 @@ The heart of MyContext CLI - our AI agents, Intent Dictionary, and specialized m
 
 1. **Input**: Natural language description of UI requirements
 2. **Analysis**: DesignPipelineAgent analyzes requirements and context
-3. **Validation**: IntentValidator maps natural language to component patterns
-4. **Enrichment**: IntentEnricher transforms intents into specifications
-5. **Generation**: CodeGenSubAgent generates production-ready components
-6. **Validation**: IntentCodeValidator ensures quality and compliance
-7. **Output**: Complete React component with TypeScript and accessibility
+3. **Gap Detection**: ContextValidator identifies missing critical information
+4. **Feature Tracking**: Auto-generated assumptions tracked for approval
+5. **Validation**: IntentValidator maps natural language to component patterns
+6. **Enrichment**: IntentEnricher transforms intents into specifications
+7. **Generation**: CodeGenSubAgent generates production-ready components
+8. **Validation**: IntentCodeValidator ensures quality and compliance
+9. **Output**: Complete React component with TypeScript and accessibility
 
 ## Benefits
 
