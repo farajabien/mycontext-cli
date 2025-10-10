@@ -42,6 +42,16 @@ The heart of MyContext CLI - our AI agents, Intent Dictionary, and specialized m
 - **Trigger Logging**: Transparent tracking of what causes regeneration
 - **Iterative Refinement**: Refine components with AI suggestions
 
+### 🔄 **Component Refinement & Regression (New in v2.0.29)**
+
+- **AI-Powered Refinement**: Intelligent component improvement suggestions
+- **Automatic Regression Testing**: TypeScript, ESLint, and Unit Test validation
+- **Mutation Provenance**: Complete history of all component changes
+- **Baseline Comparison**: Detect regressions against previous versions
+- **Confidence Scoring**: AI provides confidence levels for refinements
+- **Interactive Approval**: Review changes with test results before applying
+- **Risk Flag Detection**: Identifies potential issues in refinements
+
 ### 🧠 **MyContext AI Model**
 
 - **Fine-tuned for Component Generation**: Optimized specifically for UI component patterns

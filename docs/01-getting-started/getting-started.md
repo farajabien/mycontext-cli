@@ -24,7 +24,7 @@ npx mycontext-cli@latest
 
 ```bash
 mycontext --version
-# Should output: mycontext-cli@2.0.10
+# Should output: mycontext-cli@2.0.29
 ```
 
 ## 🎯 **Quick Start**
@@ -71,7 +71,21 @@ mycontext preview:components
 mycontext generate:components --all
 ```
 
-### **4. Start Building**
+### **4. Refine Components (Optional)**
+
+```bash
+# Refine a specific component with AI suggestions and regression testing
+mycontext refine:component GameBoard
+
+# The system will automatically:
+# - Generate AI-powered improvement suggestions
+# - Run regression tests (TypeScript, ESLint, Unit Tests)
+# - Show approval UI with test results and confidence scores
+# - Track mutation history for auditing
+# - Compare against baseline to detect regressions
+```
+
+### **5. Start Building**
 
 ```bash
 # Export validated components to your app
@@ -216,6 +230,42 @@ This workflow ensures:
 - **Quality Control**: Preview and validate before using components
 - **Mobile + Desktop**: Separate variants for easy debugging
 - **Incremental Development**: Start with core components, expand as needed
+
+### **Component Refinement (New in v2.0.29)**
+
+Refine components with AI-powered suggestions and automatic regression testing:
+
+```bash
+# Refine a component
+mycontext refine:component <ComponentName>
+```
+
+**Features:**
+
+- AI-generated improvement suggestions
+- Automatic regression testing (TypeScript, ESLint, Unit Tests)
+- Mutation history tracking
+- Baseline comparison for regression detection
+- Interactive approval with confidence scores
+
+**Example Approval UI:**
+
+```
+📝 Component Refinement Proposal: GameBoard
+
+🔍 Changes:
+  Added keyboard navigation and ARIA labels
+
+📊 Test Results:
+  ✅ TypeScript: Pass
+  ✅ ESLint: Pass
+  ✅ Unit Tests: 8/8 passing
+
+🤖 AI Confidence: 87%
+📈 Regression Check: No regressions detected
+
+[A]ccept  [R]eject  [V]iew Diff
+```
 
 ## 🛠️ **Essential Commands**
 

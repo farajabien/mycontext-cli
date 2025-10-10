@@ -262,9 +262,91 @@ export class ReviewContextCommand {
       JSON.stringify(approvalsData, null, 2)
     );
 
+    // Update PRD with gap answers
+    await this.updatePRDWithAnswers(contextDir, gaps);
+
     console.log(
       chalk.green("   💾 Approvals saved to .mycontext/approvals.json")
     );
+  }
+
+  /**
+   * Update PRD with gap answers
+   */
+  private async updatePRDWithAnswers(
+    contextDir: string,
+    gaps: ContextGap[]
+  ): Promise<void> {
+    const prdPath = path.join(contextDir, "01-prd.md");
+
+    if (!(await this.fs.exists(prdPath))) {
+      return; // No PRD to update
+    }
+
+    let prdContent = await this.fs.readFile(prdPath);
+    let hasUpdates = false;
+
+    for (const gap of gaps) {
+      if (gap.userAnswer) {
+        // Add answer to appropriate section based on gap ID
+        if (gap.id === "game-type") {
+          prdContent = this.updatePRDSection(
+            prdContent,
+            "## Game Mechanics",
+            `- **Game Type**: ${gap.userAnswer}\n`
+          );
+          hasUpdates = true;
+        } else if (gap.id === "game-rules") {
+          prdContent = this.updatePRDSection(
+            prdContent,
+            "## Game Mechanics",
+            `- **Core Rules**: ${gap.userAnswer}\n`
+          );
+          hasUpdates = true;
+        } else if (gap.id === "auth-method") {
+          prdContent = this.updatePRDSection(
+            prdContent,
+            "## Technical Requirements",
+            `- **Authentication**: ${gap.userAnswer}\n`
+          );
+          hasUpdates = true;
+        }
+      }
+    }
+
+    if (hasUpdates) {
+      await this.fs.writeFile(prdPath, prdContent);
+      console.log(chalk.green("   📝 PRD updated with gap answers"));
+    }
+  }
+
+  /**
+   * Update a section in PRD content
+   */
+  private updatePRDSection(
+    content: string,
+    sectionHeader: string,
+    newContent: string
+  ): string {
+    const lines = content.split("\n");
+    const sectionIndex = lines.findIndex(
+      (line) => line.trim() === sectionHeader
+    );
+
+    if (sectionIndex === -1) {
+      // Section doesn't exist, add it at the end
+      return content + `\n\n${sectionHeader}\n${newContent}`;
+    }
+
+    // Find the end of the section (next ## or end of file)
+    let endIndex = sectionIndex + 1;
+    while (endIndex < lines.length && !lines[endIndex]?.startsWith("##")) {
+      endIndex++;
+    }
+
+    // Insert the new content before the end of the section
+    lines.splice(endIndex, 0, newContent);
+    return lines.join("\n");
   }
 
   /**

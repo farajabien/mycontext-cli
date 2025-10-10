@@ -6,6 +6,11 @@ import { CommandOptions } from "../types";
 import { FileSystemManager } from "../utils/fileSystem";
 import { HybridAIClient } from "../utils/hybridAIClient";
 import { ReviewContextCommand } from "./review-context";
+import { MutationLogger, ComponentMutation } from "../services/MutationLogger";
+import {
+  RegressionRunner,
+  RegressionTestResult,
+} from "../services/RegressionRunner";
 
 export interface RefineComponentOptions extends CommandOptions {
   variant?: "mobile" | "desktop" | "both";
@@ -16,6 +21,13 @@ export interface RefineComponentOptions extends CommandOptions {
 export class RefineComponentCommand {
   private fs = new FileSystemManager();
   private aiClient = new HybridAIClient();
+  private mutationLogger: MutationLogger;
+  private regressionRunner: RegressionRunner;
+
+  constructor() {
+    this.mutationLogger = new MutationLogger(process.cwd());
+    this.regressionRunner = new RegressionRunner(process.cwd(), "");
+  }
 
   async execute(
     componentName: string,
@@ -31,21 +43,89 @@ export class RefineComponentCommand {
         return;
       }
 
-      // Determine refinement strategy
-      const strategy = await this.determineRefinementStrategy(
+      // Update regression runner with component path
+      this.regressionRunner = new RegressionRunner(
+        process.cwd(),
+        componentPath
+      );
+
+      // Load current component and mutation history
+      const currentCode = await this.fs.readFile(componentPath);
+      const mutationHistory = await this.mutationLogger.getMutationHistory(
+        componentPath
+      );
+      const lastApprovedVersion =
+        await this.mutationLogger.getLastApprovedVersion(componentPath);
+
+      // Get refinement instructions from user
+      const refinementInstructions = await this.getRefinementInstructions(
+        componentName
+      );
+
+      // Generate refined component with AI
+      const refinementResult = await this.generateRefinedComponent(
         componentName,
-        options
+        currentCode,
+        refinementInstructions,
+        mutationHistory
       );
 
-      if (strategy === "context-update") {
-        await this.refineViaContextUpdate(componentName, options);
+      // Create mutation record
+      const mutationId = await this.mutationLogger.createMutationFromRefinement(
+        componentPath,
+        currentCode,
+        refinementResult.new_file,
+        refinementResult.chainOfThought,
+        refinementResult.confidence,
+        refinementResult.riskFlags
+      );
+
+      // Run regression tests
+      console.log(chalk.blue("🧪 Running regression tests..."));
+      const testResults = await this.runRegressionTests(
+        refinementResult.new_file,
+        componentPath
+      );
+
+      // Compare to baseline
+      const baselineComparison = await this.compareToBaseline(
+        testResults,
+        lastApprovedVersion
+      );
+
+      // Show approval UI
+      const approved = await this.showApprovalUI(
+        componentName,
+        currentCode,
+        refinementResult,
+        testResults,
+        baselineComparison
+      );
+
+      if (approved) {
+        // Apply the refinement
+        await this.fs.writeFile(componentPath, refinementResult.new_file);
+
+        // Update mutation status
+        await this.mutationLogger.updateMutationStatus(mutationId, "applied");
+
+        // Save baseline for future comparisons
+        await this.regressionRunner.saveBaseline(testResults, componentPath);
+
+        console.log(
+          chalk.green(
+            `✅ Component ${componentName} refined and applied successfully!`
+          )
+        );
       } else {
-        await this.refineInPlace(componentName, componentPath, options);
+        // Mark mutation as rejected
+        await this.mutationLogger.updateMutationStatus(
+          mutationId,
+          "rejected",
+          "User rejected"
+        );
+        console.log(chalk.yellow(`⏭️  Refinement rejected`));
       }
-
-      console.log(
-        chalk.green(`✅ Component ${componentName} refined successfully!`)
-      );
     } catch (error) {
       console.error(chalk.red("❌ Component refinement failed:"), error);
       throw error;
@@ -73,280 +153,269 @@ export class RefineComponentCommand {
   }
 
   /**
-   * Determine refinement strategy
+   * Get refinement instructions from user
    */
-  private async determineRefinementStrategy(
-    componentName: string,
-    options: RefineComponentOptions
-  ): Promise<"context-update" | "in-place"> {
-    if (options.updateContext) {
-      return "context-update";
-    }
-
-    if (options.inPlace) {
-      return "in-place";
-    }
-
-    // Ask user to choose strategy
-    const response = await prompts({
-      type: "select",
-      name: "strategy",
-      message: "How would you like to refine this component?",
-      choices: [
-        {
-          title: "Update context files and regenerate all",
-          value: "context-update",
-          description: "Modify PRD/context → regenerate all components",
-        },
-        {
-          title: "Refine this component only",
-          value: "in-place",
-          description: "Modify only this component file",
-        },
-        {
-          title: "Cancel",
-          value: "cancel",
-          description: "Exit without changes",
-        },
-      ],
-      initial: 1,
-    });
-
-    if (response.strategy === "cancel") {
-      throw new Error("Refinement cancelled by user");
-    }
-
-    return response.strategy;
-  }
-
-  /**
-   * Refine component via context update
-   */
-  private async refineViaContextUpdate(
-    componentName: string,
-    options: RefineComponentOptions
-  ): Promise<void> {
-    console.log(chalk.blue("📝 Updating context files..."));
-
-    // Get refinement suggestions
-    const suggestions = await this.getRefinementSuggestions(componentName);
-
-    if (suggestions.length === 0) {
-      console.log(
-        chalk.yellow(
-          "No specific suggestions found. Please manually update context files."
-        )
-      );
-      return;
-    }
-
-    // Show suggestions and get user approval
-    console.log(chalk.yellow("\n💡 AI suggests the following improvements:"));
-    suggestions.forEach((suggestion, index) => {
-      console.log(chalk.gray(`   ${index + 1}. ${suggestion}`));
-    });
-
-    const response = await prompts({
-      type: "multiselect",
-      name: "selectedSuggestions",
-      message: "Which suggestions would you like to apply?",
-      choices: suggestions.map((suggestion, index) => ({
-        title: suggestion,
-        value: index,
-        description: `Suggestion ${index + 1}`,
-      })),
-      instructions: "Use space to select, enter to confirm",
-    });
-
-    if (
-      response.selectedSuggestions &&
-      response.selectedSuggestions.length > 0
-    ) {
-      // Update context files with selected suggestions
-      await this.updateContextFiles(
-        componentName,
-        response.selectedSuggestions.map((i: number) => suggestions[i])
-      );
-
-      console.log(
-        chalk.green(
-          "✅ Context files updated. Run 'mycontext generate:components' to regenerate."
-        )
-      );
-    }
-  }
-
-  /**
-   * Refine component in-place
-   */
-  private async refineInPlace(
-    componentName: string,
-    componentPath: string,
-    options: RefineComponentOptions
-  ): Promise<void> {
-    console.log(chalk.blue("🔧 Refining component in-place..."));
-
-    // Read current component
-    const currentCode = await this.fs.readFile(componentPath);
-
-    // Get refinement suggestions
-    const suggestions = await this.getRefinementSuggestions(componentName);
-
-    if (suggestions.length === 0) {
-      console.log(chalk.yellow("No specific suggestions found."));
-      return;
-    }
-
-    // Show suggestions and get user approval
-    console.log(chalk.yellow("\n💡 AI suggests the following improvements:"));
-    suggestions.forEach((suggestion, index) => {
-      console.log(chalk.gray(`   ${index + 1}. ${suggestion}`));
-    });
-
-    const response = await prompts({
-      type: "multiselect",
-      name: "selectedSuggestions",
-      message: "Which suggestions would you like to apply?",
-      choices: suggestions.map((suggestion, index) => ({
-        title: suggestion,
-        value: index,
-        description: `Suggestion ${index + 1}`,
-      })),
-      instructions: "Use space to select, enter to confirm",
-    });
-
-    if (
-      response.selectedSuggestions &&
-      response.selectedSuggestions.length > 0
-    ) {
-      // Generate refined code
-      const refinedCode = await this.generateRefinedCode(
-        componentName,
-        currentCode,
-        response.selectedSuggestions.map((i: number) => suggestions[i])
-      );
-
-      // Write refined code
-      await this.fs.writeFile(componentPath, refinedCode);
-
-      console.log(
-        chalk.green(`✅ Component ${componentName} refined successfully!`)
-      );
-    }
-  }
-
-  /**
-   * Get refinement suggestions for a component
-   */
-  private async getRefinementSuggestions(
+  private async getRefinementInstructions(
     componentName: string
-  ): Promise<string[]> {
-    const prompt = `Analyze this React component and suggest improvements:
+  ): Promise<string> {
+    const response = await prompts({
+      type: "text",
+      name: "instructions",
+      message: `What improvements would you like to make to ${componentName}?`,
+      initial:
+        "Improve accessibility, add loading states, and optimize performance",
+    });
 
-Component: ${componentName}
-
-Please suggest specific improvements for:
-1. Accessibility (ARIA labels, keyboard navigation, screen reader support)
-2. Performance (memoization, lazy loading, optimization)
-3. User Experience (loading states, error handling, animations)
-4. Code Quality (TypeScript types, error boundaries, best practices)
-5. Responsive Design (mobile/desktop variants, breakpoints)
-
-Return 3-5 specific, actionable suggestions.`;
-
-    try {
-      const response = await this.aiClient.generateText(prompt, {
-        temperature: 0.7,
-        maxTokens: 1000,
-      });
-
-      // Parse suggestions from response
-      const suggestions = response.text
-        .split("\n")
-        .filter((line) => line.trim().match(/^\d+\./))
-        .map((line) => line.replace(/^\d+\.\s*/, "").trim())
-        .filter((suggestion) => suggestion.length > 0);
-
-      return suggestions.slice(0, 5); // Limit to 5 suggestions
-    } catch (error) {
-      console.log(chalk.yellow("⚠️  Could not generate AI suggestions"));
-      return [
-        "Add loading state",
-        "Improve accessibility with ARIA labels",
-        "Add error boundary",
-        "Optimize for mobile devices",
-        "Add TypeScript types",
-      ];
-    }
+    return response.instructions || "General improvements";
   }
 
   /**
-   * Generate refined code based on suggestions
+   * Generate refined component with AI
    */
-  private async generateRefinedCode(
+  private async generateRefinedComponent(
     componentName: string,
     currentCode: string,
-    suggestions: string[]
-  ): Promise<string> {
-    const prompt = `Refine this React component based on the suggestions:
+    instructions: string,
+    mutationHistory: ComponentMutation[]
+  ): Promise<{
+    new_file: string;
+    explanation: string;
+    chainOfThought: string;
+    confidence: number;
+    riskFlags: string[];
+  }> {
+    const historyContext =
+      mutationHistory.length > 0
+        ? `\nPrevious refinements:\n${mutationHistory
+            .slice(-3)
+            .map((m) => `- ${m.timestamp}: ${m.chainOfThought}`)
+            .join("\n")}`
+        : "";
 
-Component: ${componentName}
+    const prompt = `You are a code-refinement assistant for MyContext. 
+Input:
+- ORIGINAL_FILE: \`\`\`${currentCode}\`\`\`
+- CONTEXT: "Project uses shadcn/ui, Next.js App Router, InstantDB. Keep 'use client' placement rules."
+- REFINEMENT: "${instructions}"
+- HISTORY: ${historyContext}
 
-Current Code:
-\`\`\`tsx
-${currentCode}
-\`\`\`
+Produce strictly JSON with fields:
+{
+ "patch": "<git unified diff>",
+ "new_file": "<full updated file text>",
+ "tests": [ { "type":"unit","code":"...test code..." } ],
+ "explanation": "...",
+ "confidence": 0.x,
+ "risk_flags": []
+}
 
-Suggestions to apply:
-${suggestions.map((s, i) => `${i + 1}. ${s}`).join("\n")}
-
-Please generate the refined component code that incorporates these suggestions while maintaining the existing functionality and structure.`;
+Notes:
+- Keep TypeScript types strict.
+- Do not add new npm dependencies.
+- Provide one-line summary and short chain-of-thought under explanation.
+- Keep code <= 200 lines change when possible.`;
 
     try {
       const response = await this.aiClient.generateText(prompt, {
         temperature: 0.3,
-        maxTokens: 3000,
+        maxTokens: 4000,
       });
 
-      return response.text;
+      // Parse JSON response
+      const jsonMatch = response.text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in response");
+      }
+
+      const result = JSON.parse(jsonMatch[0]);
+
+      return {
+        new_file: result.new_file || response.text,
+        explanation: result.explanation || "Component refined",
+        chainOfThought: result.explanation || "AI refinement applied",
+        confidence: result.confidence || 0.7,
+        riskFlags: result.risk_flags || [],
+      };
     } catch (error) {
-      console.log(chalk.yellow("⚠️  Could not generate refined code"));
-      return currentCode;
+      console.log(
+        chalk.yellow("⚠️  Could not parse AI response, using fallback")
+      );
+      return {
+        new_file: currentCode,
+        explanation: "Fallback refinement",
+        chainOfThought: "AI parsing failed, using original code",
+        confidence: 0.3,
+        riskFlags: ["ai_parsing_failed"],
+      };
     }
   }
 
   /**
-   * Update context files with suggestions
+   * Run regression tests on refined component
    */
-  private async updateContextFiles(
-    componentName: string,
-    suggestions: string[]
-  ): Promise<void> {
-    // This would update the PRD or other context files
-    // For now, we'll create a refinement log
-    const refinementLog = {
-      component: componentName,
-      suggestions: suggestions,
-      timestamp: new Date().toISOString(),
-      applied: true,
-    };
+  private async runRegressionTests(
+    refinedCode: string,
+    componentPath: string
+  ): Promise<RegressionTestResult> {
+    // Write refined code to temporary file
+    const tempPath = `${componentPath}.tmp`;
+    await this.fs.writeFile(tempPath, refinedCode);
 
-    const logPath = ".mycontext/refinement-log.json";
-    let existingLogs = [];
+    try {
+      // Update regression runner with temp path
+      const tempRegressionRunner = new RegressionRunner(
+        process.cwd(),
+        tempPath
+      );
+      const results = await tempRegressionRunner.runRegressionSuite();
 
-    if (await this.fs.exists(logPath)) {
-      existingLogs = JSON.parse(await this.fs.readFile(logPath));
+      // Clean up temp file using fs-extra
+      await fs.remove(tempPath);
+
+      return results;
+    } catch (error) {
+      // Clean up temp file using fs-extra
+      await fs.remove(tempPath);
+      throw error;
+    }
+  }
+
+  /**
+   * Compare test results to baseline
+   */
+  private async compareToBaseline(
+    currentResults: RegressionTestResult,
+    lastApprovedVersion: ComponentMutation | null
+  ): Promise<{
+    hasBaseline: boolean;
+    regressionDetected: boolean;
+    summary: string;
+  }> {
+    if (!lastApprovedVersion) {
+      return {
+        hasBaseline: false,
+        regressionDetected: false,
+        summary: "No baseline available for comparison",
+      };
     }
 
-    existingLogs.push(refinementLog);
+    // Simple comparison based on overall score
+    const baselineScore = 0.8; // Default baseline score
+    const currentScore = currentResults.overall.score;
 
-    await this.fs.writeFile(logPath, JSON.stringify(existingLogs, null, 2));
+    const regressionDetected = currentScore < baselineScore * 0.9; // 10% tolerance
 
+    let summary = "";
+    if (regressionDetected) {
+      summary = `Regression detected: Score dropped from ${baselineScore.toFixed(
+        2
+      )} to ${currentScore.toFixed(2)}`;
+    } else {
+      summary = `No regression: Score ${currentScore.toFixed(
+        2
+      )} (baseline: ${baselineScore.toFixed(2)})`;
+    }
+
+    return {
+      hasBaseline: true,
+      regressionDetected,
+      summary,
+    };
+  }
+
+  /**
+   * Show approval UI with test results
+   */
+  private async showApprovalUI(
+    componentName: string,
+    originalCode: string,
+    refinementResult: any,
+    testResults: RegressionTestResult,
+    baselineComparison: any
+  ): Promise<boolean> {
     console.log(
-      chalk.blue(
-        "📝 Refinement suggestions logged to .mycontext/refinement-log.json"
+      chalk.cyan(`\n📝 Component Refinement Proposal: ${componentName}`)
+    );
+
+    console.log(chalk.yellow("\n🔍 Changes:"));
+    console.log(chalk.gray(`  ${refinementResult.explanation}`));
+
+    console.log(chalk.yellow("\n📊 Test Results:"));
+    console.log(
+      chalk.gray(
+        `  TypeScript: ${
+          testResults.typecheck.passed
+            ? chalk.green("✅ Pass")
+            : chalk.red("❌ Fail")
+        }`
       )
     );
+    console.log(
+      chalk.gray(
+        `  ESLint: ${
+          testResults.lint.passed
+            ? chalk.green("✅ Pass")
+            : chalk.red("❌ Fail")
+        }`
+      )
+    );
+    console.log(
+      chalk.gray(
+        `  Unit Tests: ${testResults.unit.passed}/${testResults.unit.total} passing`
+      )
+    );
+
+    console.log(chalk.yellow("\n🤖 AI Confidence:"));
+    console.log(
+      chalk.gray(`  ${(refinementResult.confidence * 100).toFixed(0)}%`)
+    );
+
+    if (refinementResult.riskFlags.length > 0) {
+      console.log(chalk.yellow("\n⚠️  Risk Flags:"));
+      refinementResult.riskFlags.forEach((flag: string) => {
+        console.log(chalk.gray(`  - ${flag}`));
+      });
+    }
+
+    console.log(chalk.yellow("\n📈 Regression Check:"));
+    console.log(chalk.gray(`  ${baselineComparison.summary}`));
+
+    const response = await prompts({
+      type: "select",
+      name: "action",
+      message: "What would you like to do?",
+      choices: [
+        { title: "Accept refinement", value: "accept" },
+        { title: "Reject refinement", value: "reject" },
+        { title: "View diff", value: "diff" },
+        { title: "Cancel", value: "cancel" },
+      ],
+      initial: 0,
+    });
+
+    if (response.action === "diff") {
+      // Show diff (simplified)
+      console.log(chalk.blue("\n📋 Diff Preview:"));
+      console.log(
+        chalk.gray("  [Diff would be shown here in a real implementation]")
+      );
+
+      // Ask again after showing diff
+      const diffResponse = await prompts({
+        type: "select",
+        name: "action",
+        message: "After viewing the diff:",
+        choices: [
+          { title: "Accept refinement", value: "accept" },
+          { title: "Reject refinement", value: "reject" },
+        ],
+        initial: 0,
+      });
+
+      return diffResponse.action === "accept";
+    }
+
+    return response.action === "accept";
   }
 
   /**

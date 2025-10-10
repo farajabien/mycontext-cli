@@ -1,6 +1,6 @@
 {
   "name": "mycontext-cli",
-  "version": "2.0.28",
+  "version": "2.0.29",
   "description": "Component-first visual builder with zero-error guarantees. Generate and validate React/Next.js components one at a time, preview them visually, then scale to complete applications using Claude Agent SDK.",
   "main": "dist/cli.js",
   "bin": {
@@ -54,6 +54,7 @@
     "axios": "^1.6.0",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
+    "diff": "^8.0.2",
     "dotenv": "^17.2.3",
     "dotenv-expand": "^12.0.3",
     "figlet": "^1.9.3",

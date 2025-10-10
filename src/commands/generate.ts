@@ -3058,6 +3058,14 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       case "context": {
         outputPath = path.join(outputDir, "01-prd.md");
         const preserve = Boolean((options as any).preservePrd);
+
+        // Don't overwrite PRD if content is just a success message
+        if (content === "Context files generated successfully") {
+          // This means context generation had gaps and didn't actually generate content
+          // Don't overwrite the existing PRD
+          return outputPath;
+        }
+
         if (preserve && (await fs.pathExists(outputPath))) {
           // Preserve existing PRD; write a copy next to it for reference
           const timestamp = new Date().toISOString().replace(/[:.]/g, "-");

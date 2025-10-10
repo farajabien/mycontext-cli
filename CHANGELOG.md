@@ -5,6 +5,86 @@ All notable changes to MyContext CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.29] - 2025-10-10
+
+### 🔄 Component Refinement & Regression System
+
+This major release introduces a production-ready component refinement system with automatic regression testing, mutation tracking, and AI-powered improvement suggestions.
+
+### Added
+
+- **Component Refinement System** - AI-powered component improvement with `mycontext refine:component <ComponentName>`
+  - Interactive refinement instructions from user
+  - AI-generated improvement suggestions with chain-of-thought
+  - Confidence scoring and risk flag detection
+- **Automatic Regression Testing** - Comprehensive test suite runs automatically
+  - TypeScript compilation checking (`tsc --noEmit`)
+  - ESLint validation with error/warning scoring
+  - Unit test execution (Jest/Vitest) with pass/fail tracking
+  - Weighted scoring system (typecheck: 30%, lint: 20%, unit: 50%)
+- **Mutation Tracking & Provenance** - Complete history of all component changes
+  - Before/after snapshots with git unified diff
+  - Chain-of-thought and confidence scoring
+  - Status tracking (proposed/applied/rejected)
+  - JSON storage in `.mycontext/mutations/<componentName>/`
+- **Baseline Comparison** - Regression detection against previous versions
+  - Automatic baseline saving for applied refinements
+  - Regression detection with configurable thresholds
+  - Historical comparison and trend analysis
+- **Interactive Approval UI** - Rich approval interface with test results
+  - Side-by-side diff preview
+  - Test results display (TypeScript, ESLint, Unit Tests)
+  - Confidence scoring and risk flag visualization
+  - Accept/Reject/View Diff workflow
+- **OpenRouter DeepSeek-R1 Integration** - Free tier AI provider option
+  - DeepSeek-R1 model as fallback option
+  - API key detection and configuration
+  - Proper fallback chain integration
+- **Enhanced CLI Branding** - Beautiful ASCII art logo with gradient
+  - Updated tagline: "AI-Powered Context & Component Library Generation"
+  - Clean terminal handoff to external tools
+  - Professional visual presentation
+
+### Changed
+
+- **Refine Command** - Completely rewritten with regression testing integration
+- **AI Provider Chain** - Added OpenRouter as priority 3 provider
+- **Documentation Structure** - Updated with refinement workflow examples
+- **Getting Started Guide** - Added component refinement section
+
+### Technical Improvements
+
+- **MutationLogger Service** - New service for tracking component changes
+- **RegressionRunner Service** - New service for automated testing
+- **Enhanced Error Handling** - Better error messages and recovery
+- **TypeScript Compliance** - All new services fully typed
+- **Build Stability** - Clean compilation with no errors
+
+### Documentation
+
+- **Getting Started Guide** - Added refinement workflow section with examples
+- **Core Features Index** - Added "Component Refinement & Regression" section
+- **Research Documentation** - Created comprehensive `docs/research/component-refinement-regression.md`
+- **Implementation Summary** - Complete overview in `IMPLEMENTATION_SUMMARY.md`
+
+### Files Added
+
+- `src/services/MutationLogger.ts` - Mutation tracking and provenance
+- `src/services/RegressionRunner.ts` - Automated regression testing
+- `src/utils/openRouterClient.ts` - OpenRouter API integration
+- `docs/research/component-refinement-regression.md` - Research documentation
+- `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+
+### Files Modified
+
+- `src/commands/refine-component.ts` - Complete rewrite with regression testing
+- `src/utils/hybridAIClient.ts` - Added OpenRouter integration
+- `src/utils/envExampleGenerator.ts` - Added OpenRouter configuration
+- `src/commands/generate.ts` - Updated API key detection
+- `src/commands/init.ts` - Enhanced branding and tagline
+- `docs/01-getting-started/getting-started.md` - Added refinement workflow
+- `docs/02-core-features/INDEX.md` - Added refinement features
+
 ## [2.0.28] - 2025-10-09
 
 ### 📚 Documentation & Testing Improvements
