@@ -133,9 +133,32 @@ export class InitCommand {
 
       spinner.start();
 
-      // Setup framework-specific project only when explicitly selected
+      // Setup framework-specific project with correct order
       if (finalFramework === "instantdb") {
-        spinner.stop(); // Stop spinner before interactive InstantDB setup
+        // 1. Setup Next.js first (if needed)
+        const projectPath = useCurrentDir
+          ? workingDir
+          : path.join(workingDir, finalProjectName);
+        const packageJsonPath = path.join(projectPath, "package.json");
+
+        if (!(await fs.pathExists(packageJsonPath))) {
+          spinner.updateText("Setting up Next.js project...");
+          await this.setupNextJSProject(
+            finalProjectName,
+            workingDir,
+            useCurrentDir
+          );
+        }
+
+        // 2. Setup shadcn/ui FIRST (before InstantDB)
+        const shouldInitShadcn = options.skipShadcn !== true;
+        if (shouldInitShadcn) {
+          spinner.updateText("Initializing shadcn/ui...");
+          await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
+        }
+
+        // 3. Setup InstantDB (MyContext branded flow)
+        spinner.stop(); // Stop spinner for InstantDB setup output
         await this.setupInstantDBProject(
           finalProjectName,
           workingDir,
@@ -143,12 +166,33 @@ export class InitCommand {
         );
         spinner.start(); // Restart spinner for remaining setup
       } else if (finalFramework === "nextjs") {
+        // Next.js only setup
         spinner.updateText("Setting up Next.js project...");
         await this.setupNextJSProject(
           finalProjectName,
           workingDir,
           useCurrentDir
         );
+
+        // Setup shadcn/ui for Next.js projects
+        const shouldInitShadcn = options.skipShadcn !== true;
+        if (shouldInitShadcn) {
+          const projectPath = useCurrentDir
+            ? workingDir
+            : path.join(workingDir, finalProjectName);
+          const packageJsonPath = path.join(projectPath, "package.json");
+          if (await fs.pathExists(packageJsonPath)) {
+            spinner.updateText("Initializing shadcn/ui...");
+            await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
+          } else {
+            console.log(
+              chalk.yellow(
+                "   ⚠️ shadcn/ui init skipped (no package.json found). Run it inside an existing Next.js project."
+              )
+            );
+            console.log(chalk.gray("   pnpm dlx shadcn@latest init -y"));
+          }
+        }
       }
 
       // Initialize MyContext directory structure and context after framework setup
@@ -159,26 +203,6 @@ export class InitCommand {
         workingDir,
         useCurrentDir
       );
-
-      // Initialize shadcn/ui by default when a project exists unless explicitly skipped
-      const shouldInitShadcn = options.skipShadcn !== true;
-      if (shouldInitShadcn) {
-        const projectPath = useCurrentDir
-          ? workingDir
-          : path.join(workingDir, finalProjectName);
-        const packageJsonPath = path.join(projectPath, "package.json");
-        if (await fs.pathExists(packageJsonPath)) {
-          spinner.updateText("Initializing shadcn/ui...");
-          await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
-        } else {
-          console.log(
-            chalk.yellow(
-              "   ⚠️ shadcn/ui init skipped (no package.json found). Run it inside an existing Next.js project."
-            )
-          );
-          console.log(chalk.gray("   pnpm dlx shadcn@latest init -y"));
-        }
-      }
 
       // Write .mycontext/.env.example with guidance
       try {
@@ -388,6 +412,192 @@ export class InitCommand {
     }
   }
 
+  private async detectPackageManager(): Promise<"pnpm" | "npm" | "yarn"> {
+    const pnpmLock = path.join(process.cwd(), "pnpm-lock.yaml");
+    const yarnLock = path.join(process.cwd(), "yarn.lock");
+    const packageLock = path.join(process.cwd(), "package-lock.json");
+
+    if (await fs.pathExists(pnpmLock)) return "pnpm";
+    if (await fs.pathExists(yarnLock)) return "yarn";
+    if (await fs.pathExists(packageLock)) return "npm";
+
+    return "pnpm"; // Default to pnpm
+  }
+
+  private async installInstantDBDeps(projectPath: string): Promise<void> {
+    try {
+      const packageManager = await this.detectPackageManager();
+      const installCmd =
+        packageManager === "pnpm"
+          ? "pnpm add"
+          : packageManager === "yarn"
+          ? "yarn add"
+          : "npm install";
+
+      console.log(chalk.gray("   Installing InstantDB dependencies..."));
+      execSync(
+        `${installCmd} @instantdb/react @instantdb/admin @tanstack/react-query`,
+        {
+          cwd: projectPath,
+          stdio: "inherit",
+          timeout: 180000,
+        }
+      );
+      console.log(chalk.green("   ✅ Dependencies installed"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Failed to install dependencies automatically")
+      );
+      console.log(chalk.gray("   Run manually:"));
+      console.log(
+        chalk.gray(
+          "   pnpm add @instantdb/react @instantdb/admin @tanstack/react-query"
+        )
+      );
+    }
+  }
+
+  private async generateInstantDBSchema(projectPath: string): Promise<void> {
+    try {
+      const schemaTemplatePath = path.join(
+        __dirname,
+        "../templates/instantdb/schema.template.ts"
+      );
+      const schemaContent = await fs.readFile(schemaTemplatePath, "utf-8");
+      const schemaPath = path.join(projectPath, "instant.schema.ts");
+
+      await fs.writeFile(schemaPath, schemaContent);
+      console.log(chalk.green("   ✅ instant.schema.ts created"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Failed to create schema file")
+      );
+    }
+  }
+
+  private async generateInstantDBPerms(projectPath: string): Promise<void> {
+    try {
+      const permsTemplatePath = path.join(
+        __dirname,
+        "../templates/instantdb/perms.template.ts"
+      );
+      const permsContent = await fs.readFile(permsTemplatePath, "utf-8");
+      const permsPath = path.join(projectPath, "instant.perms.ts");
+
+      await fs.writeFile(permsPath, permsContent);
+      console.log(chalk.green("   ✅ instant.perms.ts created"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Failed to create permissions file")
+      );
+    }
+  }
+
+  private async generateDBClient(projectPath: string): Promise<void> {
+    try {
+      const dbTemplatePath = path.join(
+        __dirname,
+        "../templates/instantdb/db.template.ts"
+      );
+      const dbContent = await fs.readFile(dbTemplatePath, "utf-8");
+      const libDir = path.join(projectPath, "lib");
+      await fs.ensureDir(libDir);
+      const dbPath = path.join(libDir, "db.ts");
+
+      await fs.writeFile(dbPath, dbContent);
+      console.log(chalk.green("   ✅ lib/db.ts created"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Failed to create database client")
+      );
+    }
+  }
+
+  private async createInstantDBEnv(
+    projectPath: string,
+    appId?: string
+  ): Promise<void> {
+    try {
+      const envPath = path.join(projectPath, ".env");
+      const envContent = `# InstantDB Configuration
+NEXT_PUBLIC_INSTANT_APP_ID=${appId || "__YOUR_APP_ID_HERE__"}
+
+# Get your app ID from: https://instantdb.com/dash
+# Create a new app or use an existing one
+`;
+
+      // Check if .env exists
+      if (await fs.pathExists(envPath)) {
+        const existingEnv = await fs.readFile(envPath, "utf-8");
+        if (!existingEnv.includes("NEXT_PUBLIC_INSTANT_APP_ID")) {
+          await fs.appendFile(envPath, "\n" + envContent);
+          console.log(chalk.green("   ✅ .env updated with InstantDB config"));
+        } else {
+          console.log(chalk.gray("   ✅ .env already has InstantDB config"));
+        }
+      } else {
+        await fs.writeFile(envPath, envContent);
+        console.log(chalk.green("   ✅ .env created"));
+      }
+    } catch (error) {
+      console.log(chalk.yellow("   ⚠️ Failed to create .env file"));
+    }
+  }
+
+  private async generateSampleComponents(projectPath: string): Promise<void> {
+    try {
+      // Generate home-client.tsx
+      const homeClientTemplatePath = path.join(
+        __dirname,
+        "../templates/instantdb/home-client.template.tsx"
+      );
+      const homeClientContent = await fs.readFile(
+        homeClientTemplatePath,
+        "utf-8"
+      );
+      const appDir = path.join(projectPath, "app");
+      await fs.ensureDir(appDir);
+      const homeClientPath = path.join(appDir, "home-client.tsx");
+
+      await fs.writeFile(homeClientPath, homeClientContent);
+      console.log(chalk.green("   ✅ app/home-client.tsx created"));
+
+      // Generate/update page.tsx
+      const pageTemplatePath = path.join(
+        __dirname,
+        "../templates/instantdb/page.template.tsx"
+      );
+      const pageContent = await fs.readFile(pageTemplatePath, "utf-8");
+      const pagePath = path.join(appDir, "page.tsx");
+
+      await fs.writeFile(pagePath, pageContent);
+      console.log(chalk.green("   ✅ app/page.tsx updated"));
+    } catch (error) {
+      console.log(
+        chalk.yellow("   ⚠️ Failed to create sample components")
+      );
+    }
+  }
+
+  private async pushInstantDBSchema(projectPath: string): Promise<void> {
+    try {
+      console.log(chalk.gray("   Pushing schema to InstantDB..."));
+      execSync("npx instant-cli@latest push -y", {
+        cwd: projectPath,
+        stdio: "inherit",
+        timeout: 60000,
+      });
+      console.log(chalk.green("   ✅ Schema pushed to InstantDB"));
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          "   ⚠️ Schema push failed (you can push it manually later)"
+        )
+      );
+      console.log(chalk.gray("   Run: npx instant-cli@latest push"));
+    }
+  }
+
   private isValidProjectName(name: string): boolean {
     // Allow alphanumeric, hyphens, and underscores
     return /^[a-zA-Z0-9_-]+$/.test(name);
@@ -415,72 +625,43 @@ export class InitCommand {
         return;
       }
 
-      // Create InstantDB project with user interaction
-      // Let InstantDB handle its own branding and messages
+      console.log(chalk.blue("\n🗄️  Setting up InstantDB...\n"));
 
-      try {
-        // Use spawn to handle interactive prompts properly
-        const { spawn } = await import("child_process");
-        const createInstantApp = spawn(
-          "npx",
-          ["create-instant-app@latest", projectName],
-          {
-            cwd: workingDir,
-            stdio: "inherit", // Cleaner - let InstantDB handle all I/O
-            shell: true,
-          }
-        );
+      // Step 1: Install dependencies
+      await this.installInstantDBDeps(projectPath);
 
-        await new Promise<void>((resolve, reject) => {
-          createInstantApp.on("close", (code) => {
-            if (code === 0) {
-              // InstantDB setup complete, continue silently
-              resolve();
-            } else {
-              console.log(
-                chalk.yellow(`\n⚠️ InstantDB setup completed with code ${code}`)
-              );
-              console.log(
-                chalk.blue("🔄 MyContext will continue with project setup...\n")
-              );
-              resolve(); // Continue even if there was an issue
-            }
-          });
+      // Step 2: Generate schema
+      await this.generateInstantDBSchema(projectPath);
 
-          createInstantApp.on("error", (error) => {
-            console.log(
-              chalk.yellow(
-                `\n⚠️ InstantDB setup encountered an error: ${error.message}`
-              )
-            );
-            console.log(
-              chalk.blue("🔄 MyContext will continue with project setup...\n")
-            );
-            resolve(); // Continue even if there was an error
-          });
+      // Step 3: Generate permissions
+      await this.generateInstantDBPerms(projectPath);
 
-          // Set timeout
-          setTimeout(() => {
-            createInstantApp.kill();
-            console.log(chalk.yellow("\n⚠️ InstantDB setup timed out"));
-            console.log(
-              chalk.blue("🔄 MyContext will continue with project setup...\n")
-            );
-            resolve(); // Continue even if it timed out
-          }, 600000); // 10 minutes - give more time for user interaction
-        });
-      } catch (error) {
-        console.log(
-          chalk.yellow(`\n⚠️ Failed to create InstantDB project automatically`)
-        );
-        console.log(chalk.gray(`   You can create it manually later:`));
-        console.log(
-          chalk.gray(`   npx create-instant-app@latest ${projectName}`)
-        );
-        console.log(
-          chalk.blue("🔄 MyContext will continue with project setup...\n")
-        );
-      }
+      // Step 4: Create database client
+      await this.generateDBClient(projectPath);
+
+      // Step 5: Create environment file
+      await this.createInstantDBEnv(projectPath);
+
+      // Step 6: Generate sample components
+      await this.generateSampleComponents(projectPath);
+
+      // Step 7: Push schema to InstantDB
+      await this.pushInstantDBSchema(projectPath);
+
+      console.log(chalk.green("\n✅ InstantDB setup complete!\n"));
+      console.log(chalk.yellow("📝 Next steps:"));
+      console.log(
+        chalk.gray(
+          "   1. Get your App ID from: https://instantdb.com/dash"
+        )
+      );
+      console.log(
+        chalk.gray("   2. Update NEXT_PUBLIC_INSTANT_APP_ID in .env")
+      );
+      console.log(chalk.gray("   3. Run: pnpm dev"));
+      console.log(
+        chalk.gray("   4. Open http://localhost:3000 to see your todo app\n")
+      );
     } catch (error) {
       console.log(
         chalk.yellow(
@@ -490,7 +671,7 @@ export class InitCommand {
         )
       );
       console.log(
-        chalk.gray("   You can create the InstantDB project manually if needed")
+        chalk.gray("   You can complete the setup manually if needed")
       );
       console.log(
         chalk.blue("🔄 MyContext will continue with project setup...\n")

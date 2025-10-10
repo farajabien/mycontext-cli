@@ -12,7 +12,7 @@
     "build:clean": "rm -rf dist && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🧹 Cleaned build directory')",
     "build:compile": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔨 Compiling TypeScript...') && tsc --noEmitOnError false",
     "build:alias": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔗 Resolving path aliases...') && tsc-alias",
-    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp package.json dist/ && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
+    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp -r src/templates dist/ && cp package.json dist/ && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
     "dev": "ts-node src/cli.ts",
     "start": "node dist/cli.js",
     "watch": "tsc --watch --pretty",

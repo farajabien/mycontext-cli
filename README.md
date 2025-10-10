@@ -10,12 +10,42 @@ Generate your context files and component library. That's it. Use it inside Curs
 
 ## 🚀 Quick Start
 
+### Option A: InstantDB (Recommended for Real-time Apps)
+
+```bash
+# Install globally
+npm install -g mycontext-cli
+
+# Initialize with InstantDB - includes Next.js, shadcn/ui, and sample todo app
+mycontext init my-app --framework instantdb
+cd my-app
+
+# Get your InstantDB App ID from: https://instantdb.com/dash
+# Update .env with your App ID
+echo 'NEXT_PUBLIC_INSTANT_APP_ID=your-app-id' >> .env
+
+# Configure your AI provider
+echo 'ANTHROPIC_API_KEY=your-key' > .mycontext/.env
+
+# Start the dev server - you already have a working todo app!
+pnpm dev
+# Open http://localhost:3000
+
+# Generate context files for your specific project
+mycontext generate:context
+
+# Generate additional components
+mycontext generate:components --core-only
+```
+
+### Option B: Next.js Only
+
 ```bash
 # Install globally
 npm install -g mycontext-cli
 
 # Initialize a new project
-mycontext init my-app
+mycontext init my-app --framework nextjs
 cd my-app
 
 # Configure your AI provider
@@ -35,13 +65,12 @@ mycontext generate:components --core-only
 
 # Preview and validate components
 mycontext preview:components
-
-# Generate all remaining components
-mycontext generate:components --all
 ```
 
 ## ✨ What You Get
 
+- **Instant Setup** - Working Next.js + InstantDB + shadcn/ui app in one command
+- **Sample Todo App** - Real-time app with CRUD operations out of the box
 - **Context Files** - PRD, branding, tech stack from your project analysis
 - **InstantDB Schema** - Database schema generated from your requirements
 - **TypeScript Types** - Generated from schema for type safety

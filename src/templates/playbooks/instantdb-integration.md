@@ -5,16 +5,22 @@ description: Complete InstantDB setup with real-time database, authentication, a
 category: database
 tags: ["instantdb", "realtime", "auth", "react", "nextjs"]
 author: MyContext
-version: 1.0.0
+version: 2.0.0
 createdAt: 2025-10-09T10:00:00.000Z
-updatedAt: 2025-10-09T10:00:00.000Z
-difficulty: intermediate
-estimatedTime: "2-3 hours"
-prerequisites: ["Next.js project", "Node.js 18+", "MyContext context files"]
+updatedAt: 2025-10-10T23:30:00.000Z
+difficulty: beginner
+estimatedTime: "5 minutes (automatic) or 2-3 hours (manual)"
+prerequisites: ["Node.js 18+"]
 relatedPlaybooks: ["nextjs-auth", "react-forms", "state-management"]
 ---
 
 # InstantDB Integration Guide
+
+> ⚡ **Quick Start:** MyContext CLI now handles this automatically! Run:
+> ```bash
+> mycontext init my-app --framework instantdb
+> ```
+> This guide is for manual setup or understanding what MyContext does under the hood.
 
 Complete setup for InstantDB real-time database with authentication, schema management, and React integration for Next.js applications.
 

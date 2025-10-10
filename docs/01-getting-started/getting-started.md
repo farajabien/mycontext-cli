@@ -188,13 +188,28 @@ mycontext init my-app --framework nextjs
 mycontext init my-app --framework other
 ```
 
+**What you get with InstantDB:**
+
+When you run `mycontext init my-app --framework instantdb`, MyContext automatically:
+
+1. ✅ Sets up Next.js 15 with App Router
+2. ✅ Initializes shadcn/ui components (Button, Input, Card, Checkbox)
+3. ✅ Installs InstantDB dependencies (`@instantdb/react`, `@instantdb/admin`, `@tanstack/react-query`)
+4. ✅ Generates schema files (`instant.schema.ts`, `instant.perms.ts`)
+5. ✅ Creates database client (`lib/db.ts`)
+6. ✅ Sets up environment file (`.env` with `NEXT_PUBLIC_INSTANT_APP_ID`)
+7. ✅ Generates sample todo app (`app/home-client.tsx`, `app/page.tsx`)
+8. ✅ Pushes schema to InstantDB
+
+**Result:** You get a fully working real-time todo app out of the box! Just add your InstantDB App ID and run `pnpm dev`.
+
 #### **UI Library Integration**
 
 ```bash
-# Set up shadcn/ui (automatic with InstantDB)
-mycontext setup --with-shadcn
+# shadcn/ui is automatic with InstantDB
+# No additional setup needed!
 
-# Or configure manually
+# For Next.js projects, configure manually:
 pnpm dlx shadcn@latest init
 ```
 
