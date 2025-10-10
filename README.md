@@ -1,5 +1,9 @@
 # MyContext CLI + MyContext AI
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
+</p>
+
 **AI-Powered Context & Component Library Generation for Your Next.js App**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
