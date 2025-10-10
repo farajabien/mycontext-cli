@@ -858,13 +858,22 @@ export class NextJSProjectValidator {
    * Helper methods
    */
   private async findFiles(pattern: string): Promise<string[]> {
-    const glob = require("glob");
-    const matches = await glob(pattern, {
-      cwd: this.projectRoot,
-      absolute: true,
-      ignore: ["**/node_modules/**"],
-    });
-    return matches;
+    try {
+      const globModule = await import("glob");
+      const { glob } = globModule;
+      const matches = await glob(pattern, {
+        cwd: this.projectRoot,
+        absolute: true,
+        ignore: ["**/node_modules/**"],
+      });
+      return matches;
+    } catch (error) {
+      console.warn(
+        "Glob import failed in NextJSProjectValidator, returning empty array:",
+        error
+      );
+      return [];
+    }
   }
 
   private async findRouteDirectories(appDir: string): Promise<string[]> {

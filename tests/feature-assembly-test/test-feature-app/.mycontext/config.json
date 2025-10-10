@@ -1,0 +1,10 @@
+{
+  "id": "c4ed4db5-fd16-494e-b8c8-7bc8f8c5b916",
+  "name": "test-feature-app",
+  "description": "A MyContext AI-powered component generation project",
+  "createdAt": "2025-10-08T10:56:13.401Z",
+  "updatedAt": "2025-10-08T10:56:13.401Z",
+  "contextPath": ".mycontext",
+  "version": "0.1.0",
+  "status": "initialized"
+}

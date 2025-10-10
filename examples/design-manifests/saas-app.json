@@ -1,0 +1,245 @@
+{
+  "project_summary": {
+    "app_name": "WorkFlowPro",
+    "purpose": "Comprehensive SaaS platform for project management, team collaboration, and business automation",
+    "key_features": [
+      "project management",
+      "task tracking",
+      "team collaboration",
+      "time tracking",
+      "reporting and analytics",
+      "integrations",
+      "custom workflows",
+      "billing and subscriptions"
+    ],
+    "user_types": ["users", "managers", "admins", "owners"],
+    "success_metrics": [
+      "user adoption",
+      "feature utilization",
+      "customer satisfaction",
+      "churn rate",
+      "revenue per user"
+    ]
+  },
+  "design_system": {
+    "colors": {
+      "primary": "#2563EB",
+      "secondary": "#64748B",
+      "accent": "#7C3AED",
+      "success": "#059669",
+      "warning": "#D97706",
+      "error": "#DC2626",
+      "info": "#0891B2"
+    },
+    "typography": {
+      "heading": "Inter",
+      "body": "Inter",
+      "mono": "JetBrains Mono"
+    },
+    "spacing": {
+      "base": 4,
+      "scale": [2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96]
+    },
+    "borderRadius": {
+      "base": "6px",
+      "large": "8px",
+      "small": "4px"
+    },
+    "shadows": {
+      "base": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "large": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      "card": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+    }
+  },
+  "design_intent": {
+    "design_anchors": [
+      "productivity",
+      "clarity",
+      "efficiency",
+      "scalability"
+    ],
+    "key_principles": [
+      "data-driven",
+      "user-centric",
+      "scalable",
+      "accessible",
+      "performant"
+    ],
+    "user_experience_focus": "Streamline workflows and boost team productivity through intuitive project management tools"
+  },
+  "component_architecture": {
+    "components": [
+      {
+        "name": "TaskCard",
+        "description": "Individual task display with status, assignee, and actions",
+        "type": "display",
+        "group": "tasks"
+      },
+      {
+        "name": "ProjectBoard",
+        "description": "Kanban-style project board with drag-and-drop",
+        "type": "interactive",
+        "group": "projects"
+      },
+      {
+        "name": "TimeTracker",
+        "description": "Time tracking component with start/stop functionality",
+        "type": "interactive",
+        "group": "time"
+      },
+      {
+        "name": "DashboardWidget",
+        "description": "Configurable dashboard widget for metrics and charts",
+        "type": "display",
+        "group": "dashboard"
+      },
+      {
+        "name": "UserMenu",
+        "description": "User account menu with profile and settings",
+        "type": "interactive",
+        "group": "navigation"
+      }
+    ],
+    "groups": [
+      {
+        "name": "tasks",
+        "description": "Task management components",
+        "components": ["TaskCard", "TaskList", "TaskForm", "TaskFilter"]
+      },
+      {
+        "name": "projects",
+        "description": "Project management components",
+        "components": ["ProjectBoard", "ProjectCard", "ProjectTimeline", "ProjectSettings"]
+      },
+      {
+        "name": "time",
+        "description": "Time tracking components",
+        "components": ["TimeTracker", "TimeLog", "TimeReport", "TimerWidget"]
+      },
+      {
+        "name": "dashboard",
+        "description": "Dashboard and analytics components",
+        "components": ["DashboardWidget", "MetricCard", "ChartContainer", "ReportBuilder"]
+      },
+      {
+        "name": "navigation",
+        "description": "App navigation and user interface",
+        "components": ["UserMenu", "Sidebar", "TopBar", "Breadcrumb"]
+      }
+    ],
+    "screens": [
+      {
+        "name": "Dashboard",
+        "description": "Main dashboard with project overview and metrics",
+        "layout_type": "dashboard",
+        "components": ["DashboardWidget", "ProjectCard", "TimeTracker"],
+        "navigation_flow": ["Dashboard", "Projects", "Tasks"],
+        "user_journey_position": "main"
+      },
+      {
+        "name": "ProjectBoard",
+        "description": "Kanban board for project task management",
+        "layout_type": "multi_column",
+        "components": ["ProjectBoard", "TaskCard", "TaskForm"],
+        "navigation_flow": ["Dashboard", "ProjectBoard", "TaskDetail"],
+        "user_journey_position": "main"
+      },
+      {
+        "name": "TimeTracking",
+        "description": "Time tracking and reporting interface",
+        "layout_type": "single_column",
+        "components": ["TimeTracker", "TimeLog", "TimeReport"],
+        "navigation_flow": ["Dashboard", "TimeTracking", "Reports"],
+        "user_journey_position": "secondary"
+      }
+    ]
+  },
+  "visual_tokens": {
+    "buttons": {
+      "primary": {
+        "background": "var(--primary)",
+        "color": "white",
+        "padding": "8px 16px",
+        "borderRadius": "var(--radius-base)",
+        "fontWeight": "500"
+      },
+      "secondary": {
+        "background": "var(--secondary)",
+        "color": "white",
+        "padding": "8px 16px",
+        "borderRadius": "var(--radius-base)",
+        "fontWeight": "500"
+      },
+      "ghost": {
+        "background": "transparent",
+        "color": "var(--primary)",
+        "padding": "8px 16px",
+        "borderRadius": "var(--radius-base)",
+        "fontWeight": "500"
+      }
+    },
+    "inputs": {
+      "default": {
+        "border": "1px solid var(--border)",
+        "padding": "8px 12px",
+        "borderRadius": "var(--radius-base)",
+        "fontSize": "14px",
+        "backgroundColor": "white"
+      },
+      "search": {
+        "border": "1px solid var(--border)",
+        "padding": "8px 12px 8px 40px",
+        "borderRadius": "var(--radius-base)",
+        "fontSize": "14px",
+        "backgroundColor": "var(--muted)"
+      }
+    },
+    "cards": {
+      "default": {
+        "background": "white",
+        "border": "1px solid var(--border)",
+        "borderRadius": "var(--radius-base)",
+        "padding": "16px",
+        "boxShadow": "var(--shadow-card)"
+      },
+      "elevated": {
+        "background": "white",
+        "border": "none",
+        "borderRadius": "var(--radius-large)",
+        "padding": "20px",
+        "boxShadow": "var(--shadow-large)"
+      }
+    }
+  },
+  "technical_context": {
+    "prd": "WorkFlowPro is a comprehensive SaaS platform designed to streamline project management and team collaboration. It provides tools for task tracking, time management, reporting, and team communication in a unified workspace.",
+    "types": "interface Task { id: string; title: string; description: string; status: 'todo' | 'in-progress' | 'done'; assignee: User; dueDate: Date; }",
+    "brand": "Professional, efficient, reliable, modern, user-friendly"
+  },
+  "implementation_guidelines": {
+    "tech_stack": ["Next.js", "React", "TypeScript", "Tailwind CSS", "Prisma"],
+    "patterns": ["server-components", "real-time-updates", "optimistic-ui"],
+    "performance": ["virtualization", "lazy-loading", "caching"]
+  },
+  "design_principles": [
+    "Minimize cognitive load",
+    "Provide clear visual hierarchy",
+    "Enable quick task completion",
+    "Support both overview and detail views",
+    "Facilitate team collaboration"
+  ],
+  "interaction_patterns": [
+    "Drag and drop for task management",
+    "Real-time updates for collaboration",
+    "Keyboard shortcuts for power users",
+    "Contextual menus for actions",
+    "Progressive disclosure for complex features"
+  ],
+  "accessibility_requirements": [
+    "WCAG 2.1 AA compliance",
+    "Keyboard navigation for all features",
+    "Screen reader support for data tables",
+    "High contrast mode compatibility",
+    "Focus management for modals and overlays"
+  ]
+}

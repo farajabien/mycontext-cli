@@ -748,3 +748,12 @@ export * from "./components";
 
 // Enhancement Types
 export * from "./enhancement";
+
+// PM Integration Types
+export * from "./pm-integration";
+
+// Feature Bundle Types
+export * from "./feature-bundle";
+
+// Role Permission Types (excluding members already exported from feature-bundle)
+export type { Role, RoleHierarchy } from "./role-permissions";

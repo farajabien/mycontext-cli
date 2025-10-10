@@ -1,9 +1,33 @@
 import { ClaudeAgentClient } from "./claudeAgentClient";
 import { HostedApiClient } from "./hostedApiClient";
+import { OpenRouterClient } from "./openRouterClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
 import * as fs from "fs";
 import * as path from "path";
+
+// Load environment variables from project files
+function loadEnvironmentVariables(): void {
+  try {
+    const dotenv = require("dotenv");
+    const dotenvExpand = require("dotenv-expand");
+    const cwd = process.cwd();
+    const candidates = [
+      path.join(cwd, ".mycontext", ".env.local"),
+      path.join(cwd, ".mycontext", ".env"),
+      path.join(cwd, ".env.local"),
+      path.join(cwd, ".env"),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const result = dotenv.config({ path: p, silent: true });
+        dotenvExpand.expand(result);
+      }
+    }
+  } catch {
+    // Ignore errors
+  }
+}
 
 export interface AIProvider {
   name: string;
@@ -41,6 +65,9 @@ export class HybridAIClient {
   private static hasLoggedInitialization = false;
 
   constructor() {
+    // Load environment variables first
+    loadEnvironmentVariables();
+
     this.loadConfig();
     this.initializeProviders();
   }
@@ -65,15 +92,48 @@ export class HybridAIClient {
   private async initializeProviders() {
     // Add user API key providers first (highest priority)
     // Claude Agent SDK (highest priority for advanced features)
-    if (this.config?.claude?.enabled) {
-      const claudeAgentClient = new ClaudeAgentClient();
-      if (claudeAgentClient.hasApiKey()) {
-        this.providers.push({
-          name: "claude-agent",
-          priority: 0, // Highest priority for Agent SDK
-          client: claudeAgentClient,
-          isAvailable: () => claudeAgentClient.checkConnection(),
-        });
+    // Always try ClaudeAgentClient if it has an API key (simplified approach)
+    const claudeAgentClient = new ClaudeAgentClient();
+    if (claudeAgentClient.hasApiKey()) {
+      // Determine provider name based on mode
+      const providerName = claudeAgentClient.isGrokModeEnabled
+        ? "xai"
+        : "claude-agent";
+
+      // Log the provider being used (only once)
+      if (!HybridAIClient.hasLoggedInitialization) {
+        if (claudeAgentClient.isGrokModeEnabled) {
+          console.log(chalk.blue("🤖 Using Grok 4 via X AI API (direct)"));
+        } else {
+          console.log(
+            chalk.blue(
+              "🎯 Using Claude Agent SDK (supports Claude, Bedrock, Vertex AI)"
+            )
+          );
+        }
+        HybridAIClient.hasLoggedInitialization = true;
+      }
+
+      this.providers.push({
+        name: providerName,
+        priority: 0, // Highest priority for Agent SDK
+        client: claudeAgentClient,
+        isAvailable: () => claudeAgentClient.checkConnection(),
+      });
+    }
+
+    // OpenRouter (free tier - testing only)
+    const openRouterClient = new OpenRouterClient();
+    if (openRouterClient.hasApiKey()) {
+      this.providers.push({
+        name: "openrouter",
+        priority: 3, // Lower than Claude/XAI, higher than hosted
+        client: openRouterClient,
+        isAvailable: () => openRouterClient.checkConnection(),
+      });
+
+      if (!HybridAIClient.hasLoggedInitialization) {
+        console.log(chalk.blue("🆓 Using OpenRouter free tier (DeepSeek-R1)"));
       }
     }
 
@@ -96,13 +156,7 @@ export class HybridAIClient {
         HybridAIClient.hasLoggedInitialization = true;
       }
     } else {
-      // Only log once to avoid spam
-      if (!HybridAIClient.hasLoggedInitialization) {
-        console.log(
-          `Using local AI provider${this.providers.length > 1 ? "s" : ""}`
-        );
-        HybridAIClient.hasLoggedInitialization = true;
-      }
+      // Provider-specific message already logged above, no need for generic message
     }
 
     // Sort by priority
@@ -226,6 +280,9 @@ export class HybridAIClient {
         this.config?.xai?.models?.["text-generator"]?.name ||
         "grok-4-fast-reasoning"
       );
+    }
+    if (provider.name === "openrouter") {
+      return "deepseek-ai/DeepSeek-R1";
     }
     // Default model name
     return "qwen3-coder";
@@ -512,6 +569,9 @@ export class HybridAIClient {
             ...options,
             model: modelName,
           });
+        } else if (provider.name === "openrouter") {
+          const openRouterClient = provider.client as any;
+          return await openRouterClient.generateText(prompt, options);
         } else if (provider.name === "hosted") {
           const hostedClient = provider.client as HostedApiClient;
           const response = await hostedClient.generateText(prompt, options);
@@ -859,6 +919,5 @@ export class HybridAIClient {
       : null;
   }
 
-  // REMOVED: Dangerous fallback methods that compromise accuracy
   // MyContext requires 100% accuracy - no fallbacks allowed
 }

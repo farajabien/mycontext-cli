@@ -1,12 +1,12 @@
-# MyContext CLI
+# MyContext CLI + MyContext AI
 
-**🎨 Component-First Visual Builder with Zero-Error Guarantees**
+**AI-Powered Context & Component Library Generation for Your Next.js App**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-Generate production-ready React/Next.js components **one at a time**, preview them visually, then scale to complete applications. Every component guaranteed **zero TypeScript/ESLint/build errors**.
+Generate your context files and component library. That's it. Use it inside Cursor or any IDE. Built on top of shadcn/ui with our Intent Dictionary System for 95%+ accuracy.
 
 ## 🚀 Quick Start
 
@@ -14,249 +14,125 @@ Generate production-ready React/Next.js components **one at a time**, preview th
 # Install globally
 npm install -g mycontext-cli
 
-# 1. Initialize project
+# Initialize a new project
 mycontext init my-app
+cd my-app
 
-# 2. Generate context files (PRD, features, etc.)
-mycontext generate-context-files --description "Your app idea"
+# Configure your AI provider
+echo 'ANTHROPIC_API_KEY=your-key' > .mycontext/.env
 
-# 3. Component list is generated automatically
-# 4. Compile PRD (requires approval)
-mycontext compile-prd
+# Generate context files
+mycontext generate:context
 
-# 5. Generate components with validation
-mycontext generate-components all --with-tests
+# Generate InstantDB schema
+mycontext generate:schema
 
-# 6. Preview components visually
-mycontext preview components
+# Generate types from schema
+mycontext generate:types --from-schema
 
-# 7. Build complete app when ready
-mycontext build-app --interactive
+# Generate core 10 components
+mycontext generate:components --core-only
+
+# Preview and validate components
+mycontext preview:components
+
+# Generate all remaining components
+mycontext generate:components --all
 ```
 
-## 💡 Philosophy: Component-First Development
+## ✨ What You Get
 
-**Start Small, Scale Gradually:**
+- **Context Files** - PRD, branding, tech stack from your project analysis
+- **InstantDB Schema** - Database schema generated from your requirements
+- **TypeScript Types** - Generated from schema for type safety
+- **Component Library** - Mobile + desktop variants built on shadcn/ui
+- **Preview System** - Validate components before using in your app
+- **Zero Hallucination** - Intent Dictionary maps natural language to exact components
+- **Clarification System** - Detects gaps and tracks auto-generated features for approval
 
-1. **Context Files** → Define your app (PRD, features, technical specs)
-2. **Component List** → AI automatically generates list of needed components
-3. **Build Strategy** → Choose how to approach development
-4. **Component Generation** → Build components one by one with validation
-5. **Visual Preview** → See components in browser before integration
-6. **Scale to App** → Assemble validated components into full application
+## 💰 Pricing
 
-**Result:** Production-ready apps with 0 errors, built incrementally.
+- **MyContext CLI** - Free and open source (MIT License)
+- **MyContext AI API** - Hosted fine-tuned model (beta)
+
+Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free, or upgrade to our hosted API for best-in-class quality.
+
+## 📚 Full Documentation
+
+**Complete guides, tutorials, and API reference available on GitHub:**
+
+👉 **[View Full Documentation](https://github.com/farajabien/mycontext-cli/tree/main/docs)**
+
+- [Getting Started Guide](https://github.com/farajabien/mycontext-cli/blob/main/docs/01-getting-started/quick-start.md)
+- [AI Agents System](https://github.com/farajabien/mycontext-cli/blob/main/docs/02-core-features/ai-agents.md)
+- [Intent Dictionary](https://github.com/farajabien/mycontext-cli/blob/main/docs/02-core-features/intent-dictionary-system.md)
+- [Command Reference](https://github.com/farajabien/mycontext-cli/blob/main/docs/03-reference/commands.md)
+- [Architecture](https://github.com/farajabien/mycontext-cli/blob/main/docs/06-architecture/system-overview.md)
 
 ## 🎯 Key Features
 
-### ✅ Zero-Error Guarantee
+- **Component-First Workflow** - Generate context → schema → types → core 10 → validate → all components
+- **Mobile + Desktop Variants** - Separate files for easy debugging and validation
+- **Schema-Driven Types** - TypeScript types generated from InstantDB schema
+- **Preview & Validation** - Interactive component gallery with quality checks
+- **Intent Dictionary** - 30+ UI patterns with type-safe natural language mapping
+- **shadcn/ui Foundation** - Built on top of shadcn/ui, respecting its design principles
+- **Clarification System** - Prevents vague requests by detecting gaps and tracking assumptions
 
-- **TypeScript validation** on every component
-- **ESLint checks** with automatic fixes
-- **Build validation** before moving forward
-- **Automatic retries** with error context (max 3 attempts)
+## 🔍 How MyContext Ensures Accuracy
 
-### ✅ UI Specification System
+### Gap Detection
 
-- **Plain-English specs** from component descriptions
-- **JSON-to-spec conversion** for structured input
-- **Built-in templates** for common patterns (cards, forms, buttons)
-- **Detailed implementation guidance** with accessibility & responsive requirements
-- **Integrated workflow** with component generation
-
-### ✅ Visual Preview
-
-- **Figma-like component board** for visual testing
-- **Interactive component playground**
-- **Responsive design testing**
-
-### ✅ BYOK Model (Bring Your Own Keys)
-
-- Use your own Claude/X.AI/OpenAI API keys
-- No billing from us - you control costs
-- Transparent pricing (~$20/month for unlimited usage)
-
-## 📋 Commands
-
-### Core Workflow
+MyContext analyzes your requirements and detects missing critical information:
 
 ```bash
-mycontext init <project-name>              # Initialize project
-mycontext generate-context-files            # Generate PRD, features, specs
-mycontext compile-prd                       # Compile context into PRD
-mycontext generate-components <name|all>    # Generate components
-mycontext preview <type>                    # Preview components/app
-mycontext build-app                         # Build complete application
+❌ Critical information missing:
+
+1. What type of game is this?
+   - a) Turn-based (Tic-tac-toe, Chess)
+   - b) Real-time (Racing, Shooting)
+   - c) Puzzle (Matching, Strategy)
 ```
 
-### UI Specification
+### Auto-Generated Feature Tracking
+
+All assumptions are tracked for your approval:
 
 ```bash
-mycontext refine spec <component> --desc "description"    # Generate UI spec from description
-mycontext refine spec <component> --json-file <path>      # Generate UI spec from JSON
-mycontext generate-components all --verbose                # Auto-generate specs with components
+📋 Auto-generated Features Review
+
+1. Real-time multiplayer with Socket.io
+   Reasoning: You mentioned "play against each other"
+   Confidence: Medium
+   [Y] Accept  [N] Reject  [E] Edit
 ```
 
-### Setup & Configuration
+### Interactive Approval System
+
+Review and approve features before component generation:
 
 ```bash
-mycontext setup                             # Configure AI providers
-mycontext build-strategy                    # Choose build approach
-mycontext health-check                      # Verify installation
+mycontext review:context
 ```
 
-## ⚙️ Configuration
+### Iterative Refinement
 
-### API Keys (Required)
+Refine components with AI suggestions:
 
 ```bash
-# Create .mycontext/.env file
-echo 'MYCONTEXT_CLAUDE_API_KEY=sk-ant-xxx' > .mycontext/.env
-echo 'MYCONTEXT_XAI_API_KEY=xai-xxx' >> .mycontext/.env
+mycontext refine:component UserCard --in-place
 ```
-
-**Recommended providers:**
-
-- **Claude** (best for complex reasoning)
-- **X.AI Grok** (best for code generation)
-- **OpenAI** (most versatile)
-- **Qwen3** (free via OpenRouter)
-
-## 📊 Project Structure
-
-```
-my-app/
-├── .mycontext/
-│   ├── 01-prd.md                 # Product Requirements
-│   ├── 02-a-features.md          # Features specification
-│   ├── 02-b-user-flows.md        # User flows
-│   ├── 02-c-edge-cases.md        # Edge cases
-│   ├── 02-d-technical-specs.md   # Technical specifications
-│   ├── 03-types.ts               # TypeScript types
-│   ├── 04-branding.md            # Branding & design system
-│   ├── 05-component-list.json    # Generated component list
-│   └── .env                      # API keys
-├── components/                    # Generated components
-│   └── dashboard/
-│       ├── RevenueCard.tsx       # Component file
-│       ├── RevenueCard.spec.md   # UI specification
-│       └── index.ts              # Export file
-├── actions/                       # Server actions (if full-stack)
-├── app/                          # Next.js routes (if full-stack)
-└── package.json
-```
-
-## 📋 UI Specification Example
-
-Generate detailed, plain-English specifications from simple descriptions:
-
-```bash
-mycontext refine spec RevenueCard --desc "A card showing total revenue prominently with percentage change"
-```
-
-**Output:**
-
-```
-📋 UI Specification for RevenueCard
-
-📝 Compact Specification:
-**RevenueCard Component - Compact Spec**
-
-**Visual Hierarchy:**
-- Primary: Total Revenue, $125,430
-- Secondary: +12.5% from last month
-
-**Layout:** vertical arrangement
-**Spacing:** medium spacing between elements
-**Colors:** primary, success theme
-
-📋 Detailed Specification:
-**RevenueCard Component - Detailed Implementation Spec**
-
-**Component Overview:**
-- Name: RevenueCard
-- Type: card
-- Description: A card component displaying revenue metrics...
-
-**Visual Hierarchy:**
-1. **title**: Total Revenue
-   - Prominence: medium (medium (~16px))
-2. **value**: $125,430
-   - Prominence: high (large (~32px))
-3. **subtitle**: +12.5% from last month
-   - Prominence: low (small (~12px))
-
-**Accessibility Requirements:**
-- All interactive elements must have aria-label or aria-labelledby
-- Focus management: tab order follows visual hierarchy
-- Color contrast: minimum 4.5:1 ratio for text
-
-**Responsive Adjustments:**
-- Mobile (< 768px): Reduce spacing to 12px, stack vertically
-- Desktop (> 768px): Standard spacing, maintain layout
-```
-
-## 🆚 MyContext vs Others
-
-| Feature                  | MyContext       | Lovable    | v0.dev      |
-| ------------------------ | --------------- | ---------- | ----------- |
-| **Code Location**        | Your machine    | Cloud      | Cloud       |
-| **Validation Gates**     | 12+ checkpoints | None       | None        |
-| **Build Validation**     | Every component | None       | None        |
-| **TypeScript Guarantee** | 100%            | No         | No          |
-| **UI Specifications**    | Plain-English   | None       | None        |
-| **Pricing**              | BYOK ($0-20/mo) | $20-200/mo | Usage-based |
-| **Deployment**           | Anywhere        | Limited    | Vercel only |
-
-## 🐛 Troubleshooting
-
-**"PRD Validation Failed"**
-
-```bash
-mycontext compile-prd --force
-```
-
-**"Component Build Failed"**
-
-```bash
-# Automatic retry with error context (max 3 attempts)
-# Check .mycontext/progress/07-components/<component>.json
-```
-
-**"API Key Issues"**
-
-```bash
-mycontext setup  # Reconfigure API keys
-mycontext health-check  # Verify setup
-```
-
-**"UI Spec Generation Failed"**
-
-```bash
-# Check if templates exist
-ls src/templates/ui-spec-templates.json
-
-# Generate spec with verbose output
-mycontext refine spec ComponentName --desc "description" --verbose
-
-# Use JSON input instead of description
-mycontext refine spec ComponentName --json-file component.json
-```
-
-## 📚 Documentation
-
-- [Getting Started](https://github.com/farajabien/mycontext-cli#quick-start)
-- [Component Generation](https://github.com/farajabien/mycontext-cli#commands)
-- [Build Strategies](https://github.com/farajabien/mycontext-cli#philosophy-component-first-development)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome! See our [Contributing Guide](https://github.com/farajabien/mycontext-cli/blob/main/CONTRIBUTING.md).
 
 ## 📄 License
 
-MIT © MyContext
+MIT © MyContext - See [LICENSE](https://github.com/farajabien/mycontext-cli/blob/main/LICENSE) for details.
 
 ---
 
 **Built by developers, for developers. Your code stays on your machine.** 🚀
+
+[Full Documentation](https://github.com/farajabien/mycontext-cli/tree/main/docs) • [GitHub](https://github.com/farajabien/mycontext-cli) • [Issues](https://github.com/farajabien/mycontext-cli/issues)

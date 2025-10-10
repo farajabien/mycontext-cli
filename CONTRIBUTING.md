@@ -1,77 +1,110 @@
-# Contributing to MyContext CLI
+# Contributing to MyContext
 
-Thank you for your interest in contributing to MyContext CLI! 🎉
+Thank you for considering contributing! MyContext is open source (MIT License) and welcomes contributions.
 
-## Getting Started
+## How to Contribute
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/farajabien/mycontext-cli.git
-   cd mycontext-cli
-   ```
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-4. **Create a branch** for your changes:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+### 1. Code Contributions
 
-## Development
+- Fix bugs and add features to MyContext CLI
+- Improve AI agents and prompt construction
+- Enhance Intent Dictionary patterns
+- Add new shadcn/ui component mappings
 
-### Building
+### 2. Documentation
+
+- Improve guides and tutorials
+- Add examples and use cases
+- Fix typos and clarify explanations
+- Translate documentation
+
+### 3. Testing
+
+- Report bugs with reproduction steps
+- Test new features and provide feedback
+- Add test cases for edge cases
+- Performance benchmarking
+
+### 4. Community
+
+- Answer questions on GitHub Issues
+- Help others in Discord
+- Share your projects built with MyContext
+- Write blog posts and tutorials
+
+## Development Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/mycontext/cli.git
+cd cli
+
+# Install dependencies
+npm install
+
+# Build the project
 npm run build
-```
 
-### Testing
-
-```bash
+# Run tests
 npm test
+
+# Link for local development
+npm link
 ```
 
-### Linting
+## Contribution Guidelines
 
-```bash
-npm run lint
-npm run lint:fix
-```
+### Code Style
 
-## Making Changes
+- Use TypeScript for type safety
+- Follow existing code patterns
+- Add comments for complex logic
+- Include tests for new features
 
-1. **Make your changes** in the `src/` directory
-2. **Test your changes** thoroughly
-3. **Update documentation** if needed
-4. **Run the build** to ensure everything compiles
-5. **Commit your changes** with a clear message
+### Commit Messages
 
-## Submitting Changes
+- Use conventional commits format
+- Be descriptive and concise
+- Reference issues when applicable
 
-1. **Push your branch** to your fork:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-2. **Create a Pull Request** on GitHub
-3. **Describe your changes** clearly in the PR description
+### Pull Requests
 
-## Code Style
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Update documentation
+6. Submit PR with clear description
 
-- Follow the existing code style
-- Use TypeScript for all new code
-- Add JSDoc comments for public APIs
-- Keep functions small and focused
+## Areas for Contribution
 
-## Issues
+### High Priority
 
-- **Bug reports**: Please include steps to reproduce
-- **Feature requests**: Explain the use case and benefits
-- **Questions**: Use GitHub Discussions
+- [ ] Additional Intent Dictionary patterns
+- [ ] Agent improvements and optimizations
+- [ ] Documentation improvements
+- [ ] Bug fixes and stability
+
+### Medium Priority
+
+- [ ] New AI provider integrations
+- [ ] Enhanced error messages
+- [ ] Performance optimizations
+- [ ] UI/UX improvements
+
+### Future Features
+
+- [ ] Custom design system support
+- [ ] Additional framework support (Vue, Svelte)
+- [ ] Advanced component composition
+- [ ] Visual component editor
 
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-Thank you for contributing! 🚀
+## Questions?
+
+- GitHub Issues: Bug reports and feature requests
+- Discord: Real-time community support
+- Email: opensource@mycontext.dev

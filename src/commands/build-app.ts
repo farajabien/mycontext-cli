@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
 import chalk from "chalk";
-import { promises as fs } from "fs";
+import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 import prompts from "prompts";
 import { WorkflowAgent } from "../agents/implementations/WorkflowAgent";
+import { PMAgentProjectInput } from "../types/pm-integration";
 
 interface BuildAppOptions {
-  description: string;
+  description?: string; // Made optional for PM plan input
   output?: string;
   framework?: string;
   withTests?: boolean;
@@ -24,12 +25,31 @@ interface BuildAppOptions {
   architectureType?: "nextjs-app-router" | "nextjs-pages" | "react-spa"; // Architecture type
   serverActions?: boolean; // Generate server actions
   routes?: boolean; // Generate Next.js routes
+
+  // mycontext PM Integration Options
+  pmPlan?: string; // Path to mycontext PM project plan JSON
+  autoSync?: boolean; // Automatically sync progress with mycontext PM
+  webhookUrl?: string; // Webhook URL for progress updates
 }
 
 export class BuildAppCommand {
   private workflowAgent = new WorkflowAgent();
 
   async execute(options: BuildAppOptions): Promise<void> {
+    // Handle mycontext PM plan input
+    let pmPlanData = null;
+    if (options.pmPlan) {
+      pmPlanData = await this.loadPMPlan(options.pmPlan);
+      console.log(
+        chalk.blue.bold("🤖 Building App from mycontext PM Project Plan\n")
+      );
+    } else {
+      console.log(chalk.blue.bold("🚀 Building Complete App with MyContext\n"));
+    }
+
+    // Merge mycontext PM plan data with command options
+    const finalOptions = this.mergeOptionsWithPMPlan(options, pmPlanData);
+
     const {
       description,
       output = "mycontext-app",
@@ -45,10 +65,29 @@ export class BuildAppCommand {
       architectureType = "nextjs-app-router",
       serverActions = true,
       routes = true,
-    } = options;
+      pmPlan,
+      autoSync = false,
+      webhookUrl,
+    } = finalOptions;
 
-    console.log(chalk.blue.bold("🚀 Building Complete App with MyContext\n"));
-    console.log(chalk.gray(`Description: ${description}`));
+    // Display different header for PM plan builds
+    if (pmPlanData) {
+      console.log(chalk.cyan("📋 PM Plan:"));
+      console.log(`   Project: ${chalk.white(pmPlanData.project.name)}`);
+      console.log(
+        `   Description: ${chalk.white(
+          pmPlanData.project.description.substring(0, 60)
+        )}...`
+      );
+      console.log(
+        `   Tasks: ${chalk.white(pmPlanData.breakdown.tasks?.length || 0)}`
+      );
+      console.log(`   Framework: ${chalk.white(framework)}`);
+      console.log(`   Architecture: ${chalk.white(architectureType)}`);
+    } else {
+      console.log(chalk.gray(`Description: ${description}`));
+    }
+
     console.log(chalk.gray(`Output: ${output}`));
     console.log(chalk.gray(`Framework: ${framework}`));
     console.log(
@@ -59,7 +98,9 @@ export class BuildAppCommand {
     if (completeArchitecture) {
       console.log(chalk.blue.bold("\n🏗️  Complete Architecture Mode"));
       console.log(chalk.gray(`Architecture Type: ${architectureType}`));
-      console.log(chalk.gray(`Server Actions: ${serverActions ? "Yes" : "No"}`));
+      console.log(
+        chalk.gray(`Server Actions: ${serverActions ? "Yes" : "No"}`)
+      );
       console.log(chalk.gray(`Routes: ${routes ? "Yes" : "No"}`));
     }
     console.log();
@@ -73,7 +114,8 @@ export class BuildAppCommand {
         {
           type: "confirm",
           name: "useCompleteArch",
-          message: "Generate complete architecture (components + actions + routes)?",
+          message:
+            "Generate complete architecture (components + actions + routes)?",
           initial: true,
         },
         {
@@ -81,7 +123,10 @@ export class BuildAppCommand {
           name: "archType",
           message: "Choose architecture type:",
           choices: [
-            { title: "Next.js App Router (Recommended)", value: "nextjs-app-router" },
+            {
+              title: "Next.js App Router (Recommended)",
+              value: "nextjs-app-router",
+            },
             { title: "Next.js Pages Router", value: "nextjs-pages" },
             { title: "React SPA", value: "react-spa" },
           ],
@@ -91,15 +136,23 @@ export class BuildAppCommand {
 
       if (architecturePrompts.useCompleteArch) {
         finalCompleteArchitecture = true;
-        finalArchitectureType = architecturePrompts.archType || architectureType;
+        finalArchitectureType =
+          architecturePrompts.archType || architectureType;
 
-        console.log(chalk.blue.bold("\n🏗️  Complete Architecture Mode Enabled"));
+        console.log(
+          chalk.blue.bold("\n🏗️  Complete Architecture Mode Enabled")
+        );
         console.log(chalk.gray(`Architecture Type: ${finalArchitectureType}`));
         console.log();
       }
     }
 
     try {
+      // Ensure description is available
+      if (!description) {
+        throw new Error("Project description is required");
+      }
+
       // Use the new WorkflowAgent for agent-based, interactive workflow
       const workflowInput = {
         description,
@@ -130,7 +183,9 @@ export class BuildAppCommand {
         );
 
         if (finalCompleteArchitecture) {
-          console.log(chalk.green.bold("\n🏗️  Complete Architecture Generated:"));
+          console.log(
+            chalk.green.bold("\n🏗️  Complete Architecture Generated:")
+          );
           console.log(chalk.gray(`   ✅ Components with self-documentation`));
           if (serverActions) {
             console.log(chalk.gray(`   ✅ Server actions in actions/`));
@@ -205,15 +260,86 @@ export class BuildAppCommand {
       console.log(chalk.gray(`   • Try running individual commands manually`));
 
       if (finalCompleteArchitecture) {
-        console.log(chalk.yellow(`\n🏗️  Complete Architecture Troubleshooting:`));
-        console.log(chalk.gray(`   • Ensure component list exists (.mycontext/04-component-list.json)`));
-        console.log(chalk.gray(`   • Check that PRD and context files are generated`));
-        console.log(chalk.gray(`   • Try basic generation first without --complete-architecture`));
-        console.log(chalk.gray(`   • Review architecture plan in .mycontext/architecture-plan.json`));
+        console.log(
+          chalk.yellow(`\n🏗️  Complete Architecture Troubleshooting:`)
+        );
+        console.log(
+          chalk.gray(
+            `   • Ensure component list exists (.mycontext/04-component-list.json)`
+          )
+        );
+        console.log(
+          chalk.gray(`   • Check that PRD and context files are generated`)
+        );
+        console.log(
+          chalk.gray(
+            `   • Try basic generation first without --complete-architecture`
+          )
+        );
+        console.log(
+          chalk.gray(
+            `   • Review architecture plan in .mycontext/architecture-plan.json`
+          )
+        );
       }
 
       throw error;
     }
+  }
+
+  // mycontext PM Integration Methods
+  private async loadPMPlan(planFile: string): Promise<PMAgentProjectInput> {
+    if (!fs.existsSync(planFile)) {
+      throw new Error(`PM plan file not found: ${planFile}`);
+    }
+
+    try {
+      const planContent = fs.readFileSync(planFile, "utf8");
+      const pmPlan: PMAgentProjectInput = JSON.parse(planContent);
+
+      // Basic validation
+      if (!pmPlan.project || !pmPlan.breakdown || !pmPlan.myContext) {
+        throw new Error("Invalid PM plan structure");
+      }
+
+      return pmPlan;
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error(`Invalid JSON in PM plan file: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  private mergeOptionsWithPMPlan(
+    options: BuildAppOptions,
+    pmPlan: PMAgentProjectInput | null
+  ): BuildAppOptions {
+    if (!pmPlan) {
+      // Ensure description is provided when no PM plan
+      if (!options.description) {
+        throw new Error("Description is required when not using a PM plan");
+      }
+      return options;
+    }
+
+    // Merge PM plan data with command options
+    return {
+      ...options,
+      description: pmPlan.project.description,
+      framework: pmPlan.myContext.framework,
+      withTests: pmPlan.myContext.withTests,
+      completeArchitecture: pmPlan.myContext.completeArchitecture,
+      architectureType: pmPlan.myContext.architecture,
+      serverActions: pmPlan.myContext.generateServerActions,
+      routes: pmPlan.myContext.generateRoutes,
+      // Keep command-line options if explicitly provided
+      output: options.output,
+      verbose: options.verbose,
+      interactive: options.interactive,
+      skipValidation: options.skipValidation,
+      maxRetries: options.maxRetries,
+    };
   }
 
   // Help text method
@@ -240,18 +366,37 @@ ${chalk.yellow("🏗️  Complete Architecture Options:")}
   --server-actions         Generate server actions (default: true with --complete-architecture)
   --routes                 Generate Next.js routes (default: true with --complete-architecture)
 
+${chalk.yellow("🤖 mycontext PM Integration Options:")}
+  --pm-plan <file>         Use mycontext PM project plan JSON file
+  --auto-sync              Automatically sync progress with mycontext PM
+  --webhook-url <url>      Webhook URL for progress updates
+
 ${chalk.yellow("📖 Examples:")}
   ${chalk.gray("# Basic build")}
-  ${chalk.cyan("mycontext build-app --description \"E-commerce platform\"")}
+  ${chalk.cyan('mycontext build-app --description "E-commerce platform"')}
 
   ${chalk.gray("# Complete architecture")}
-  ${chalk.cyan("mycontext build-app --description \"E-commerce platform\" --complete-architecture")}
+  ${chalk.cyan(
+    'mycontext build-app --description "E-commerce platform" --complete-architecture'
+  )}
 
   ${chalk.gray("# Interactive with architecture")}
-  ${chalk.cyan("mycontext build-app --description \"E-commerce platform\" --interactive")}
+  ${chalk.cyan(
+    'mycontext build-app --description "E-commerce platform" --interactive'
+  )}
 
   ${chalk.gray("# Specific architecture type")}
-  ${chalk.cyan("mycontext build-app --description \"Blog\" --complete-architecture --architecture-type nextjs-pages")}
+  ${chalk.cyan(
+    'mycontext build-app --description "Blog" --complete-architecture --architecture-type nextjs-pages'
+  )}
+
+  ${chalk.gray("# Build from mycontext PM project plan")}
+  ${chalk.cyan("mycontext build-app --pm-plan ./pm-project-plan.json")}
+
+  ${chalk.gray("# Build from PM plan with auto-sync")}
+  ${chalk.cyan(
+    "mycontext build-app --pm-plan ./pm-plan.json --auto-sync --webhook-url https://mycontext-pm.example.com/webhook"
+  )}
 
 ${chalk.yellow("🎯 What Gets Generated:")}
 

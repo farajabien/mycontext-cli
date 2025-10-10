@@ -1,5 +1,7 @@
 import chalk from "chalk";
 import prompts from "prompts";
+import figlet from "figlet";
+import gradient from "gradient-string";
 import { EnhancedSpinner } from "../utils/spinner";
 import { FileSystemManager } from "../utils/fileSystem";
 import { CommandOptions } from "../types";
@@ -27,7 +29,8 @@ export class InitCommand {
     const spinner = new EnhancedSpinner("Initializing project...");
 
     try {
-      console.log(chalk.blue.bold("🚀 MyContext Project Initialization\n"));
+      // Display ASCII art branding
+      this.displayBranding();
 
       // Handle current directory initialization with "."
       let finalProjectName = projectName;
@@ -279,20 +282,24 @@ export class InitCommand {
       chalk.gray("   • This is crucial for accurate AI generation\n")
     );
 
+    console.log(chalk.yellow("3. Configure AI provider:"));
+    console.log(chalk.gray("   📌 Option A - Claude SDK (Recommended):"));
     console.log(
-      chalk.yellow("3. Configure AI provider (Claude SDK - RECOMMENDED!):")
+      chalk.gray("      Get Claude API key: https://console.anthropic.com/\n")
     );
     console.log(
-      chalk.gray("   # Get Claude API key: https://console.anthropic.com/\n")
+      chalk.gray("   📌 Option B - OpenRouter Free Tier (DeepSeek-R1):")
     );
+    console.log(
+      chalk.gray("      Get free API key: https://openrouter.ai/keys")
+    );
+    console.log(chalk.gray("      Uses DeepSeek-R1 for advanced reasoning\n"));
     console.log(
       chalk.gray("   # Copy .env.example to .env and add your key:\n")
     );
     console.log(chalk.cyan("   cp .mycontext/.env.example .mycontext/.env"));
     console.log(
-      chalk.cyan(
-        "   # Edit .mycontext/.env and replace placeholder with your actual Claude API key\n"
-      )
+      chalk.cyan("   # Add ANTHROPIC_API_KEY or MYCONTEXT_OPENROUTER_API_KEY\n")
     );
 
     console.log(chalk.yellow("4. Generate context files (after PRD review):"));
@@ -355,6 +362,30 @@ export class InitCommand {
     console.log(
       chalk.gray("• Run 'mycontext status' to check project progress\n")
     );
+
+    // Exit the process gracefully after displaying all information
+    process.exit(0);
+  }
+
+  private displayBranding(): void {
+    try {
+      const logo = figlet.textSync("MyContext", {
+        font: "Standard",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      });
+
+      // Apply gradient to the logo
+      console.log(gradient.pastel.multiline(logo));
+      console.log(
+        chalk.cyan.bold(
+          "    🚀 AI-Powered Context & Component Library Generation\n"
+        )
+      );
+    } catch (error) {
+      // Fallback to simple text if figlet fails
+      console.log(chalk.blue.bold("\n🚀 MyContext Project Initialization\n"));
+    }
   }
 
   private isValidProjectName(name: string): boolean {
@@ -385,17 +416,7 @@ export class InitCommand {
       }
 
       // Create InstantDB project with user interaction
-      console.log(chalk.blue("\n🚀 Starting InstantDB Project Creation"));
-      console.log(
-        chalk.gray(
-          "   You'll now go through the InstantDB setup process interactively."
-        )
-      );
-      console.log(
-        chalk.gray(
-          "   Complete the setup, and MyContext will continue automatically.\n"
-        )
-      );
+      // Let InstantDB handle its own branding and messages
 
       try {
         // Use spawn to handle interactive prompts properly
@@ -405,7 +426,7 @@ export class InitCommand {
           ["create-instant-app@latest", projectName],
           {
             cwd: workingDir,
-            stdio: ["inherit", "inherit", "inherit"], // Allow stdin/stdout/stderr to pass through
+            stdio: "inherit", // Cleaner - let InstantDB handle all I/O
             shell: true,
           }
         );
@@ -413,14 +434,7 @@ export class InitCommand {
         await new Promise<void>((resolve, reject) => {
           createInstantApp.on("close", (code) => {
             if (code === 0) {
-              console.log(
-                chalk.green("\n✅ InstantDB project created successfully!")
-              );
-              console.log(
-                chalk.blue(
-                  "🔄 MyContext will now continue with project setup...\n"
-                )
-              );
+              // InstantDB setup complete, continue silently
               resolve();
             } else {
               console.log(

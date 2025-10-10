@@ -2,10 +2,10 @@
  * CodeGenSubAgent Implementation
  *
  * Specialized sub-agent for generating production-ready React components and TypeScript code.
- * Uses Claude Code for optimal code generation capabilities.
+ * Uses MyContext AI (fine-tuned GPT-4o Mini) for 95%+ accurate component generation.
  * Enhanced with shadcn/ui primitives and modern React patterns for Next.js 14+.
  */
-import { HybridAIClient } from "../../utils/hybridAIClient";
+import { getProviderChain } from "../../clients/ProviderChain";
 import {
   PromptConstructorAgent,
   PromptConstructionContext,
@@ -115,7 +115,7 @@ export class CodeGenSubAgent
 {
   name = "CodeGenSubAgent";
   description =
-    "Expert React/TypeScript developer specializing in production-ready Next.js 14+ components with shadcn/ui";
+    "Expert React/TypeScript developer using MyContext AI for 95%+ accurate shadcn/ui component generation";
   personality: string;
   traits: string[];
   llmProvider: string;
@@ -217,9 +217,9 @@ export class CodeGenSubAgent
     group: any,
     options: any
   ): Promise<string> {
-    // Try cloud-first via HybridAIClient (GitHub Models preferred), then fall back to local Ollama, then template
+    // Use MyContext AI (fine-tuned GPT-4o Mini) with fallbacks to Claude SDK and XAI
     try {
-      const ai = new HybridAIClient();
+      const ai = getProviderChain();
 
       const compObj =
         typeof component === "string"
@@ -349,7 +349,14 @@ export class CodeGenSubAgent
           constructedPrompt = await this.constructPromptWithLLM(
             compObj,
             group,
-            { prd, types, enhancedContext }
+            {
+              prd,
+              types,
+              enhancedContext,
+              designSystem: options?.context?.designSystem,
+              designIntent: options?.context?.designIntent,
+              visualTokens: options?.context?.visualTokens,
+            }
           );
           console.log(
             `✅ Intelligent prompt constructed via LLM: ${constructedPrompt.contextSummary}`
@@ -372,10 +379,23 @@ export class CodeGenSubAgent
       const prompt = `${constructedPrompt.systemPrompt}\n\n${constructedPrompt.userPrompt}`;
 
       console.log("🔍 DEBUG: About to call AI for component generation");
-      const { code } = await ai.generateComponent(prompt, {
-        temperature: this.temperature,
-        maxTokens: Math.max(this.maxTokens, 8000), // Ensure minimum 8000 tokens
-      });
+      const code = await ai.generateComponent(
+        prompt,
+        {
+          prd,
+          types,
+          brand: options?.context?.branding,
+          componentList: options?.context?.componentList,
+          projectStructure: options?.context?.projectStructure,
+          previousOutputs: options?.context?.previousOutputs,
+          userPrompt: prompt,
+          workingDirectory: options?.context?.workingDirectory,
+        },
+        {
+          temperature: this.temperature,
+          maxTokens: Math.max(this.maxTokens, 8000), // Ensure minimum 8000 tokens
+        }
+      );
 
       console.log(
         "🔍 DEBUG: AI component generation response length:",
@@ -411,14 +431,21 @@ export class CodeGenSubAgent
   private async constructPromptWithLLM(
     component: any,
     group: any,
-    context: { prd: string; types: string; enhancedContext: string }
+    context: {
+      prd: string;
+      types: string;
+      enhancedContext: string;
+      designSystem?: any;
+      designIntent?: any;
+      visualTokens?: any;
+    }
   ): Promise<{
     systemPrompt: string;
     userPrompt: string;
     contextSummary: string;
     specificRequirements: string[];
   }> {
-    const ai = new HybridAIClient();
+    const ai = getProviderChain();
 
     const promptConstructionRequest = `
 You are a specialist in creating optimal prompts for React/TypeScript component generation.
@@ -482,28 +509,32 @@ Focus on:
 - Server Component architecture for page.tsx files
 `;
 
-    const response = await ai.generateComponent(promptConstructionRequest, {
-      temperature: 0.3, // Lower temperature for more consistent prompt construction
-      maxTokens: 2000,
-    });
+    const response = await ai.generateComponent(
+      promptConstructionRequest,
+      {},
+      {
+        temperature: 0.3, // Lower temperature for more consistent prompt construction
+        maxTokens: 2000,
+      }
+    );
 
     try {
       console.log(
         "🔍 DEBUG: CodeGen prompt construction response length:",
-        response.code.length
+        response.length
       );
       console.log(
         "🔍 DEBUG: CodeGen prompt construction response preview:",
-        response.code.substring(0, 200)
+        response.substring(0, 200)
       );
 
       // Extract JSON from the response
-      const jsonMatch = response.code.match(/\{[\s\S]*\}/);
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         console.warn(
           "❌ DEBUG: No JSON found in LLM response, using fallback prompt construction"
         );
-        console.log("❌ DEBUG: Full response:", response.code);
+        console.log("❌ DEBUG: Full response:", response);
         return this.createFallbackPrompt(component, group, context);
       }
 
@@ -542,7 +573,14 @@ Focus on:
   private createFallbackPrompt(
     component: any,
     group: any,
-    context: { prd: string; types: string; enhancedContext: string }
+    context: {
+      prd: string;
+      types: string;
+      enhancedContext: string;
+      designSystem?: any;
+      designIntent?: any;
+      visualTokens?: any;
+    }
   ): {
     systemPrompt: string;
     userPrompt: string;
@@ -551,6 +589,60 @@ Focus on:
   } {
     const componentName = component.name || "Component";
     const componentDescription = component.description || "A React component";
+
+    // Add design system context if available
+    let designSystemContext = "";
+    if (context.designSystem || context.designIntent || context.visualTokens) {
+      designSystemContext = "\n\n🎨 **DESIGN SYSTEM CONTEXT**:\n";
+
+      if (context.designSystem) {
+        designSystemContext += `\n**Visual Tokens:**
+- Primary Color: ${context.designSystem.colors?.primary || "Not specified"}
+- Secondary Color: ${context.designSystem.colors?.secondary || "Not specified"}
+- Typography: ${
+          context.designSystem.typography?.heading || "Not specified"
+        } (headings), ${
+          context.designSystem.typography?.body || "Not specified"
+        } (body)
+- Spacing Scale: ${
+          context.designSystem.spacing?.base || "Not specified"
+        }px base unit
+- Border Radius: ${context.designSystem.borderRadius?.base || "Not specified"}px
+- Shadows: ${context.designSystem.shadows?.base || "Not specified"}`;
+      }
+
+      if (context.designIntent) {
+        designSystemContext += `\n\n**Design Principles:**
+- Design Anchors: ${
+          context.designIntent.design_anchors?.join(", ") || "Not specified"
+        }
+- Key Principles: ${
+          context.designIntent.key_principles?.join(", ") || "Not specified"
+        }
+- User Experience Focus: ${
+          context.designIntent.user_experience_focus || "Not specified"
+        }`;
+      }
+
+      if (context.visualTokens) {
+        designSystemContext += `\n\n**Component Tokens:**
+- Button Styles: ${JSON.stringify(context.visualTokens.buttons || {})}
+- Input Styles: ${JSON.stringify(context.visualTokens.inputs || {})}
+- Card Styles: ${JSON.stringify(context.visualTokens.cards || {})}`;
+      }
+
+      designSystemContext += "\n\n**Design Implementation Requirements:**\n";
+      designSystemContext +=
+        "- Use the specified color palette for all UI elements\n";
+      designSystemContext +=
+        "- Apply consistent typography scale throughout the component\n";
+      designSystemContext +=
+        "- Follow the established spacing and border radius patterns\n";
+      designSystemContext +=
+        "- Implement component tokens for buttons, inputs, and cards\n";
+      designSystemContext +=
+        "- Ensure visual consistency with the overall design system";
+    }
 
     const systemPrompt = `You are an expert React/TypeScript developer specializing in production-ready Next.js 14+ components with shadcn/ui.
 
@@ -587,7 +679,7 @@ CRITICAL REQUIREMENTS:
 - Server Components for page.tsx files (no "use client")
 - Client Components for interactive functionality
 
-Generate production-ready, maintainable code that follows industry best practices.`;
+Generate production-ready, maintainable code that follows industry best practices.${designSystemContext}`;
 
     const userPrompt = `Create a React component: ${componentName}
 

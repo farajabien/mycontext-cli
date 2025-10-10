@@ -1,0 +1,782 @@
+{
+  "modelId": "faraja/mycontext-codegen2-merged",
+  "testDate": "2025-10-09T23:13:06.177Z",
+  "totalTests": 64,
+  "passedTests": 0,
+  "failedTests": 64,
+  "averageScore": 0,
+  "categoryScores": {
+    "Intent Dictionary": 0,
+    "Expanded Patterns": 0
+  },
+  "results": [
+    {
+      "testId": "button-primary",
+      "prompt": "Create a primary button component with loading state",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "button-secondary",
+      "prompt": "Create a secondary button component with icon",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "button-destructive",
+      "prompt": "Create a destructive button for delete actions",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "input-text",
+      "prompt": "Create a text input field with label",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "input-email",
+      "prompt": "Create an email input with validation",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "input-password",
+      "prompt": "Create a password input with show/hide toggle",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "form-login",
+      "prompt": "Create a login form with email and password fields using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "form-signup",
+      "prompt": "Create a signup form with name, email, and password",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "form-contact",
+      "prompt": "Create a contact form with name, email, and message fields",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "card-basic",
+      "prompt": "Create a basic card component with header, content, and footer",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "checkbox",
+      "prompt": "Create a checkbox with label using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radio-group",
+      "prompt": "Create a radio button group with multiple options",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "select-dropdown",
+      "prompt": "Create a select dropdown with multiple options",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "textarea",
+      "prompt": "Create a textarea component with character count",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "switch-toggle",
+      "prompt": "Create a switch toggle for settings",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nav-header",
+      "prompt": "Create a header navigation with logo and menu items",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nav-sidebar",
+      "prompt": "Create a sidebar navigation with collapsible sections",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nav-tabs",
+      "prompt": "Create tabs navigation with multiple panels",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "breadcrumbs",
+      "prompt": "Create breadcrumb navigation for hierarchical pages",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "pagination",
+      "prompt": "Create pagination component with page numbers",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "alert-success",
+      "prompt": "Create a success alert message component",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "alert-error",
+      "prompt": "Create an error alert message component",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "toast-notification",
+      "prompt": "Create a toast notification system using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "progress-bar",
+      "prompt": "Create a progress bar component with percentage",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "skeleton-loader",
+      "prompt": "Create skeleton loading placeholders",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "modal-dialog",
+      "prompt": "Create a modal dialog with form submission",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "dropdown-menu",
+      "prompt": "Create a dropdown menu with multiple actions",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "popover",
+      "prompt": "Create a popover component with custom content",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "table-data",
+      "prompt": "Create a data table with sorting using shadcn/ui Table component",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "badge-status",
+      "prompt": "Create status badges with different variants",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-server-component",
+      "prompt": "Create a Next.js server component that fetches data with InstantDB",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-client-component",
+      "prompt": "Create a Next.js client component with useState and useEffect",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-server-action",
+      "prompt": "Create a server action for form submission in Next.js",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-dynamic-route",
+      "prompt": "Create a Next.js dynamic route component with params",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-layout",
+      "prompt": "Create a Next.js layout component with nested children",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-error-boundary",
+      "prompt": "Create a Next.js error boundary component",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "nextjs-loading",
+      "prompt": "Create a Next.js loading skeleton component",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-query",
+      "prompt": "Create a component that queries users with InstantDB using db.useQuery",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-mutation",
+      "prompt": "Create a component that adds a new post using InstantDB db.transact",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-auth-magic-code",
+      "prompt": "Create a login component with InstantDB magic code authentication",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-presence",
+      "prompt": "Create a component showing online users with InstantDB presence",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-file-upload",
+      "prompt": "Create a file upload component using InstantDB storage",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-relationships",
+      "prompt": "Create a component that queries posts with author relationship using InstantDB",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "instantdb-optimistic-update",
+      "prompt": "Create a todo list with optimistic updates using InstantDB",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-table-sorting",
+      "prompt": "Create a data table with sorting and pagination using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-form-react-hook-form",
+      "prompt": "Create a form with react-hook-form and zod validation using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-dialog-controlled",
+      "prompt": "Create a controlled dialog component with form submission",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-command-palette",
+      "prompt": "Create a command palette with search functionality",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-data-table-filters",
+      "prompt": "Create a data table with column filters and search",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-combobox-async",
+      "prompt": "Create a combobox with async search using shadcn/ui",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "shadcn-multi-select",
+      "prompt": "Create a multi-select component with checkboxes",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-dialog-composition",
+      "prompt": "Create a custom dialog using Radix UI primitives with custom styling",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-dropdown-submenu",
+      "prompt": "Create a dropdown menu with nested submenus using Radix UI",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-popover-positioning",
+      "prompt": "Create a popover with custom anchor positioning using Radix UI",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-accordion-multiple",
+      "prompt": "Create an accordion with multiple expandable panels",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-tabs-lazy",
+      "prompt": "Create tabs with lazy loading content using Radix UI",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-toast-system",
+      "prompt": "Create a toast notification system using Radix UI primitives",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "radix-context-menu-nested",
+      "prompt": "Create a context menu with nested items using Radix UI",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-responsive-grid",
+      "prompt": "Create a responsive grid layout with Tailwind CSS",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-dark-mode",
+      "prompt": "Create a component with dark mode support using Tailwind CSS",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-animations",
+      "prompt": "Create an animated component with Tailwind CSS transitions",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-custom-utilities",
+      "prompt": "Create a component using Tailwind CSS custom utility classes",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-container-queries",
+      "prompt": "Create a responsive component using Tailwind CSS container queries",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    },
+    {
+      "testId": "tailwind-aspect-ratio",
+      "prompt": "Create a component with aspect ratio utilities using Tailwind CSS",
+      "generated": "",
+      "passed": false,
+      "score": 0,
+      "checks": [],
+      "errors": [
+        "Generation failed: InputError: No Inference Provider available for model faraja/mycontext-codegen2-merged."
+      ],
+      "warnings": []
+    }
+  ]
+}

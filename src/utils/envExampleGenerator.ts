@@ -15,204 +15,81 @@ export class EnvExampleGenerator {
    * Generate user-centric environment example focused on MyContext workflow
    */
   static generateEnvExample(packageJson?: PackageJson): string {
-    // MyContext-specific environment variables for user-centric workflow
     const envVars = new Set<string>();
 
-    // Basic Next.js setup (only if needed)
-    envVars.add("NODE_ENV=development");
-    envVars.add("NEXT_PUBLIC_APP_URL=http://localhost:3000");
+    // MyContext AI Provider Chain (Primary → Fallback 1 → Fallback 2)
+    envVars.add("# MyContext AI (Coming Soon - Primary Provider)");
+    envVars.add("MYCONTEXT_API_KEY=");
+    envVars.add("");
 
-    // MyContext AI Provider Configuration (Simplified)
-    // Claude Agent SDK handles Claude, Bedrock, and Vertex AI automatically
+    envVars.add("# Claude SDK (Fallback 1)");
     envVars.add("ANTHROPIC_API_KEY=");
+    envVars.add("");
 
-    // Optional: Amazon Bedrock (via Claude SDK)
-    envVars.add("CLAUDE_CODE_USE_BEDROCK=0");
-    envVars.add("AWS_ACCESS_KEY_ID=");
-    envVars.add("AWS_SECRET_ACCESS_KEY=");
-    envVars.add("AWS_REGION=us-east-1");
+    envVars.add("# XAI/Grok (Fallback 2)");
+    envVars.add("XAI_API_KEY=");
+    envVars.add("");
 
-    // Optional: Google Vertex AI (via Claude SDK)
-    envVars.add("CLAUDE_CODE_USE_VERTEX=0");
-    envVars.add("GOOGLE_APPLICATION_CREDENTIALS=");
-
-    // Optional: Grok 4 (direct X AI API - not supported by Claude SDK)
-    envVars.add("MYCONTEXT_XAI_API_KEY=");
-
-    // Provider selection (Claude SDK handles most providers automatically)
-    envVars.add("MYCONTEXT_PROVIDER=claude-agent");
-    envVars.add("MYCONTEXT_MODEL=claude-3-5-sonnet-20241022");
+    // Add OpenRouter
+    envVars.add("# OpenRouter (Fallback 3 - Free Tier for Testing)");
+    envVars.add("MYCONTEXT_OPENROUTER_API_KEY=");
+    envVars.add("");
 
     // Generation settings
-    envVars.add("MYCONTEXT_TIMEOUT=60000");
-    envVars.add("MYCONTEXT_MAX_RETRIES=3");
-    envVars.add("MYCONTEXT_TEMPERATURE=0.2");
+    envVars.add("# Optional: Generation Settings");
+    envVars.add("MYCONTEXT_TEMPERATURE=0.1");
     envVars.add("MYCONTEXT_MAX_TOKENS=4000");
 
-    // Check for database dependencies and add relevant env vars
+    // Check for database dependencies
     const dependencies = packageJson
       ? { ...packageJson.dependencies, ...packageJson.devDependencies }
       : {};
 
-    if (dependencies["@supabase/supabase-js"] || dependencies["supabase"]) {
-      envVars.add("NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url");
-      envVars.add("NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key");
-    }
-
-    if (dependencies["instantdb"]) {
-      envVars.add("INSTANTDB_APP_ID=your_instantdb_app_id");
-    }
-
-    if (dependencies["next-auth"]) {
-      envVars.add("NEXTAUTH_URL=http://localhost:3000");
-      envVars.add("NEXTAUTH_SECRET=your_nextauth_secret_here");
+    if (dependencies["@instantdb/react"]) {
+      envVars.add("");
+      envVars.add("# InstantDB");
+      envVars.add("NEXT_PUBLIC_INSTANT_APP_ID=");
     }
 
     return `# MyContext Environment Variables
 
-This file contains environment variables for your MyContext project.
-Copy this file to \`.env\` in your .mycontext directory and update with your actual credentials.
+## 🚀 Quick Setup
 
-## 🚀 Quick Start Guide
-
-### Step 1: Choose Your AI Provider
-
-**🎯 RECOMMENDED: Claude Agent SDK (Handles Everything Automatically)**
-- Go to: https://console.anthropic.com/
-- Create account
-- Get API key from dashboard
-- Copy key to: ANTHROPIC_API_KEY
-- The SDK automatically handles Claude, Bedrock, and Vertex AI
-
-**☁️ Alternative: Amazon Bedrock (via Claude SDK)**
-- Set: CLAUDE_CODE_USE_BEDROCK=1
-- Configure AWS credentials
-- The SDK automatically routes through Bedrock
-
-**☁️ Alternative: Google Vertex AI (via Claude SDK)**
-- Set: CLAUDE_CODE_USE_VERTEX=1
-- Configure Google Cloud credentials
-- The SDK automatically routes through Vertex AI
-
-**🤖 Alternative: Grok 4 (Direct X AI API)**
-- Go to: https://console.x.ai/
-- Create account and subscribe to SuperGrok
-- Get API key from dashboard
-- Copy key to: MYCONTEXT_XAI_API_KEY
-- Set: MYCONTEXT_PROVIDER=xai
-
-### Step 2: Configure Your Environment
-
-Copy this file to \`.mycontext/.env\`:
+### Option 1: Use MyContext AI (Coming Soon - Recommended)
 \`\`\`bash
-cp .env.example .mycontext/.env
+MYCONTEXT_API_KEY=mctx-xxx
 \`\`\`
 
-### Step 3: Update with Your Keys
-
-Edit \`.mycontext/.env\` and replace placeholder values with your actual API keys.
-
-### Step 4: Test Your Setup
-
+### Option 2: Bring Your Own Keys (Free)
 \`\`\`bash
-mycontext status
+ANTHROPIC_API_KEY=sk-ant-xxx      # Claude (primary)
+XAI_API_KEY=xai-xxx                # Grok (fallback 1)
+MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx  # OpenRouter free tier (fallback 2)
 \`\`\`
+
+## Provider Chain
+MyContext AI → Claude SDK → XAI → OpenRouter (automatic fallback)
+
+## Get API Keys
+
+- **Claude**: https://console.anthropic.com/
+- **XAI**: https://console.x.ai/
+- **OpenRouter**: https://openrouter.ai/keys (free tier available)
+- **MyContext AI**: Coming soon at api.mycontext.dev
 
 ## Environment Variables
 
 ${Array.from(envVars).join("\n")}
 
-## 🔧 AI Provider Configuration
+## 🔒 Security
 
-### 🎯 Primary Setup (Claude Agent SDK Routes All)
-
-#### Option 1: Direct Claude API (Recommended)
-\`\`\`bash
-MYCONTEXT_PROVIDER=claude-agent
-ANTHROPIC_API_KEY=your_anthropic_api_key
-MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
-\`\`\`
-
-#### Option 2: Amazon Bedrock (via Claude SDK)
-\`\`\`bash
-MYCONTEXT_PROVIDER=claude-agent
-CLAUDE_CODE_USE_BEDROCK=1
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_REGION=us-east-1
-MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
-\`\`\`
-
-#### Option 3: Google Vertex AI (via Claude SDK)
-\`\`\`bash
-MYCONTEXT_PROVIDER=claude-agent
-CLAUDE_CODE_USE_VERTEX=1
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
-MYCONTEXT_MODEL=claude-3-5-sonnet-20241022
-\`\`\`
-
-#### Option 4: Grok 4 (Direct X AI API)
-\`\`\`bash
-MYCONTEXT_PROVIDER=xai
-MYCONTEXT_XAI_API_KEY=your_xai_api_key
-MYCONTEXT_MODEL=grok-beta
-\`\`\`
-
-## 📋 MyContext Workflow Steps
-
-After setting up your environment:
-
-1. **Review PRD** (Required):
-   \`\`\`bash
-   # Open .mycontext/01-prd.md and update with your requirements
-   \`\`\`
-
-2. **Generate Context Files**:
-   \`\`\`bash
-   mycontext generate-context-files
-   \`\`\`
-
-3. **Compile PRD**:
-   \`\`\`bash
-   mycontext compile-prd
-   \`\`\`
-
-4. **Generate Components**:
-   \`\`\`bash
-   mycontext generate-components all --with-tests
-   \`\`\`
-
-5. **Preview Your App**:
-   \`\`\`bash
-   npm run dev
-   # Visit http://localhost:3000/preview
-   \`\`\`
-
-## 🔒 Security Notes
-
-- Never commit actual API keys to version control
-- Add \`.env\` to your \`.gitignore\` file
+- Never commit \`.env\` to version control
+- Add \`.env\` to \`.gitignore\`
 - Rotate API keys regularly
-- Use different keys for development and production
-- Monitor your API usage for unusual activity
 
-## 🛠️ Troubleshooting
+## 📚 More Info
 
-**"Invalid API key" error?**
-- Double-check your ANTHROPIC_API_KEY is correct
-- Ensure it has the right permissions
-- For Bedrock: verify AWS credentials
-- For Vertex AI: verify Google Cloud credentials
-
-**"Rate limit exceeded" error?**
-- Claude Agent SDK handles rate limiting automatically
-- Consider upgrading to higher tier plans
-- Wait and try again later
-
-**Need help?**
-- Check: mycontext status
-- Review: .mycontext directory for generated files
-- Test: mycontext model --test
+See full documentation: https://github.com/farajabien/mycontext-cli/tree/main/docs
 `;
   }
 

@@ -5,6 +5,146 @@ All notable changes to MyContext CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.29] - 2025-10-10
+
+### 🔄 Component Refinement & Regression System
+
+This major release introduces a production-ready component refinement system with automatic regression testing, mutation tracking, and AI-powered improvement suggestions.
+
+### Added
+
+- **Component Refinement System** - AI-powered component improvement with `mycontext refine:component <ComponentName>`
+  - Interactive refinement instructions from user
+  - AI-generated improvement suggestions with chain-of-thought
+  - Confidence scoring and risk flag detection
+- **Automatic Regression Testing** - Comprehensive test suite runs automatically
+  - TypeScript compilation checking (`tsc --noEmit`)
+  - ESLint validation with error/warning scoring
+  - Unit test execution (Jest/Vitest) with pass/fail tracking
+  - Weighted scoring system (typecheck: 30%, lint: 20%, unit: 50%)
+- **Mutation Tracking & Provenance** - Complete history of all component changes
+  - Before/after snapshots with git unified diff
+  - Chain-of-thought and confidence scoring
+  - Status tracking (proposed/applied/rejected)
+  - JSON storage in `.mycontext/mutations/<componentName>/`
+- **Baseline Comparison** - Regression detection against previous versions
+  - Automatic baseline saving for applied refinements
+  - Regression detection with configurable thresholds
+  - Historical comparison and trend analysis
+- **Interactive Approval UI** - Rich approval interface with test results
+  - Side-by-side diff preview
+  - Test results display (TypeScript, ESLint, Unit Tests)
+  - Confidence scoring and risk flag visualization
+  - Accept/Reject/View Diff workflow
+- **OpenRouter DeepSeek-R1 Integration** - Free tier AI provider option
+  - DeepSeek-R1 model as fallback option
+  - API key detection and configuration
+  - Proper fallback chain integration
+- **Enhanced CLI Branding** - Beautiful ASCII art logo with gradient
+  - Updated tagline: "AI-Powered Context & Component Library Generation"
+  - Clean terminal handoff to external tools
+  - Professional visual presentation
+
+### Changed
+
+- **Refine Command** - Completely rewritten with regression testing integration
+- **AI Provider Chain** - Added OpenRouter as priority 3 provider
+- **Documentation Structure** - Updated with refinement workflow examples
+- **Getting Started Guide** - Added component refinement section
+
+### Technical Improvements
+
+- **MutationLogger Service** - New service for tracking component changes
+- **RegressionRunner Service** - New service for automated testing
+- **Enhanced Error Handling** - Better error messages and recovery
+- **TypeScript Compliance** - All new services fully typed
+- **Build Stability** - Clean compilation with no errors
+
+### Documentation
+
+- **Getting Started Guide** - Added refinement workflow section with examples
+- **Core Features Index** - Added "Component Refinement & Regression" section
+- **Research Documentation** - Created comprehensive `docs/research/component-refinement-regression.md`
+- **Implementation Summary** - Complete overview in `IMPLEMENTATION_SUMMARY.md`
+
+### Files Added
+
+- `src/services/MutationLogger.ts` - Mutation tracking and provenance
+- `src/services/RegressionRunner.ts` - Automated regression testing
+- `src/utils/openRouterClient.ts` - OpenRouter API integration
+- `docs/research/component-refinement-regression.md` - Research documentation
+- `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+
+### Files Modified
+
+- `src/commands/refine-component.ts` - Complete rewrite with regression testing
+- `src/utils/hybridAIClient.ts` - Added OpenRouter integration
+- `src/utils/envExampleGenerator.ts` - Added OpenRouter configuration
+- `src/commands/generate.ts` - Updated API key detection
+- `src/commands/init.ts` - Enhanced branding and tagline
+- `docs/01-getting-started/getting-started.md` - Added refinement workflow
+- `docs/02-core-features/INDEX.md` - Added refinement features
+
+## [2.0.28] - 2025-10-09
+
+### 📚 Documentation & Testing Improvements
+
+This release focuses on documentation clarity, testing infrastructure, and build stability improvements.
+
+### Added
+
+- **Test Apps Infrastructure** - Created comprehensive test suite in `tests/test-apps/`
+  - `basic-button/` - Simple component generation test
+  - `auth-form/` - Complex form with validation test
+  - `dashboard-layout/` - Multi-component feature test
+- **Simplified npm README** - Clean, concise README focused on quick start and value proposition
+- **Comprehensive Documentation Hub** - Organized docs structure with clear navigation
+- **Business Model Documentation** - Clear explanation of open source CLI + paid API model
+
+### Changed
+
+- **README.md** - Simplified from 620 lines to 74 lines for better npm visibility
+- **Environment Example Generator** - Streamlined to focus on MyContext AI provider chain
+- **Documentation Structure** - Reorganized into 6 clear sections (getting-started, core-features, reference, guides, advanced, architecture)
+- **CONTRIBUTING.md** - Consolidated to root directory (GitHub convention)
+
+### Fixed
+
+- **Build Errors** - Fixed TypeScript compilation errors by moving `generateTrainingData.ts` out of src/
+- **Documentation Links** - All links now point to correct GitHub locations
+- **Environment Setup** - Simplified provider configuration with clear fallback chain
+
+### Removed
+
+- **Duplicate Documentation** - Removed duplicate CONTRIBUTING.md from docs/ folder
+- **Verbose Provider Explanations** - Removed complex Bedrock/Vertex AI setup instructions
+
+### Technical Improvements
+
+- **Build Stability** - `npm run build` now succeeds without errors
+- **TypeScript Compliance** - All source files compile successfully
+- **Provider Chain Architecture** - MyContext AI → Claude SDK → XAI fallback chain
+- **Training Data Script** - Moved to scripts/ directory for better organization
+
+### Documentation
+
+- **Getting Started Guide** - Clear installation and setup instructions
+- **Core Features** - Detailed explanation of AI agents and Intent Dictionary
+- **Architecture Overview** - System design and component relationships
+- **Business Model** - Open source CLI + optional paid API explanation
+- **Fine-tuning Strategy** - Comprehensive guide for custom model training
+
+### Testing
+
+- **Manual Test Suite** - Step-by-step validation for core workflows
+- **Component Quality Checks** - TypeScript, accessibility, pattern adherence
+- **Performance Metrics** - Generation time and code quality tracking
+- **Issue Documentation** - Structured format for reporting problems
+
+---
+
+## [2.0.27] - Previous Release
+
 ## [2.0.0] - 2025-10-03
 
 ### 🚀 Major Release - Complete Claude Agent SDK Integration
@@ -14,6 +154,7 @@ This is a **major version release** featuring complete integration with the Clau
 ### Added
 
 #### **8 Specialized AI Agents** 🤖
+
 - **Component Generator Agent** - Production-ready React components with Next.js 15, TypeScript, Shadcn UI
 - **Code Reviewer Agent** - Quality analysis, best practices, SOLID principles, security
 - **Documentation Writer Agent** - Comprehensive API docs, component guides, architecture
@@ -24,30 +165,35 @@ This is a **major version release** featuring complete integration with the Clau
 - **Performance Optimizer Agent** - React performance, Core Web Vitals, bundle optimization
 
 Each agent comes pre-configured with:
+
 - Specific tool permissions
 - Specialized system prompts
 - Domain expertise
 - Best practices
 
 #### **4 Custom MCP Tools** 🔧
+
 - **AnalyzeComponent** - Deep component structure analysis (imports, hooks, props, types)
 - **ValidatePRD** - PRD completeness checker with quality scoring (0-100)
 - **CheckTypes** - TypeScript validation (type safety, `any` usage, prop types)
 - **GenerateDocs** - Auto-documentation generator (props, usage, dependencies)
 
 #### **Intelligent Routing System** 🎯
+
 - Automatic selection between Agent SDK and Direct API based on operation complexity
 - Performance tracking and metrics
 - Smart fallback mechanism
 - Operation history and analytics
 
 New routing logic:
+
 ```typescript
 Complex operations → Agent SDK (80% of operations)
 Simple operations  → Direct API (20% of operations)
 ```
 
 #### **Streaming & Progress Tracking** 📡
+
 - Real-time progress updates during long operations
 - Token usage tracking (input/output tokens)
 - Tool execution monitoring
@@ -55,7 +201,9 @@ Simple operations  → Direct API (20% of operations)
 - Progress persistence for resume capability
 
 #### **Hook System** 🪝
+
 Lifecycle event hooks for customization:
+
 - `PreToolUse` - Before each tool execution
 - `PostToolUse` - After each tool execution
 - `SessionStart` - When agent session begins
@@ -65,13 +213,16 @@ Lifecycle event hooks for customization:
 - `PreCompact` - Before context compaction
 
 #### **Enhanced Infrastructure**
+
 - **AI Client Factory** - Centralized client management with caching
 - **AI Client Router** - Intelligent operation routing with performance tracking
 - **Streaming Handler** - Advanced progress tracking and token monitoring
 - **Unified AI Client Interface** - Consistent API across all AI operations
 
 #### **Tool Permission System** 🔐
+
 Fine-grained control over AI tool access:
+
 - Configurable allowed/disallowed tools
 - Permission modes: `strict`, `permissive`, `default`
 - Custom permission callbacks
@@ -79,7 +230,9 @@ Fine-grained control over AI tool access:
 - Interactive approval for write operations
 
 #### **Setting Sources** ⚙️
+
 Reproducible builds with setting source management:
+
 - `user` - User-level settings
 - `project` - Project-level settings (default)
 - `local` - Local environment settings
@@ -87,6 +240,7 @@ Reproducible builds with setting source management:
 ### Enhanced
 
 #### **build-app Command** 🏗️
+
 - Now uses Claude Agent SDK with streaming progress
 - Real-time tool execution feedback
 - Hook-based logging and monitoring
@@ -94,6 +248,7 @@ Reproducible builds with setting source management:
 - Enhanced error handling and retry logic
 
 #### **enhance Command** ✨
+
 - Uses Refactoring Agent by default
 - Automatic fallback to standard enhancement
 - Streaming progress with spinner updates
@@ -101,6 +256,7 @@ Reproducible builds with setting source management:
 - Tool permission management
 
 #### **ClaudeAgentClient**
+
 - Full Agent SDK feature support
 - Agent definitions registration
 - MCP server integration
@@ -110,6 +266,7 @@ Reproducible builds with setting source management:
 - Context management
 
 #### **WorkflowAgent**
+
 - Integrated with ClaudeAgentWorkflow
 - Enhanced context management
 - Tool permission handling
@@ -140,29 +297,31 @@ Reproducible builds with setting source management:
 ### Developer Experience
 
 #### **New APIs**
+
 ```typescript
 // Use specific agent
-await client.useAgent('codeReviewer', prompt, context);
+await client.useAgent("codeReviewer", prompt, context);
 
 // Generate with tools
-await client.generateWithTools(prompt, ['Read', 'AnalyzeComponent']);
+await client.generateWithTools(prompt, ["Read", "AnalyzeComponent"]);
 
 // Stream with progress
 await client.generateStream(prompt, {
   showProgress: true,
-  onToolUse: (tool) => console.log(`Using ${tool}`)
+  onToolUse: (tool) => console.log(`Using ${tool}`),
 });
 
 // Register custom agent
-client.registerAgent('myAgent', agentDefinition);
+client.registerAgent("myAgent", agentDefinition);
 
 // Register hooks
-client.registerHook('PreToolUse', async (input) => {
-  console.log('Tool:', input.tool_name);
+client.registerHook("PreToolUse", async (input) => {
+  console.log("Tool:", input.tool_name);
 });
 ```
 
 #### **New Configuration Options**
+
 ```typescript
 {
   // Agent definitions
@@ -207,11 +366,13 @@ mycontext build-app --description "My app"
 ```
 
 **New features are opt-in:**
+
 - Agent SDK is used automatically for complex operations
 - Direct API is still used for simple operations
 - Fallback mechanisms ensure reliability
 
 **To explicitly use Agent SDK features:**
+
 ```bash
 # Use specific agent
 mycontext enhance Button.tsx --agent refactoring
@@ -223,14 +384,17 @@ MYCONTEXT_PREFER_AGENT_SDK=true mycontext generate-components
 ### Dependencies
 
 #### Added
+
 - `zod@^3.25.76` - Schema validation for MCP tools
 
 #### Updated
+
 - `@anthropic-ai/claude-agent-sdk@^0.1.1` - Now fully integrated
 
 ### Technical Details
 
 **Architecture Changes:**
+
 - Added `src/interfaces/AIClient.ts` (300 lines)
 - Added `src/utils/aiClientFactory.ts` (250 lines)
 - Added `src/utils/aiClientRouter.ts` (350 lines)
@@ -254,12 +418,14 @@ MYCONTEXT_PREFER_AGENT_SDK=true mycontext generate-components
 ## [1.0.96] - 2025-10-02
 
 ### Added
+
 - Complete architecture generation
 - Server actions with validation
 - Next.js App Router routes
 - Self-documenting components
 
 ### Enhanced
+
 - Claude Agent SDK basic integration
 - Context management improvements
 
@@ -268,6 +434,7 @@ MYCONTEXT_PREFER_AGENT_SDK=true mycontext generate-components
 ## [1.0.95] - 2025-09-30
 
 ### Added
+
 - Build strategy planning
 - Interactive prompts
 - AI-powered recommendations
@@ -277,6 +444,7 @@ MYCONTEXT_PREFER_AGENT_SDK=true mycontext generate-components
 ## [1.0.0] - 2025-09-15
 
 ### Initial Release
+
 - Project initialization
 - Context generation (PRD, types, branding)
 - Component generation

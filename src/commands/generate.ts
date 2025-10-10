@@ -3,6 +3,7 @@ import prompts from "prompts";
 import path from "path";
 import { EnhancedSpinner } from "../utils/spinner";
 import { FileSystemManager } from "../utils/fileSystem";
+import { ProgressTracker } from "../utils/progress";
 import { HybridAIClient } from "../utils/hybridAIClient";
 // import { GitHubModelsClient } from "../utils/githubModelsClient";
 import { HostedApiClient } from "../utils/hostedApiClient";
@@ -108,6 +109,7 @@ interface GenerateOptions extends CommandOptions {
     | "brand"
     | "components-list"
     | "project-structure"
+    | "architecture"
     | "all";
   output?: string;
   force?: boolean;
@@ -116,7 +118,9 @@ interface GenerateOptions extends CommandOptions {
   model?: string;
   modelCandidates?: string[] | string;
   full?: boolean;
+  autoContinue?: boolean;
   filesOnly?: boolean;
+  fromSchema?: boolean; // Generate types from InstantDB schema
 }
 
 export class GenerateCommand {
@@ -220,6 +224,10 @@ export class GenerateCommand {
         case "structure":
         case "project":
           result = await this.generateProjectStructure(projectContext, options);
+          break;
+        case "architecture":
+          // Generate complete architecture: types + brand + component-list + project-structure
+          result = await this.generateArchitecture(projectContext, options);
           break;
         case "all": {
           // Run sequentially with chaining: PRD -> Types(from PRD) -> (optional Brand) -> Components List(from Types + optional brand)
@@ -349,6 +357,9 @@ export class GenerateCommand {
         console.log(
           chalk.green(`✅ Generated ${type} saved to: ${outputPath}`)
         );
+
+        // Show smart next steps suggestions
+        await this.showNextSteps(type, options);
 
         // If this was components-list and we're not in --yes mode, offer to select core now
         if (type === "components-list" && !(options as any).yes) {
@@ -866,6 +877,11 @@ export class GenerateCommand {
     projectContext: any,
     options: GenerateOptions
   ): Promise<GenerationResult> {
+    // Check if --from-schema flag is used
+    if (options.fromSchema) {
+      return this.generateTypesFromSchema();
+    }
+
     // Load context files for accurate type generation
     const contextContent = await this.loadContextForTypesGeneration();
 
@@ -1023,6 +1039,81 @@ Use the business entities from the context above, not generic types.`;
           error instanceof Error ? error.message : "Unknown error"
         }`,
         provider: "hybrid",
+      };
+    }
+  }
+
+  /**
+   * Generate types from InstantDB schema
+   */
+  private async generateTypesFromSchema(): Promise<GenerationResult> {
+    try {
+      this.spinner.updateText("🔄 Generating types from InstantDB schema...");
+
+      // Check if schema file exists
+      const schemaPath = ".mycontext/schema.ts";
+      if (!(await this.fs.exists(schemaPath))) {
+        throw new Error(
+          `Schema file not found: ${schemaPath}. Run 'mycontext generate:schema' first.`
+        );
+      }
+
+      // Run the schema types generator script
+      const { spawn } = require("child_process");
+      const tsx = require.resolve("tsx");
+
+      return new Promise((resolve, reject) => {
+        const child = spawn(
+          "node",
+          [tsx, "scripts/generateTypesFromSchema.ts"],
+          {
+            stdio: "pipe",
+            cwd: process.cwd(),
+          }
+        );
+
+        let output = "";
+        let error = "";
+
+        child.stdout.on("data", (data: any) => {
+          output += data.toString();
+        });
+
+        child.stderr.on("data", (data: any) => {
+          error += data.toString();
+        });
+
+        child.on("close", async (code: any) => {
+          if (code === 0) {
+            // Read the generated types file
+            const typesPath = ".mycontext/types.ts";
+            if (await this.fs.exists(typesPath)) {
+              const typesContent = await this.fs.readFile(typesPath);
+              resolve({
+                success: true,
+                content: typesContent,
+                provider: "schema-generator" as any,
+                metadata: {
+                  model: "schema-generator",
+                  tokens: typesContent.length / 4,
+                  latency: 200,
+                },
+              });
+            } else {
+              reject(new Error("Types file was not generated"));
+            }
+          } else {
+            reject(new Error(`Schema types generation failed: ${error}`));
+          }
+        });
+      });
+    } catch (error) {
+      return {
+        success: false,
+        error: `Schema types generation failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        provider: "hybrid" as any,
       };
     }
   }
@@ -2566,6 +2657,239 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     }
   }
 
+  /**
+   * Generate complete project architecture: types + brand + component-list + project-structure
+   */
+  async generateArchitecture(
+    projectContext: any,
+    options: GenerateOptions
+  ): Promise<GenerationResult> {
+    // Check if auto-continue is enabled
+    const shouldAutoContinue = options.autoContinue;
+    const results = [];
+    const startTime = Date.now();
+
+    // Initialize progress tracker with time estimates
+    const progressTracker = new ProgressTracker(
+      "Project Architecture Generation"
+    )
+      .addStep("types", "Generate TypeScript types", 5000) // 5 seconds
+      .addStep("brand", "Generate brand guidelines", 3000) // 3 seconds
+      .addStep("design-manifest", "Generate design manifest", 2000) // 2 seconds
+      .addStep("component-list", "Generate component list", 4000) // 4 seconds
+      .addStep("project-structure", "Generate project structure", 3000); // 3 seconds
+
+    console.log(
+      chalk.blue("🏗️  Generating complete project architecture...\n")
+    );
+
+    // Display progress overview with time estimates
+    const totalSteps = 5;
+    const eta = progressTracker.getEstimatedCompletionTime();
+    console.log(chalk.gray(`📋 Progress: 0/${totalSteps} steps completed`));
+    console.log(
+      chalk.gray(
+        `⏱️  ETA: ${eta.toLocaleTimeString()} (${
+          progressTracker.getEstimatedTimeRemaining() / 1000
+        }s remaining)\n`
+      )
+    );
+
+    // Step 1: Generate Types
+    progressTracker.startStep("types");
+    try {
+      const typesResult = await this.generateTypes(projectContext, options);
+      if (!typesResult.success) {
+        throw new Error("Types generation failed");
+      }
+      results.push({ step: "types", result: typesResult });
+      progressTracker.completeStep("types", "✅ TypeScript types generated");
+    } catch (error) {
+      progressTracker.failStep(
+        "types",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      throw error;
+    }
+
+    // Step 2: Generate Brand Guidelines
+    progressTracker.startStep("brand");
+    try {
+      const brandResult = await this.generateBrand(projectContext, options);
+      if (!brandResult.success) {
+        throw new Error("Brand generation failed");
+      }
+      results.push({ step: "brand", result: brandResult });
+      progressTracker.completeStep("brand", "✅ Brand guidelines generated");
+    } catch (error) {
+      progressTracker.failStep(
+        "brand",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      throw error;
+    }
+
+    // Step 2.5: Generate Design Manifest
+    progressTracker.startStep("design-manifest");
+    try {
+      const { DesignAnalyzeCommand } = await import("./design-analyze");
+      const designCommand = new DesignAnalyzeCommand();
+      await designCommand.execute({});
+      results.push({
+        step: "design-manifest",
+        result: { success: true, metadata: { tokens: 0 } },
+      });
+      progressTracker.completeStep(
+        "design-manifest",
+        "✅ Design manifest generated"
+      );
+    } catch (error) {
+      progressTracker.failStep(
+        "design-manifest",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      // Don't throw error - design manifest is optional
+      console.log(
+        chalk.yellow(
+          "⚠️  Design manifest generation failed, continuing without it"
+        )
+      );
+    }
+
+    // Step 3: Generate Component List
+    progressTracker.startStep("component-list");
+    try {
+      const componentListResult = await this.generateComponentList(
+        projectContext,
+        options
+      );
+      if (!componentListResult.success) {
+        throw new Error("Component list generation failed");
+      }
+      results.push({ step: "component-list", result: componentListResult });
+      progressTracker.completeStep(
+        "component-list",
+        "✅ Component list generated"
+      );
+    } catch (error) {
+      progressTracker.failStep(
+        "component-list",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      throw error;
+    }
+
+    // Step 4: Generate Project Structure
+    progressTracker.startStep("project-structure");
+    try {
+      const structureResult = await this.generateProjectStructure(
+        projectContext,
+        options
+      );
+      if (!structureResult.success) {
+        throw new Error("Project structure generation failed");
+      }
+      results.push({ step: "project-structure", result: structureResult });
+      progressTracker.completeStep(
+        "project-structure",
+        "✅ Project structure generated"
+      );
+    } catch (error) {
+      progressTracker.failStep(
+        "project-structure",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      throw error;
+    }
+
+    const totalTime = Date.now() - startTime;
+
+    // Show final progress summary with detailed timing
+    console.log(chalk.gray(`\n📊 ${progressTracker.getDetailedProgress()}`));
+
+    // Auto-continue to components if enabled
+    if (shouldAutoContinue) {
+      console.log(
+        chalk.cyan("\n🚀 Auto-continuing to component generation...")
+      );
+
+      try {
+        const { GenerateComponentsCommand } = await import(
+          "./generate-components"
+        );
+        const generateComponentsCommand = new GenerateComponentsCommand();
+        await generateComponentsCommand.execute("all", {
+          ...options,
+          withTests: true,
+          all: true,
+        });
+
+        console.log(
+          chalk.green("\n✅ Architecture and components generation completed!")
+        );
+      } catch (error) {
+        console.log(
+          chalk.yellow(
+            "\n⚠️  Architecture completed but component generation failed"
+          )
+        );
+        console.log(
+          chalk.gray(
+            "   You can retry with: mycontext generate-components all --with-tests"
+          )
+        );
+        throw error;
+      }
+    } else {
+      // Show next steps
+      console.log(chalk.green("\n✅ Architecture generation complete!"));
+      console.log(chalk.blue("\n📋 Generated Files:"));
+      console.log(chalk.gray("   • TypeScript types"));
+      console.log(chalk.gray("   • Brand guidelines"));
+      console.log(chalk.gray("   • Design manifest"));
+      console.log(chalk.gray("   • Component list"));
+      console.log(chalk.gray("   • Project structure"));
+
+      console.log(chalk.blue("\n➡️  Recommended Next Steps:"));
+      console.log(chalk.cyan("   1. Generate components:"));
+      console.log(
+        chalk.white("      mycontext generate-components all --with-tests")
+      );
+      console.log(chalk.cyan("   2. Preview components:"));
+      console.log(chalk.white("      mycontext preview components"));
+      console.log(chalk.cyan("   3. Build complete app:"));
+      console.log(chalk.white("      mycontext build-app --interactive"));
+
+      // Show additional next steps from NextStepsSuggester
+      const { NextStepsSuggester } = await import(
+        "../utils/nextStepsSuggester"
+      );
+      const workflowContext = await NextStepsSuggester.getWorkflowContext();
+      workflowContext.lastCommand = "generate-architecture";
+      workflowContext.hasContextFiles = true;
+      const nextSteps = NextStepsSuggester.getNextSteps(workflowContext);
+      NextStepsSuggester.displayNextSteps(nextSteps);
+    }
+
+    return {
+      success: true,
+      content: `Complete project architecture generated successfully:\n${results
+        .map((r) => `✅ ${r.step}`)
+        .join("\n")}${
+        shouldAutoContinue ? "\n✅ Components generated automatically" : ""
+      }`,
+      provider: "hybrid" as any,
+      metadata: {
+        model: "architecture-suite",
+        tokens: results.reduce(
+          (sum, r) => sum + (r.result.metadata?.tokens || 0),
+          0
+        ),
+        latency: totalTime,
+      },
+    };
+  }
+
   // REMOVED: Dangerous fallback method that compromises accuracy
   private buildFallbackComponentList_DISABLED(projectContext: any): any {
     // Neutral skeleton: no assumptions. Valid shape with guidance.
@@ -2604,6 +2928,103 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     };
   }
 
+  private async showNextSteps(
+    type: string,
+    options: GenerateOptions
+  ): Promise<void> {
+    const suggestions = this.getContextualSuggestions(type);
+
+    if (suggestions.length > 0) {
+      console.log("\n💡 Next Steps:");
+      suggestions.forEach((step, index) => {
+        console.log(`   ${index + 1}. ${step.description}`);
+        console.log(`      ${step.command}`);
+        if (step.optional) {
+          console.log(`      ${chalk.gray("(optional)")}`);
+        }
+      });
+      console.log(""); // Empty line for spacing
+    }
+  }
+
+  private getContextualSuggestions(
+    type: string
+  ): Array<{ description: string; command: string; optional?: boolean }> {
+    switch (type) {
+      case "context":
+        return [
+          {
+            description: "Compile PRD from context files",
+            command: "mycontext compile-prd",
+          },
+          {
+            description: "Generate complete project architecture",
+            command: "mycontext generate architecture",
+          },
+        ];
+
+      case "architecture":
+        return [
+          {
+            description: "Generate components from the architecture",
+            command: "mycontext generate-components all --with-tests",
+          },
+          {
+            description: "Preview the generated component list",
+            command: "mycontext list components",
+            optional: true,
+          },
+        ];
+
+      case "types":
+        return [
+          {
+            description: "Generate brand guidelines using the types",
+            command: "mycontext generate brand",
+          },
+          {
+            description: "Generate component list with type information",
+            command: "mycontext generate components-list",
+          },
+        ];
+
+      case "brand":
+        return [
+          {
+            description: "Generate component list with brand context",
+            command: "mycontext generate components-list",
+          },
+        ];
+
+      case "components-list":
+        return [
+          {
+            description: "Generate project structure",
+            command: "mycontext generate project-structure",
+          },
+          {
+            description: "Start generating components",
+            command: "mycontext generate-components all --with-tests",
+          },
+        ];
+
+      case "project-structure":
+        return [
+          {
+            description: "Generate all components",
+            command: "mycontext generate-components all --with-tests",
+          },
+          {
+            description: "Build the complete application",
+            command: "mycontext build-app --interactive",
+          },
+        ];
+
+      default:
+        return [];
+    }
+  }
+
   private async promptForType(): Promise<string> {
     const response = await prompts({
       type: "select",
@@ -2611,9 +3032,11 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       message: "What would you like to generate?",
       choices: [
         { title: "Context (PRD)", value: "context" },
+        { title: "Complete Architecture", value: "architecture" },
         { title: "TypeScript Types", value: "types" },
         { title: "Brand Guidelines", value: "brand" },
         { title: "Component List", value: "components-list" },
+        { title: "Project Structure", value: "project-structure" },
         { title: "All", value: "all" },
       ],
     });
@@ -2635,6 +3058,14 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       case "context": {
         outputPath = path.join(outputDir, "01-prd.md");
         const preserve = Boolean((options as any).preservePrd);
+
+        // Don't overwrite PRD if content is just a success message
+        if (content === "Context files generated successfully") {
+          // This means context generation had gaps and didn't actually generate content
+          // Don't overwrite the existing PRD
+          return outputPath;
+        }
+
         if (preserve && (await fs.pathExists(outputPath))) {
           // Preserve existing PRD; write a copy next to it for reference
           const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -4221,6 +4652,7 @@ ${
       openai: !!process.env.OPENAI_API_KEY,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
       huggingface: !!process.env.HUGGINGFACE_API_KEY,
+      openrouter: !!process.env.MYCONTEXT_OPENROUTER_API_KEY, // Add this
     };
 
     console.log(`[GenerateCommand] API Keys detected:`, keys);
@@ -4233,7 +4665,8 @@ ${
       process.env.MYCONTEXT_CLAUDE_API_KEY ||
       process.env.OPENAI_API_KEY ||
       process.env.ANTHROPIC_API_KEY ||
-      process.env.HUGGINGFACE_API_KEY
+      process.env.HUGGINGFACE_API_KEY ||
+      process.env.MYCONTEXT_OPENROUTER_API_KEY
     );
   }
 
