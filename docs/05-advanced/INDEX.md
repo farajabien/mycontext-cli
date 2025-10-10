@@ -1,5 +1,9 @@
 # Advanced Topics
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
+</p>
+
 Advanced usage, customization, and extending MyContext CLI.
 
 ## Contents

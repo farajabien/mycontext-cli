@@ -1,5 +1,9 @@
 # Reference
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
+</p>
+
 Complete reference documentation for MyContext CLI commands, configuration, and APIs.
 
 ## Contents
@@ -76,22 +80,22 @@ class ErrorHandler
 
 ```typescript
 interface EnrichedContext {
-  enriched_intents?: EnrichedComponentSpec[]
-  intent_validation_report?: IntentValidationReport
-  design_manifest?: DesignManifest
+  enriched_intents?: EnrichedComponentSpec[];
+  intent_validation_report?: IntentValidationReport;
+  design_manifest?: DesignManifest;
 }
 
 interface IntentMapping {
-  intent_phrases: IntentPhrase[]
-  component_pattern: ComponentPattern
-  accessibility_spec: AccessibilitySpec
-  validation_rules: ValidationRule[]
+  intent_phrases: IntentPhrase[];
+  component_pattern: ComponentPattern;
+  accessibility_spec: AccessibilitySpec;
+  validation_rules: ValidationRule[];
 }
 
 interface ValidationResult {
-  valid: boolean
-  issues: ValidationIssue[]
-  suggestions: string[]
+  valid: boolean;
+  issues: ValidationIssue[];
+  suggestions: string[];
 }
 ```
 
@@ -109,6 +113,7 @@ interface ValidationResult {
 ### Pattern Structure
 
 Each pattern includes:
+
 - **Intent Phrases**: Natural language descriptions
 - **Component Pattern**: shadcn/ui components and templates
 - **Props Specification**: Required and optional props

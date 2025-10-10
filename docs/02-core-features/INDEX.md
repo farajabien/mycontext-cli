@@ -1,5 +1,9 @@
 # Core Features
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
+</p>
+
 The heart of MyContext CLI - our AI agents, Intent Dictionary, and specialized models.
 
 ## Contents

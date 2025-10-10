@@ -1,5 +1,9 @@
 # MyContext CLI Documentation
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
+</p>
+
 ## Quick Links
 
 - [Getting Started](01-getting-started/quick-start.md)
