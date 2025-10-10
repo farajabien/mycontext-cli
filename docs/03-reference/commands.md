@@ -30,6 +30,53 @@ mycontext init my-app --description "E-commerce platform"
 - `--description <text>` - Project description
 - `--force` - Overwrite existing files
 - `--yes` - Skip interactive prompts
+- `--skip-shadcn` - Skip shadcn/ui initialization
+
+**Framework-Specific Behavior:**
+
+**InstantDB (`--framework instantdb`)**
+
+Generates a complete real-time app setup:
+
+**Generated Files:**
+```
+my-app/
+├── instant.schema.ts          # InstantDB schema with todos example
+├── instant.perms.ts           # Permission rules
+├── lib/
+│   └── db.ts                  # Database client
+├── app/
+│   ├── home-client.tsx        # Sample todo app (client component)
+│   └── page.tsx               # Server component wrapper
+├── .env                       # Environment variables
+└── .mycontext/                # MyContext configuration
+```
+
+**What happens:**
+1. Sets up Next.js 15 (if not present)
+2. Initializes shadcn/ui components
+3. Installs `@instantdb/react`, `@instantdb/admin`, `@tanstack/react-query`
+4. Generates schema and permissions files
+5. Creates database client with error handling
+6. Sets up `.env` with `NEXT_PUBLIC_INSTANT_APP_ID`
+7. Generates working todo app with real-time sync
+8. Pushes schema to InstantDB
+
+**Next Steps:**
+```bash
+# Get your App ID from InstantDB dashboard
+open https://instantdb.com/dash
+
+# Update .env
+echo 'NEXT_PUBLIC_INSTANT_APP_ID=your-app-id' >> .env
+
+# Start dev server
+pnpm dev
+```
+
+**Next.js (`--framework nextjs`)**
+
+Generates a basic Next.js setup with shadcn/ui.
 
 ### **`mycontext analyze`**
 
