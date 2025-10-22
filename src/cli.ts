@@ -323,23 +323,23 @@ program
     }
   });
 
-// Preview components command
-program
-  .command("preview:components")
-  .description("Open component library preview in browser")
-  .option("--validate", "Run validation checks on all components")
-  .action(async (options: any) => {
-    try {
-      const { PreviewComponentsCommand } = await import(
-        "./commands/preview-components"
-      );
-      const previewCommand = new PreviewComponentsCommand();
-      await previewCommand.execute(options);
-    } catch (error) {
-      console.error(chalk.red("❌ Preview command failed:"), error);
-      process.exit(1);
-    }
-  });
+// Preview components command - Coming Soon
+// program
+//   .command("preview:components")
+//   .description("Open component library preview in browser")
+//   .option("--validate", "Run validation checks on all components")
+//   .action(async (options: any) => {
+//     try {
+//       const { PreviewComponentsCommand } = await import(
+//         "./commands/preview-components"
+//       );
+//       const previewCommand = new PreviewComponentsCommand();
+//       await previewCommand.execute(options);
+//     } catch (error) {
+//       console.error(chalk.red("❌ Preview command failed:"), error);
+//       process.exit(1);
+//     }
+//   });
 
 // Review context command
 program
@@ -411,10 +411,10 @@ const generateComponentsCmd = program
     "Run a final normalize pass to build the canvas layout"
   )
   .option("--check", "Run typecheck, lint, and tests after generation")
-  .option(
-    "--preview-dir <path>",
-    "Directory to write components for Studio preview"
-  )
+  // .option(
+  //   "--preview-dir <path>",
+  //   "Directory to write components for Studio preview"
+  // )
   .option("--verbose", "Show detailed output")
   .option("--debug", "Enable debug logging")
   .action(async (target: string | undefined, options: any) => {
@@ -1063,21 +1063,21 @@ program
     console.log(chalk.gray("  files                   - List context files"));
     console.log(chalk.gray("  all                     - List everything\n"));
 
-    console.log(chalk.yellow("Preview Types:"));
-    console.log(
-      chalk.gray("  brand                   - Preview brand elements")
-    );
-    console.log(
-      chalk.gray("  components              - Preview all components")
-    );
-    console.log(
-      chalk.gray("  generated               - Preview generated components")
-    );
-    console.log(
-      chalk.gray(
-        "  <group-name>            - Preview specific component group\n"
-      )
-    );
+    // console.log(chalk.yellow("Preview Types:"));
+    // console.log(
+    //   chalk.gray("  brand                   - Preview brand elements")
+    // );
+    // console.log(
+    //   chalk.gray("  components              - Preview all components")
+    // );
+    // console.log(
+    //   chalk.gray("  generated               - Preview generated components")
+    // );
+    // console.log(
+    //   chalk.gray(
+    //     "  <group-name>            - Preview specific component group\n"
+    //   )
+    // );
 
     console.log(chalk.yellow("Examples:"));
     console.log(
