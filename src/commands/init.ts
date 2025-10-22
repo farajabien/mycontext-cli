@@ -218,6 +218,12 @@ export class InitCommand {
         await fs.writeFile(envExamplePath, envExample);
       } catch {}
 
+      // Setup Studio (if bundled)
+      const projectPath = useCurrentDir
+        ? workingDir
+        : path.join(workingDir, finalProjectName);
+      await this.setupStudio(projectPath);
+
       spinner.success({
         text: `Project "${finalProjectName}" initialized successfully!`,
       });
@@ -469,9 +475,7 @@ export class InitCommand {
       await fs.writeFile(schemaPath, schemaContent);
       console.log(chalk.green("   ✅ instant.schema.ts created"));
     } catch (error) {
-      console.log(
-        chalk.yellow("   ⚠️ Failed to create schema file")
-      );
+      console.log(chalk.yellow("   ⚠️ Failed to create schema file"));
     }
   }
 
@@ -487,9 +491,7 @@ export class InitCommand {
       await fs.writeFile(permsPath, permsContent);
       console.log(chalk.green("   ✅ instant.perms.ts created"));
     } catch (error) {
-      console.log(
-        chalk.yellow("   ⚠️ Failed to create permissions file")
-      );
+      console.log(chalk.yellow("   ⚠️ Failed to create permissions file"));
     }
   }
 
@@ -507,9 +509,7 @@ export class InitCommand {
       await fs.writeFile(dbPath, dbContent);
       console.log(chalk.green("   ✅ lib/db.ts created"));
     } catch (error) {
-      console.log(
-        chalk.yellow("   ⚠️ Failed to create database client")
-      );
+      console.log(chalk.yellow("   ⚠️ Failed to create database client"));
     }
   }
 
@@ -573,9 +573,7 @@ NEXT_PUBLIC_INSTANT_APP_ID=${appId || "__YOUR_APP_ID_HERE__"}
       await fs.writeFile(pagePath, pageContent);
       console.log(chalk.green("   ✅ app/page.tsx updated"));
     } catch (error) {
-      console.log(
-        chalk.yellow("   ⚠️ Failed to create sample components")
-      );
+      console.log(chalk.yellow("   ⚠️ Failed to create sample components"));
     }
   }
 
@@ -651,9 +649,7 @@ NEXT_PUBLIC_INSTANT_APP_ID=${appId || "__YOUR_APP_ID_HERE__"}
       console.log(chalk.green("\n✅ InstantDB setup complete!\n"));
       console.log(chalk.yellow("📝 Next steps:"));
       console.log(
-        chalk.gray(
-          "   1. Get your App ID from: https://instantdb.com/dash"
-        )
+        chalk.gray("   1. Get your App ID from: https://instantdb.com/dash")
       );
       console.log(
         chalk.gray("   2. Update NEXT_PUBLIC_INSTANT_APP_ID in .env")
@@ -865,6 +861,59 @@ NEXT_PUBLIC_INSTANT_APP_ID=${appId || "__YOUR_APP_ID_HERE__"}
     } catch (error) {
       console.error(chalk.red("❌ Analysis failed:"), error);
       // Don't re-throw - let the CLI handle it
+    }
+  }
+
+  private async setupStudio(projectPath: string): Promise<void> {
+    try {
+      const studioPath = path.join(projectPath, "studio");
+
+      // Check if Studio is bundled (exists in CLI directory)
+      const bundledStudioPath = path.join(__dirname, "../../studio");
+      if (!(await this.fs.exists(bundledStudioPath))) {
+        console.log(chalk.yellow("📱 Studio not bundled - skipping setup"));
+        return;
+      }
+
+      console.log(chalk.blue("📱 Setting up MyContext Studio preview..."));
+
+      // Copy Studio to project
+      await fs.copy(bundledStudioPath, studioPath);
+
+      // Install Studio dependencies
+      console.log(chalk.blue("📦 Installing Studio dependencies..."));
+      try {
+        execSync("pnpm install", {
+          cwd: studioPath,
+          stdio: "inherit",
+          timeout: 120000, // 2 minutes timeout
+        });
+      } catch (error) {
+        console.log(
+          chalk.yellow(
+            "⚠️  Failed to install Studio dependencies. You can run 'cd studio && pnpm install' manually."
+          )
+        );
+      }
+
+      // Create .env.local for Studio
+      const envLocalPath = path.join(studioPath, ".env.local");
+      const envContent = `# MyContext Studio Configuration
+NEXT_PUBLIC_CLI_COMPONENTS_PATH=../components/generated
+NEXT_PUBLIC_STUDIO_VERSION=0.1.0
+`;
+      await fs.writeFile(envLocalPath, envContent);
+
+      console.log(chalk.green("✅ Studio setup complete!"));
+      console.log(
+        chalk.gray("   Run 'pnpm studio:dev' to start the preview server")
+      );
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          "⚠️  Studio setup failed - you can set it up manually later"
+        )
+      );
     }
   }
 }

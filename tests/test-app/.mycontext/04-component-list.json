@@ -1,0 +1,226 @@
+{
+  "ECommerceStore": {
+    "description": "Main application component for the modern e-commerce platform",
+    "progress": {
+      "completed": 0,
+      "total": 34
+    },
+    "children": {
+      "Header": {
+        "description": "Sticky header with navigation and cart access",
+        "progress": {
+          "completed": 0,
+          "total": 3
+        },
+        "children": {
+          "Logo": {
+            "description": "Brand logo with responsive sizing",
+            "type": "display"
+          },
+          "MainNavigation": {
+            "description": "Category navigation from PRD Core Features 1",
+            "type": "interactive"
+          },
+          "CartIndicator": {
+            "description": "Real-time cart badge showing item count",
+            "type": "interactive"
+          }
+        }
+      },
+      "ProductCatalog": {
+        "description": "Implements PRD Core Feature 1: Product browsing and search",
+        "progress": {
+          "completed": 0,
+          "total": 6
+        },
+        "children": {
+          "ProductGrid": {
+            "description": "Responsive grid layout per acceptance criteria",
+            "type": "display"
+          },
+          "SearchAndFilters": {
+            "description": "Search bar with filters from User Story 1",
+            "progress": {
+              "completed": 0,
+              "total": 4
+            },
+            "children": {
+              "SearchBar": {
+                "description": "Instant search with 500ms response time",
+                "type": "form"
+              },
+              "PriceFilter": {
+                "description": "Range slider for price filtering",
+                "type": "interactive"
+              },
+              "CategoryFilter": {
+                "description": "Multi-select category picker",
+                "type": "interactive"
+              },
+              "SortDropdown": {
+                "description": "Sorting options from PRD requirements",
+                "type": "interactive"
+              }
+            }
+          }
+        }
+      },
+      "ProductDetails": {
+        "description": "Implements PRD Core Feature 2: Product display and purchase",
+        "progress": {
+          "completed": 0,
+          "total": 7
+        },
+        "children": {
+          "ImageGallery": {
+            "description": "Zoom-enabled image carousel with WebP optimization",
+            "type": "display"
+          },
+          "ProductInfo": {
+            "description": "Displays product specs and real-time stock status",
+            "progress": {
+              "completed": 0,
+              "total": 3
+            },
+            "children": {
+              "AddToCart": {
+                "description": "Quantity selector with inventory validation",
+                "type": "form"
+              },
+              "WishlistButton": {
+                "description": "Persists to user's wishlist via InstantDB",
+                "type": "interactive"
+              },
+              "InventoryStatus": {
+                "description": "Real-time stock indicator using InstantDB",
+                "type": "display"
+              }
+            }
+          },
+          "ReviewsSection": {
+            "description": "Customer reviews with star ratings",
+            "type": "display"
+          }
+        }
+      },
+      "ShoppingCart": {
+        "description": "Implements PRD Core Feature 3: Real-time cart management",
+        "progress": {
+          "completed": 0,
+          "total": 4
+        },
+        "children": {
+          "CartItemsList": {
+            "description": "Editable list with InstantDB persistence",
+            "type": "interactive"
+          },
+          "CartSummary": {
+            "description": "Real-time price calculations with tax/shipping",
+            "type": "display"
+          },
+          "DiscountCodeInput": {
+            "description": "Coupon validation system",
+            "type": "form"
+          }
+        }
+      },
+      "CheckoutProcess": {
+        "description": "Implements PRD Core Feature 4: Secure checkout flow",
+        "progress": {
+          "completed": 0,
+          "total": 6
+        },
+        "children": {
+          "GuestCheckout": {
+            "description": "Address form with validation per acceptance criteria",
+            "type": "form"
+          },
+          "UserCheckout": {
+            "description": "Logged-in user checkout with saved addresses",
+            "type": "form"
+          },
+          "ShippingOptions": {
+            "description": "Displays Standard/Express/Next-Day choices",
+            "type": "interactive"
+          },
+          "PaymentIntegration": {
+            "description": "Stripe test mode implementation",
+            "type": "form"
+          }
+        }
+      },
+      "UserAccount": {
+        "description": "Implements PRD Core Feature 5: User profile management",
+        "progress": {
+          "completed": 0,
+          "total": 5
+        },
+        "children": {
+          "AuthForms": {
+            "description": "Signup/login forms with InstantDB Auth",
+            "progress": {
+              "completed": 0,
+              "total": 2
+            },
+            "children": {
+              "SignInForm": {
+                "description": "Email/password authentication",
+                "type": "form"
+              },
+              "SignUpForm": {
+                "description": "Account creation with validation",
+                "type": "form"
+              }
+            }
+          },
+          "OrderHistory": {
+            "description": "Order tracking from User Story 5",
+            "type": "display"
+          },
+          "WishlistManagement": {
+            "description": "Persisted wishlist items",
+            "type": "interactive"
+          }
+        }
+      },
+      "AdminDashboard": {
+        "description": "Implements PRD Core Feature 6: Basic admin functionality",
+        "progress": {
+          "completed": 0,
+          "total": 3
+        },
+        "children": {
+          "ProductManagement": {
+            "description": "CRUD operations for products",
+            "type": "form"
+          },
+          "OrderManagement": {
+            "description": "Order status updates from Admin Story 3",
+            "type": "interactive"
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "coreCandidates": [
+      {
+        "name": "ProductGrid",
+        "path": "ECommerceStore.ProductCatalog.ProductGrid",
+        "reason": "Core to product browsing experience with responsive layout requirements"
+      },
+      {
+        "name": "CheckoutProcess",
+        "path": "ECommerceStore.CheckoutProcess",
+        "reason": "Critical path for revenue generation with multiple integration points"
+      },
+      {
+        "name": "RealTimeCartUpdates",
+        "path": "ECommerceStore.ShoppingCart.CartItemsList",
+        "reason": "Implements key InstantDB real-time sync functionality from technical requirements"
+      }
+    ],
+    "totalComponents": 34,
+    "completedComponents": 0
+  }
+}

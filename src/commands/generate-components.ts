@@ -31,6 +31,7 @@ interface GenerateComponentsOptions extends CommandOptions {
   architectureType?: "nextjs-app-router" | "nextjs-pages" | "react-spa"; // Architecture type
   temperature?: number;
   maxTokens?: number;
+  previewDir?: string; // Directory to write components for Studio preview
 }
 
 // --- Orchestration in GenerateComponentsCommand ---
@@ -72,9 +73,12 @@ export class GenerateComponentsCommand {
       process.env.MYCONTEXT_QWEN_API_KEY ||
       process.env.MYCONTEXT_GEMINI_API_KEY ||
       process.env.MYCONTEXT_XAI_API_KEY ||
+      process.env.XAI_API_KEY ||
       process.env.OPENAI_API_KEY ||
       process.env.ANTHROPIC_API_KEY ||
-      process.env.HUGGINGFACE_API_KEY
+      process.env.HUGGINGFACE_API_KEY ||
+      process.env.MYCONTEXT_OPENROUTER_API_KEY ||
+      process.env.OPENROUTER_API_KEY
     );
   }
 
@@ -378,8 +382,22 @@ export class GenerateComponentsCommand {
 
       // Load unified design context (PRD + Types + Brand + Component List + Design Manifest)
       console.log(chalk.blue("🔄 Loading unified design context..."));
-      const { enrichedContext } =
-        await this.contextLoader.loadUnifiedDesignContext();
+
+      let enrichedContext;
+      try {
+        const result = await this.contextLoader.loadUnifiedDesignContext();
+        enrichedContext = result.enrichedContext;
+      } catch (error) {
+        // Design pipeline failed - error and recovery guidance already shown
+        console.log(
+          chalk.red(
+            "\n❌ Component generation halted due to design pipeline failure"
+          )
+        );
+        console.log(chalk.yellow("\n💡 To retry from where it failed:"));
+        console.log(chalk.gray("   mycontext generate-components all"));
+        process.exit(1);
+      }
 
       // Convert enriched context to legacy format for compatibility
       this.contextArtifacts = {
@@ -871,6 +889,43 @@ export class GenerateComponentsCommand {
     await this.fs.ensureDir(mobileDir);
     await this.fs.ensureDir(desktopDir);
 
+    // Setup preview directory for Studio integration
+    let previewDir: string | null = null;
+    let previewManifest: any = null;
+
+    if (options.previewDir) {
+      previewDir = path.resolve(options.previewDir);
+      await this.fs.ensureDir(previewDir);
+
+      // Initialize preview manifest
+      previewManifest = {
+        version: "1.0.0",
+        generatedAt: new Date().toISOString(),
+        source: "mycontext-cli",
+        components: [],
+      };
+
+      console.log(chalk.blue(`📱 Preview directory: ${previewDir}`));
+    } else {
+      // Default preview directory: ./studio/components/generated/
+      const defaultPreviewDir = path.resolve("./studio/components/generated");
+      if (await this.fs.exists(path.resolve("./studio"))) {
+        previewDir = defaultPreviewDir;
+        await this.fs.ensureDir(previewDir);
+
+        previewManifest = {
+          version: "1.0.0",
+          generatedAt: new Date().toISOString(),
+          source: "mycontext-cli",
+          components: [],
+        };
+
+        console.log(
+          chalk.blue(`📱 Auto-detected Studio preview directory: ${previewDir}`)
+        );
+      }
+    }
+
     let generatedCount = 0;
 
     // Generate mobile and desktop variants for each core component
@@ -906,7 +961,9 @@ export class GenerateComponentsCommand {
         "mobile",
         mobileDir,
         options,
-        userId
+        userId,
+        previewDir,
+        previewManifest
       );
 
       // Generate desktop variant
@@ -915,7 +972,9 @@ export class GenerateComponentsCommand {
         "desktop",
         desktopDir,
         options,
-        userId
+        userId,
+        previewDir,
+        previewManifest
       );
 
       // Generate tests if requested
@@ -962,6 +1021,16 @@ export class GenerateComponentsCommand {
       )
     );
 
+    // Save preview manifest if preview directory was used
+    if (previewDir && previewManifest) {
+      const manifestPath = path.join(previewDir, "manifest.json");
+      await this.fs.writeFile(
+        manifestPath,
+        JSON.stringify(previewManifest, null, 2)
+      );
+      console.log(chalk.blue(`📱 Preview manifest saved: ${manifestPath}`));
+    }
+
     // Log trigger event
     await this.triggerLogger.logTrigger(
       "component-refinement",
@@ -976,7 +1045,9 @@ export class GenerateComponentsCommand {
     variant: "mobile" | "desktop",
     outputDir: string,
     options: GenerateComponentsOptions,
-    userId: string
+    userId: string,
+    previewDir?: string | null,
+    previewManifest?: any
   ): Promise<void> {
     try {
       // Check if user has local AI keys configured
@@ -1091,21 +1162,53 @@ export class GenerateComponentsCommand {
             throw new Error("Hosted API generation failed");
           }
         } catch (error) {
-          console.log(chalk.red("❌ Hosted API failed"));
-          console.log(
-            chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
-          );
-          console.log(chalk.blue("🔄 Retry options:"));
-          console.log(chalk.gray("  1. Configure a local AI provider API key"));
-          console.log(chalk.gray("  2. Check your API key configuration"));
-          console.log(
-            chalk.gray(
-              "  3. Try again later with: mycontext generate components"
-            )
-          );
-          throw new Error(
-            "Hosted API unavailable - configure local AI provider"
-          );
+          console.log(chalk.red("❌ OpenRouter API failed"));
+
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+
+          if (errorMessage.includes("API key required")) {
+            console.log(
+              chalk.yellow(
+                "🔑 OpenRouter requires an API key (even for free tier)"
+              )
+            );
+            console.log(chalk.blue("📝 Get your free API key:"));
+            console.log(chalk.gray("   1. Visit: https://openrouter.ai/keys"));
+            console.log(chalk.gray("   2. Sign up for free account"));
+            console.log(chalk.gray("   3. Create API key"));
+            console.log(chalk.blue("🔧 Add to your project:"));
+            console.log(
+              chalk.gray(
+                "   echo 'MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx' > .mycontext/.env"
+              )
+            );
+            console.log(chalk.blue("🔄 Then retry:"));
+            console.log(chalk.gray("   mycontext generate-components all"));
+          } else {
+            console.log(
+              chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
+            );
+            console.log(chalk.blue("🔄 Retry options:"));
+            console.log(
+              chalk.gray(
+                "  1. Get OpenRouter API key: https://openrouter.ai/keys"
+              )
+            );
+            console.log(
+              chalk.gray(
+                "  2. Configure Claude API key: ANTHROPIC_API_KEY=sk-ant-xxx"
+              )
+            );
+            console.log(
+              chalk.gray("  3. Configure XAI API key: XAI_API_KEY=xai-xxx")
+            );
+            console.log(
+              chalk.blue("📚 See: mycontext help for full setup guide")
+            );
+          }
+
+          throw new Error(`OpenRouter API failed: ${errorMessage}`);
         }
       }
 
@@ -1117,6 +1220,47 @@ export class GenerateComponentsCommand {
       const variantCode = this.addVariantSpecificCode(codeResult.code, variant);
 
       await this.fs.writeFile(filePath, variantCode);
+
+      // Write to preview directory if specified
+      if (previewDir && previewManifest) {
+        const previewFileName = `${component.name}-${variant}.tsx`;
+        const previewFilePath = path.join(previewDir, previewFileName);
+
+        // Add JSDoc metadata for Studio display
+        const metadataCode = this.addComponentMetadata(
+          variantCode,
+          component,
+          variant,
+          codeResult.metadata
+        );
+
+        await this.fs.writeFile(previewFilePath, metadataCode);
+
+        // Add to preview manifest
+        previewManifest.components.push({
+          id: `${component.name.toLowerCase()}-${variant}-${Date.now()}`,
+          name: component.name,
+          variant: variant,
+          path: `./${previewFileName}`,
+          description: component.description,
+          type: component.type,
+          group: component.groupName,
+          validation: {
+            responsive: true,
+            accessible: true,
+            touchTargets: variant === "mobile",
+            qualityScore: codeResult.metadata?.confidence
+              ? Math.round(codeResult.metadata.confidence * 100)
+              : 85,
+          },
+          variants: ["mobile", "desktop"],
+          tags: [component.type, variant, "responsive"],
+          generatedAt: new Date().toISOString(),
+          generator: "mycontext-cli v2.0.29",
+        });
+
+        console.log(chalk.blue(`   📱 Preview: ${previewFileName}`));
+      }
 
       console.log(
         chalk.green(`   ✅ Generated ${variant} variant: ${fileName}`)
@@ -3044,5 +3188,46 @@ export default function Layout({ children }: { children: ReactNode }) {
         this.flattenComponents(childData, components, groupName, childPath);
       }
     );
+  }
+
+  /**
+   * Add JSDoc metadata to component code for Studio display
+   */
+  private addComponentMetadata(
+    code: string,
+    component: any,
+    variant: "mobile" | "desktop",
+    metadata: any
+  ): string {
+    const qualityScore = metadata?.confidence
+      ? Math.round(metadata.confidence * 100)
+      : 85;
+    const generatedAt = new Date().toISOString();
+
+    const jsdocComment = `/**
+ * @component ${component.name}
+ * @variant ${variant}
+ * @description ${component.description}
+ * @responsive true
+ * @accessible true
+ * @touchTargets ${variant === "mobile" ? "44px minimum" : "40px minimum"}
+ * @qualityScore ${qualityScore}
+ * @generated ${generatedAt}
+ * @generator mycontext-cli v2.0.29
+ * @group ${component.groupName}
+ * @type ${component.type}
+ */
+`;
+
+    // Find the first export statement and add JSDoc before it
+    const exportMatch = code.match(
+      /^(export\s+(default\s+)?function|export\s+(default\s+)?const|export\s+default)/m
+    );
+    if (exportMatch) {
+      return code.replace(exportMatch[0], jsdocComment + exportMatch[0]);
+    }
+
+    // Fallback: add at the beginning
+    return jsdocComment + code;
   }
 }

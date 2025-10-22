@@ -156,7 +156,22 @@
           }
         ],
         "role": "button",
-        "focus_management": "Maintain focus on button during loading"
+        "focus_management": "Maintain focus on button during loading",
+        "wcag_compliance": {
+          "color_contrast": {
+            "normal_text": 4.5,
+            "large_text": 3.0
+          },
+          "focus_indicators": true,
+          "skip_links": [],
+          "alt_text_required": false,
+          "form_labels_required": false
+        },
+        "mobile_accessibility": {
+          "min_touch_target": "44px",
+          "gesture_alternatives": ["tap", "keyboard navigation"],
+          "orientation_support": "both"
+        }
       },
       "design_tokens": [
         {
@@ -177,13 +192,41 @@
       ],
       "responsive_behavior": {
         "breakpoint_behaviors": {
-          "sm": "Full width on mobile",
-          "md": "Auto width on tablet+",
-          "lg": "Auto width on desktop"
+          "sm": "Full width on mobile with larger touch targets",
+          "md": "Auto width on tablet with medium touch targets",
+          "lg": "Auto width on desktop with standard touch targets"
         },
         "mobile_first": true,
         "touch_targets": {
           "min_size": "44px"
+        },
+        "mobile_variants": {
+          "template_code": "<Button\n  type=\"submit\"\n  variant=\"default\"\n  size=\"lg\"\n  disabled={{{disabled}}}\n  onClick={{{handler}}}\n  aria-label=\"{{aria_label}}\"\n  className=\"w-full sm:w-auto min-h-[44px] min-w-[44px] text-base\"\n>\n  {{label}}\n</Button>",
+          "props": {
+            "size": "lg",
+            "className": "w-full sm:w-auto min-h-[44px] min-w-[44px] text-base"
+          },
+          "classes": "w-full sm:w-auto min-h-[44px] min-w-[44px] text-base"
+        },
+        "desktop_variants": {
+          "template_code": "<Button\n  type=\"submit\"\n  variant=\"default\"\n  size=\"{{size}}\"\n  disabled={{{disabled}}}\n  onClick={{{handler}}}\n  aria-label=\"{{aria_label}}\"\n  className=\"min-h-[40px] min-w-[40px]\"\n>\n  {{label}}\n</Button>",
+          "props": {
+            "className": "min-h-[40px] min-w-[40px]"
+          },
+          "classes": "min-h-[40px] min-w-[40px]"
+        },
+        "tablet_variants": {
+          "template_code": "<Button\n  type=\"submit\"\n  variant=\"default\"\n  size=\"default\"\n  disabled={{{disabled}}}\n  onClick={{{handler}}}\n  aria-label=\"{{aria_label}}\"\n  className=\"min-h-[42px] min-w-[42px]\"\n>\n  {{label}}\n</Button>",
+          "props": {
+            "size": "default",
+            "className": "min-h-[42px] min-w-[42px]"
+          },
+          "classes": "min-h-[42px] min-w-[42px]"
+        },
+        "validation_rules": {
+          "min_touch_target": "44px",
+          "required_breakpoints": ["sm", "md", "lg"],
+          "mobile_first_required": true
         }
       },
       "validation_rules": [

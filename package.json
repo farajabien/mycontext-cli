@@ -23,6 +23,10 @@
     "test:unit": "jest --testPathPattern=unit --passWithNoTests",
     "lint": "eslint src/**/*.ts --quiet",
     "lint:fix": "eslint src/**/*.ts --fix --quiet",
+    "studio:dev": "cd studio && pnpm dev",
+    "studio:build": "cd studio && pnpm build",
+    "studio:start": "cd studio && pnpm start",
+    "preview": "pnpm studio:dev",
     "prepublishOnly": "echo 'Skipping tests and lint for now' && npm run build"
   },
   "keywords": [

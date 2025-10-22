@@ -320,16 +320,10 @@ export class DesignPipelineAgent
       };
     } catch (error) {
       console.error(chalk.red("❌ Design pipeline failed:"), error);
-      return {
-        manifest: this.createEmptyManifest(input.project_path),
-        success: false,
-        warnings,
-        errors: [
-          ...errors,
-          error instanceof Error ? error.message : String(error),
-        ],
-        fallbacks_used: fallbacksUsed,
-      };
+
+      // Re-throw the error to halt execution
+      // The calling command will handle cleanup and exit
+      throw error;
     }
   }
 
@@ -607,7 +601,9 @@ Return JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.classifyScopeByRules(summary);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(chalk.yellow("  ⚠️  AI classification failed"));
+      throw error;
     }
   }
 
@@ -747,7 +743,9 @@ Output JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.generateDesignBriefByRules(summary);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(chalk.yellow("  ⚠️  AI design brief generation failed"));
+      throw error;
     }
   }
 
@@ -846,7 +844,9 @@ Output JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.generateVisualSystemByRules(brief);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(chalk.yellow("  ⚠️  AI visual system generation failed"));
+      throw error;
     }
   }
 
@@ -999,7 +999,11 @@ Output JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.defineHierarchyByRules(summary);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(
+        chalk.yellow("  ⚠️  AI component hierarchy generation failed")
+      );
+      throw error;
     }
   }
 
@@ -1071,7 +1075,9 @@ Output JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.planImplementationByRules(summary, hierarchy);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(chalk.yellow("  ⚠️  AI implementation planning failed"));
+      throw error;
     }
   }
 
@@ -1158,7 +1164,9 @@ Output JSON:
 
       return JSON.parse(response.text);
     } catch (error) {
-      return this.synthesizeIntentByRules(brief, summary);
+      // AI generation failed - re-throw to halt pipeline
+      console.log(chalk.yellow("  ⚠️  AI design intent synthesis failed"));
+      throw error;
     }
   }
 

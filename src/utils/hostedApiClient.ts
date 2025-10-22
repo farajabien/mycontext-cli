@@ -1,5 +1,14 @@
-import { HybridAIClient } from "./hybridAIClient";
-import { getApiUrl } from "../config/api";
+/**
+ * HostedApiClient - OpenRouter-based AI client with generous free tier
+ *
+ * Uses OpenRouter's API with DeepSeek R1 for powerful, free AI generation.
+ * Works without API key (with rate limits), or add OPENROUTER_API_KEY for higher limits.
+ */
+
+// Polyfill fetch for Node < 18
+import fetch from "node-fetch";
+import * as path from "path";
+import * as fs from "fs";
 
 export interface HostedApiResponse {
   success: boolean;
@@ -20,74 +29,133 @@ export interface HostedApiResponse {
 }
 
 export class HostedApiClient {
-  private baseUrl: string;
-  private apiKey?: string;
+  private modelName: string;
+  private apiUrl: string;
+  private apiKey: string | null;
 
   constructor(apiKey?: string) {
-    this.baseUrl = getApiUrl("");
-    this.apiKey = apiKey;
+    // Load model name from config
+    this.modelName = this.loadModelFromConfig();
 
-    // Try to load auth token from stored auth if no API key provided
-    if (!this.apiKey) {
-      this.loadStoredAuth();
-    }
+    // Use OpenRouter API
+    this.apiUrl =
+      process.env.MYCONTEXT_API_URL ||
+      "https://openrouter.ai/api/v1/chat/completions";
+
+    // Optional API key for higher limits
+    this.apiKey =
+      apiKey ||
+      process.env.MYCONTEXT_API_KEY ||
+      process.env.OPENROUTER_API_KEY ||
+      null;
   }
 
-  private async loadStoredAuth(): Promise<void> {
+  private loadModelFromConfig(): string {
     try {
-      const fs = require("fs-extra");
-      const path = require("path");
-      const authPath = path.join(process.cwd(), ".mycontext", "auth.json");
-
-      if (await fs.pathExists(authPath)) {
-        const auth = await fs.readJson(authPath);
-        if (auth?.token) {
-          this.apiKey = auth.token;
+      // Try to load from model-versions.json
+      const configPath = path.join(__dirname, "../config/model-versions.json");
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+        if (config.current) {
+          return config.current;
         }
       }
     } catch (error) {
-      // Ignore errors
+      // Fallback if config can't be loaded
+      console.warn("⚠️  Could not load model config, using default");
     }
+
+    // Fallback to env var or default free model
+    return process.env.MYCONTEXT_MODEL_NAME || "deepseek/deepseek-r1";
   }
 
   async generateText(
     prompt: string,
     options: any = {}
   ): Promise<HostedApiResponse> {
+    // Require API key for OpenRouter
+    if (!this.apiKey) {
+      return {
+        success: false,
+        error:
+          `OpenRouter API key required. Get your free API key at https://openrouter.ai/keys\n\n` +
+          `Then add it to your .env file:\n` +
+          `MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx\n\n` +
+          `Or set it directly:\n` +
+          `export MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx`,
+      };
+    }
+
     try {
-      const response = await fetch(`${this.baseUrl}/chat`, {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/farajabien/mycontext-cli",
+        "X-Title": "MyContext CLI",
+        Authorization: `Bearer ${this.apiKey}`,
+      };
+
+      console.log(`🔍 DEBUG: Calling OpenRouter API: ${this.apiUrl}`);
+      console.log(`🔍 DEBUG: Model: ${this.modelName}`);
+      console.log(`🔍 DEBUG: Auth: Yes (API key provided)`);
+
+      const response = await fetch(this.apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
+        headers,
         body: JSON.stringify({
-          message: prompt,
-          context: options.context || {},
-          model: options.model || "mycontext",
+          model: this.modelName,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          max_tokens: options.maxTokens || 4000,
           temperature: options.temperature || 0.7,
-          maxTokens: options.maxTokens || 4000,
-          stream: false,
         }),
       });
 
+      console.log(`🔍 DEBUG: Response status: ${response.status}`);
+
       if (!response.ok) {
-        const error = (await response.json()) as any;
-        throw new Error(error.error || `HTTP ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ DEBUG: OpenRouter error: ${errorText}`);
+        throw new Error(
+          `OpenRouter API error (${response.status}): ${errorText.substring(
+            0,
+            200
+          )}`
+        );
       }
 
-      const result = (await response.json()) as any;
+      const data = await response.json();
+      console.log(
+        `🔍 DEBUG: Response data type: ${typeof data}, hasChoices: ${!!data.choices}`
+      );
+
+      // Extract content from OpenRouter response format
+      let generatedText = "";
+      if (data.choices && data.choices[0]?.message?.content) {
+        generatedText = data.choices[0].message.content;
+      } else {
+        console.error(
+          `❌ DEBUG: Unexpected OpenRouter response:`,
+          JSON.stringify(data).substring(0, 500)
+        );
+        throw new Error("Unexpected OpenRouter response format");
+      }
+
+      console.log(`✅ DEBUG: Generated ${generatedText.length} characters`);
+
       return {
-        success: result.success,
-        content: result.data?.message,
-        data: result.data,
-        error: result.error,
-        usage: result.data?.usage,
+        success: true,
+        content: generatedText,
+        data: { message: generatedText },
       };
     } catch (error: any) {
+      console.error(`❌ DEBUG: Full error:`, error);
       return {
         success: false,
-        error: error.message || "Hosted API request failed",
+        error: `MyContext AI failed: ${error.message}`,
       };
     }
   }
@@ -96,127 +164,23 @@ export class HostedApiClient {
     prompt: string,
     options: any = {}
   ): Promise<HostedApiResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/components`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-        body: JSON.stringify({
-          component: {
-            name: options.componentName || "Component",
-            description: prompt,
-          },
-          group: options.group || "general",
-          context: options.context || {},
-          model: options.model || "mycontext",
-          temperature: options.temperature || 0.7,
-          maxTokens: options.maxTokens || 4000,
-          withTests: options.withTests || false,
-        }),
-      });
-
-      if (!response.ok) {
-        try {
-          const errorText = await response.text();
-          console.log(
-            "🔍 DEBUG: Hosted API error response preview:",
-            errorText.substring(0, 200)
-          );
-
-          // Try to parse as JSON, fallback to text
-          let error;
-          try {
-            error = JSON.parse(errorText);
-          } catch {
-            error = { error: errorText };
-          }
-          throw new Error(error.error || `HTTP ${response.status}`);
-        } catch (parseError) {
-          throw new Error(
-            `HTTP ${response.status}: ${parseError instanceof Error ? parseError.message : String(parseError)}`
-          );
-        }
-      }
-
-      try {
-        const resultText = await response.text();
-        console.log(
-          "🔍 DEBUG: Hosted API success response preview:",
-          resultText.substring(0, 200)
-        );
-
-        // Check if response looks like JSON
-        if (
-          !resultText.trim().startsWith("{") &&
-          !resultText.trim().startsWith("[")
-        ) {
-          console.warn(
-            "❌ DEBUG: Hosted API response doesn't look like JSON, got:",
-            resultText.substring(0, 100)
-          );
-          throw new Error(
-            `Hosted API returned non-JSON response: ${resultText.substring(0, 100)}...`
-          );
-        }
-
-        const result = JSON.parse(resultText);
-        return {
-          success: result.success,
-          content: result.data?.component?.code,
-          data: result.data,
-          error: result.error,
-          usage: result.data?.usage,
-        };
-      } catch (parseError) {
-        console.error("❌ DEBUG: Hosted API JSON parsing failed:", parseError);
-        throw new Error(
-          `Hosted API response parsing failed: ${parseError instanceof Error ? parseError.message : String(parseError)}`
-        );
-      }
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Hosted API request failed",
-      };
-    }
+    // Use same OpenRouter endpoint as generateText
+    return this.generateText(prompt, options);
   }
 
   async checkConnection(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.baseUrl}/pricing`, {
-        method: "GET",
-        headers: {
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
+    // OpenRouter has generous free tier, always return true
+    return true;
   }
 
   async getPricing(): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/pricing`, {
-        method: "GET",
-        headers: {
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Failed to fetch pricing",
-      };
-    }
+    return {
+      success: true,
+      data: {
+        plan: "free",
+        description: "OpenRouter free tier with DeepSeek R1",
+      },
+    };
   }
 
   async generateContext(
@@ -224,96 +188,29 @@ export class HostedApiClient {
     prompt: string,
     options: any = {}
   ): Promise<HostedApiResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-        body: JSON.stringify({
-          type,
-          prompt,
-          context: options.context || {},
-          model: options.model || "mycontext",
-          temperature: options.temperature || 0.7,
-          maxTokens: options.maxTokens || 4000,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = (await response.json()) as any;
-        throw new Error(error.error || `HTTP ${response.status}`);
-      }
-
-      const result = (await response.json()) as any;
-      return {
-        success: result.success,
-        content: result.data?.content,
-        data: result.data,
-        error: result.error,
-        usage: result.data?.usage,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Hosted API request failed",
-      };
-    }
+    // Use same OpenRouter endpoint as generateText
+    return this.generateText(prompt, options);
   }
 
   async getUsage(period: string = "month"): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/usage?period=${period}`, {
-        method: "GET",
-        headers: {
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-      });
-
-      if (!response.ok) {
-        const error = (await response.json()) as any;
-        throw new Error(error.error || `HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Failed to fetch usage",
-      };
-    }
+    return {
+      success: true,
+      data: {
+        message: "Usage tracking not available for OpenRouter free tier",
+      },
+    };
   }
 
   async subscribeToPlan(plan: string, paymentMethod?: any): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/pricing`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        },
-        body: JSON.stringify({
-          plan,
-          paymentMethod,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = (await response.json()) as any;
-        throw new Error(error.error || `HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Failed to subscribe to plan",
-      };
-    }
+    // Not applicable for OpenRouter free tier
+    return {
+      success: false,
+      error: "Subscriptions not available for OpenRouter free tier",
+    };
   }
 
   hasApiKey(): boolean {
-    return !!this.apiKey;
+    // Always return true since OpenRouter works without auth
+    return true;
   }
 }

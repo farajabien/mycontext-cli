@@ -482,47 +482,33 @@ export class GenerateCommand {
       const message = error instanceof Error ? error.message : String(error);
       if (/No AI providers available/i.test(message)) {
         console.log(
-          chalk.yellow("\n⚠️  No AI providers configured. Choose your option:")
+          chalk.yellow("\n🔑 No AI providers available - Quick Setup:")
         );
         console.log(
-          chalk.blue("\n🔑 Option 1: Use your own AI keys (recommended)")
+          chalk.blue("\n📝 Get Free OpenRouter API Key (Recommended):")
         );
-        console.log(
-          chalk.gray("   1. Copy: .mycontext/.env.example → .mycontext/.env")
-        );
-        console.log(chalk.gray("   2. Add: MYCONTEXT_GITHUB_TOKEN=ghp_xxx"));
-        console.log(
-          chalk.gray(
-            "   3. Or: MYCONTEXT_QWEN_API_KEY=sk-or-xxx (free via OpenRouter)"
-          )
-        );
-        console.log(chalk.blue("\n🌐 Option 2: Use hosted MyContext AI"));
-        console.log(chalk.gray("   1. Run: mycontext setup"));
+        console.log(chalk.gray("   1. Visit: https://openrouter.ai/keys"));
+        console.log(chalk.gray("   2. Sign up for free account"));
+        console.log(chalk.gray("   3. Create API key"));
+        console.log(chalk.blue("\n🔧 Add to your project:"));
         console.log(
           chalk.gray(
-            "   2. Configure your API keys (Claude or GPT recommended)"
+            "   echo 'MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx' > .mycontext/.env"
           )
         );
-        console.log(
-          chalk.gray("   3. You're in beta - no pricing, just BYOK!")
-        );
+        console.log(chalk.blue("\n🔄 Then retry:"));
+        console.log(chalk.gray("   mycontext generate context --full"));
 
-        // No fallback - fail cleanly
-        console.log(chalk.red("❌ AI generation failed"));
+        console.log(chalk.blue("\n💡 Other Options:"));
         console.log(
-          chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
+          chalk.gray("   • Claude (best quality): ANTHROPIC_API_KEY=sk-ant-xxx")
         );
-        console.log(chalk.blue("🔄 Retry options:"));
-        console.log(chalk.gray("  1. Wait for rate limits to reset"));
-        console.log(chalk.gray("  2. Use a different AI provider"));
-        console.log(chalk.gray("  3. Check your API key configuration"));
-        console.log(
-          chalk.gray(
-            "  4. Try again later with: mycontext generate context --full"
-          )
-        );
+        console.log(chalk.gray("   • XAI/Grok: XAI_API_KEY=xai-xxx"));
+
         this.spinner.fail("Generation failed");
-        throw new Error("AI generation failed - retry when conditions improve");
+        throw new Error(
+          "No AI providers available - configure OpenRouter and retry"
+        );
       }
       this.spinner.fail("Generation failed");
       throw error;
@@ -617,6 +603,16 @@ export class GenerateCommand {
     // 5) Interactive prompt to capture description (when not in --yes)
     if (!(options as any).yes) {
       this.spinner.stop();
+      console.log(
+        chalk.yellow(
+          "\n⚠️  No context files found (.mycontext/01-prd.md or .mycontext/types/)"
+        )
+      );
+      console.log(
+        chalk.gray(
+          "Make sure you're in the project directory with context files."
+        )
+      );
       console.log(chalk.blue("\n📝 Project Description"));
       console.log(
         chalk.gray(
@@ -1241,25 +1237,16 @@ Use the business entities from the context above, not generic types.`;
       return { shouldSkip: false, content: existingContent };
     }
 
-    // Interactive prompt for user choice
-    console.log(chalk.yellow("⚠️  PRD already exists at .mycontext/01-prd.md"));
-    console.log(chalk.gray("What would you like to do?"));
-    console.log(chalk.gray("  1. Overwrite existing PRD (--force)"));
-    console.log(chalk.gray("  2. Merge with existing PRD (--merge)"));
-    console.log(chalk.gray("  3. Skip generation (keep existing)"));
-
-    // For now, default to skip to avoid breaking existing workflows
-    // In a full implementation, you'd use inquirer or similar for interactive prompts
+    // PRD exists - just use it (unless --force or --merge is specified)
     console.log(
       chalk.blue(
-        "ℹ️  Skipping PRD generation (use --force to overwrite or --merge to merge)"
+        "ℹ️  Using existing PRD (use --force to overwrite or --merge to merge)"
       )
     );
     return {
       shouldSkip: true,
       content: existingContent,
-      reason:
-        "PRD already exists - use --force to overwrite or --merge to merge",
+      reason: "PRD already exists",
     };
   }
 
@@ -2954,12 +2941,21 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       case "context":
         return [
           {
-            description: "Compile PRD from context files",
-            command: "mycontext compile-prd",
+            description: "Generate TypeScript types",
+            command: "mycontext generate types",
           },
           {
-            description: "Generate complete project architecture",
-            command: "mycontext generate architecture",
+            description: "Generate brand guidelines",
+            command: "mycontext generate brand",
+          },
+          {
+            description: "Generate component list",
+            command: "mycontext generate:components --list-only",
+            optional: true,
+          },
+          {
+            description: "Generate all components",
+            command: "mycontext generate:components",
           },
         ];
 
@@ -2979,32 +2975,32 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       case "types":
         return [
           {
-            description: "Generate brand guidelines using the types",
+            description: "Generate brand guidelines",
             command: "mycontext generate brand",
           },
           {
-            description: "Generate component list with type information",
-            command: "mycontext generate components-list",
+            description: "Generate all components",
+            command: "mycontext generate-components all",
           },
         ];
 
       case "brand":
         return [
           {
-            description: "Generate component list with brand context",
+            description: "Generate component list",
             command: "mycontext generate components-list",
+          },
+          {
+            description: "Generate all components",
+            command: "mycontext generate-components all",
           },
         ];
 
       case "components-list":
         return [
           {
-            description: "Generate project structure",
-            command: "mycontext generate project-structure",
-          },
-          {
-            description: "Start generating components",
-            command: "mycontext generate-components all --with-tests",
+            description: "Generate all components",
+            command: "mycontext generate-components all",
           },
         ];
 
@@ -3060,8 +3056,11 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
         const preserve = Boolean((options as any).preservePrd);
 
         // Don't overwrite PRD if content is just a success message
-        if (content === "Context files generated successfully") {
-          // This means context generation had gaps and didn't actually generate content
+        if (
+          content === "Context files generated successfully" ||
+          content.includes("Full context generated successfully")
+        ) {
+          // This means context generation completed but we should preserve existing PRD
           // Don't overwrite the existing PRD
           return outputPath;
         }
@@ -4568,29 +4567,12 @@ ${
           console.log(chalk.gray("   mycontext generate brand"));
           break;
         case "brand":
-          console.log(chalk.blue("\n➡️ Next: Plan components"));
-          console.log(
-            chalk.gray(
-              "   mycontext generate components-list   # alias: component-list"
-            )
-          );
+          console.log(chalk.blue("\n➡️ Next: Generate component list"));
+          console.log(chalk.gray("   mycontext generate components-list"));
           break;
         case "components-list":
-          console.log(chalk.blue("\n➡️ Next: Generate project structure"));
-          console.log(chalk.gray("   mycontext generate project-structure"));
-          console.log(chalk.blue("\n💡 Then: Generate components"));
-          console.log(
-            chalk.gray(
-              "   mycontext generate-components all --with-tests   # optional tests"
-            )
-          );
-          console.log(chalk.blue("➡️ Preview:"));
-          console.log(chalk.gray("   Visit /preview (dev server)"));
-          console.log(
-            chalk.gray(
-              "   mycontext normalize preview   # optional final layout"
-            )
-          );
+          console.log(chalk.blue("\n➡️ Next: Generate components"));
+          console.log(chalk.gray("   mycontext generate-components all"));
           break;
         case "project-structure":
           console.log(chalk.blue("\n➡️ Next: Generate components"));
@@ -4647,12 +4629,15 @@ ${
       github: !!process.env.MYCONTEXT_GITHUB_TOKEN,
       qwen: !!process.env.MYCONTEXT_QWEN_API_KEY,
       gemini: !!process.env.MYCONTEXT_GEMINI_API_KEY,
-      xai: !!process.env.MYCONTEXT_XAI_API_KEY,
+      xai: !!(process.env.MYCONTEXT_XAI_API_KEY || process.env.XAI_API_KEY),
       claude: !!process.env.MYCONTEXT_CLAUDE_API_KEY,
       openai: !!process.env.OPENAI_API_KEY,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
       huggingface: !!process.env.HUGGINGFACE_API_KEY,
-      openrouter: !!process.env.MYCONTEXT_OPENROUTER_API_KEY, // Add this
+      openrouter: !!(
+        process.env.MYCONTEXT_OPENROUTER_API_KEY ||
+        process.env.OPENROUTER_API_KEY
+      ),
     };
 
     console.log(`[GenerateCommand] API Keys detected:`, keys);
@@ -4662,11 +4647,13 @@ ${
       process.env.MYCONTEXT_QWEN_API_KEY ||
       process.env.MYCONTEXT_GEMINI_API_KEY ||
       process.env.MYCONTEXT_XAI_API_KEY ||
+      process.env.XAI_API_KEY ||
       process.env.MYCONTEXT_CLAUDE_API_KEY ||
       process.env.OPENAI_API_KEY ||
       process.env.ANTHROPIC_API_KEY ||
       process.env.HUGGINGFACE_API_KEY ||
-      process.env.MYCONTEXT_OPENROUTER_API_KEY
+      process.env.MYCONTEXT_OPENROUTER_API_KEY ||
+      process.env.OPENROUTER_API_KEY
     );
   }
 
@@ -4749,12 +4736,33 @@ ${
     }
     console.log("[GenerateCommand] A/B/C/D files generation successful");
 
+    // Update config.json status after successful context generation
+    await this.updateConfigStatus("context-generated");
+
     return {
       success: true,
       content: "Full context generated successfully (PRD + A/B/C/D files)",
       provider: "hybrid" as any,
       metadata: { model: "hybrid", tokens: 0, latency: 0 },
     };
+  }
+
+  /**
+   * Update config.json status
+   */
+  private async updateConfigStatus(status: string): Promise<void> {
+    try {
+      const configPath = path.join(".mycontext", "config.json");
+      if (await fs.pathExists(configPath)) {
+        const config = await fs.readJson(configPath);
+        config.status = status;
+        config.updatedAt = new Date().toISOString();
+        await fs.writeJson(configPath, config, { spaces: 2 });
+      }
+    } catch (error) {
+      // Don't fail if config update fails
+      console.warn("⚠️  Could not update config.json status");
+    }
   }
 
   /**
