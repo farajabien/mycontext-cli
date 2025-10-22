@@ -407,6 +407,20 @@ export class CodeGenSubAgent
       );
 
       if (typeof code === "string" && code.trim().length > 0) {
+        // 📱 RESPONSIVE VALIDATION CHECKPOINT
+        console.log("📱 Validating responsive design requirements...");
+        const validationResult = this.validateResponsiveDesign(code);
+
+        if (!validationResult.isValid) {
+          console.log(
+            "⚠️  Responsive validation warnings:",
+            validationResult.warnings
+          );
+          // Continue with warnings but log them
+        } else {
+          console.log("✅ Responsive design validation passed");
+        }
+
         return code.trim();
       }
       throw new Error("Empty code from AI provider");
@@ -733,28 +747,50 @@ Generate the complete component code with all necessary imports and proper struc
     // Build enhanced system prompt based on component type and context
     const systemPrompt = `You are an expert React/TypeScript developer generating production-ready Next.js components.
 
-📱 **MOBILE-FIRST DESIGN REQUIREMENTS**:
-Design a mobile-first, touch-first, single-focus stepped experience rather than multi-field forms. Requirements:
+📱 **RESPONSIVE DESIGN REQUIREMENTS** (NON-NEGOTIABLE):
+Generate components that work perfectly on mobile AND desktop. This is the #1 priority.
 
-Primary goal: turn multi-field forms into 1 task per screen (single focus), with a clear stepper/progress indicator and per-step status badges (e.g., Pending / Saved / Error / Completed).
+**MOBILE REQUIREMENTS** (360-430px width):
+- Touch targets: MINIMUM 44px × 44px (WCAG 2.1 AA standard)
+- Full-width buttons on mobile: \`w-full sm:w-auto\`
+- Larger text: \`text-base sm:text-sm\` for better readability
+- Thumb-reachable layouts: controls near bottom
+- Single-column layouts with proper spacing
+- Swipe gestures support where appropriate
 
-Device & constraints: target phones (360–430px width). Touch targets ≥44–48px. Thumb-reachable layouts (controls near bottom where appropriate).
+**DESKTOP REQUIREMENTS** (1024px+ width):
+- Auto-width buttons: \`sm:w-auto\`
+- Smaller text: \`text-sm\` for desktop
+- Multi-column layouts where appropriate
+- Hover states and keyboard navigation
+- More compact spacing
 
-Navigation: linear forward/back with swipe support and unobtrusive skip where needed. Avoid deep menus.
+**TABLET REQUIREMENTS** (768-1023px width):
+- Hybrid approach: larger than mobile, smaller than desktop
+- Touch targets: 42px minimum
+- Responsive grid layouts
 
-Visuals: card-based steps, large CTA, clear illustrations or icons to contextualize each step (no dense inputs). Use status colors + icons for states.
+**RESPONSIVE BREAKPOINTS** (Tailwind CSS):
+- \`sm:\` 640px+ (tablet portrait)
+- \`md:\` 768px+ (tablet landscape) 
+- \`lg:\` 1024px+ (desktop)
+- \`xl:\` 1280px+ (large desktop)
 
-Interactions: single primary action per screen (big button). Support gestures (swipe to go back/forward), skeleton loaders, and subtle transitions between steps.
+**ACCESSIBILITY REQUIREMENTS** (WCAG 2.1 AA):
+- Color contrast: 4.5:1 for normal text, 3:1 for large text
+- Focus indicators: visible and clear
+- Keyboard navigation: Tab, Enter, Space, Arrow keys
+- Screen reader support: proper ARIA labels
+- Touch targets: minimum 44px × 44px
+- Orientation support: portrait and landscape
 
-Statuses & feedback: show real-time per-step statuses (e.g., "Saving…", success check, retry on error). Include undo where destructive.
-
-Accessibility: high contrast text, semantic labels, reachable controls, readable font sizes.
-
-Edge cases: offline, retries, partial saves, validations that show contextual microcopy (not large error pages).
-
-Deliverables: clickable mobile prototype, design tokens (spacing, colors, typography), interaction specs, and exportable assets (SVGs/icons) plus short dev handoff notes.
-
-Tone: simple, visual, mobile-first. No long forms — use single-task screens, visual progress and clear statuses.
+**RESPONSIVE VALIDATION CHECKPOINTS**:
+- Does it work on mobile? (360px width)
+- Does it work on tablet? (768px width)  
+- Does it work on desktop? (1024px width)
+- Are touch targets 44px+ on mobile?
+- Is text readable on all screen sizes?
+- Are interactive elements reachable with thumb on mobile?
 
 🎯 CRITICAL: Generate FUNCTIONAL, INTERACTIVE components with real business logic.
 ❌ DO NOT generate generic layout wrappers or placeholder components.
@@ -2493,5 +2529,82 @@ const ${componentName}: React.FC<${componentName}Props> = ({ className }) => {
 };
 
 export default ${componentName};`;
+  }
+
+  /**
+   * Validates responsive design requirements in generated component code
+   */
+  private validateResponsiveDesign(code: string): {
+    isValid: boolean;
+    warnings: string[];
+    score: number;
+  } {
+    const warnings: string[] = [];
+    let score = 100;
+
+    // Check for mobile-first responsive classes
+    const hasMobileClasses =
+      /w-full\s+sm:|text-base\s+sm:|min-h-\[44px\]|min-w-\[44px\]/.test(code);
+    if (!hasMobileClasses) {
+      warnings.push(
+        "Missing mobile-first responsive classes (w-full sm:, text-base sm:, min-h-[44px])"
+      );
+      score -= 20;
+    }
+
+    // Check for touch target sizes
+    const hasTouchTargets = /min-h-\[44px\]|min-w-\[44px\]|h-11|w-11/.test(
+      code
+    );
+    if (!hasTouchTargets) {
+      warnings.push(
+        "Missing minimum touch target sizes (44px minimum for mobile)"
+      );
+      score -= 15;
+    }
+
+    // Check for responsive breakpoints
+    const hasBreakpoints = /sm:|md:|lg:|xl:/.test(code);
+    if (!hasBreakpoints) {
+      warnings.push("Missing responsive breakpoints (sm:, md:, lg:, xl:)");
+      score -= 15;
+    }
+
+    // Check for accessibility features
+    const hasAriaLabels = /aria-label|aria-describedby|aria-labelledby/.test(
+      code
+    );
+    if (!hasAriaLabels) {
+      warnings.push("Missing ARIA labels for accessibility");
+      score -= 10;
+    }
+
+    // Check for keyboard navigation
+    const hasKeyboardSupport = /onKeyDown|tabIndex|role=/.test(code);
+    if (!hasKeyboardSupport) {
+      warnings.push("Missing keyboard navigation support");
+      score -= 10;
+    }
+
+    // Check for focus management
+    const hasFocusManagement = /focus:|focus-visible:|outline/.test(code);
+    if (!hasFocusManagement) {
+      warnings.push("Missing focus management styles");
+      score -= 5;
+    }
+
+    // Check for proper button sizing
+    const hasProperSizing =
+      /className.*w-full.*sm:w-auto|className.*min-h-\[44px\]/.test(code);
+    if (!hasProperSizing) {
+      warnings.push("Button sizing may not be optimal for mobile/desktop");
+      score -= 10;
+    }
+
+    return {
+      isValid: warnings.length === 0,
+      warnings,
+      score: Math.max(score, 0),
+    };
   }
 }

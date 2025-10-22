@@ -122,44 +122,29 @@ export class HybridAIClient {
       });
     }
 
-    // OpenRouter (free tier - testing only)
+    // OpenRouter (recommended free tier option - prioritized over XAI)
     const openRouterClient = new OpenRouterClient();
     if (openRouterClient.hasApiKey()) {
       this.providers.push({
         name: "openrouter",
-        priority: 3, // Lower than Claude/XAI, higher than hosted
+        priority: 1, // After Claude, before XAI
         client: openRouterClient,
         isAvailable: () => openRouterClient.checkConnection(),
       });
 
-      if (!HybridAIClient.hasLoggedInitialization) {
-        console.log(chalk.blue("🆓 Using OpenRouter free tier (DeepSeek-R1)"));
-      }
-    }
-
-    // Sort providers by priority (lower number = higher priority)
-    this.providers.sort((a, b) => a.priority - b.priority);
-
-    // Add hosted API as fallback if no local providers are available
-    if (this.providers.length === 0) {
-      const hostedClient = new HostedApiClient();
-      this.providers.push({
-        name: "hosted",
-        priority: 10, // Lower priority than local providers
-        client: hostedClient,
-        isAvailable: () => hostedClient.checkConnection(),
-      });
-
-      // Only log once to avoid spam
-      if (!HybridAIClient.hasLoggedInitialization) {
-        console.log(`Using hosted AI service`);
+      // Log if this is the only provider
+      if (
+        !HybridAIClient.hasLoggedInitialization &&
+        this.providers.length === 1
+      ) {
+        console.log(
+          chalk.blue("🧠 Using OpenRouter (DeepSeek R1) - Free Tier")
+        );
         HybridAIClient.hasLoggedInitialization = true;
       }
-    } else {
-      // Provider-specific message already logged above, no need for generic message
     }
 
-    // Sort by priority
+    // Sort by priority (lower number = higher priority)
     this.providers.sort((a, b) => a.priority - b.priority);
 
     logger.verbose(`Initialized ${this.providers.length} AI providers`);
@@ -527,7 +512,7 @@ export class HybridAIClient {
   ): Promise<{ text: string; provider: string }> {
     const spinnerCallback = options.spinnerCallback;
     const provider = await this.getBestProvider();
-    const timeout = options.timeout || 60000; // 1 minute timeout per provider for faster UX
+    const timeout = options.timeout || 180000; // 3 minute timeout for reasoning models like DeepSeek R1
 
     if (!provider) {
       // No providers available - fail cleanly

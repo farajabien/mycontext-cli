@@ -17,28 +17,18 @@ export class EnvExampleGenerator {
   static generateEnvExample(packageJson?: PackageJson): string {
     const envVars = new Set<string>();
 
-    // MyContext AI Provider Chain (Primary → Fallback 1 → Fallback 2)
-    envVars.add("# MyContext AI (Coming Soon - Primary Provider)");
-    envVars.add("MYCONTEXT_API_KEY=");
+    // MyContext AI Provider Chain
+    envVars.add("# Choose ONE of these providers:");
     envVars.add("");
-
-    envVars.add("# Claude SDK (Fallback 1)");
-    envVars.add("ANTHROPIC_API_KEY=");
-    envVars.add("");
-
-    envVars.add("# XAI/Grok (Fallback 2)");
-    envVars.add("XAI_API_KEY=");
-    envVars.add("");
-
-    // Add OpenRouter
-    envVars.add("# OpenRouter (Fallback 3 - Free Tier for Testing)");
+    envVars.add("# Option 1: OpenRouter (Recommended - Free Tier Available)");
     envVars.add("MYCONTEXT_OPENROUTER_API_KEY=");
     envVars.add("");
-
-    // Generation settings
-    envVars.add("# Optional: Generation Settings");
-    envVars.add("MYCONTEXT_TEMPERATURE=0.1");
-    envVars.add("MYCONTEXT_MAX_TOKENS=4000");
+    envVars.add("# Option 2: Claude (Best Quality)");
+    envVars.add("# ANTHROPIC_API_KEY=sk-ant-xxx");
+    envVars.add("");
+    envVars.add("# Option 3: XAI/Grok");
+    envVars.add("# XAI_API_KEY=xai-xxx");
+    envVars.add("");
 
     // Check for database dependencies
     const dependencies = packageJson
@@ -53,29 +43,44 @@ export class EnvExampleGenerator {
 
     return `# MyContext Environment Variables
 
-## 🚀 Quick Setup
+## 🚀 Quick Start
 
-### Option 1: Use MyContext AI (Coming Soon - Recommended)
+**You need ONE API key to get started.** Choose your preferred provider:
+
+### Option 1: OpenRouter (Recommended)
+- **Free tier available** with generous limits
+- Uses DeepSeek R1 (powerful reasoning model)
+- Get free key: https://openrouter.ai/keys
+
 \`\`\`bash
-MYCONTEXT_API_KEY=mctx-xxx
+MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx
 \`\`\`
 
-### Option 2: Bring Your Own Keys (Free)
+### Option 2: Claude (Best Quality)
+- Highest quality results
+- Paid but worth it for production
+- Get key: https://console.anthropic.com/
+
 \`\`\`bash
-ANTHROPIC_API_KEY=sk-ant-xxx      # Claude (primary)
-XAI_API_KEY=xai-xxx                # Grok (fallback 1)
-MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx  # OpenRouter free tier (fallback 2)
+ANTHROPIC_API_KEY=sk-ant-xxx
 \`\`\`
 
-## Provider Chain
-MyContext AI → Claude SDK → XAI → OpenRouter (automatic fallback)
+### Option 3: XAI/Grok
+- Alternative provider
+- Get key: https://console.x.ai/
+
+\`\`\`bash
+XAI_API_KEY=xai-xxx
+\`\`\`
+
+## Provider Chain (Automatic Fallback)
+Claude → XAI → OpenRouter (whichever keys you provide)
 
 ## Get API Keys
 
-- **Claude**: https://console.anthropic.com/
-- **XAI**: https://console.x.ai/
-- **OpenRouter**: https://openrouter.ai/keys (free tier available)
-- **MyContext AI**: Coming soon at api.mycontext.dev
+- **OpenRouter**: https://openrouter.ai/keys (FREE tier)
+- **Claude**: https://console.anthropic.com/ (paid)
+- **XAI**: https://console.x.ai/ (paid)
 
 ## Environment Variables
 

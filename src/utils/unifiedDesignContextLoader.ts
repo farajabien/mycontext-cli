@@ -84,18 +84,26 @@ export class UnifiedDesignContextLoader {
           force_regenerate: shouldGenerateManifest,
         };
 
-        const designOutput = await this.designPipeline.run(
-          designInput,
-          resumeFromState
-        );
-
-        if (designOutput.success) {
-          await this.manifestManager.saveDesignManifest(designOutput.manifest);
-          console.log(chalk.green("✅ Design manifest generated and saved"));
-        } else {
-          console.warn(
-            chalk.yellow("⚠️  Design pipeline failed, using fallback context")
+        try {
+          const designOutput = await this.designPipeline.run(
+            designInput,
+            resumeFromState
           );
+
+          if (designOutput.success) {
+            await this.manifestManager.saveDesignManifest(
+              designOutput.manifest
+            );
+            console.log(chalk.green("✅ Design manifest generated and saved"));
+          } else {
+            console.warn(
+              chalk.yellow("⚠️  Design pipeline failed, using fallback context")
+            );
+          }
+        } catch (error) {
+          // Pipeline failed at a specific phase - error already logged with recovery guidance
+          // Re-throw to stop component generation
+          throw error;
         }
 
         // Load enriched context
@@ -363,13 +371,18 @@ export class UnifiedDesignContextLoader {
       force_regenerate: true,
     };
 
-    const designOutput = await this.designPipeline.run(designInput, false);
+    try {
+      const designOutput = await this.designPipeline.run(designInput, false);
 
-    if (designOutput.success) {
-      await this.manifestManager.saveDesignManifest(designOutput.manifest);
-      console.log(chalk.green("✅ Design manifest regenerated"));
-    } else {
-      throw new Error("Failed to regenerate design manifest");
+      if (designOutput.success) {
+        await this.manifestManager.saveDesignManifest(designOutput.manifest);
+        console.log(chalk.green("✅ Design manifest regenerated"));
+      } else {
+        throw new Error("Failed to regenerate design manifest");
+      }
+    } catch (error) {
+      // Pipeline failed - error already logged with recovery guidance
+      throw error;
     }
   }
 

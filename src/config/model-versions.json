@@ -1,0 +1,26 @@
+{
+  "current": "deepseek/deepseek-r1",
+  "versions": {
+    "v1": {
+      "name": "deepseek/deepseek-r1",
+      "provider": "openrouter",
+      "release": "2025-01-20",
+      "status": "stable",
+      "capabilities": [
+        "component-generation",
+        "type-generation",
+        "context-analysis",
+        "code-completion",
+        "reasoning"
+      ],
+      "description": "DeepSeek R1 via OpenRouter - powerful free model with reasoning"
+    }
+  },
+  "mycontext": {
+    "name": "faraja/mycontext-ai",
+    "enabled": false,
+    "description": "Custom MyContext model (requires Inference Endpoint)"
+  },
+  "notes": "Update the 'current' field to switch models globally. No code changes needed."
+}
+

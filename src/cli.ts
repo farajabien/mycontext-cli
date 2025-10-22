@@ -411,6 +411,10 @@ const generateComponentsCmd = program
     "Run a final normalize pass to build the canvas layout"
   )
   .option("--check", "Run typecheck, lint, and tests after generation")
+  .option(
+    "--preview-dir <path>",
+    "Directory to write components for Studio preview"
+  )
   .option("--verbose", "Show detailed output")
   .option("--debug", "Enable debug logging")
   .action(async (target: string | undefined, options: any) => {
@@ -1156,4 +1160,13 @@ program.action(() => {
 });
 
 // Parse command line arguments
-program.parse();
+program
+  .parseAsync()
+  .then(() => {
+    // Explicitly exit after command completes to avoid hanging
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(chalk.red("❌ Command failed:"), error.message);
+    process.exit(1);
+  });

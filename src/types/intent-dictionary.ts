@@ -135,6 +135,31 @@ export interface AccessibilitySpec {
   role?: string;
   /** Focus management requirements */
   focus_management?: string;
+  /** WCAG 2.1 AA compliance requirements */
+  wcag_compliance: {
+    /** Color contrast ratio (minimum 4.5:1 for normal text) */
+    color_contrast: {
+      normal_text: number;
+      large_text: number;
+    };
+    /** Focus indicators must be visible */
+    focus_indicators: boolean;
+    /** Skip links for keyboard navigation */
+    skip_links?: string[];
+    /** Alternative text for images */
+    alt_text_required: boolean;
+    /** Form labels must be associated */
+    form_labels_required: boolean;
+  };
+  /** Mobile accessibility requirements */
+  mobile_accessibility: {
+    /** Touch target minimum size (44px) */
+    min_touch_target: string;
+    /** Gesture alternatives for complex interactions */
+    gesture_alternatives?: string[];
+    /** Orientation support */
+    orientation_support: "portrait" | "landscape" | "both";
+  };
 }
 
 /**
@@ -179,6 +204,42 @@ export interface ResponsiveBehavior {
   touch_targets: {
     /** Minimum size for touch targets */
     min_size: string;
+  };
+  /** Mobile-specific variants */
+  mobile_variants: {
+    /** Mobile-specific template code */
+    template_code?: string;
+    /** Mobile-specific props */
+    props?: Record<string, any>;
+    /** Mobile-specific classes */
+    classes?: string;
+  };
+  /** Desktop-specific variants */
+  desktop_variants: {
+    /** Desktop-specific template code */
+    template_code?: string;
+    /** Desktop-specific props */
+    props?: Record<string, any>;
+    /** Desktop-specific classes */
+    classes?: string;
+  };
+  /** Tablet-specific variants */
+  tablet_variants?: {
+    /** Tablet-specific template code */
+    template_code?: string;
+    /** Tablet-specific props */
+    props?: Record<string, any>;
+    /** Tablet-specific classes */
+    classes?: string;
+  };
+  /** Responsive validation rules */
+  validation_rules: {
+    /** Minimum touch target size (44px for WCAG) */
+    min_touch_target: string;
+    /** Required breakpoints */
+    required_breakpoints: string[];
+    /** Mobile-first validation */
+    mobile_first_required: boolean;
   };
 }
 
