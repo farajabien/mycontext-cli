@@ -1,4 +1,4 @@
-# MyContext CLI + MyContext AI
+# MyContext CLI
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
@@ -20,7 +20,7 @@ Generate your context files and component library. That's it. Use it inside Curs
 # Install globally
 npm install -g mycontext-cli
 
-# Initialize with InstantDB - includes Next.js, shadcn/ui, Studio preview, and sample todo app
+# Initialize with InstantDB - includes Next.js, shadcn/ui, and sample todo app
 mycontext init my-app --framework instantdb
 cd my-app
 
@@ -41,8 +41,8 @@ mycontext generate context --full
 # Generate additional components
 mycontext generate-components all
 
-# Preview components in Studio (bundled!)
-pnpm studio:dev
+# Preview components in Studio (bundled!) - Coming Soon
+# pnpm studio:dev
 # Open http://localhost:3001 for component preview
 ```
 
@@ -65,8 +65,8 @@ mycontext generate context --full
 # Generate core 10 components
 mycontext generate-components all --core-only
 
-# Preview components in Studio (bundled!)
-pnpm studio:dev
+# Preview components in Studio (bundled!) - Coming Soon
+# pnpm studio:dev
 # Open http://localhost:3001 for component preview
 ```
 
@@ -79,11 +79,10 @@ pnpm studio:dev
 - **Component Library** - Mobile-first, responsive components built on shadcn/ui
 - **Intent Dictionary** - 30+ UI patterns for 95%+ accuracy
 - **Clarification System** - Detects gaps and tracks auto-generated features for approval
-- **Studio Preview** - Bundled component preview and prototyping tool
 - **State-Aware Generation** - Loading, error, empty, and success states
 - **Smart Error Handling** - Saves progress and resumes from checkpoints
 
-## 🎨 MyContext Studio
+<!-- ## 🎨 MyContext Studio - Coming Soon
 
 **Bundled component preview and prototyping tool included with every project!**
 
@@ -101,14 +100,14 @@ pnpm studio:dev
 # Studio automatically watches for new components
 mycontext generate:components
 # Components instantly appear in Studio!
-```
+``` -->
 
 ## 💰 Pricing
 
 - **MyContext CLI** - Free and open source (MIT License)
-- **MyContext AI API** - Hosted fine-tuned model (beta)
+<!-- - **MyContext AI API** - Hosted fine-tuned model (coming soon) -->
 
-Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free, or upgrade to our hosted API for best-in-class quality.
+Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free.
 
 ## 📚 Full Documentation
 
