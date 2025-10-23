@@ -172,50 +172,6 @@ echo 'XAI_API_KEY=xai-xxx' > .mycontext/.env
 
 **Provider Priority:** Claude → OpenRouter → XAI (automatic fallback)
 
-## 🔍 How MyContext Ensures Accuracy
-
-### Gap Detection
-
-MyContext analyzes your requirements and detects missing critical information:
-
-```bash
-❌ Critical information missing:
-
-1. What type of game is this?
-   - a) Turn-based (Tic-tac-toe, Chess)
-   - b) Real-time (Racing, Shooting)
-   - c) Puzzle (Matching, Strategy)
-```
-
-### Auto-Generated Feature Tracking
-
-All assumptions are tracked for your approval:
-
-```bash
-📋 Auto-generated Features Review
-
-1. Real-time multiplayer with Socket.io
-   Reasoning: You mentioned "play against each other"
-   Confidence: Medium
-   [Y] Accept  [N] Reject  [E] Edit
-```
-
-### Interactive Approval System
-
-Review and approve features before component generation:
-
-```bash
-mycontext review:context
-```
-
-### Iterative Refinement
-
-Refine components with AI suggestions:
-
-```bash
-mycontext refine:component UserCard --in-place
-```
-
 ## 🤝 Contributing
 
 Contributions welcome! See our [Contributing Guide](https://github.com/farajabien/mycontext-cli/blob/main/CONTRIBUTING.md).
