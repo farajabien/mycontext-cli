@@ -4,23 +4,20 @@
   <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
 </p>
 
-Welcome to MyContext CLI! This section will get you up and running quickly.
+Welcome to MyContext CLI! This section gets you up and running to generate **high-quality context for AI design tools**.
 
 ## Contents
 
-- [Installation](installation.md) - Setup and requirements
-- [Quick Start](quick-start.md) - Your first component in 5 minutes
-- [First Project](first-project.md) - Complete project tutorial
-- [Core Concepts](core-concepts.md) - Understanding the system
+- [Getting Started](getting-started.md) - Install, generate `.mycontext/`, and create a Stitch-ready prompt
 
 ## What You'll Learn
 
 By the end of this section, you'll be able to:
 
 - Install and configure MyContext CLI
-- Generate your first React component
-- Understand the core concepts and architecture
-- Build a complete project from scratch
+- Generate a `.mycontext/` context pack for your app
+- Generate a **single mega prompt** to paste into AI design tools (Stitch, etc.)
+- Use the same context pack to help AI coding tools build the UI
 
 ## Prerequisites
 
@@ -30,16 +27,17 @@ By the end of this section, you'll be able to:
 
 ## Quick Overview
 
-MyContext CLI generates production-ready React components from natural language descriptions using our specialized AI agents and Intent Dictionary System.
+MyContext CLI generates a high-signal context pack for your app, then compiles it into a design prompt you can paste into AI design tools.
 
 **Example:**
 
 ```bash
-mycontext generate:component "Create a login form with email and password fields"
+mycontext generate-context-files --description "A modern fintech wallet app..."
+mycontext generate:design-prompt --format stitch
 ```
 
-**Output:** Complete React component with TypeScript, accessibility, and shadcn/ui integration.
+**Output:** `.mycontext/design-prompt.txt` (ready to paste into Stitch) + structured context files for reuse.
 
 ---
 
-**Ready to start?** [Begin with Installation →](installation.md)
+**Ready to start?** [Open Getting Started →](getting-started.md)

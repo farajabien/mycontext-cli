@@ -1,6 +1,6 @@
 # Getting Started with MyContext CLI
 
-**AI-Powered Context & Component Library Generation**
+**Context Generator for AI Design Tools (Stitch, etc.)**
 
 ## 🚀 **Installation**
 
@@ -24,16 +24,15 @@ npx mycontext-cli@latest
 
 ```bash
 mycontext --version
-# Should output: mycontext-cli@2.0.29
 ```
 
-## 🎯 **Quick Start**
+## 🎯 **Quick Start (Design-First)**
 
 ### **1. Initialize Your First Project**
 
 ```bash
 # Create a new project
-mycontext init my-awesome-app
+mycontext init my-awesome-app --framework nextjs
 
 # Or initialize in current directory
 mycontext init . --yes
@@ -42,61 +41,36 @@ mycontext init . --yes
 ### **2. Configure AI Provider**
 
 ```bash
-# Set up your AI provider (Claude recommended)
-mycontext setup
+# Recommended (free tier): OpenRouter
+echo 'MYCONTEXT_OPENROUTER_API_KEY=your-key' > .mycontext/.env
 
-# Or configure manually
-export CLAUDE_API_KEY="your-claude-api-key"
+# Then verify
+mycontext status
 ```
 
-### **3. Generate Your First Component Library**
+### **3. Generate Your Context Pack (`.mycontext/`)**
 
 ```bash
-# Generate context files
-mycontext generate:context
+# Generate A/B/C/D context files (features, flows, edge cases, tech specs)
+mycontext generate-context-files --description "Describe your app..."
 
-# Generate InstantDB schema
-mycontext generate:schema
-
-# Generate types from schema
-mycontext generate:types --from-schema
-
-# Generate core 10 components
-mycontext generate:components --core-only
-
-# Preview and validate components
-mycontext preview:components
-
-# Generate all remaining components
-mycontext generate:components --all
+# Optional: compile into a single PRD if you maintain multiple context files
+mycontext compile-prd
 ```
 
-### **4. Refine Components (Optional)**
+### **4. Generate a Design Prompt for Stitch**
 
 ```bash
-# Refine a specific component with AI suggestions and regression testing
-mycontext refine:component GameBoard
-
-# The system will automatically:
-# - Generate AI-powered improvement suggestions
-# - Run regression tests (TypeScript, ESLint, Unit Tests)
-# - Show approval UI with test results and confidence scores
-# - Track mutation history for auditing
-# - Compare against baseline to detect regressions
+mycontext generate:design-prompt --format stitch
+# Output: .mycontext/design-prompt.txt
 ```
 
-### **5. Start Building**
+### **5. Use It**
 
 ```bash
-# Export validated components to your app
-mycontext export:components --validated-only
-
-# Or manually copy from .mycontext/components/ to components/
-cp -r .mycontext/components/mobile/* components/
-cp -r .mycontext/components/desktop/* components/
-
-# Start your Next.js app
-npm run dev
+# 1) Copy/paste .mycontext/design-prompt.txt into Stitch (or your AI designer)
+# 2) Get UI screens and flows
+# 3) Use the same .mycontext/ files as prompts in Cursor / Claude Code to implement
 ```
 
 ## 🏗️ **Project Structure**
@@ -105,24 +79,18 @@ After initialization, your project will have this structure:
 
 ```
 my-awesome-app/
-├── .mycontext/           # MyContext configuration
-│   ├── context/         # Context files
-│   │   ├── 01-prd.md    # Product Requirements Document
-│   │   ├── 02-brand.md  # Brand guidelines
-│   │   └── 03-tech-stack.json
-│   ├── schema.ts        # InstantDB schema
-│   ├── types.ts         # Generated from schema
-│   ├── 04-component-list.json # Project components
-│   └── components/      # Generated component library
-│       ├── mobile/      # Mobile variants
-│       └── desktop/     # Desktop variants
-├── app/                # Next.js app directory
-│   └── mycontext-preview/ # Component preview
-├── components/          # Your app components
-│   └── ui/             # shadcn/ui (foundation)
-├── lib/                # Utility functions
-├── public/             # Static assets
-└── package.json        # Dependencies
+├── .mycontext/
+│   ├── 01a-features.md
+│   ├── 01b-user-flows.md
+│   ├── 01c-edge-cases.md
+│   ├── 01d-technical-specs.md
+│   ├── 02-prd.md
+│   ├── 03-branding.md
+│   ├── 04-component-list.json
+│   ├── 05-project-structure.md
+│   ├── design-prompt.txt
+│   └── .env            # Your AI provider key(s)
+└── (your app files)
 ```
 
 ## ⚙️ **Configuration**
@@ -215,36 +183,18 @@ pnpm dlx shadcn@latest init
 
 ## 🎯 **Core Workflow**
 
-### **Component-First Development**
-
-MyContext follows a Component-First approach - generate context, schema, types, then build your component library step by step:
+### **Design-First (recommended)**
 
 ```bash
-# 1. Generate context files from your PRD
-mycontext generate:context
+# 1) Generate .mycontext/ pack
+mycontext generate-context-files --description "..."
 
-# 2. Generate InstantDB schema from requirements
-mycontext generate:schema
+# 2) Generate Stitch prompt
+mycontext generate:design-prompt --format stitch
 
-# 3. Generate TypeScript types from schema
-mycontext generate:types --from-schema
-
-# 4. Generate core 10 components (Button, Input, Card, etc.)
-mycontext generate:components --core-only
-
-# 5. Preview and validate components
-mycontext preview:components
-
-# 6. Generate all remaining components
-mycontext generate:components --all
+# 3) Paste into Stitch → get UI screens
+# 4) Use same .mycontext files in Cursor/Claude Code to implement
 ```
-
-This workflow ensures:
-
-- **Type Safety**: Types generated from schema, not assumptions
-- **Quality Control**: Preview and validate before using components
-- **Mobile + Desktop**: Separate variants for easy debugging
-- **Incremental Development**: Start with core components, expand as needed
 
 ### **Component Refinement (New in v2.0.29)**
 
@@ -446,19 +396,11 @@ Now that you're set up, explore these advanced features:
 - **[Configuration Guide](configuration.md)** - Advanced configuration options
 - **[Examples](examples.md)** - Real-world usage patterns
 
-## 🚀 **Ready to Build?**
+## 🚀 **Ready?**
 
-You're all set! Start building amazing applications with MyContext CLI:
+Generate your context pack and prompt:
 
 ```bash
-# Create your first project
-mycontext init my-first-app
-
-# Generate components
-mycontext generate components
-
-# Start building!
-mycontext build-app
+mycontext generate-context-files --description "..."
+mycontext generate:design-prompt --format stitch
 ```
-
-Happy coding! 🎉
