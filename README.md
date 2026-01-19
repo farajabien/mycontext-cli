@@ -4,83 +4,81 @@
   <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
 </p>
 
-**AI-Powered Context & Component Library Generation for Your Next.js App**
+**Context Generator for AI Design Tools — Generate perfect prompts for Stitch, AI designers, and more**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-Generate your context files and component library. That's it. Use it inside Cursor or any IDE. Built on top of shadcn/ui with our Intent Dictionary System for 95%+ accuracy.
+**The missing piece:** AI design tools like Google Stitch can create beautiful UI screens, but they need rich context. MyContext CLI generates comprehensive `.mycontext` files (PRD, branding, user flows, features) optimized as prompts for AI designers. Get UI designs → Code with Claude/Cursor.
 
-## 🚀 Quick Start
+**We don't generate code. We generate context for AI designers.**
 
-### Option A: InstantDB (Recommended for Real-time Apps)
+## 🚀 Quick Start — Generate Context for AI Design Tools
 
-```bash
-# Install globally
-npm install -g mycontext-cli
-
-# Initialize with InstantDB - includes Next.js, shadcn/ui, and sample todo app
-mycontext init my-app --framework instantdb
-cd my-app
-
-# Get your InstantDB App ID from: https://instantdb.com/dash
-# Update .env with your App ID
-echo 'NEXT_PUBLIC_INSTANT_APP_ID=your-app-id' >> .env
-
-# Configure your AI provider
-echo 'ANTHROPIC_API_KEY=your-key' > .mycontext/.env
-
-# Start the dev server - you already have a working todo app!
-pnpm dev
-# Open http://localhost:3000
-
-# Generate context files for your specific project
-mycontext generate context --full
-
-# Generate additional components
-mycontext generate-components all
-
-# Preview components in Studio (bundled!) - Coming Soon
-# pnpm studio:dev
-# Open http://localhost:3001 for component preview
-```
-
-### Option B: Next.js Only
+### The Workflow
 
 ```bash
-# Install globally
+# 1. Install globally
 npm install -g mycontext-cli
 
-# Initialize a new project
+# 2. Initialize project (or use existing project)
 mycontext init my-app --framework nextjs
 cd my-app
 
-# Configure your AI provider (OpenRouter recommended for free tier)
+# 3. Configure your AI provider (OpenRouter recommended - free tier!)
 echo 'MYCONTEXT_OPENROUTER_API_KEY=your-key' > .mycontext/.env
 
-# Generate context files
+# 4. Generate comprehensive context files
 mycontext generate context --full
 
-# Generate core 10 components
-mycontext generate-components all --core-only
+# 5. Generate design prompt optimized for AI design tools
+mycontext generate:design-prompt --format stitch
 
-# Preview components in Studio (bundled!) - Coming Soon
-# pnpm studio:dev
-# Open http://localhost:3001 for component preview
+# 6. Copy the prompt from .mycontext/design-prompt.txt
+# 7. Paste into Google Stitch (or your AI design tool)
+# 8. Get beautiful UI screens!
+# 9. Code the screens with Claude/Cursor using the same context files
+```
+
+### For Existing Projects
+
+```bash
+# Analyze your existing project and generate context
+mycontext analyze --generate-context --include-brand
+
+# Generate design prompt
+mycontext generate:design-prompt --format stitch --output design-prompt.txt
+
+# Use with Stitch, v0, or any AI design tool
 ```
 
 ## ✨ What You Get
 
-- **Instant Setup** - Working Next.js + InstantDB + shadcn/ui app in one command
-- **Sample Todo App** - Real-time app with CRUD operations out of the box
-- **Context Files** - PRD, branding, tech stack from your project analysis
-- **Design Pipeline** - 8-phase system with checkpoints and error recovery
-- **Component Library** - Mobile-first, responsive components built on shadcn/ui
-- **Intent Dictionary** - 30+ UI patterns for 95%+ accuracy
-- **Clarification System** - Detects gaps and tracks auto-generated features for approval
-- **State-Aware Generation** - Loading, error, empty, and success states
-- **Smart Error Handling** - Saves progress and resumes from checkpoints
+### 🎨 **Context Files for AI Design Tools**
+
+- **PRD (Product Requirements Document)** - Complete product specification
+- **Brand Guidelines** - Colors, typography, design system, tone
+- **User Flows** - Step-by-step user journeys
+- **Features & User Actions** - Detailed feature documentation
+- **Technical Specs** - Constraints and requirements
+- **Edge Cases** - Error states and edge scenarios
+- **Component List** - Required UI components
+
+### 🚀 **Design Prompt Generator**
+
+- **Optimized for Stitch** - Format specifically tuned for Google Stitch
+- **General Format** - Works with any AI design tool
+- **API Format** - JSON output for programmatic access
+- **One Mega Prompt** - Concatenates all context files into a single, powerful prompt
+
+### 💡 **The Complete Workflow**
+
+1. **Generate Context** → `mycontext generate context --full`
+2. **Create Design Prompt** → `mycontext generate:design-prompt --format stitch`
+3. **Paste into Stitch** → Get beautiful UI screens
+4. **Code with Claude/Cursor** → Use the same `.mycontext` files as prompts
+5. **Ship** → Production-ready app with perfect UI
 
 <!-- ## 🎨 MyContext Studio - Coming Soon
 
@@ -102,10 +100,23 @@ mycontext generate:components
 # Components instantly appear in Studio!
 ``` -->
 
+## 🎯 Why MyContext CLI?
+
+**The Problem:** AI design tools like Google Stitch can create beautiful UI screens, but writing comprehensive prompts is painful and time-consuming.
+
+**The Solution:** MyContext CLI generates rich, structured context files (PRD, branding, user flows, features) optimized as prompts for AI design tools.
+
+**The Result:** 
+- ✅ Beautiful UI screens from Stitch/AI designers
+- ✅ Consistent design system
+- ✅ Complete context for coding with Claude/Cursor
+- ✅ No more prompt engineering
+
+**We're not building another code generator. We're building the context layer that makes AI design tools actually useful.**
+
 ## 💰 Pricing
 
 - **MyContext CLI** - Free and open source (MIT License)
-<!-- - **MyContext AI API** - Hosted fine-tuned model (coming soon) -->
 
 Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free.
 
@@ -123,13 +134,23 @@ Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free.
 
 ## 🎯 Key Features
 
-- **Component-First Workflow** - Generate context → design system → core 10 → validate → all components
-- **Mobile-First & Responsive** - Automatic mobile, tablet, and desktop variants with proper breakpoints
-- **Design Pipeline with Checkpoints** - 8-phase generation with progress saving and error recovery
-- **State-Aware Generation** - Loading, error, empty, and success states automatically included
-- **Intent Dictionary (30+ patterns)** - Type-safe natural language to component mapping for 95%+ accuracy
-- **shadcn/ui Foundation** - Built on top of shadcn/ui, respecting its design principles
-- **Clarification System** - Detects gaps and tracks assumptions before generation
+### **Context Generation**
+- **Comprehensive PRD** - Product requirements from your project analysis
+- **Brand Guidelines** - Colors, typography, design tokens, tone of voice
+- **User Flows** - Complete user journeys and interactions
+- **Feature Documentation** - Detailed feature specifications
+- **Technical Constraints** - What's possible, what's not
+
+### **Design Prompt Optimization**
+- **Stitch-Optimized** - Format specifically tuned for Google Stitch
+- **General Format** - Works with v0, Framer AI, and other design tools
+- **API Format** - JSON output for programmatic integration
+- **Smart Concatenation** - Combines all context into one powerful prompt
+
+### **Project Analysis**
+- **Existing Project Support** - Analyze and extract context from any project
+- **Gap Detection** - Identifies missing information
+- **Auto-Generation** - Fills in gaps with intelligent defaults
 
 ## 🤖 AI Provider Setup (Required)
 
@@ -182,6 +203,22 @@ MIT © MyContext - See [LICENSE](https://github.com/farajabien/mycontext-cli/blo
 
 ---
 
-**Built by developers, for developers. Your code stays on your machine.** 🚀
+## 🔄 The Complete Workflow
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  MyContext CLI  │────▶│  .mycontext/     │────▶│  AI Design Tool │
+│  Generate       │     │  design-prompt   │     │  (Stitch, etc.) │
+│  Context Files  │     │  .txt            │     │                 │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+                                                           │
+                                                           ▼
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  Code with      │◄────│  Same .mycontext  │◄────│  Beautiful UI   │
+│  Claude/Cursor  │     │  files as prompts │     │  Screens         │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+```
+
+**Built for AI designers, by developers. Your context stays on your machine.** 🚀
 
 [Full Documentation](https://github.com/farajabien/mycontext-cli/tree/main/docs) • [GitHub](https://github.com/farajabien/mycontext-cli) • [Issues](https://github.com/farajabien/mycontext-cli/issues)
