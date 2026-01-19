@@ -35,6 +35,7 @@ import { HelpCommand } from "./commands/help";
 import { SuggestCommand } from "./commands/suggest";
 import { WorkflowCommand } from "./commands/workflow";
 import { GenerateContextFilesCommand } from "./commands/generate-context-files";
+import { registerGenerateDesignPromptCommand } from "./commands/generate-design-prompt";
 import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
@@ -266,6 +267,9 @@ program
       process.exit(1);
     }
   });
+
+// Generate design prompt command
+registerGenerateDesignPromptCommand(program);
 
 // Compile PRD command
 program
