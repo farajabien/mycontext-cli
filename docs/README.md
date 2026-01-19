@@ -14,52 +14,51 @@
 
 ## What is MyContext CLI?
 
-MyContext CLI is a revolutionary AI-powered development tool that generates production-ready React components from natural language descriptions. Built with 11 specialized AI agents and our proprietary Intent Dictionary System, it achieves 95%+ accuracy in code generation while maintaining perfect type safety and accessibility compliance.
+MyContext CLI is a **context generator for AI design tools** (like Google Stitch) and AI coding tools (Cursor, Claude Code).
+
+**The job:** produce a high-signal `.mycontext/` folder (PRD, branding, user flows, edge cases, technical specs) and a **single “mega prompt”** you can paste into an AI designer to get beautiful screens fast.
+
+**We don’t need to generate code.** We need to generate the context that makes AI design tools output high-quality UI consistently.
 
 [Read the full system overview →](06-architecture/system-overview.md)
 
 ## Core Features
 
-### 1. **MyContext AI** - Fine-tuned GPT-4o Mini (Coming Soon)
+### 1. **Local-First Context Pack (`.mycontext/`)**
 
-- **95%+ Accuracy**: Fine-tuned GPT-4o Mini for component generation
-- **Hosted API**: api.mycontext.dev with usage-based pricing
-- **Zero Hallucination**: Perfect shadcn/ui component matching
-- **50% Cost Reduction**: Cheaper than GPT-4 while maintaining quality
-- **Open Source Alternative**: Use CLI with your own AI keys for free
+- **PRD + Features + User Flows**: tells the AI designer what to build
+- **Branding + Design Tokens**: tells the AI designer how it should look
+- **Edge Cases + States**: tells the AI designer what “good” looks like beyond happy paths
+- **Technical Specs**: tells the AI designer constraints (platform, auth, data)
 
-**Business Model**: Open source CLI (MIT) + optional paid hosted API
+### 2. **Design Prompt Generator**
 
-### 2. **Intent Dictionary** - Type-Safe Natural Language Mapping
+- **One mega prompt**: concatenates context into `design-prompt.txt`
+- **Stitch format**: instructions tailored for AI designers
+- **General format**: works with any design tool
+- **API format**: JSON output for programmatic use
 
-- **30+ UI Patterns**: Comprehensive coverage of shadcn/ui components
-- **Fuzzy Matching**: Intelligent phrase recognition with Fuse.js
-- **Context Awareness**: Domain-specific variations (ecommerce, dashboard, etc.)
-- **Validation Rules**: Built-in accessibility and design system compliance
+### 3. **Gap Detection + Clarification**
 
-### 3. **11 Specialized Agents** - Expert AI for Every Task
-
-- **DesignPipelineAgent**: Orchestrates 8-phase design analysis
-- **PromptConstructorAgent**: Builds context-aware generation prompts
-- **CodeGenSubAgent**: Generates production-ready React components
-- **IntentValidator**: Validates and enriches natural language intents
-- **IntentEnricher**: Transforms intents into component specifications
-- **IntentCodeValidator**: Post-generation validation and quality assurance
-- **IntentClarificationService**: Interactive clarification for ambiguous intents
-- **ContextEnricher**: Loads and unifies design system context
-- **DesignManifestManager**: Manages design pipeline state
-- **FileManager**: Handles file operations and project structure
-- **ErrorHandler**: Comprehensive error handling and recovery
-
-### 4. **Zero-Error Guarantee** - 12+ Validation Checkpoints
-
-- **Intent Validation**: Natural language to component mapping verification
-- **Code Validation**: Component structure, props, and accessibility checks
-- **Type Safety**: Complete TypeScript type definitions
-- **Design System Compliance**: Adherence to shadcn/ui patterns
-- **Accessibility**: ARIA attributes and semantic HTML validation
+- Detects missing information before you prompt an AI designer
+- Saves auto-generated assumptions for review
+- Helps you iterate on requirements without losing structure
 
 ## Documentation Structure
+
+### 📚 [01 - Getting Started](01-getting-started/)
+
+- [Getting Started](01-getting-started/getting-started.md) - Install, generate context, create design prompts
+- [Index](01-getting-started/INDEX.md) - Getting started hub
+
+### 📖 [03 - Reference](03-reference/)
+
+- [Commands](03-reference/commands.md) - CLI commands (including `generate:design-prompt`)
+- [Configuration](03-reference/configuration.md) - Settings and environment variables
+
+### 🧠 Legacy / Research Docs
+
+Some docs still describe the older “code generation platform” direction. They’re being kept temporarily for reference while we complete the pivot.
 
 ### 📚 [01 - Getting Started](01-getting-started/)
 
@@ -105,75 +104,38 @@ MyContext CLI is a revolutionary AI-powered development tool that generates prod
 - [Design System](06-architecture/design-system.md) - Design pipeline technical details
 - [PM Integration](06-architecture/pm-integration.md) - Product management integration
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- Git
-
-### Installation
+## Quick Start
 
 ```bash
+# Install
 npm install -g mycontext-cli
+
+# Initialize a project (or run inside an existing one)
+mycontext init my-app --framework nextjs
+cd my-app
+
+# Generate the .mycontext context pack (PRD, branding, flows, etc.)
+mycontext generate-context-files --description "Describe your app..."
+
+# Create a mega prompt for AI designers (Stitch, etc.)
+mycontext generate:design-prompt --format stitch
+
+# Copy .mycontext/design-prompt.txt → paste into Stitch → get UI screens
 ```
-
-### Quick Start
-
-```bash
-# Initialize a new project
-mycontext init my-app
-
-# Generate your first component
-mycontext generate:component "Create a login form with email and password fields"
-
-# Run the design pipeline
-mycontext design:analyze --prd requirements.md
-```
-
-### What You Get
-
-- **Production-ready React components** with TypeScript
-- **Complete shadcn/ui integration** with proper imports
-- **Accessibility compliance** with ARIA attributes
-- **Responsive design** with Tailwind CSS
-- **Type safety** with comprehensive interfaces
 
 ## Key Benefits
 
-### For Developers
-
-- **10x Faster Development**: Generate components in seconds, not hours
-- **Zero Learning Curve**: Natural language interface
-- **Perfect Type Safety**: Complete TypeScript definitions
-- **Accessibility First**: Built-in ARIA compliance
-- **Design System Consistency**: Automatic shadcn/ui adherence
-
-### For Teams
-
-- **Consistent Code Quality**: Standardized component patterns
-- **Reduced Code Review Time**: Pre-validated, high-quality output
-- **Faster Onboarding**: New developers productive immediately
-- **Design System Adoption**: Automatic compliance with design standards
-
-### For Organizations
-
-- **Cost Reduction**: 50% cheaper than GPT-4 with better quality
-- **Faster Time to Market**: Rapid prototyping and development
-- **Quality Assurance**: 12+ validation checkpoints
-- **Competitive Advantage**: Proprietary Intent Dictionary System
-
-## Community & Support
-
-- **GitHub**: [mycontext-cli](https://github.com/mycontext/cli) - Source code and issues
-- **Discord**: [MyContext Community](https://discord.gg/mycontext) - Real-time support
-- **Documentation**: This site - Comprehensive guides and references
-- **Examples**: [Component Gallery](https://mycontext.dev/gallery) - Real-world examples
+- **Best prompts win**: you stop hand-writing long context writeups
+- **Design consistency**: brand + flows + edge cases keep outputs coherent
+- **Tool-agnostic**: use Stitch (design) + Claude/Cursor (code) with the same `.mycontext/` pack
 
 ## Contributing
 
-We welcome contributions! See our [Contributing Guide](https://github.com/mycontext/cli/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! The highest impact areas right now:
+
+- Better `.mycontext/` templates
+- Better `design-prompt` formatting for Stitch and other AI designers
+- Better gap detection / clarification questions
 
 ### Areas for Contribution
 
@@ -189,4 +151,4 @@ MIT License - see [LICENSE](https://github.com/mycontext/cli/blob/main/LICENSE) 
 
 ---
 
-**Ready to revolutionize your development workflow?** [Start with our Quick Start guide →](01-getting-started/quick-start.md)
+**Start here:** [Getting Started →](01-getting-started/getting-started.md)

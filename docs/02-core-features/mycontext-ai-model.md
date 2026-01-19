@@ -1,60 +1,45 @@
-# MyContext AI Model
+# MyContext AI (Context + Prompt Optimization)
 
 ## Overview
 
-MyContext AI is our proprietary fine-tuned GPT-4o Mini model that achieves **95%+ accuracy** in generating shadcn/ui components from natural language descriptions. Trained on our Intent Dictionary System with 10,000+ examples, it provides zero hallucination, perfect component matching, and 50% cost reduction compared to generic models.
+MyContext AI refers to the set of techniques (and potential hosted API) that improve **AI design tool output quality** by generating a stronger context pack and a better “mega prompt.”
+
+Instead of trying to “one-shot code generation”, we focus on:
+
+- **Context completeness**: features, flows, states, edge cases, constraints
+- **Brand fidelity**: design tokens, style rules, tone of voice
+- **Prompt structure**: a format AI designers consistently follow
 
 ## Key Features
 
-### 🎯 **95%+ Accuracy**
-- Zero hallucination of components or props
-- Perfect shadcn/ui component matching
-- Consistent output format and structure
-- Built-in design system compliance
+### 🎯 **Higher Design Output Quality**
+- Less prompt iteration
+- More consistent screens across flows
+- Better coverage of empty/loading/error states
 
-### 💰 **50% Cost Reduction**
-- Cheaper than GPT-4 while maintaining quality
-- Optimized token usage and generation efficiency
-- Reduced iteration cycles and development time
-- Better ROI for development teams
+### 💰 **Lower Iteration Cost**
+- Fewer “try again” prompts
+- Less manual rewriting of requirements into prompts
 
-### ⚡ **2s Generation Time**
-- Fast response for real-time development
-- Optimized for component generation workflows
-- Parallel processing capabilities
-- Cached intent mappings for instant responses
+### ⚡ **Fast Context Pack Generation**
+- Generate `.mycontext/` quickly from a short description
+- Compile to `design-prompt.txt` for copy/paste workflows
 
-### 🔒 **Type Safety Guarantee**
-- Complete TypeScript type definitions
-- Proper prop interfaces and component signatures
-- Built-in validation and error checking
-- Production-ready code output
+### 🔒 **Structured Outputs**
+- Predictable sections AI designers can follow
+- Easier to reuse across Stitch + Cursor/Claude Code
 
 ## Architecture
 
-### Fine-Tuning Strategy
+### Prompt / Template Strategy
 
-MyContext AI is built on GPT-4o Mini with specialized training data generated from our Intent Dictionary System:
+MyContext AI can be implemented via:
 
-```typescript
-// Training Data Structure
-interface TrainingExample {
-  messages: [
-    {
-      role: "system",
-      content: "Intent Dictionary context + generation rules"
-    },
-    {
-      role: "user", 
-      content: "Natural language UI requirement"
-    },
-    {
-      role: "assistant",
-      content: "Complete component code + intent mapping explanation"
-    }
-  ]
-}
-```
+1. **Templates**: curated `.mycontext/` structure + prompt compiler
+2. **Validation**: detect missing context before you prompt the AI designer
+3. **Optional hosted API**: help teams generate and share context packs
+
+The core deliverable stays the same: `.mycontext/` + `design-prompt.txt`.
 
 ### Training Data Generation
 
@@ -297,7 +282,7 @@ interface ModelVersion {
 
 ## Usage Examples
 
-### Basic Component Generation
+### Generate a Stitch Prompt
 
 ```typescript
 // Generate a simple button

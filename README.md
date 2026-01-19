@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
 </p>
 
-**Context Generator for AI Design Tools — Generate perfect prompts for Stitch, AI designers, and more**
+**Context Generator for AI Design Tools — Generate perfect prompts for Stitch, V0, AI designers, and more**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

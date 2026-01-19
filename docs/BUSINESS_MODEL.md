@@ -6,9 +6,9 @@ MyContext follows a similar model to Supabase, Stripe, and other developer-first
 
 ### Free & Open Source
 
-- **MyContext CLI**: Complete development tool (MIT License)
-- **Intent Dictionary**: 30+ UI patterns with specifications
-- **All Agents**: 11 specialized AI agents
+- **MyContext CLI**: Context pack + prompt generator (MIT License)
+- **Context Templates**: `.mycontext/` file structure and best-practice templates
+- **Prompt Formats**: Stitch-optimized + general prompt output
 - **Documentation**: Full guides and API references
 - **Community Support**: GitHub issues, Discord
 
@@ -16,22 +16,20 @@ MyContext follows a similar model to Supabase, Stripe, and other developer-first
 
 #### MyContext AI API
 
-Hosted fine-tuned GPT-4o Mini for production-grade UI generation.
+Hosted API for **context enrichment + prompt optimization** for AI design tools.
 
 **Pricing** (TBD):
 
-- Pay-per-component model
+- Pay-per-project or pay-per-context-pack
 - Monthly subscription tiers
 - Enterprise custom pricing
 
 **Benefits**:
 
-- 95%+ accuracy vs 70% with generic models
-- Zero hallucination guarantee
-- 50% cost reduction vs GPT-4
-- 2s generation time
-- Perfect shadcn/ui integration
-- Trained on Intent Dictionary System
+- Higher-quality design outputs from AI designers (less prompt iteration)
+- Better consistency (brand, flows, states)
+- Faster time-to-first-design
+- Optional team sharing / sync of context packs (future)
 
 #### Future Services
 
@@ -65,10 +63,9 @@ Hosted fine-tuned GPT-4o Mini for production-grade UI generation.
 
 **vs Generic AI** (ChatGPT, Claude):
 
-- Specialized for UI components
-- Trained on shadcn/ui patterns
-- Intent Dictionary for type safety
-- Integrated with CLI workflow
+- Specialized for **design prompts** and **context completeness**
+- Structured `.mycontext/` pack instead of ad-hoc long prompts
+- Gap detection so you don’t ship incomplete requirements to the AI designer
 
 **vs Other Open Source**:
 

@@ -2,7 +2,7 @@
 
 ## 📋 **Command Overview**
 
-MyContext CLI provides a comprehensive set of commands for AI-powered development. All commands support `--help` for detailed usage information.
+MyContext CLI provides commands to generate a **context pack** and a **design prompt** for AI design tools (Stitch, etc.). All commands support `--help` for detailed usage information.
 
 ## 🏗️ **Project Management**
 
@@ -125,87 +125,15 @@ mycontext status --check-health
 - `--detailed` - Show detailed information
 - `--check-health` - Run health checks
 
-## 🎯 **Component Generation**
+## 🧠 **Context + Prompt Generation (Primary)**
 
-### **`mycontext generate`**
-
-Generate various project artifacts using AI.
-
-```bash
-# Generate all context files
-mycontext generate all
-
-# Generate specific type
-mycontext generate context
-mycontext generate types
-mycontext generate brand
-mycontext generate components-list
-
-# Generate with options
-mycontext generate components --with-tests
-mycontext generate components --complete-architecture
-```
-
-**Options:**
-
-- `--type <context|types|brand|components-list|all>` - Generation type
-- `--output <dir>` - Output directory
-- `--force` - Overwrite existing files
-- `--model <name>` - AI model to use
-- `--verbose` - Detailed output
-
-### **`mycontext generate components`**
-
-Generate React components with AI.
-
-```bash
-# Generate all components
-mycontext generate components
-
-# Generate specific component
-mycontext generate components Button
-
-# Generate component group
-mycontext generate components --group forms
-
-# Generate with tests
-mycontext generate components --with-tests
-
-# Generate complete architecture
-mycontext generate components --complete-architecture
-```
-
-**Options:**
-
-- `--group <name>` - Generate specific group
-- `--all` - Generate all components
-- `--output <dir>` - Output directory
-- `--template <name>` - Use template
-- `--local` - Use local AI (no API key required)
-- `--with-tests` - Generate unit tests
-- `--update-preview` - Update preview
-- `--final-canvas` - Run normalization
-- `--open-preview` - Open preview in browser
-- `--check` - Run lint/tsc/tests
-- `--complete-architecture` - Generate full architecture
-- `--server-actions` - Generate server actions
-- `--routes` - Generate Next.js routes
-- `--self-documenting` - Add comprehensive docs
-- `--architecture-type <type>` - Architecture type
-
-### **`mycontext generate context-files`**
+### **`mycontext generate-context-files`**
 
 Generate additional context files for better AI understanding.
 
 ```bash
 # Generate all context files
-mycontext generate context-files
-
-# Generate specific file
-mycontext generate context-files features
-mycontext generate context-files user-flows
-mycontext generate context-files edge-cases
-mycontext generate context-files technical-specs
+mycontext generate-context-files --description "A modern fintech wallet..."
 ```
 
 **Options:**
@@ -214,6 +142,29 @@ mycontext generate context-files technical-specs
 - `--project-path <path>` - Project path
 - `--verbose` - Detailed output
 - `--force` - Overwrite existing files
+
+### **`mycontext generate:design-prompt`** (alias: `gdp`)
+
+Generate a single “mega prompt” for AI design tools by concatenating your `.mycontext/` files.
+
+```bash
+# Stitch optimized
+mycontext generate:design-prompt --format stitch
+
+# General
+mycontext generate:design-prompt --format general
+
+# API JSON output (prints JSON to stdout + writes file)
+mycontext generate:design-prompt --format api
+
+# Custom output path
+mycontext generate:design-prompt --format stitch --output ./design-prompt.txt
+```
+
+**Options:**
+
+- `--format <stitch|general|api>` - Output format (default: `general`)
+- `--output <path>` - Output path (default: `.mycontext/design-prompt.txt`)
 
 ## 🔧 **Enhancement & Refinement**
 
@@ -301,38 +252,9 @@ mycontext refine spec Button --output-format both
 - `--template <name>` - Use template
 - `--verbose` - Detailed output
 
-## 🏗️ **Application Building**
+## 🧩 **Legacy / Experimental Commands**
 
-### **`mycontext build-app`**
-
-Build complete applications with AI.
-
-```bash
-# Build app with description
-mycontext build-app "E-commerce platform with user authentication"
-
-# Build with options
-mycontext build-app "Dashboard app" --framework nextjs --with-tests
-
-# Build existing project
-mycontext build-app --existing
-```
-
-**Options:**
-
-- `--output <dir>` - Output directory
-- `--framework <name>` - Framework
-- `--with-tests` - Include tests
-- `--verbose` - Detailed output
-- `--existing` - Work with existing project
-- `--migrate` - Migrate existing project
-- `--interactive` - Interactive mode
-- `--skip-validation` - Skip validation
-- `--max-retries <number>` - Maximum retries
-- `--complete-architecture` - Generate complete architecture
-- `--architecture-type <type>` - Architecture type
-- `--server-actions` - Generate server actions
-- `--routes` - Generate routes
+This repo historically included code generation and app-building experiments. Those commands may still exist, but the **primary supported workflow** is context + prompt generation for AI design tools.
 
 ### **`mycontext build-strategy`**
 
@@ -825,28 +747,13 @@ All commands support these global options:
 
 ```bash
 # 1. Initialize project
-mycontext init my-app --framework instantdb
+mycontext init my-app --framework nextjs
 
-# 2. Set up AI provider
-mycontext setup
+# 2. Generate context pack
+mycontext generate-context-files --description "..."
 
-# 3. Generate context
-mycontext generate context
-
-# 4. Generate components
-mycontext generate components --with-tests
-
-# 5. Set up database
-mycontext setup-instantdb --mcp
-
-# 6. Build application
-mycontext build-app --complete-architecture
-
-# 7. Validate everything
-mycontext validate
-
-# 8. Health check
-mycontext health-check
+# 3. Generate Stitch prompt
+mycontext generate:design-prompt --format stitch
 ```
 
 ### **Component Enhancement**
