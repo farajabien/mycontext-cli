@@ -4628,7 +4628,11 @@ ${
     const keys = {
       github: !!process.env.MYCONTEXT_GITHUB_TOKEN,
       qwen: !!process.env.MYCONTEXT_QWEN_API_KEY,
-      gemini: !!process.env.MYCONTEXT_GEMINI_API_KEY,
+      gemini: !!(
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_API_KEY ||
+        process.env.MYCONTEXT_GEMINI_API_KEY
+      ),
       xai: !!(process.env.MYCONTEXT_XAI_API_KEY || process.env.XAI_API_KEY),
       claude: !!process.env.MYCONTEXT_CLAUDE_API_KEY,
       openai: !!process.env.OPENAI_API_KEY,

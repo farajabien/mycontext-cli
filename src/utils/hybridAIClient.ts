@@ -2,6 +2,7 @@ import { ClaudeAgentClient } from "./claudeAgentClient";
 import { HostedApiClient } from "./hostedApiClient";
 import { OpenRouterClient } from "./openRouterClient";
 import { GeminiClient } from "./geminiClient";
+import { XAIClient } from "../clients/XAIClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
 import * as fs from "fs";
@@ -167,6 +168,26 @@ export class HybridAIClient {
       }
     }
 
+    // XAI/Grok (fast reasoning, multimodal support)
+    const xaiClient = new XAIClient();
+    if (xaiClient.hasApiKey()) {
+      this.providers.push({
+        name: "xai",
+        priority: 3, // After Claude/OpenRouter/Gemini
+        client: xaiClient,
+        isAvailable: async () => await xaiClient.checkConnection(),
+      });
+
+      // Log if this is the only provider
+      if (
+        !HybridAIClient.hasLoggedInitialization &&
+        this.providers.length === 1
+      ) {
+        console.log(chalk.blue("✨ Using XAI Grok (Fast Reasoning)"));
+        HybridAIClient.hasLoggedInitialization = true;
+      }
+    }
+
     // Sort by priority (lower number = higher priority)
     this.providers.sort((a, b) => a.priority - b.priority);
 
@@ -181,7 +202,9 @@ export class HybridAIClient {
   /**
    * Get the best available provider
    */
-  private async getBestProvider(): Promise<AIProvider | null> {
+  private async getBestProvider(
+    excludeProviders: Set<string> = new Set()
+  ): Promise<AIProvider | null> {
     // Optional override via env - this takes highest priority
     const preferredName =
       process.env.MYCONTEXT_PROVIDER || process.env.AI_PROVIDER || "";
@@ -212,8 +235,13 @@ export class HybridAIClient {
       }
     }
 
-    // Choose the highest-priority available provider
+    // Choose the highest-priority available provider (excluding already-attempted ones)
     for (const provider of this.providers) {
+      // Skip if this provider was already attempted
+      if (excludeProviders.has(provider.name)) {
+        continue;
+      }
+
       try {
         const isAvailable = await provider.isAvailable();
         if (isAvailable) {
@@ -531,10 +559,11 @@ export class HybridAIClient {
    */
   async generateText(
     prompt: string,
-    options: any = {}
+    options: any = {},
+    attemptedProviders: Set<string> = new Set()
   ): Promise<{ text: string; provider: string }> {
     const spinnerCallback = options.spinnerCallback;
-    const provider = await this.getBestProvider();
+    const provider = await this.getBestProvider(attemptedProviders);
     const timeout = options.timeout || 180000; // 3 minute timeout for reasoning models like DeepSeek R1
 
     if (!provider) {
@@ -543,6 +572,28 @@ export class HybridAIClient {
       console.log(chalk.yellow("💡 Configure API keys and retry"));
       throw new Error(
         "No AI providers available - configure API keys and retry"
+      );
+    }
+
+    // Check if we've already attempted this provider (prevent infinite loop)
+    if (attemptedProviders.has(provider.name)) {
+      console.log(
+        chalk.red(`❌ Already attempted provider: ${provider.name}`)
+      );
+      throw new Error(
+        `All AI providers exhausted. Attempted: ${Array.from(attemptedProviders).join(", ")}`
+      );
+    }
+
+    // Safety check: maximum attempts
+    if (attemptedProviders.size >= this.providers.length) {
+      console.log(
+        chalk.red(
+          `❌ Maximum provider attempts reached (${attemptedProviders.size}/${this.providers.length})`
+        )
+      );
+      throw new Error(
+        `All ${this.providers.length} AI providers failed. Attempted: ${Array.from(attemptedProviders).join(", ")}`
       );
     }
 
@@ -611,38 +662,14 @@ export class HybridAIClient {
         `[HybridAIClient] Provider ${provider.name} failed: ${error.message}`
       );
 
-      // Try next provider if available
-      const nextProvider = this.providers.find(
-        (p) => p.priority > provider.priority
-      );
-      if (nextProvider) {
-        console.log(
-          `[HybridAIClient] Trying next provider: ${nextProvider.name}`
-        );
-        // Update spinner for next provider attempt
-        if (spinnerCallback) {
-          spinnerCallback(`🤖 Generating with ${nextProvider.name}...`, true);
-        }
-        return this.generateText(prompt, options);
-      }
+      // Mark this provider as attempted
+      attemptedProviders.add(provider.name);
 
-      // All providers failed - fail cleanly
-      console.log(chalk.red("❌ All AI providers failed"));
+      // Try recursively - getBestProvider will automatically skip attempted providers
       console.log(
-        chalk.yellow("💡 MyContext requires 100% accuracy - no fallbacks")
+        `[HybridAIClient] Retrying with next available provider (excluding: ${Array.from(attemptedProviders).join(", ")})`
       );
-      console.log(chalk.blue("🔄 Retry options:"));
-      console.log(chalk.gray("  1. Wait for rate limits to reset"));
-      console.log(chalk.gray("  2. Use a different AI provider"));
-      console.log(chalk.gray("  3. Check your API key configuration"));
-      console.log(
-        chalk.gray(
-          "  4. Try again later with: mycontext generate context --full"
-        )
-      );
-      throw new Error(
-        "All AI providers failed - retry when conditions improve"
-      );
+      return this.generateText(prompt, options, attemptedProviders);
     }
   }
 

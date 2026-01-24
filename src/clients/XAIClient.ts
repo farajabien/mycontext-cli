@@ -52,7 +52,7 @@ export class XAIClient implements AIClient {
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: "grok-beta",
+          model: "grok-2-1212",
           max_tokens: 10,
           messages: [
             {
@@ -63,7 +63,11 @@ export class XAIClient implements AIClient {
         }),
       });
 
-      return response.ok;
+      if (!response.ok) {
+        console.warn(`XAI connection check failed: HTTP ${response.status}`);
+        return false;
+      }
+      return true;
     } catch (error) {
       console.warn("XAI connection check failed:", error);
       return false;
