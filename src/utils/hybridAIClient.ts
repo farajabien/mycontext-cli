@@ -1,6 +1,7 @@
 import { ClaudeAgentClient } from "./claudeAgentClient";
 import { HostedApiClient } from "./hostedApiClient";
 import { OpenRouterClient } from "./openRouterClient";
+import { GeminiClient } from "./geminiClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
 import * as fs from "fs";
@@ -127,7 +128,7 @@ export class HybridAIClient {
     if (openRouterClient.hasApiKey()) {
       this.providers.push({
         name: "openrouter",
-        priority: 1, // After Claude, before XAI
+        priority: 1, // After Claude, before Gemini/XAI
         client: openRouterClient,
         isAvailable: () => openRouterClient.checkConnection(),
       });
@@ -139,6 +140,28 @@ export class HybridAIClient {
       ) {
         console.log(
           chalk.blue("🧠 Using OpenRouter (DeepSeek R1) - Free Tier")
+        );
+        HybridAIClient.hasLoggedInitialization = true;
+      }
+    }
+
+    // Gemini (multimodal support, visual generation)
+    const geminiClient = new GeminiClient();
+    if (geminiClient.hasApiKey()) {
+      this.providers.push({
+        name: "gemini",
+        priority: 2, // After Claude/OpenRouter, before XAI
+        client: geminiClient,
+        isAvailable: async () => await geminiClient.testConnection(),
+      });
+
+      // Log if this is the only provider
+      if (
+        !HybridAIClient.hasLoggedInitialization &&
+        this.providers.length === 1
+      ) {
+        console.log(
+          chalk.blue("✨ Using Gemini 2.0 Flash (Multimodal + Visual Generation)")
         );
         HybridAIClient.hasLoggedInitialization = true;
       }

@@ -5,6 +5,58 @@ All notable changes to MyContext CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.36] - 2026-01-24
+
+### 🎨 Visual Screen Generation & Spec-Driven Development
+
+This major release introduces visual screen generation with Gemini API, sample data generation, and repositions MyContext CLI as the context layer for AI-powered development.
+
+#### Added
+- **Gemini API Integration** - Multimodal AI provider for visual screen generation
+  - `GeminiClient` with text + HTML generation capabilities
+  - Added to AI provider chain (priority 2)
+  - Free tier with generous limits
+  - nanobanana-style HTML generation with inline CSS
+- **Sample Data Generation** - `mycontext generate:sample-data` command
+  - AI-generated realistic test data based on types/schema
+  - Reads TypeScript types and InstantDB schema
+  - Outputs to `.mycontext/sample-data.json`
+  - Fallback generation for reliability
+  - Customizable data count and types
+- **Visual Screen Generation** - `mycontext generate:screens` command
+  - Generate HTML screens with Gemini using full context (PRD, brand, flows, sample data)
+  - Auto-opens in browser for immediate preview
+  - Saves to `.mycontext/screens/` with metadata and context
+  - Generate specific screens or all screens from user flows
+  - Screenshot generation support (placeholder for puppeteer)
+  - Screens manifest for tracking all generated screens
+- **AI Provider Configuration** - `src/config/ai-providers.json`
+  - Centralized provider settings for all AI services
+  - Model configurations (default, fast, advanced)
+  - Priority-based provider selection
+  - Timeout and retry settings
+
+#### Changed
+- **Updated README** - New positioning as "Spec-Driven Development for AI Era"
+  - Complete workflow: Idea → Context → Sample Data → Screens → Code
+  - Gemini as recommended provider (free + visual generation)
+  - Updated "What You Get" section with 4 categories
+  - New workflow diagram showing complete pipeline
+  - Clear differentiation vs v0, Stitch, Claude Code, Cursor
+- **Updated CLI Help** - New commands and comprehensive examples
+  - Added generate:sample-data examples
+  - Added generate:screens examples
+  - Updated "Generation Commands" section
+- **Provider Priority** - Claude → OpenRouter → Gemini → XAI (automatic fallback)
+
+#### Fixed
+- TypeScript strict mode compatibility across all new files
+- Build process optimizations for new config files
+- Path resolution for screens directory
+- JSON parsing for AI responses with better error handling
+
+---
+
 ## [2.0.29] - 2025-10-10
 
 ### 🔄 Component Refinement & Regression System

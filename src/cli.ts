@@ -36,6 +36,8 @@ import { SuggestCommand } from "./commands/suggest";
 import { WorkflowCommand } from "./commands/workflow";
 import { GenerateContextFilesCommand } from "./commands/generate-context-files";
 import { registerGenerateDesignPromptCommand } from "./commands/generate-design-prompt";
+import { registerGenerateSampleDataCommand } from "./commands/generate-sample-data";
+import { registerGenerateScreensCommand } from "./commands/generate-screens";
 import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
@@ -270,6 +272,12 @@ program
 
 // Generate design prompt command
 registerGenerateDesignPromptCommand(program);
+
+// Generate sample data command
+registerGenerateSampleDataCommand(program);
+
+// Generate screens command
+registerGenerateScreensCommand(program);
 
 // Compile PRD command
 program
@@ -1038,20 +1046,27 @@ program
       chalk.gray("  playbooks --use         - Use playbook in generation")
     );
 
-    console.log(chalk.yellow("Generation Types:"));
+    console.log(chalk.yellow("Generation Commands:"));
     console.log(
-      chalk.gray("  context                 - Generate PRD and user stories")
+      chalk.gray("  generate context        - Generate PRD and user stories")
     );
     console.log(
-      chalk.gray("  types                   - Generate TypeScript types")
+      chalk.gray("  generate types          - Generate TypeScript types")
     );
     console.log(
-      chalk.gray("  brand                   - Generate branding guidelines")
+      chalk.gray("  generate brand          - Generate branding guidelines")
     );
     console.log(
-      chalk.gray(
-        "  components-list         - Generate component list (alias: component-list)"
-      )
+      chalk.gray("  generate components-list - Generate component list")
+    );
+    console.log(
+      chalk.gray("  generate:design-prompt  - Generate prompt for AI design tools")
+    );
+    console.log(
+      chalk.gray("  generate:sample-data    - Generate realistic test data")
+    );
+    console.log(
+      chalk.gray("  generate:screens        - Generate visual screens (HTML/PNG)")
     );
     console.log(
       chalk.gray("  app-structure           - Generate app structure\n")
@@ -1104,7 +1119,11 @@ program
     );
     console.log(chalk.gray("  mycontext init my-app --framework instantdb"));
     console.log(chalk.gray("  mycontext init my-app --framework nextjs"));
-    console.log(chalk.gray("  mycontext generate context --yes"));
+    console.log(chalk.gray("  mycontext generate context --full"));
+    console.log(chalk.gray("  mycontext generate:sample-data --count 20"));
+    console.log(chalk.gray("  mycontext generate:screens --all"));
+    console.log(chalk.gray("  mycontext generate:screens login"));
+    console.log(chalk.gray("  mycontext generate:design-prompt --format stitch"));
     console.log(chalk.gray("  mycontext validate prd --interactive"));
     console.log(chalk.gray("  mycontext generate-components authentication"));
     console.log(chalk.gray("  mycontext generate-components all"));

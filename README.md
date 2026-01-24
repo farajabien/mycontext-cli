@@ -4,58 +4,76 @@
   <img src="https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png" alt="MyContext Logo" width="200" />
 </p>
 
-**Context Generator for AI Design Tools — Generate perfect prompts for Stitch, V0, AI designers, and more**
+**Spec-Driven Development for the AI Era — Generate comprehensive context + visual screens, then code with Claude/Cursor**
 
 [![npm version](https://badge.fury.io/js/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 
-**The missing piece:** AI design tools like Google Stitch can create beautiful UI screens, but they need rich context. MyContext CLI generates comprehensive `.mycontext` files (PRD, branding, user flows, features) optimized as prompts for AI designers. Get UI designs → Code with Claude/Cursor.
+**The missing piece:** Start with an idea, get comprehensive specs + visual screens, then let AI tools build your app.
 
-**We don't generate code. We generate context for AI designers.**
+**What makes us different:**
+- 🎯 **Context-First**: Only tool that generates PRD/brand/flows/types BEFORE design
+- 🏠 **Local-First**: Everything runs on your machine, you own the data
+- 🔄 **Full Workflow**: Idea → Context → Screens → Code in ONE tool
+- 📋 **Spec-Driven**: Comprehensive specifications drive both design AND development
+- 🤝 **Tool-Agnostic**: Use with Stitch, v0, Claude Code, Cursor - or ANY AI tool
 
-## 🚀 Quick Start — Generate Context for AI Design Tools
+## 🚀 Quick Start — Complete Workflow
 
-### The Workflow
+### The Complete Workflow: Idea → Screens → Code
 
 ```bash
 # 1. Install globally
 npm install -g mycontext-cli
 
-# 2. Initialize project (or use existing project)
-mycontext init my-app --framework nextjs
-cd my-app
+# 2. Initialize project with your idea
+mycontext init my-saas-app --description "B2B project management tool"
+cd my-saas-app
 
-# 3. Configure your AI provider (OpenRouter recommended - free tier!)
-echo 'MYCONTEXT_OPENROUTER_API_KEY=your-key' > .mycontext/.env
+# 3. Configure AI provider (Gemini free tier recommended!)
+echo 'GEMINI_API_KEY=your-key' > .mycontext/.env
+# Get free key: https://aistudio.google.com/apikey
 
-# 4. Generate comprehensive context files
+# 4. Generate comprehensive context (PRD, brand, flows, types)
 mycontext generate context --full
 
-# 5. Generate design prompt optimized for AI design tools
+# 5. Generate realistic sample data for screens
+mycontext generate:sample-data --count 20
+
+# 6. Generate visual screens (HTML + screenshots)
+mycontext generate:screens --all
+
+# 7. Review screens in browser (auto-opens)
+# Screens saved to .mycontext/screens/
+
+# 8A. Export for design tools (optional)
 mycontext generate:design-prompt --format stitch
 
-# 6. Copy the prompt from .mycontext/design-prompt.txt
-# 7. Paste into Google Stitch (or your AI design tool)
-# 8. Get beautiful UI screens!
-# 9. Code the screens with Claude/Cursor using the same context files
+# 8B. OR use screens as reference and code with Claude/Cursor
+# All context files in .mycontext/ are ready for AI coding tools
 ```
 
 ### For Existing Projects
 
 ```bash
-# Analyze your existing project and generate context
+# Analyze existing project and generate full context
 mycontext analyze --generate-context --include-brand
 
-# Generate design prompt
-mycontext generate:design-prompt --format stitch --output design-prompt.txt
+# Generate sample data from your existing types/schema
+mycontext generate:sample-data
 
-# Use with Stitch, v0, or any AI design tool
+# Generate screens for specific pages
+mycontext generate:screens login
+mycontext generate:screens dashboard
+
+# Or generate all screens at once
+mycontext generate:screens --all
 ```
 
 ## ✨ What You Get
 
-### 🎨 **Context Files for AI Design Tools**
+### 📋 **1. Comprehensive Context Files**
 
 - **PRD (Product Requirements Document)** - Complete product specification
 - **Brand Guidelines** - Colors, typography, design system, tone
@@ -63,22 +81,38 @@ mycontext generate:design-prompt --format stitch --output design-prompt.txt
 - **Features & User Actions** - Detailed feature documentation
 - **Technical Specs** - Constraints and requirements
 - **Edge Cases** - Error states and edge scenarios
-- **Component List** - Required UI components
+- **Types & Schema** - TypeScript interfaces and database schema
 
-### 🚀 **Design Prompt Generator**
+### 🎨 **2. Visual Screens (NEW!)**
 
-- **Optimized for Stitch** - Format specifically tuned for Google Stitch
-- **General Format** - Works with any AI design tool
-- **API Format** - JSON output for programmatic access
-- **One Mega Prompt** - Concatenates all context files into a single, powerful prompt
+- **HTML Screens** - Production-ready HTML with inline CSS
+- **Screenshots** - PNG previews for each screen
+- **Realistic Data** - Screens populated with AI-generated sample data
+- **Context-Aware** - Screens match your brand, flows, and features
+- **Browser Preview** - Auto-opens for instant review
+
+### 📦 **3. Sample Data**
+
+- **AI-Generated** - Realistic users, content based on your types
+- **Type-Safe** - Matches your schema and TypeScript definitions
+- **Contextual** - Relevant to your project domain
+- **Customizable** - Generate as many items as you need
+
+### 🚀 **4. Export Options**
+
+- **Design Prompts** - Optimized for Stitch, v0, and other AI design tools
+- **Screen References** - Use generated screens as visual references
+- **Context Packs** - Complete `.mycontext/` directory for Claude Code/Cursor
+- **Figma Export** (coming soon) - Import screens directly into Figma
 
 ### 💡 **The Complete Workflow**
 
-1. **Generate Context** → `mycontext generate context --full`
-2. **Create Design Prompt** → `mycontext generate:design-prompt --format stitch`
-3. **Paste into Stitch** → Get beautiful UI screens
-4. **Code with Claude/Cursor** → Use the same `.mycontext` files as prompts
-5. **Ship** → Production-ready app with perfect UI
+1. **Generate Context** → `mycontext generate context --full` (PRD, brand, flows, types)
+2. **Generate Sample Data** → `mycontext generate:sample-data` (realistic test data)
+3. **Generate Screens** → `mycontext generate:screens --all` (visual HTML screens)
+4. **Review & Refine** → View screens in browser, iterate if needed
+5. **Code with AI** → Use `.mycontext/` files + screens with Claude Code/Cursor
+6. **Ship** → Production-ready app with consistent design
 
 <!-- ## 🎨 MyContext Studio - Coming Soon
 
@@ -102,17 +136,25 @@ mycontext generate:components
 
 ## 🎯 Why MyContext CLI?
 
-**The Problem:** AI design tools like Google Stitch can create beautiful UI screens, but writing comprehensive prompts is painful and time-consuming.
+**The Problem:** AI tools are powerful but need context. Without comprehensive specs, you get:
+- ❌ Inconsistent designs across screens
+- ❌ Missing edge cases and error states
+- ❌ Incomplete requirements
+- ❌ Prompt fatigue from writing the same context repeatedly
 
-**The Solution:** MyContext CLI generates rich, structured context files (PRD, branding, user flows, features) optimized as prompts for AI design tools.
+**The Solution:** MyContext CLI generates comprehensive specifications FIRST, then uses them to:
+1. Generate context-aware visual screens (HTML/PNG)
+2. Create optimized prompts for AI design tools (Stitch, v0)
+3. Provide complete context for AI coding tools (Claude Code, Cursor)
 
-**The Result:** 
-- ✅ Beautiful UI screens from Stitch/AI designers
-- ✅ Consistent design system
-- ✅ Complete context for coding with Claude/Cursor
-- ✅ No more prompt engineering
+**The Result:**
+- ✅ Comprehensive specs drive everything (PRD, brand, flows, types)
+- ✅ Visual screens with realistic data for stakeholder review
+- ✅ Better outputs from AI tools (they have full context)
+- ✅ Consistent design and code across your app
+- ✅ Full local workflow, you own everything
 
-**We're not building another code generator. We're building the context layer that makes AI design tools actually useful.**
+**We're building the missing context layer that makes ALL AI development tools work better.**
 
 ## 💰 Pricing
 
@@ -154,26 +196,38 @@ Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free.
 
 ## 🤖 AI Provider Setup (Required)
 
-**MyContext uses OpenRouter by default** with a free tier available. No credit card required!
+**MyContext supports multiple AI providers.** Choose based on your needs:
 
-### 🎯 Quick Start: OpenRouter (Default & Free)
+### 🎯 Recommended: Gemini (Free + Visual Generation)
 
 ```bash
-# 1. Get free API key: https://openrouter.ai/keys
+# 1. Get free API key: https://aistudio.google.com/apikey
 # 2. Add to your project:
-echo 'MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx' > .mycontext/.env
+echo 'GEMINI_API_KEY=your-key' > .mycontext/.env
 # 3. Start generating!
 mycontext generate context --full
+mycontext generate:screens --all
 ```
 
-**Why OpenRouter?**
-
-- ✅ **Free tier** with generous limits
-- ✅ Uses DeepSeek R1 (powerful reasoning model)
-- ✅ **No credit card required**
-- ✅ API key required (even for free tier - security best practice)
+**Why Gemini?**
+- ✅ **FREE with generous limits**
+- ✅ Multimodal support (text + visual generation)
+- ✅ Fast and high-quality outputs
+- ✅ **Perfect for screen generation** with nanobanana-style HTML output
+- ✅ No credit card required
 
 ### Alternative Providers
+
+**OpenRouter (Free Tier, DeepSeek R1)**
+
+```bash
+# Get free API key: https://openrouter.ai/keys
+echo 'MYCONTEXT_OPENROUTER_API_KEY=sk-or-xxx' > .mycontext/.env
+```
+
+- ✅ Free tier with generous limits
+- ✅ DeepSeek R1 (powerful reasoning)
+- ✅ No credit card required
 
 **Claude (Best Quality)**
 
@@ -182,7 +236,8 @@ mycontext generate context --full
 echo 'ANTHROPIC_API_KEY=sk-ant-xxx' > .mycontext/.env
 ```
 
-- ✅ Highest quality results • ⚠️ Paid
+- ✅ Highest quality results
+- ⚠️ Paid only
 
 **XAI/Grok**
 
@@ -191,7 +246,10 @@ echo 'ANTHROPIC_API_KEY=sk-ant-xxx' > .mycontext/.env
 echo 'XAI_API_KEY=xai-xxx' > .mycontext/.env
 ```
 
-**Provider Priority:** Claude → OpenRouter → XAI (automatic fallback)
+- ✅ Good for creative outputs
+- ⚠️ Paid only
+
+**Provider Priority:** Claude → OpenRouter → Gemini → XAI (automatic fallback)
 
 ## 🤝 Contributing
 
@@ -206,19 +264,50 @@ MIT © MyContext - See [LICENSE](https://github.com/farajabien/mycontext-cli/blo
 ## 🔄 The Complete Workflow
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  MyContext CLI  │────▶│  .mycontext/     │────▶│  AI Design Tool │
-│  Generate       │     │  design-prompt   │     │  (Stitch, etc.) │
-│  Context Files  │     │  .txt            │     │                 │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                           │
-                                                           ▼
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Code with      │◄────│  Same .mycontext  │◄────│  Beautiful UI   │
-│  Claude/Cursor  │     │  files as prompts │     │  Screens         │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
+                    ┌─────────────────────────────────────┐
+                    │      1. Start with Idea            │
+                    │   mycontext init my-app            │
+                    └──────────────┬──────────────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────────────┐
+                    │   2. Generate Context Files        │
+                    │ mycontext generate context --full  │
+                    │  PRD • Brand • Flows • Types       │
+                    └──────────────┬──────────────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────────────┐
+                    │   3. Generate Sample Data          │
+                    │  mycontext generate:sample-data    │
+                    │    Realistic test data             │
+                    └──────────────┬──────────────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────────────┐
+                    │   4. Generate Visual Screens       │
+                    │  mycontext generate:screens --all  │
+                    │    HTML + PNG previews             │
+                    └──────────────┬──────────────────────┘
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+    ┌───────────────────────────┐   ┌──────────────────────────┐
+    │   5A. Use with AI Tools   │   │  5B. Code Directly       │
+    │  Stitch • v0 • Designers  │   │  Claude Code • Cursor    │
+    │  (design-prompt.txt)      │   │  (.mycontext/ + screens) │
+    └───────────────┬───────────┘   └──────────┬───────────────┘
+                    │                           │
+                    └───────────┬───────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────────────────┐
+                    │   6. Ship Production App           │
+                    │  Complete • Consistent • Quality   │
+                    └─────────────────────────────────────┘
 ```
 
-**Built for AI designers, by developers. Your context stays on your machine.** 🚀
+**Spec-driven development for the AI era. Your code, your data, your machine.** 🚀
 
 [Full Documentation](https://github.com/farajabien/mycontext-cli/tree/main/docs) • [GitHub](https://github.com/farajabien/mycontext-cli) • [Issues](https://github.com/farajabien/mycontext-cli/issues)
