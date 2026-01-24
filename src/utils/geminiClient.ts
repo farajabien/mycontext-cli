@@ -40,13 +40,12 @@ export interface GeminiVisualResponse {
  * Supports both text generation and HTML/screenshot generation
  */
 export class GeminiClient {
-  private apiKey: string;
+  private apiKey?: string;
   private baseUrl: string;
   private client: AxiosInstance;
   private model: string;
 
   constructor() {
-    this.apiKey = this.getApiKey();
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta";
     this.model = "gemini-2.0-flash-exp"; // Latest Gemini model
 
@@ -60,9 +59,13 @@ export class GeminiClient {
   }
 
   /**
-   * Get Gemini API key from environment
+   * Get Gemini API key from environment (lazy loaded)
    */
   private getApiKey(): string {
+    if (this.apiKey) {
+      return this.apiKey;
+    }
+
     const key =
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
@@ -74,6 +77,7 @@ export class GeminiClient {
       );
     }
 
+    this.apiKey = key;
     return key;
   }
 
@@ -82,8 +86,11 @@ export class GeminiClient {
    */
   hasApiKey(): boolean {
     try {
-      this.getApiKey();
-      return true;
+      const key =
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_API_KEY ||
+        process.env.MYCONTEXT_GEMINI_API_KEY;
+      return !!key;
     } catch {
       return false;
     }

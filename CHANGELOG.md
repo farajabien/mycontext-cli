@@ -5,6 +5,27 @@ All notable changes to MyContext CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.38] - 2026-01-24
+
+### 🐛 Critical Bugfix
+
+#### Fixed
+- **Gemini Client Lazy Loading** - Fixed critical bug where Gemini API key was required even when not using screen generation commands
+  - Changed `GeminiClient` to lazy-load API key only when actually needed
+  - `hasApiKey()` now checks without throwing errors
+  - Users can now run `mycontext help` and other commands without Gemini key
+  - Gemini only required for `generate:screens` command
+
+This was a critical UX bug that prevented users from using the CLI without a Gemini API key.
+
+---
+
+## [2.0.37] - 2026-01-24
+
+Published version with visual screen generation (contained the Gemini loading bug).
+
+---
+
 ## [2.0.36] - 2026-01-24
 
 ### 🎨 Visual Screen Generation & Spec-Driven Development
