@@ -1,0 +1,94 @@
+{
+  "claude": {
+    "enabled": true,
+    "priority": 0,
+    "models": {
+      "default": "claude-sonnet-4-20250514",
+      "fast": "claude-3-5-haiku-20241022",
+      "advanced": "claude-opus-4-20250514"
+    },
+    "api": {
+      "baseUrl": "https://api.anthropic.com/v1",
+      "timeout": 120000,
+      "retries": 3
+    }
+  },
+  "openrouter": {
+    "enabled": true,
+    "priority": 1,
+    "models": {
+      "default": "deepseek/deepseek-r1-distill-llama-70b",
+      "fast": "deepseek/deepseek-r1-distill-qwen-32b",
+      "advanced": "deepseek/deepseek-r1"
+    },
+    "api": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "timeout": 120000,
+      "retries": 3
+    }
+  },
+  "gemini": {
+    "enabled": true,
+    "priority": 2,
+    "models": {
+      "default": "gemini-2.0-flash-exp",
+      "fast": "gemini-1.5-flash-latest",
+      "advanced": "gemini-2.0-flash-thinking-exp-01-21"
+    },
+    "api": {
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+      "timeout": 120000,
+      "retries": 3
+    }
+  },
+  "xai": {
+    "enabled": true,
+    "priority": 3,
+    "models": {
+      "default": "grok-beta",
+      "fast": "grok-beta",
+      "advanced": "grok-beta"
+    },
+    "api": {
+      "baseUrl": "https://api.x.ai/v1",
+      "timeout": 120000,
+      "retries": 3
+    }
+  },
+  "openai": {
+    "enabled": true,
+    "priority": 4,
+    "models": {
+      "default": "gpt-4o",
+      "fast": "gpt-4o-mini",
+      "advanced": "o1"
+    },
+    "api": {
+      "baseUrl": "https://api.openai.com/v1",
+      "timeout": 120000,
+      "retries": 3
+    }
+  },
+  "huggingface": {
+    "enabled": false,
+    "priority": 10,
+    "models": {
+      "default": "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    },
+    "api": {
+      "baseUrl": "https://api-inference.huggingface.co",
+      "timeout": 60000,
+      "retries": 2
+    }
+  },
+  "fallback": {
+    "enabled": true,
+    "priority": 99,
+    "models": {},
+    "api": {
+      "baseUrl": "",
+      "timeout": 60000,
+      "retries": 1
+    }
+  }
+}
