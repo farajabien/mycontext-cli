@@ -60,9 +60,13 @@ mycontext generate:design-prompt --format stitch
 # Analyze existing project and generate full context
 mycontext analyze --generate-context --include-brand
 
-# 🆕 Analyze a screenshot to reverse-engineer specs (Vision Mode)
-mycontext analyze --image ./path/to/design-mockup.png
-# Generates PRD + Brand Guidelines from your visual design!
+# 🆕 NEW! Analyze a screenshot with Gemini Vision (2.0 Flash)
+mycontext analyze /path/to/screenshot.png
+# Generates comprehensive context.md with:
+# - 20+ UI components with hierarchy
+# - Design system (colors, typography, spacing)
+# - Layout analysis
+# - Tech stack recommendations
 
 # Generate sample data from your existing types/schema
 mycontext generate:sample-data

@@ -2,7 +2,7 @@
 
 **Document Purpose**: Track honest feedback from Claude Code as the target ICP (Ideal Customer Profile) for MyContext CLI.
 
-**Last Updated**: 2026-01-24
+**Last Updated**: 2026-01-27
 
 ---
 
@@ -204,27 +204,56 @@ gemini: !!(
 **Lesson**: Always sync documentation with actual code checks!
 
 ### 🐛 Bug #2: Gemini API 400 Error
-**Severity**: 🟡 Medium - Provider-specific issue
-**Status**: 🔄 Not fixed (switched to OpenRouter for testing)
+**Severity**: 🟡 Medium - Provider-specific issue  
+**Status**: ✅ FIXED - Updated to Gemini 1.5 Flash, fixed system prompt handling
 
 **Problem**:
-- Gemini API returns "400 Bad Request" when called
+- Gemini API returned "400 Bad Request" when called
 - Error: `Request failed with status code 400`
-- API key detected correctly after Bug #1 fix, but requests fail
+- API key detected correctly after Bug #1 fix, but requests failed
 
-**Possible Causes**:
-1. Invalid API key format or expired key
-2. Incorrect request structure to Gemini API
-3. Missing required parameters in API call
-4. API quota/rate limiting
+**Root Cause**:
+1. Using experimental model `gemini-2.0-flash-exp` which had unstable API
+2. System prompts were being sent in wrong format (in `contents` array instead of `systemInstruction`)
+3. Missing proper multimodal support structure
 
-**Next Steps**:
-- Debug Gemini client request format
-- Add better error messages with actual API response
-- Test with fresh Gemini API key
-- Add request/response logging for debugging
+**Fix Applied**:
+1. ✅ Updated to stable `gemini-1.5-flash` model
+2. ✅ Refactored `generateText()` to extract system messages and pass them via `systemInstruction` parameter
+3. ✅ Added `generateFromImage()` method for Vision support
+4. ✅ Created `VisionUtils.ts` for image encoding
+5. ✅ Implemented `analyze --image` command for screenshot-to-spec
 
-**Workaround**: Use OpenRouter (free tier) for testing instead
+**Impact**: All Gemini features now work correctly, plus new vision capabilities!
+
+---
+
+### 🎉 NEW FEATURE: Screenshot-to-Spec (Vision Mode)
+**Status**: ✅ COMPLETE!
+
+**What It Does**:
+Reverse-engineer PRDs and Brand Guidelines from UI screenshots using Gemini Vision.
+
+**Usage**:
+```bash
+mycontext analyze --image ./path/to/design-mockup.png
+```
+
+**Output**:
+- `.mycontext/01-prd.md` - Features, user roles, flows extracted from the visual
+- `.mycontext/03-branding.md` - Color palette (hex codes), typography, styling vibes
+
+**Why This Is Killer**:
+1. Competitive analysis: "I like this app's design, let's spec it out"
+2. Design handoff: Designers send mockup, devs get instant context
+3. Iteration: "Make it look like this" → instant brand guidelines
+4. **Can be hosted as a simple web tool** for non-technical users!
+
+**Technical Implementation**:
+- Uses `GeminiClient.generateFromImage()` with multimodal API
+- Sends structured prompts for PRD extraction and brand analysis
+- Works with PNG, JPG, WEBP, HEIC formats
+- Fully local, your images don't leave your machine except to Gemini API
 
 ---
 

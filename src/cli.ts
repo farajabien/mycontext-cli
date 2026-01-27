@@ -42,6 +42,7 @@ import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
 import { DesignAnalyzeCommand } from "./commands/design-analyze";
+import { AnalyzeScreenshotCommand } from "./commands/analyze-screenshot";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 
 // Import sub-agent system
@@ -479,6 +480,11 @@ program
       process.exit(1);
     }
   });
+
+// Analyze Screenshot command (NEW! - Gemini Vision)
+const analyzeScreenshotCmd = new AnalyzeScreenshotCommand(program);
+analyzeScreenshotCmd.register();
+
 
 // Feature Assembly command
 // Clone Starter command
