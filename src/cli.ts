@@ -92,6 +92,7 @@ try {
       dotenvExpand.expand(result);
     }
   }
+
 } catch {}
 
 // CLI metadata
@@ -717,6 +718,7 @@ program
   .option("--include-brand", "Include brand analysis", true)
   .option("--include-types", "Include type analysis", true)
   .option("--include-components", "Include component analysis", true)
+  .option("--image <path>", "Analyze an image (screenshot/mockup) instead of the codebase")
   .option("--verbose", "Verbose output")
   .action(async (options) => {
     try {
@@ -728,6 +730,7 @@ program
         includeTypes: Boolean(options.includeTypes),
         includeComponents: Boolean(options.includeComponents),
         verbose: Boolean(options.verbose),
+        image: options.image, // Pass image option
       });
     } catch (error) {
       console.error(chalk.red("❌ Analysis failed:"), error);

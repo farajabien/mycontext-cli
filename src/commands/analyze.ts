@@ -13,7 +13,9 @@ interface AnalyzeOptions extends CommandOptions {
   includeBrand?: boolean;
   includeTypes?: boolean;
   includeComponents?: boolean;
+
   verbose?: boolean;
+  image?: string; // New image option
 }
 
 interface ProjectAnalysis {
@@ -96,6 +98,14 @@ export class AnalyzeCommand {
     console.log(chalk.blue.bold("🔍 Analyzing Existing Project\n"));
 
     try {
+      // Special handling for Image Analysis (Vision Mode)
+      if (options.image) {
+        this.spinner.start().updateText("Analyzing image with Gemini Vision...");
+        await this.analyzeImage(options.image, output);
+        this.spinner.succeed("Image analysis complete!");
+        return;
+      }
+
       // Step 1: Analyze project structure
       this.spinner.start().updateText("Analyzing project structure...");
       const analysis = await this.analyzeProject(target);
@@ -549,6 +559,66 @@ export class AnalyzeCommand {
     }
 
     return dependencies;
+  }
+
+  /**
+   * Analyze an image and generate context from it (Vision Mode)
+   */
+  private async analyzeImage(imagePath: string, outputDir: string): Promise<void> {
+    try {
+      // Lazy load Gemini Client to check for specific support
+      const { GeminiClient } = await import("../utils/geminiClient");
+      const gemini = new GeminiClient();
+
+      if (!gemini.hasApiKey()) {
+        throw new Error("Gemini API key required for image analysis. Set GEMINI_API_KEY.");
+      }
+
+      // 1. Generate PRD from Image
+      this.spinner.updateText(" extract UI/UX requirements from image...");
+      const prdPrompt = `
+        Analyze this UI screenshot and reverse-engineer a detailed Project Requirements Document (PRD).
+        Focus on:
+        1. Key Features visible or implied
+        2. User Roles (who would use this?)
+        3. User Flows (what are the primary actions?)
+        4. Information Architecture (what data is displayed?)
+        
+        Format as a professional Markdown PRD.
+      `;
+      const prdRes = await gemini.generateFromImage(prdPrompt, imagePath);
+      
+      // 2. Generate Brand System from Image
+      this.spinner.updateText("Extracting brand identification (colors, fonts, vibes)...");
+      const brandPrompt = `
+        Analyze this UI screenshot and extract the Brand System.
+        Focus on:
+        1. Color Palette (Primary, Secondary, Backgrounds - give Hex codes)
+        2. Typography (Fonts, weights, sizes)
+        3. Component Styling (Radius, Shadows, Spacing)
+        4. Overall "Vibe" (Modern, Corporate, Playful, etc.)
+        
+        Format as clear Markdown recommendations.
+      `;
+      const brandRes = await gemini.generateFromImage(brandPrompt, imagePath);
+
+       // 3. Save artifacts
+       const fs = new FileSystemManager();
+       await fs.ensureDir(path.join(process.cwd(), outputDir));
+       
+       await fs.writeFile(path.join(process.cwd(), outputDir, "01-prd.md"), prdRes.content);
+       await fs.writeFile(path.join(process.cwd(), outputDir, "03-branding.md"), brandRes.content);
+       
+       console.log(chalk.green(`\n✅ Generated .mycontext/01-prd.md from image`));
+       console.log(chalk.green(`✅ Generated .mycontext/03-branding.md from image`));
+
+       // Next steps
+       console.log(chalk.blue("\n➡️  Next Step: Generate Component List"));
+       console.log(chalk.gray("    mycontext generate components-list"));
+
+    } catch (error: any) {
+      throw new Error(`Image analysis failed: ${error.message}`);
+    }
   }
 
   private calculateComplexity(content: string): number {

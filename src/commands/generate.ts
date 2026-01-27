@@ -4649,6 +4649,8 @@ ${
     return !!(
       process.env.MYCONTEXT_GITHUB_TOKEN ||
       process.env.MYCONTEXT_QWEN_API_KEY ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
       process.env.MYCONTEXT_GEMINI_API_KEY ||
       process.env.MYCONTEXT_XAI_API_KEY ||
       process.env.XAI_API_KEY ||

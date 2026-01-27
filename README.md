@@ -60,6 +60,10 @@ mycontext generate:design-prompt --format stitch
 # Analyze existing project and generate full context
 mycontext analyze --generate-context --include-brand
 
+# 🆕 Analyze a screenshot to reverse-engineer specs (Vision Mode)
+mycontext analyze --image ./path/to/design-mockup.png
+# Generates PRD + Brand Guidelines from your visual design!
+
 # Generate sample data from your existing types/schema
 mycontext generate:sample-data
 
@@ -193,6 +197,7 @@ Use the CLI with your own AI provider keys (Claude, OpenAI, XAI) for free.
 - **Existing Project Support** - Analyze and extract context from any project
 - **Gap Detection** - Identifies missing information
 - **Auto-Generation** - Fills in gaps with intelligent defaults
+- **Vision Mode (New!)** - Reverse-engineer PRDs and Brand Systems from screenshots (`analyze --image`)
 
 ## 🤖 AI Provider Setup (Required)
 
@@ -211,6 +216,7 @@ mycontext generate:screens --all
 
 **Why Gemini?**
 - ✅ **FREE with generous limits**
+- ✅ **Powered by Gemini 1.5 Flash** (Stable & Fast)
 - ✅ Multimodal support (text + visual generation)
 - ✅ Fast and high-quality outputs
 - ✅ **Perfect for screen generation** with nanobanana-style HTML output

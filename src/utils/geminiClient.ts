@@ -47,7 +47,7 @@ export class GeminiClient {
 
   constructor() {
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta";
-    this.model = "gemini-2.0-flash-exp"; // Latest Gemini model
+    this.model = "gemini-1.5-flash"; // Stable, high-speed model
 
     this.client = axios.create({
       baseURL: this.baseUrl,
@@ -109,13 +109,20 @@ export class GeminiClient {
       // Convert messages to Gemini format
       const contents = this.convertMessages(messages);
 
+      // Extract system instruction if present
+      const systemMessage = messages.find((m) => m.role === "system");
+      const systemInstruction = systemMessage
+        ? { parts: [{ text: systemMessage.content }] }
+        : undefined;
+
       const response = await this.client.post(
         `/models/${this.model}:generateContent?key=${this.apiKey}`,
         {
           contents,
+          systemInstruction, // Add system instruction here
           generationConfig: {
             temperature: config?.temperature ?? 0.7,
-            maxOutputTokens: config?.maxTokens ?? 4000,
+            maxOutputTokens: config?.maxTokens ?? 8192, // Increased for 1.5 Flash
             topP: config?.topP ?? 0.95,
             topK: config?.topK ?? 40,
             stopSequences: config?.stopSequences,
@@ -337,7 +344,62 @@ IMPORTANT INSTRUCTIONS:
   }
 
   /**
-   * Get available Gemini models
+   * Generate text from image input (multimodal)
+   */
+  async generateFromImage(
+    prompt: string,
+    imagePath: string,
+    config?: GeminiGenerationConfig & { systemPrompt?: string }
+  ): Promise<GeminiResponse> {
+    try {
+      logger.debug(`Gemini: Generating from image: ${imagePath}`);
+      const { VisionUtils } = await import("./visionUtils"); // Dynamic import to avoid circular deps if any
+
+      // Encode image
+      const imagePart = await VisionUtils.encodeImage(imagePath);
+
+      const userContent = {
+        role: "user",
+        parts: [
+          { text: prompt },
+          imagePart // Add base64 image part
+        ]
+      };
+
+      // Handle system instruction
+      const systemInstruction = config?.systemPrompt
+        ? { parts: [{ text: config.systemPrompt }] }
+        : undefined;
+
+      const response = await this.client.post(
+        `/models/${this.model}:generateContent?key=${this.apiKey}`,
+        {
+          contents: [userContent], // Gemini 1.5/2.0 supports mixing text and images in user message
+          systemInstruction,
+          generationConfig: {
+            temperature: config?.temperature ?? 0.4, // Lower temp for factual extraction
+            maxOutputTokens: config?.maxTokens ?? 4000,
+          },
+        }
+      );
+
+      const candidate = response.data.candidates?.[0];
+      if (!candidate) throw new Error("No response from Gemini Vision");
+
+      return {
+        content: candidate.content?.parts?.[0]?.text || "",
+        model: this.model,
+        finishReason: candidate.finishReason,
+      };
+
+    } catch (error: any) {
+      logger.error("Gemini vision generation failed:", error.message);
+      throw new Error(`Gemini vision generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * models
    */
   async listModels(): Promise<string[]> {
     try {
