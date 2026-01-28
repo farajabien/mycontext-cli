@@ -5,22 +5,15 @@ import chalk from "chalk";
 import { InitCommand } from "./commands/init";
 import { ValidateCommand } from "./commands/validate";
 import { GenerateCommand } from "./commands/generate";
-import { ListCommand } from "./commands/list";
 import { StatusCommand } from "./commands/status";
-import { PreviewCommand } from "./commands/preview";
 import { GenerateComponentsCommand } from "./commands/generate-components";
 import { AuthCommand } from "./commands/auth";
-import { PlaybooksCommand } from "./commands/playbooks";
 import { enhance } from "./commands/enhance";
 import { refine } from "./commands/refine";
 import { SetupCommand } from "./commands/setup";
 import { UpdateCommand } from "./commands/update";
-import { AgentFlowCommand } from "./commands/agent-flow";
 import { runCleanCommand } from "./utils/clean";
-import { predict } from "./commands/predict";
 import { AnalyzeCommand } from "./commands/analyze";
-import { PromoteCommand } from "./commands/promote";
-import { MigrateCommand } from "./commands/migrate";
 import { GenerateTodosCommand } from "./commands/generate-todos";
 import { SanitizeCommand } from "./commands/sanitize";
 import { DatabaseSetupCommand } from "./commands/setup-database";
@@ -28,16 +21,14 @@ import { InstantDBSetupCommand } from "./commands/setup-instantdb";
 import { MCPSetupCommand } from "./commands/setup-mcp";
 import { SetupShadcnCommand } from "./commands/setup-shadcn";
 import { SetupCompleteCommand } from "./commands/setup-complete";
-import { ImportProjectPlanCommand } from "./commands/import-project-plan";
-import { ExportProgressCommand } from "./commands/export-progress";
-import { PMIntegrationCommand } from "./commands/pm-integration";
 import { HelpCommand } from "./commands/help";
-import { SuggestCommand } from "./commands/suggest";
-import { WorkflowCommand } from "./commands/workflow";
 import { GenerateContextFilesCommand } from "./commands/generate-context-files";
 import { registerGenerateDesignPromptCommand } from "./commands/generate-design-prompt";
 import { registerGenerateSampleDataCommand } from "./commands/generate-sample-data";
 import { registerGenerateScreensCommand } from "./commands/generate-screens";
+import { registerGenerateScreensListCommand } from "./commands/generate-screens-list";
+import { registerGenerateComponentsManifestCommand } from "./commands/generate-components-manifest";
+import { registerGenerateActionsCommand } from "./commands/generate-actions";
 import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
@@ -281,6 +272,15 @@ registerGenerateSampleDataCommand(program);
 // Generate screens command
 registerGenerateScreensCommand(program);
 
+// Generate screens list command (extracts screens from user flows)
+registerGenerateScreensListCommand(program);
+
+// Generate components manifest command (component props and sample data)
+registerGenerateComponentsManifestCommand(program);
+
+// Generate actions command (UI-backend action hooks)
+registerGenerateActionsCommand(program);
+
 // Compile PRD command
 program
   .command("compile-prd")
@@ -319,23 +319,7 @@ program
     }
   });
 
-// Intelligent command suggestions
-program
-  .command("suggest [command]")
-  .description("Get intelligent command suggestions and recommendations")
-  .option("--limit <number>", "Limit number of suggestions", "5")
-  .action(async (command: string | undefined, options: any) => {
-    try {
-      const suggestCommand = new SuggestCommand(program);
-      await suggestCommand.execute({
-        command,
-        limit: parseInt(options.limit) || 5,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Suggest command failed:"), error);
-      process.exit(1);
-    }
-  });
+
 
 // Preview components command - Coming Soon
 // program
@@ -489,34 +473,6 @@ analyzeScreenshotCmd.register();
 // Feature Assembly command
 // Clone Starter command
 
-// Agent Flow command (BETA - Agentic workflow orchestration)
-program
-  .command("agent-flow <action>")
-  .description("🧪 BETA: Run agentic workflows with agent communication")
-  .option(
-    "--mode <type>",
-    "Workflow mode: auto, sequential, validation",
-    "auto"
-  )
-  .option("--target <name>", "Target component or feature name")
-  .option("--retry-limit <number>", "Maximum retry attempts per agent", "3")
-  .option("--quality-threshold <number>", "Quality threshold (0-1)", "0.7")
-  .option("--verbose", "Show detailed output")
-  .action(async (action: string, options: any) => {
-    try {
-      const agentFlowCommand = new AgentFlowCommand();
-      await agentFlowCommand.execute(action, {
-        ...program.opts(),
-        ...options,
-        retryLimit: parseInt(options.retryLimit),
-        qualityThreshold: parseFloat(options.qualityThreshold),
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Agent flow failed:"), error);
-      process.exit(1);
-    }
-  });
-
 // Generate todos command
 program
   .command("generate-todos")
@@ -583,45 +539,7 @@ program
     }
   });
 
-// Playbooks command
-program
-  .command("playbooks")
-  .description("Manage proven processes and technical flows")
-  .option("--add <title>", "Add new playbook")
-  .option("--list", "List all playbooks")
-  .option("--search <term>", "Search playbooks")
-  .option("--use <id>", "Use playbook in generation")
-  .option("--remove <id>", "Remove playbook")
-  .option("--template <id>", "Create from template")
-  .option("--category <category>", "Filter by category")
-  .action(async (options) => {
-    try {
-      const playbooksCommand = new PlaybooksCommand();
-      await playbooksCommand.execute(options);
-    } catch (error) {
-      console.error(chalk.red("❌ Playbooks failed:"), error);
-      process.exit(1);
-    }
-  });
 
-// List command
-program
-  .command("list [type]")
-  .description("List components, projects, files, or all resources")
-  .option("--format <format>", "output format (table, json, simple)", "table")
-  .option("--local", "list from local filesystem without auth")
-  .action(async (type, options) => {
-    try {
-      const listCommand = new ListCommand();
-      await listCommand.execute(type || "all", {
-        ...program.opts(),
-        ...options,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ List failed:"), error);
-      process.exit(1);
-    }
-  });
 
 // Status command
 program
@@ -642,28 +560,7 @@ program
     }
   });
 
-// Preview command
-program
-  .command("preview <type>")
-  .description("Preview brand elements, components, or component groups")
-  .option("--no-open", "don't open in browser automatically")
-  .option("--port <number>", "port for local server", "3000")
-  .action(async (type, options) => {
-    try {
-      const previewCommand = new PreviewCommand();
-      await previewCommand.execute(type, {
-        ...program.opts(),
-        ...options,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Preview failed:"), error);
-      process.exit(1);
-    }
-  });
 
-// Workflow command - pre-configured workflow templates
-const workflowCommand = new WorkflowCommand();
-workflowCommand.register(program);
 
 // Update command (mycontext update)
 program
@@ -693,8 +590,6 @@ program
     }
   });
 
-// Add predict command
-program.addCommand(predict);
 
 // Add build strategy command
 program.addCommand(buildStrategyCommand);
@@ -703,17 +598,6 @@ program.addCommand(buildStrategyCommand);
 const healthCheckCommand = new HealthCheckCommand();
 healthCheckCommand.register(program);
 
-// Import Project Plan command (mycontext PM integration)
-const importProjectPlanCommand = new ImportProjectPlanCommand();
-importProjectPlanCommand.register(program);
-
-// Export Progress command (mycontext PM integration)
-const exportProgressCommand = new ExportProgressCommand();
-exportProgressCommand.register(program);
-
-// PM Integration command (comprehensive PM integration management)
-const pmIntegrationCommand = new PMIntegrationCommand();
-pmIntegrationCommand.register(program);
 
 // Analyze command for existing projects
 program
@@ -898,61 +782,6 @@ program
 const setupCompleteCommand = new SetupCompleteCommand();
 setupCompleteCommand.register(program);
 
-// Promote command for moving components to production
-program
-  .command("promote")
-  .description("Promote components from development to production")
-  .option("--component <name>", "Promote specific component")
-  .option("--group <name>", "Promote all components in group")
-  .option("--all", "Promote all components")
-  .option("--keep-context", "Keep .mycontext directories")
-  .option("--add-to-gitignore", "Add .mycontext/ to .gitignore", true)
-  .action(async (options) => {
-    try {
-      const command = new PromoteCommand();
-      await command.execute(".", {
-        component: options.component,
-        group: options.group,
-        all: Boolean(options.all),
-        keepContext: Boolean(options.keepContext),
-        addToGitignore: Boolean(options.addToGitignore),
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Promotion failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Migrate command for converting existing projects to MyContext structure
-program
-  .command("migrate")
-  .description("Migrate existing project to MyContext structure")
-  .option("--component <name>", "Migrate specific component")
-  .option("--group <name>", "Migrate all components in group")
-  .option("--all", "Migrate all components")
-  .option("--include-actions", "Include server actions", true)
-  .option("--include-hooks", "Include custom hooks", true)
-  .option("--include-context", "Include React context", true)
-  .option("--include-docs", "Include documentation", true)
-  .option("--verbose", "Verbose output")
-  .action(async (options) => {
-    try {
-      const command = new MigrateCommand();
-      await command.execute(".", {
-        component: options.component,
-        group: options.group,
-        all: Boolean(options.all),
-        includeActions: Boolean(options.includeActions),
-        includeHooks: Boolean(options.includeHooks),
-        includeContext: Boolean(options.includeContext),
-        includeDocs: Boolean(options.includeDocs),
-        verbose: Boolean(options.verbose),
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Migration failed:"), error);
-      process.exit(1);
-    }
-  });
 
 // Help command
 program
@@ -1003,24 +832,6 @@ program
     );
     console.log(
       chalk.gray(
-        "  promote                 - Promote components from dev to production"
-      )
-    );
-    console.log(
-      chalk.gray(
-        "  migrate                 - Migrate existing project to MyContext structure"
-      )
-    );
-    console.log(
-      chalk.gray("  validate <target>       - Validate PRD or files")
-    );
-    console.log(chalk.gray("  list [type]             - List resources"));
-    console.log(chalk.gray("  status                  - Check project status"));
-    console.log(
-      chalk.gray("  preview <type>          - Preview brand or components")
-    );
-    console.log(
-      chalk.gray(
         "  setup-instantdb         - Set up InstantDB with MCP integration"
       ),
       chalk.gray(
@@ -1045,15 +856,6 @@ program
       chalk.gray("  auth --status           - Check authentication status")
     );
     console.log(chalk.gray("  auth --register         - Register new account"));
-    console.log(
-      chalk.gray("  playbooks               - Manage proven processes")
-    );
-    console.log(chalk.gray("  playbooks --add         - Add new playbook"));
-    console.log(chalk.gray("  playbooks --list        - List all playbooks"));
-    console.log(chalk.gray("  playbooks --search      - Search playbooks"));
-    console.log(
-      chalk.gray("  playbooks --use         - Use playbook in generation")
-    );
 
     console.log(chalk.yellow("Generation Commands:"));
     console.log(
@@ -1148,15 +950,7 @@ program
         "  mycontext refine Card.tsx --output-format diff --interactive"
       )
     );
-    console.log(chalk.gray("  mycontext promote --component Button"));
-    console.log(chalk.gray("  mycontext promote --all"));
-    console.log(chalk.gray("  mycontext migrate --all"));
-    console.log(chalk.gray("  mycontext migrate --component Button"));
-    console.log(chalk.gray("  mycontext list components --format json"));
     console.log(chalk.gray("  mycontext status --check-health"));
-    console.log(chalk.gray("  mycontext preview brand"));
-    console.log(chalk.gray("  mycontext preview components"));
-    console.log(chalk.gray("  mycontext preview generated authentication\n"));
 
     console.log(chalk.yellow("Documentation:"));
     console.log(chalk.gray("  https://mycontext.fbien.com/docs\n"));

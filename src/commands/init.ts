@@ -84,47 +84,24 @@ export class InitCommand {
         finalFramework = "nextjs";
       }
 
-      if (!options.yes) {
+      // Minimal prompts - only ask for project name if not provided
+      if (!options.yes && !finalProjectName) {
         const responses = await prompts([
           {
-            type: !finalProjectName ? "text" : null,
+            type: "text",
             name: "name",
             message: "Project name:",
-            initial: "my-context-app",
+            initial: "my-app",
             validate: (value: string) =>
               value.length > 0 || "Project name is required",
           },
-          {
-            type: !finalDescription ? "text" : null,
-            name: "description",
-            message: "Project description:",
-            validate: (value: string) =>
-              value.length > 10 || "Description must be at least 10 characters",
-          },
-          {
-            type: !finalFramework ? "select" : null,
-            name: "framework",
-            message: "Choose your frontend framework:",
-            choices: [
-              { title: "InstantDB (Recommended)", value: "instantdb" },
-              { title: "Next.js", value: "nextjs" },
-              { title: "Other (Manual setup)", value: "other" },
-            ],
-            initial: 0, // Default to InstantDB
-          },
         ]);
-
-        finalProjectName = responses.name || finalProjectName;
-        finalDescription = responses.description || finalDescription;
-        finalFramework = responses.framework || finalFramework;
-      } else {
-        // Use defaults if --yes flag is used
-        finalDescription =
-          finalDescription ||
-          "A MyContext AI-powered component generation project";
-        // Keep lightweight by default when non-interactive
-        finalFramework = finalFramework || "instantdb";
+        finalProjectName = responses.name || "my-app";
       }
+
+      // Smart defaults - no prompts needed
+      finalDescription = finalDescription || `${finalProjectName} - AI-powered app`;
+      finalFramework = finalFramework || "instantdb"; // Auto-select InstantDB
 
       // Validate required fields
       if (!finalDescription) {
@@ -299,99 +276,32 @@ export class InitCommand {
   ): void {
     const projectPath = useCurrentDir ? process.cwd() : config.name;
 
-    console.log(chalk.blue("\n🎯 Next Steps:\n"));
+    console.log(chalk.blue("\n🎯 Quick Start:\n"));
 
     console.log(chalk.yellow("1. Navigate to your project:"));
     console.log(chalk.gray(`   cd ${projectPath}\n`));
 
-    console.log(chalk.yellow("2. 📋 REVIEW YOUR PRD (REQUIRED):"));
-    console.log(chalk.gray("   • Open .mycontext/01-prd.md"));
-    console.log(chalk.gray("   • Update with your specific requirements"));
-    console.log(chalk.gray("   • Add user stories and technical details"));
-    console.log(
-      chalk.gray("   • This is crucial for accurate AI generation\n")
-    );
+    console.log(chalk.yellow("2. �️  Analyze a screenshot (Gemini 2.0 Flash):"));
+    console.log(chalk.cyan("   mycontext analyze /path/to/screenshot.png"));
+    console.log(chalk.gray("   # Reverse-engineer any UI into a comprehensive spec!\n"));
 
     console.log(chalk.yellow("3. Configure AI provider:"));
-    console.log(chalk.gray("   📌 Option A - Claude SDK (Recommended):"));
-    console.log(
-      chalk.gray("      Get Claude API key: https://console.anthropic.com/\n")
-    );
-    console.log(
-      chalk.gray("   📌 Option B - OpenRouter Free Tier (DeepSeek-R1):")
-    );
-    console.log(
-      chalk.gray("      Get free API key: https://openrouter.ai/keys")
-    );
-    console.log(chalk.gray("      Uses DeepSeek-R1 for advanced reasoning\n"));
-    console.log(
-      chalk.gray("   # Copy .env.example to .env and add your key:\n")
-    );
-    console.log(chalk.cyan("   cp .mycontext/.env.example .mycontext/.env"));
-    console.log(
-      chalk.cyan("   # Add ANTHROPIC_API_KEY or MYCONTEXT_OPENROUTER_API_KEY\n")
-    );
+    console.log(chalk.gray("   📌 Gemini (Free - Recommended for screenshots):"));
+    console.log(chalk.gray("      Get API key: https://aistudio.google.com/apikey"));
+    console.log(chalk.cyan("      echo 'GEMINI_API_KEY=your-key' >> .mycontext/.env\n"));
+    console.log(chalk.gray("   📌 Claude (Best for text generation):"));
+    console.log(chalk.gray("      https://console.anthropic.com/\n"));
 
-    console.log(chalk.yellow("4. Generate context files (after PRD review):"));
-    console.log(chalk.gray("   mycontext generate context\n"));
+    console.log(chalk.yellow("4. Generate full context:"));
+    console.log(chalk.gray("   mycontext generate context --full\n"));
 
-    console.log(chalk.yellow("5. Validate your PRD:"));
-    console.log(chalk.gray("   mycontext validate prd\n"));
+    console.log(chalk.yellow("5. Start development:"));
+    console.log(chalk.gray("   pnpm dev\n"));
 
-    console.log(chalk.yellow("6. Plan your components:"));
-    console.log(
-      chalk.gray(
-        "   mycontext generate components-list   # alias: component-list\n"
-      )
-    );
-
-    console.log(
-      chalk.yellow(
-        "7. Set up InstantDB (already configured in InstantDB projects):"
-      )
-    );
-    console.log(
-      chalk.gray("   # InstantDB is already set up! Check instant.schema.ts")
-    );
-    console.log(chalk.gray("   # For other databases:"));
-    console.log(chalk.gray("   mycontext setup-database"));
-    console.log(chalk.gray("   # For other MCP providers:"));
-    console.log(chalk.gray("   mycontext setup-mcp --provider github\n"));
-
-    console.log(chalk.yellow("8. Generate components:"));
-    console.log(
-      chalk.gray(
-        "   mycontext generate-components all --with-tests   # optional tests"
-      )
-    );
-
-    console.log(chalk.yellow("10. Preview components:"));
-    console.log(chalk.gray("   Visit /preview (dev server)"));
-    console.log(
-      chalk.gray("   mycontext normalize preview   # optional final layout\n")
-    );
-
-    console.log(chalk.yellow("⚠️  IMPORTANT NOTES:"));
-    console.log(
-      chalk.gray("• Get your Claude API key at: https://console.anthropic.com/")
-    );
-    console.log(
-      chalk.gray(
-        "• Always review your PRD (.mycontext/01-prd.md) before generating context"
-      )
-    );
-    console.log(
-      chalk.gray(
-        "• The AI uses your PRD to generate accurate types and components"
-      )
-    );
-    console.log(chalk.gray("• Use --yes flag to skip interactive prompts"));
-    console.log(
-      chalk.gray("• Check .mycontext directory for all generated files")
-    );
-    console.log(
-      chalk.gray("• Run 'mycontext status' to check project progress\n")
-    );
+    console.log(chalk.green("✨ Tips:"));
+    console.log(chalk.gray("• Check .mycontext/ for all generated files"));
+    console.log(chalk.gray("• Use --yes flag to skip prompts"));
+    console.log(chalk.gray("• Run 'mycontext status' to check project progress\n"));
 
     // Exit the process gracefully after displaying all information
     process.exit(0);
@@ -409,12 +319,12 @@ export class InitCommand {
       console.log(gradient.pastel.multiline(logo));
       console.log(
         chalk.cyan.bold(
-          "    🚀 AI-Powered Context & Component Library Generation\n"
+          "    🚀 Screenshot → Spec → Code (Powered by Gemini 2.0 Flash)\n"
         )
       );
     } catch (error) {
       // Fallback to simple text if figlet fails
-      console.log(chalk.blue.bold("\n🚀 MyContext Project Initialization\n"));
+      console.log(chalk.blue.bold("\n🚀 MyContext - Screenshot to Spec\n"));
     }
   }
 
