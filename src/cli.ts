@@ -122,6 +122,7 @@ program
   .option("--with-shadcn", "run shadcn/ui init before MyContext init")
   .option("--scaffold-next", "scaffold a Next.js app (optional)")
   .option("--skip-shadcn", "do not run shadcn/ui init automatically")
+  .option("--spec-only", "initialize ONLY context files (skip framework setup)")
   .action(async (projectName, options) => {
     try {
       const initCommand = new InitCommand();

@@ -33,7 +33,7 @@ export class FileSystemManager {
     // Create directory structure
     const projectPath = useCurrentDir
       ? workingDir
-      : path.join(workingDir, projectName);
+      : path.resolve(workingDir, projectName);
     const mycontextPath = path.join(projectPath, this.mycontextDir);
 
     if (!useCurrentDir) {

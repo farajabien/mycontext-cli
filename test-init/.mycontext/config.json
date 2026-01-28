@@ -1,0 +1,10 @@
+{
+  "id": "d25eec1f-18b0-41bc-8006-b383150a4e01",
+  "name": "test-init",
+  "description": "test-init - AI-powered app",
+  "createdAt": "2026-01-28T18:23:39.858Z",
+  "updatedAt": "2026-01-28T18:23:39.858Z",
+  "contextPath": ".mycontext",
+  "version": "0.1.0",
+  "status": "initialized"
+}

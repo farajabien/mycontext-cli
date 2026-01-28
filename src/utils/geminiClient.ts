@@ -47,11 +47,12 @@ export class GeminiClient {
   private model: string;
 
   private readonly MODELS = [
-    "gemini-1.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-pro",
-    "gemini-2.0-flash-exp",
-    "gemini-1.5-flash-latest"
+    "gemini-2.0-flash",           // Latest stable Flash
+    "gemini-2.0-flash-exp",       // Experimental Flash 2.0
+    "gemini-1.5-flash",           // Stable 1.5 Flash
+    "gemini-1.5-flash-latest",    // Alias for latest 1.5 Flash
+    "gemini-1.5-pro",             // Stable 1.5 Pro
+    "gemini-1.5-pro-latest"       // Alias for latest 1.5 Pro
   ];
 
   constructor() {
@@ -127,9 +128,6 @@ export class GeminiClient {
     for (const modelName of this.MODELS) {
       try {
         this.model = modelName;
-        // Check if model supports system instructions (Pro Vision didn't, but Flash/Pro 1.5+ do)
-        // We blindly try passing it. SDK/API handles 400 if unsupported usually.
-        
         const model = this.genAI.getGenerativeModel({ 
             model: modelName,
             systemInstruction: systemInstruction
@@ -145,7 +143,6 @@ export class GeminiClient {
             stopSequences: config?.stopSequences,
         };
 
-        // If history is empty (and we have no system prompt), we need at least one user message.
         if (history.length === 0) {
              throw new Error("No user content provided for generation");
         }
@@ -161,7 +158,7 @@ export class GeminiClient {
 
         return {
             content: text,
-            text: text, // Alias for backward compatibility
+            text: text, 
             model: modelName,
             finishReason: response.candidates?.[0]?.finishReason,
             usage: usage ? {
@@ -173,10 +170,18 @@ export class GeminiClient {
 
       } catch (error: any) {
         lastError = error;
-        console.error(`⚠️ Gemini model ${modelName} failed: ${error.message}`);
         
+        // Handle rate limit specifically - don't keep trying other models if rate limited
+        if (error.message?.includes("429") || error.message?.includes("Too Many Requests")) {
+            logger.warn(`Gemini model ${modelName} is rate limited (429). Stop trying other models.`);
+            throw new Error(`Gemini rate limit reached (429). Please wait a moment or upgrade your tier.`);
+        }
+
         if (process.env.DEBUG || process.env.VERBOSE) {
             logger.warn(`Gemini (${modelName}) failed: ${error.message}, trying next...`);
+        } else {
+            // Still log failing models for visibility in non-debug mode but concisely
+            console.error(`⚠️ Gemini model ${modelName} failed: ${error.message.substring(0, 100)}${error.message.length > 100 ? '...' : ''}`);
         }
         continue;
       }

@@ -20,6 +20,7 @@ interface InitOptions extends CommandOptions {
   skipShadcn?: boolean;
   analyze?: boolean; // New option to analyze existing project
   existing?: boolean; // New option to work with existing project
+  specOnly?: boolean; // New option to skip framework scaffolding
 }
 
 export class InitCommand {
@@ -111,68 +112,80 @@ export class InitCommand {
       spinner.start();
 
       // Setup framework-specific project with correct order
-      if (finalFramework === "instantdb") {
-        // 1. Setup Next.js first (if needed)
-        const projectPath = useCurrentDir
-          ? workingDir
-          : path.join(workingDir, finalProjectName);
-        const packageJsonPath = path.join(projectPath, "package.json");
+      if (!options.specOnly) {
+        if (finalFramework === "instantdb") {
+          // 1. Setup Next.js first (if needed)
+          const projectPath = useCurrentDir
+            ? workingDir
+            : path.resolve(workingDir, finalProjectName);
+          const packageJsonPath = path.join(projectPath, "package.json");
 
-        if (!(await fs.pathExists(packageJsonPath))) {
+          if (!(await fs.pathExists(packageJsonPath))) {
+            spinner.updateText("Setting up Next.js project...");
+            await this.setupNextJSProject(
+              finalProjectName,
+              workingDir,
+              useCurrentDir
+            );
+          }
+
+          // 2. Setup shadcn/ui FIRST (before InstantDB)
+          const shouldInitShadcn = options.skipShadcn !== true;
+          if (shouldInitShadcn) {
+            spinner.updateText("Initializing shadcn/ui...");
+            await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
+          }
+
+          // 3. Setup InstantDB (MyContext branded flow)
+          spinner.stop(); // Stop spinner for InstantDB setup output
+          await this.setupInstantDBProject(
+            finalProjectName,
+            workingDir,
+            useCurrentDir
+          );
+          spinner.start(); // Restart spinner for remaining setup
+        } else if (finalFramework === "nextjs") {
+          // Next.js only setup
           spinner.updateText("Setting up Next.js project...");
           await this.setupNextJSProject(
             finalProjectName,
             workingDir,
             useCurrentDir
           );
-        }
 
-        // 2. Setup shadcn/ui FIRST (before InstantDB)
-        const shouldInitShadcn = options.skipShadcn !== true;
-        if (shouldInitShadcn) {
-          spinner.updateText("Initializing shadcn/ui...");
-          await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
-        }
-
-        // 3. Setup InstantDB (MyContext branded flow)
-        spinner.stop(); // Stop spinner for InstantDB setup output
-        await this.setupInstantDBProject(
-          finalProjectName,
-          workingDir,
-          useCurrentDir
-        );
-        spinner.start(); // Restart spinner for remaining setup
-      } else if (finalFramework === "nextjs") {
-        // Next.js only setup
-        spinner.updateText("Setting up Next.js project...");
-        await this.setupNextJSProject(
-          finalProjectName,
-          workingDir,
-          useCurrentDir
-        );
-
-        // Setup shadcn/ui for Next.js projects
-        const shouldInitShadcn = options.skipShadcn !== true;
-        if (shouldInitShadcn) {
-          const projectPath = useCurrentDir
-            ? workingDir
-            : path.join(workingDir, finalProjectName);
-          const packageJsonPath = path.join(projectPath, "package.json");
-          if (await fs.pathExists(packageJsonPath)) {
-            spinner.updateText("Initializing shadcn/ui...");
-            await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
-          } else {
-            console.log(
-              chalk.yellow(
-                "   ⚠️ shadcn/ui init skipped (no package.json found). Run it inside an existing Next.js project."
-              )
-            );
-            console.log(chalk.gray("   pnpm dlx shadcn@latest init -y"));
+          // Setup shadcn/ui for Next.js projects
+          const shouldInitShadcn = options.skipShadcn !== true;
+          if (shouldInitShadcn) {
+            const projectPath = useCurrentDir
+              ? workingDir
+              : path.resolve(workingDir, finalProjectName);
+            const packageJsonPath = path.join(projectPath, "package.json");
+            if (await fs.pathExists(packageJsonPath)) {
+              spinner.updateText("Initializing shadcn/ui...");
+              await this.setupShadcn(finalProjectName, workingDir, useCurrentDir);
+            } else {
+              console.log(
+                chalk.yellow(
+                  "   ⚠️ shadcn/ui init skipped (no package.json found). Run it inside an existing Next.js project."
+                )
+              );
+              console.log(chalk.gray("   pnpm dlx shadcn@latest init -y"));
+            }
           }
         }
+      } else {
+        console.log(
+          chalk.cyan("   ℹ️ Spec-only mode: skipping framework setup")
+        );
       }
 
-      // Initialize MyContext directory structure and context after framework setup
+      // If spec-only or framework setup was skipped/failed, ensure directory exists
+      const projectPath = useCurrentDir
+        ? workingDir
+        : path.resolve(workingDir, finalProjectName);
+      await fs.ensureDir(projectPath);
+
+      // Initialize MyContext directory structure and context
       spinner.updateText("Initializing MyContext project files...");
       const config = await this.fs.initializeProject(
         finalProjectName,
@@ -183,9 +196,6 @@ export class InitCommand {
 
       // Write .mycontext/.env.example with guidance
       try {
-        const projectPath = useCurrentDir
-          ? workingDir
-          : path.join(workingDir, finalProjectName);
         const envDir = path.join(projectPath, ".mycontext");
         await fs.ensureDir(envDir);
         const envExamplePath = path.join(envDir, ".env.example");
@@ -195,11 +205,14 @@ export class InitCommand {
         await fs.writeFile(envExamplePath, envExample);
       } catch {}
 
-      // Setup Studio (if bundled)
-      const projectPath = useCurrentDir
-        ? workingDir
-        : path.join(workingDir, finalProjectName);
-      await this.setupStudio(projectPath);
+      // Setup Studio (if bundled AND not spec-only)
+      if (!options.specOnly) {
+        await this.setupStudio(projectPath);
+      } else {
+        console.log(
+          chalk.cyan("   ℹ️ Spec-only mode: skipping studio setup")
+        );
+      }
 
       spinner.success({
         text: `Project "${finalProjectName}" initialized successfully!`,
@@ -239,7 +252,7 @@ export class InitCommand {
 
     const projectPath = useCurrentDir
       ? workingDir
-      : path.join(workingDir, projectName);
+      : path.resolve(workingDir, projectName);
     const prdPath = path.join(projectPath, ".mycontext", "01-prd.md");
 
     console.log(chalk.cyan("\n📄 Your PRD has been initialized at:"));

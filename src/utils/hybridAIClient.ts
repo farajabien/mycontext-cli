@@ -22,11 +22,11 @@ function loadEnvironmentVariables(): void {
     ];
     for (const p of candidates) {
       if (fs.existsSync(p)) {
-        const result = dotenv.config({ path: p, silent: true });
+        const result = dotenv.config({ path: p, override: true });
         dotenvExpand.expand(result);
       }
     }
-  } catch {
+  } catch (err) {
     // Ignore errors
   }
 }
@@ -127,6 +127,9 @@ export class HybridAIClient {
     // OpenRouter (recommended free tier option - prioritized over XAI)
     const openRouterClient = new OpenRouterClient();
     if (openRouterClient.hasApiKey()) {
+      if (process.env.DEBUG || process.env.VERBOSE) {
+        console.log(chalk.gray(`[HybridAIClient] Registering OpenRouter provider`));
+      }
       this.providers.push({
         name: "openrouter",
         priority: 1, // After Claude, before Gemini/XAI
@@ -144,6 +147,8 @@ export class HybridAIClient {
         );
         HybridAIClient.hasLoggedInitialization = true;
       }
+    } else if (process.env.DEBUG || process.env.VERBOSE) {
+        console.log(chalk.yellow(`[HybridAIClient] OpenRouter skipped: No API key found`));
     }
 
     // Gemini (multimodal support, visual generation)
@@ -208,6 +213,9 @@ export class HybridAIClient {
     // Optional override via env - this takes highest priority
     const preferredName =
       process.env.MYCONTEXT_PROVIDER || process.env.AI_PROVIDER || "";
+    if (process.env.DEBUG || process.env.VERBOSE) {
+      console.log(`[HybridAIClient] getBestProvider check: MYCONTEXT_PROVIDER=${!!process.env.MYCONTEXT_PROVIDER}, AI_PROVIDER=${!!process.env.AI_PROVIDER}`);
+    }
     if (preferredName) {
       const preferred = this.providers.find((p) => p.name === preferredName);
       if (preferred) {
@@ -659,17 +667,26 @@ export class HybridAIClient {
       return { text, provider: provider.name };
     } catch (error: any) {
       console.log(
-        `[HybridAIClient] Provider ${provider.name} failed: ${error.message}`
+        chalk.yellow(`[HybridAIClient] Provider ${provider.name} failed: ${error.message}`)
       );
 
       // Mark this provider as attempted
       attemptedProviders.add(provider.name);
 
-      // Try recursively - getBestProvider will automatically skip attempted providers
-      console.log(
-        `[HybridAIClient] Retrying with next available provider (excluding: ${Array.from(attemptedProviders).join(", ")})`
-      );
-      return this.generateText(prompt, options, attemptedProviders);
+      // Check for remaining providers
+      const remainingProviders = this.providers
+        .filter(p => !attemptedProviders.has(p.name))
+        .map(p => p.name);
+
+      if (remainingProviders.length > 0) {
+        console.log(
+          chalk.blue(`[HybridAIClient] Retrying with next available provider: ${remainingProviders[0]} (remaining: ${remainingProviders.join(", ")})`)
+        );
+        return this.generateText(prompt, options, attemptedProviders);
+      } else {
+        console.log(chalk.red(`[HybridAIClient] No more AI providers available (attempted: ${Array.from(attemptedProviders).join(", ")})`));
+        throw error;
+      }
     }
   }
 
