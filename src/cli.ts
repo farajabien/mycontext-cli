@@ -112,12 +112,12 @@ program
 // Initialize command
 program
   .command("init <project-name>")
-  .description("Initialize a new MyContext project")
+  .description("Initialize a new MyContext project with your preferred framework")
   .option("--description <desc>", "project description")
   .option("--force", "force reinitialization")
   .option(
     "--framework <type>",
-    "specify framework: instantdb, nextjs, other (--next coming soon)"
+    "framework setup: instantdb (full InstantDB + shadcn setup), nextjs (shadcn + MyContext only), or other (MyContext only). Default: instantdb"
   )
   .option("--with-shadcn", "run shadcn/ui init before MyContext init")
   .option("--scaffold-next", "scaffold a Next.js app (optional)")
@@ -793,10 +793,12 @@ program
       chalk.blue.bold("🚀 MyContext CLI - Agent-Driven Development\n")
     );
     console.log(chalk.yellow("Quick Start:"));
-    console.log(chalk.gray("  mycontext init my-project"));
-    console.log(chalk.gray("  # Set API key (Qwen FREE or GitHub Models)"));
+    console.log(chalk.gray("  # Initialize with your preferred framework"));
+    console.log(chalk.cyan("  mycontext init my-project --framework instantdb"));
+    console.log(chalk.gray("  # Options: instantdb (default) | nextjs | other\n"));
+    console.log(chalk.gray("  # Set API key (Gemini FREE recommended)"));
     console.log(
-      chalk.gray("  echo 'MYCONTEXT_QWEN_API_KEY=sk-or-xxx' > .mycontext/.env")
+      chalk.cyan("  echo 'GEMINI_API_KEY=your-key' > .mycontext/.env")
     );
     console.log(
       chalk.gray(
@@ -812,8 +814,10 @@ program
 
     console.log(chalk.yellow("Available Commands:"));
     console.log(
-      chalk.gray("  init <project-name>     - Initialize a new project")
+      chalk.cyan("  init <project-name> [--framework <type>]")
     );
+    console.log(chalk.gray("    Initialize a new project with framework support"));
+    console.log(chalk.gray("    Frameworks: instantdb (default), nextjs, other"));
     console.log(
       chalk.gray(
         "  analyze                 - Analyze existing project and generate context"
@@ -911,26 +915,37 @@ program
     // );
 
     console.log(chalk.yellow("Examples:"));
+    console.log(chalk.cyan("  # Framework initialization"));
+    console.log(
+      chalk.gray("  mycontext init my-app --framework instantdb  # Full stack")
+    );
+    console.log(
+      chalk.gray("  mycontext init my-app --framework nextjs     # Next.js + shadcn")
+    );
+    console.log(
+      chalk.gray("  mycontext init my-app --framework other      # MyContext only\n")
+    );
+    console.log(chalk.cyan("  # With description"));
     console.log(
       chalk.gray(
         '  mycontext init todo-app --description "A simple todo application"'
       )
     );
     console.log(
-      chalk.gray("  mycontext init . --analyze  # Analyze existing project")
+      chalk.gray(
+        '  mycontext init clarity-app --framework instantdb --description "A Clarity app"\n'
+      )
+    );
+    console.log(chalk.cyan("  # Screenshot analysis"));
+    console.log(
+      chalk.gray("  mycontext analyze mockup.png  # Gemini Vision analysis")
     );
     console.log(
       chalk.gray(
-        "  mycontext analyze --generate-context  # Analyze and generate context"
+        "  mycontext analyze --generate-context  # Analyze and generate context\n"
       )
     );
-    console.log(
-      chalk.gray(
-        '  mycontext init clarity-app --framework instantdb --description "A Clarity app with InstantDB"'
-      )
-    );
-    console.log(chalk.gray("  mycontext init my-app --framework instantdb"));
-    console.log(chalk.gray("  mycontext init my-app --framework nextjs"));
+    console.log(chalk.cyan("  # Context generation"));
     console.log(chalk.gray("  mycontext generate context --full"));
     console.log(chalk.gray("  mycontext generate:sample-data --count 20"));
     console.log(chalk.gray("  mycontext generate:screens --all"));
@@ -972,18 +987,22 @@ program.action(() => {
   console.log(chalk.blue.bold("🚀 MyContext CLI\n"));
   console.log(
     chalk.gray(
-      "AI-powered agent-driven development for modern web applications.\n"
+      "AI-powered spec-driven development for modern web applications.\n"
     )
   );
   console.log(chalk.yellow("Quick Start:"));
-  console.log(chalk.gray("  mycontext init my-project"));
+  console.log(chalk.cyan("  mycontext init my-project --framework instantdb"));
+  console.log(chalk.gray("  # Frameworks: instantdb | nextjs | other\n"));
   console.log(
     chalk.gray(
       "  mycontext generate context --full --description 'Your project'"
     )
   );
-  console.log(chalk.gray("  mycontext compile-prd"));
-  console.log(chalk.gray('Run "mycontext help" for detailed information.\n'));
+  console.log(chalk.gray("  mycontext compile-prd\n"));
+  console.log(chalk.yellow("Help:"));
+  console.log(chalk.cyan("  mycontext help"));
+  console.log(chalk.cyan("  mycontext help frameworks"));
+  console.log(chalk.cyan("  mycontext help getting-started\n"));
 });
 
 // Parse command line arguments

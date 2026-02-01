@@ -280,18 +280,79 @@ export class HelpCommand {
 MyContext is an AI-powered component generation and project setup tool.
 
 Quick Start:
-  1. Initialize a new project: mycontext init <project-name>
-  2. Set up AI provider: Configure ANTHROPIC_API_KEY or XAI_API_KEY
-  3. Complete setup: mycontext setup-complete --auto-continue
+  1. Initialize with your preferred framework:
+     ${chalk.cyan("mycontext init my-app --framework instantdb")}  # Full stack (default)
+     ${chalk.cyan("mycontext init my-app --framework nextjs")}     # Next.js + shadcn
+     ${chalk.cyan("mycontext init my-app --framework other")}      # MyContext only
 
-For new projects, MyContext will guide you through:
-- Creating a comprehensive PRD
-- Generating TypeScript types and interfaces
-- Setting up shadcn/ui components
-- Creating React components with tests
-- Configuring InstantDB for real-time data
+  2. Set up AI provider: Configure GEMINI_API_KEY (free) or ANTHROPIC_API_KEY
+     ${chalk.gray("echo 'GEMINI_API_KEY=your-key' > .mycontext/.env")}
 
-Use 'mycontext help' for context-aware guidance based on your project state.`,
+  3. Generate context: ${chalk.cyan("mycontext generate context --full")}
+
+For InstantDB projects, template files are automatically copied to lib/:
+  - instant-client.ts (Client SDK with schema)
+  - instant-admin.ts (Admin SDK for server operations)
+  - auth.ts (Password hashing, magic codes, subdomains)
+  - instantdb-storage.ts (File upload/download)
+
+Use ${chalk.cyan("mycontext help frameworks")} for detailed framework information.
+Use ${chalk.cyan("mycontext help")} for context-aware guidance based on your project state.`,
+      },
+
+      frameworks: {
+        title: "🎯 Framework Support",
+        content: `
+MyContext adapts to your tech stack with flexible initialization:
+
+${chalk.cyan("1. InstantDB (Full Stack)")} - Default
+   ${chalk.gray("Complete real-time backend with auth and storage")}
+
+   Command: ${chalk.cyan("mycontext init my-app --framework instantdb")}
+
+   What happens:
+   ✅ Runs shadcn/ui init interactively
+   ✅ Prompts to run instant-cli init
+   ✅ Prompts to push schemas to InstantDB
+   ✅ Installs: @instantdb/react, @instantdb/admin
+   ✅ Installs auth deps: bcryptjs, nanoid, @types/bcryptjs
+   ✅ Copies template files to lib/ (or src/lib/):
+      • instant-client.ts - Client SDK with schema
+      • instant-admin.ts - Admin SDK for server operations
+      • auth.ts - Auth helpers (hashing, magic codes)
+      • instantdb-storage.ts - File upload/download
+   ✅ Creates .mycontext/ project structure
+
+   After init, configure:
+   ${chalk.gray("echo 'NEXT_PUBLIC_INSTANT_APP_ID=your-app-id' > .env.local")}
+
+${chalk.cyan("2. Next.js (Frontend Focus)")}
+   ${chalk.gray("shadcn/ui + MyContext for Next.js projects")}
+
+   Command: ${chalk.cyan("mycontext init my-app --framework nextjs")}
+
+   What happens:
+   ✅ Runs shadcn/ui init interactively
+   ✅ Creates .mycontext/ project structure
+   ⏭️ No database setup (bring your own backend)
+
+${chalk.cyan("3. Basic (MyContext Only)")}
+   ${chalk.gray("Minimal setup for any project type")}
+
+   Command: ${chalk.cyan("mycontext init my-app --framework other")}
+
+   What happens:
+   ✅ Creates .mycontext/ project structure only
+   ⏭️ No UI library or database setup
+
+${chalk.yellow("Template File Locations:")}
+  • Projects with src/: ${chalk.gray("src/lib/")}
+  • Projects without src/: ${chalk.gray("lib/")}
+  • Auto-detected during init
+
+${chalk.yellow("Next Steps:")}
+  ${chalk.cyan("mycontext help getting-started")}  # Quick start guide
+  ${chalk.cyan("mycontext status")}                # Check project status`,
       },
 
       workflows: {
@@ -321,25 +382,34 @@ Usage:
         title: "📋 Available Commands",
         content: `
 Core Commands:
-  init <name>           Initialize new project
-  setup-complete        Analyze and complete project setup
-  generate <type>       Generate code, types, components, etc.
-  workflow <action>     Manage automated workflows
-  validate              Check project quality
-  status                Show project status
+  ${chalk.cyan("init <name> [--framework <type>]")}
+    Initialize new project with framework support
+    Examples:
+      mycontext init my-app --framework instantdb  # Full stack (default)
+      mycontext init my-app --framework nextjs     # Next.js + shadcn
+      mycontext init my-app --framework other      # MyContext only
+
+  ${chalk.cyan("setup-complete")}        Analyze and complete project setup
+  ${chalk.cyan("generate <type>")}       Generate code, types, components, etc.
+  ${chalk.cyan("workflow <action>")}     Manage automated workflows
+  ${chalk.cyan("validate")}              Check project quality
+  ${chalk.cyan("status")}                Show project status
 
 Setup Commands:
-  setup-shadcn          Configure shadcn/ui components
-  setup-instantdb       Configure InstantDB integration
+  ${chalk.cyan("setup-shadcn")}          Configure shadcn/ui components
+  ${chalk.cyan("setup-instantdb")}       Configure InstantDB integration
+  ${chalk.cyan("setup-database")}        Set up database and authentication
 
 Development Commands:
-  generate-components   Create React components
-  generate-context-files Generate project context files
-  compile-prd           Create comprehensive PRD
+  ${chalk.cyan("generate-components")}   Create React components
+  ${chalk.cyan("generate-context-files")} Generate project context files
+  ${chalk.cyan("compile-prd")}           Create comprehensive PRD
+  ${chalk.cyan("analyze <image>")}       Analyze screenshot (Gemini Vision)
 
 Utility Commands:
-  help [topic]          Show help (context-aware)
-  status --check-health Check AI provider status`,
+  ${chalk.cyan("help [topic]")}          Show help (context-aware)
+    Topics: getting-started, frameworks, workflows, commands, ai-providers
+  ${chalk.cyan("status --check-health")} Check AI provider status`,
       },
 
       "ai-providers": {

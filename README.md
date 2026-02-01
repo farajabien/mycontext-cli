@@ -18,8 +18,12 @@
 *Best for reverse-engineering designs or cloning styles.*
 
 ```bash
-# 1. Initialize project (with interactive setup)
-mycontext init my-app --yes
+# 1. Initialize project with InstantDB (interactive setup)
+mycontext init my-app --framework instantdb
+# → Runs shadcn/ui init
+# → Prompts for instant-cli init & schema push
+# → Installs @instantdb/react, @instantdb/admin, auth deps
+# → Copies template files to lib/ (instant-client.ts, auth.ts, etc.)
 
 # 2. Analyze Screenshot (Powered by Gemini 2.0 Flash)
 mycontext analyze mockup.png
@@ -35,21 +39,79 @@ pnpm dev
 *Best for new projects from scratch.*
 
 ```bash
-# 1. Initialize with description
-mycontext init my-saas-app --description "AI-powered code review SaaS"
+# 1. Initialize with description and framework
+mycontext init my-saas-app \
+  --framework instantdb \
+  --description "AI-powered code review SaaS"
+# Choose framework: instantdb | nextjs | other
 
 # 2. Generate Full Context (PRD, Features, Flows, Specs)
 mycontext generate context --full
 
 # 3. Generate UI Artifacts
 mycontext generate:screens-list    # Extract screens from flows
-mycontext generate:sample-data     # Generate realistic test data  
+mycontext generate:sample-data     # Generate realistic test data
 mycontext generate:components-manifest  # Component specs with props
 mycontext generate:actions         # Backend connection hooks
 
 # 4. Use context with Claude/Cursor
 # All files in .mycontext/ are ready for AI coding tools
 ```
+
+## 🎯 Framework Support
+
+MyContext adapts to your preferred tech stack with flexible initialization options:
+
+### **InstantDB (Full Stack)** - Default
+*Complete real-time backend with authentication and storage*
+
+```bash
+mycontext init my-app --framework instantdb
+```
+
+**Includes:**
+- ✅ shadcn/ui components setup
+- ✅ InstantDB client & admin SDK
+- ✅ Auth utilities (bcrypt, magic codes, subdomain generation)
+- ✅ File storage helpers
+- ✅ Template files in `lib/` or `src/lib/`:
+  - `instant-client.ts` - Client SDK with schema
+  - `instant-admin.ts` - Admin SDK for server operations
+  - `auth.ts` - Auth helpers (password hashing, magic codes)
+  - `instantdb-storage.ts` - File upload/download utilities
+
+**Dependencies Installed:**
+- `@instantdb/react`, `@instantdb/admin`
+- `bcryptjs`, `nanoid`, `@types/bcryptjs`
+
+---
+
+### **Next.js (Frontend Focus)**
+*shadcn/ui + MyContext for Next.js projects*
+
+```bash
+mycontext init my-app --framework nextjs
+```
+
+**Includes:**
+- ✅ shadcn/ui components setup
+- ✅ MyContext project structure (.mycontext/)
+- ⏭️ No database setup (bring your own backend)
+
+---
+
+### **Basic (MyContext Only)**
+*Minimal setup for any project type*
+
+```bash
+mycontext init my-app --framework other
+```
+
+**Includes:**
+- ✅ MyContext project structure only
+- ⏭️ No UI library or database setup
+
+---
 
 ## ✨ Key Features
 

@@ -226,4 +226,48 @@ export class FileSystemManager {
   async restoreFile(backupPath: string, targetPath: string): Promise<void> {
     await fs.copy(backupPath, targetPath);
   }
+
+  /**
+   * Detect the lib directory in the project
+   * Returns src/lib/ if src directory exists, otherwise lib/
+   */
+  async detectLibDirectory(projectPath: string): Promise<string> {
+    const srcDir = path.join(projectPath, "src");
+    const hasSrc = await fs.pathExists(srcDir);
+
+    if (hasSrc) {
+      return path.join(projectPath, "src", "lib");
+    }
+
+    return path.join(projectPath, "lib");
+  }
+
+  /**
+   * Copy InstantDB template files to the project's lib directory
+   */
+  async copyInstantDBTemplates(projectPath: string): Promise<void> {
+    const libDir = await this.detectLibDirectory(projectPath);
+    await fs.ensureDir(libDir);
+
+    // Get the templates directory relative to this file
+    const templatesDir = path.join(__dirname, "..", "templates", "instantdb");
+
+    // Template files to copy
+    const templateFiles = [
+      "auth.ts",
+      "instant-admin.ts",
+      "instant-client.ts",
+      "instantdb-storage.ts",
+    ];
+
+    // Copy each template file
+    for (const file of templateFiles) {
+      const sourcePath = path.join(templatesDir, file);
+      const destPath = path.join(libDir, file);
+
+      if (await fs.pathExists(sourcePath)) {
+        await fs.copy(sourcePath, destPath, { overwrite: true });
+      }
+    }
+  }
 }
