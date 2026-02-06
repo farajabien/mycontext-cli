@@ -150,100 +150,6 @@ program
         ...options,
       });
     } catch (error) {
-      console.error(chalk.red("❌ Validation failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Generate command
-program
-  .command("generate <type>")
-  .description(
-    "Generate context files, types, branding, or components. For context: use --full for PRD+A/B/C/D files, --files-only for A/B/C/D only"
-  )
-  .option("--temperature <number>", "Generation temperature (0.1-1.0)", "0.7")
-  .option("--max-tokens <number>", "Maximum tokens for generation", "4000")
-  .option("--description <desc>", "Inline description/context to generate from")
-  .option(
-    "--context-file <path>",
-    "Path to a file whose content is the context"
-  )
-  .option("--include-brand", "Include brand in 'all' generation flow")
-  .option("--model <name>", "Override model id (e.g., openai/gpt-5)")
-  .option(
-    "--prd-file <path>",
-    "Use an existing PRD file as 01-prd.md (skip AI)"
-  )
-  .option("--preserve-prd", "Do not overwrite existing .mycontext/01-prd.md")
-  .option(
-    "--model-candidates <list>",
-    "Comma-separated fallback model ids (e.g., deepseek/DeepSeek-V3-0324,meta/Llama-4-Scout-17B-16E-Instruct)"
-  )
-  .option(
-    "--models <list>",
-    "Alias of --model-candidates (comma-separated model ids)"
-  )
-  .option(
-    "--use-models <list>",
-    "Alias of --model-candidates (comma-separated model ids)"
-  )
-  .option("--verbose", "Show detailed output")
-  .option("--debug", "Enable debug logging")
-  .option("--force", "Overwrite existing output files without prompt")
-  .option(
-    "--full",
-    "Generate full context (PRD + A/B/C/D files) - for 'context' type only"
-  )
-  .option(
-    "--files-only",
-    "Generate only A/B/C/D files (requires existing PRD) - for 'context' type only"
-  )
-  .option(
-    "--auto-continue",
-    "Automatically continue to next logical steps after completion"
-  )
-  .option(
-    "--from-schema",
-    "Generate types from InstantDB schema (for 'types' type only)"
-  )
-  .action(async (type: string, options: any) => {
-    try {
-      const generateCommand = new GenerateCommand();
-      await generateCommand.execute({
-        ...program.opts(),
-        ...options,
-        // Normalize alias: component-list -> components-list
-        type: type === "component-list" ? "components-list" : type,
-        temperature: parseFloat(options.temperature),
-        maxTokens: parseInt(options.maxTokens),
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Generation failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Generate context files command (A/B/C/D workflow)
-program
-  .command("generate-context-files")
-  .description(
-    "Generate A/B/C/D context files (Features, User Flows, Edge Cases, Technical Specs)"
-  )
-  .option(
-    "--description <desc>",
-    "Project description to generate context from"
-  )
-  .option("--project-path <path>", "Project path (default: current directory)")
-  .option("--force", "Overwrite existing context files")
-  .option("--verbose", "Show detailed output")
-  .action(async (options: any) => {
-    try {
-      const generateContextFilesCommand = new GenerateContextFilesCommand();
-      await generateContextFilesCommand.execute({
-        ...program.opts(),
-        ...options,
-      });
-    } catch (error) {
       // soft fail
       if (error instanceof Error && error.message.includes("template")) {
         console.log(
@@ -381,22 +287,10 @@ const generateComponentsCmd = program
   .option("--local", "Use local AI generation (no authentication required)")
   .option("--with-tests", "Generate unit tests for each component")
   .option(
-    "--no-update-preview",
-    "Do not update /preview registry during generation"
-  )
-  .option(
-    "--no-open-preview",
-    "Do not auto-open /preview in the browser after generation"
-  )
-  .option(
     "--final-canvas",
     "Run a final normalize pass to build the canvas layout"
   )
   .option("--check", "Run typecheck, lint, and tests after generation")
-  // .option(
-  //   "--preview-dir <path>",
-  //   "Directory to write components for Studio preview"
-  // )
   .option("--verbose", "Show detailed output")
   .option("--debug", "Enable debug logging")
   .action(async (target: string | undefined, options: any) => {
@@ -416,7 +310,12 @@ const generateComponentsCmd = program
       }
       await generateComponentsCommand.execute(actualTarget, {
         ...program.opts(),
-        // Studio/preview options removed for CLI-only operation
+        ...options,
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Component generation failed:"), error);
+      process.exit(1);
+    }
 });
 
 // Design analyze command
@@ -774,26 +673,9 @@ program
     );
     console.log(
       chalk.gray(
-        "  mycontext generate context --full --description 'Modern todo app'"
-      )
-    );
-    console.log(chalk.gray("  mycontext compile-prd"));
-    console.log(chalk.gray("  mycontext validate prd"));
-    console.log(chalk.gray("  mycontext generate components-list"));
+  	  "  mycontext generate context --full --description 'Your project'"))
     console.log(
-      chalk.gray("  mycontext generate-components all --with-tests\n")
-    );
-
-    console.log(chalk.yellow("Available Commands:"));
-    console.log(
-      chalk.cyan("  init <project-name> [--framework <type>]")
-    );
-    console.log(chalk.gray("    Initialize a new project with framework support"));
-    console.log(chalk.gray("    Frameworks: instantdb (default), nextjs, other"));
-    console.log(
-      chalk.gray(
-        "  analyze                 - Analyze existing project and generate context"
-      )
+      chalk.gray("  generate <type>         - Generate context files")
     );
     console.log(
       chalk.gray("  generate <type>         - Generate context files")
@@ -815,6 +697,7 @@ program
         "  setup-mcp               - Set up MCP (Model Context Protocol)"
       )
     );
+
     console.log(
       chalk.gray(
         "  setup-database          - Set up database and authentication"
@@ -869,22 +752,6 @@ program
     );
     console.log(chalk.gray("  files                   - List context files"));
     console.log(chalk.gray("  all                     - List everything\n"));
-
-    // console.log(chalk.yellow("Preview Types:"));
-    // console.log(
-    //   chalk.gray("  brand                   - Preview brand elements")
-    // );
-    // console.log(
-    //   chalk.gray("  components              - Preview all components")
-    // );
-    // console.log(
-    //   chalk.gray("  generated               - Preview generated components")
-    // );
-    // console.log(
-    //   chalk.gray(
-    //     "  <group-name>            - Preview specific component group\n"
-    //   )
-    // );
 
     console.log(chalk.yellow("Examples:"));
     console.log(chalk.cyan("  # Framework initialization"));

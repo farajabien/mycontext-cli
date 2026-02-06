@@ -131,7 +131,11 @@ export class GenerateScreensCommand {
       console.log(chalk.green(`\n✅ Generated ${generatedScreens.length} screen(s)`));
       console.log(chalk.gray(`   Output: ${screensDir}`));
 
-      // Auto-open in browser if requested
+      // Show hosted Studio preview link
+      console.log(chalk.blue(`\n🎨 Preview your screens at: ${chalk.bold("https://studio.mycontext.app")}`));
+      console.log(chalk.gray(`   Upload your .mycontext/ directory to preview all generated screens`));
+
+      // Auto-open in browser if requested (opens local HTML files)
       if (options.open !== false && generatedScreens.length > 0) {
         await this.openInBrowser(screensDir, generatedScreens[0]!);
       }
@@ -435,7 +439,7 @@ export function registerGenerateScreensCommand(program: Command): void {
     .command("generate:screens [screen-name]")
     .alias("gs")
     .description(
-      "Generate visual screens (HTML/PNG) using Gemini API with full context"
+      "Generate visual screens (HTML/JSX) - Preview at https://studio.mycontext.app"
     )
     .option("-a, --all", "Generate all screens from user flows")
     .option(

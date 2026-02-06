@@ -1,7 +1,7 @@
 {
   "name": "mycontext-cli",
   "version": "3.0.3",
-  "description": "Spec-Driven Development for the AI Era - Generate comprehensive context + visual screens, then code with Claude/Cursor",
+  "description": "CLI tool for spec-driven development - Generate comprehensive context, visual screens, and scaffolding for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {
     "mycontext-cli": "dist/cli.js",
@@ -23,10 +23,6 @@
     "test:unit": "jest --testPathPattern=unit --passWithNoTests",
     "lint": "eslint src/**/*.ts --quiet",
     "lint:fix": "eslint src/**/*.ts --fix --quiet",
-    "studio:dev": "cd studio && pnpm dev",
-    "studio:build": "cd studio && pnpm build",
-    "studio:start": "cd studio && pnpm start",
-    "preview": "pnpm studio:dev",
     "prepublishOnly": "echo 'Skipping tests and lint for now' && npm run build"
   },
   "keywords": [

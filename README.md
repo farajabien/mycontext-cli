@@ -122,11 +122,10 @@ mycontext init my-app --framework other
 - **Technical Specs**: Constraints & requirements
 - **Types & Schema**: TypeScript/Database definitions
 
-### 🎨 **2. Visual Screens (Gemini Vision)**
-- **HTML Screens**: Production-ready HTML/Tailwind
-- **Screenshots**: High-res PNG previews
+### 🎨 **2. Visual Screens (AI-Generated)**
+- **HTML/JSX Screens**: Production-ready HTML/Tailwind or React components
 - **Realistic Data**: Context-aware sample content
-- **Preview in Studio**: Screens are previewed in the hosted MyContext Studio app (no longer bundled locally)
+- **Hosted Preview**: Preview all screens at [studio.mycontext.app](https://studio.mycontext.app)
 
 ### 📦 **3. Export & Integrate**
 - **Claude Code / Cursor**: Optimized context packs
@@ -147,7 +146,7 @@ echo 'GEMINI_API_KEY=your-key' > .mycontext/.env
 
 ## 📚 Documentation
 
-**Note:** The MyContext CLI no longer includes the Studio UI. To preview generated screens, use the [hosted MyContext Studio app](https://studio.mycontext.app) (coming soon). This CLI is now focused on scaffolding, context, and screen generation only.
+**Note:** The MyContext CLI is a focused scaffolding and code generation tool. To preview generated screens and components visually, use the [hosted MyContext Studio app](https://studio.mycontext.app).
 
 Detailed guides available in the [`docs/`](docs/) directory:
 - [Getting Started](docs/01-getting-started/quick-start.md)
