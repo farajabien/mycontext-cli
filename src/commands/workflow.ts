@@ -10,7 +10,6 @@ import { GenerateContextFilesCommand } from "./generate-context-files";
 import { GenerateCommand } from "./generate";
 import { CompilePRDCommand } from "./compile-prd";
 import { GenerateComponentsCommand } from "./generate-components";
-import { PreviewCommand } from "./preview";
 import { HybridAIClient } from "../utils/hybridAIClient";
 
 interface AIWorkflowAnalysis {
@@ -577,14 +576,11 @@ Be specific and actionable. Focus on realistic components and features for the d
         });
       }
 
-      // Step 6: Setup Preview
+      // Step 6: Preview Information
       if (!options.skipPreview) {
-        console.log(chalk.cyan("👁️  Step 6: Setting up preview..."));
-        const previewCommand = new PreviewCommand();
-        await previewCommand.execute("components", {
-          type: "components",
-          open: true,
-        });
+        console.log(chalk.cyan("👁️  Step 6: Preview your components..."));
+        console.log(chalk.blue("   Visit https://studio.mycontext.app"));
+        console.log(chalk.gray("   Upload your .mycontext/ directory to preview all components"));
       }
 
       // Step 7: Summary and Next Steps
@@ -604,7 +600,7 @@ Be specific and actionable. Focus on realistic components and features for the d
       console.log(chalk.blue("\n📋 Next Steps:"));
       console.log(chalk.gray("   1. Review components: cd " + outputDir));
       console.log(
-        chalk.gray("   2. Open preview: mycontext preview components --open")
+        chalk.gray("   2. Preview at: https://studio.mycontext.app")
       );
       console.log(chalk.gray("   3. Start development: npm run dev"));
       if (options.deploy) {

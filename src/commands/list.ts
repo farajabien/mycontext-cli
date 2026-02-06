@@ -117,8 +117,7 @@ export class ListCommand {
     try {
       console.log("");
       console.log(chalk.blue("➡️ Next commands:"));
-      console.log(chalk.gray("   mycontext preview components"));
-      console.log(chalk.gray("   mycontext normalize preview"));
+      console.log(chalk.gray("   Preview at: https://studio.mycontext.app"));
       console.log(
         chalk.gray("   mycontext generate-components all --with-tests")
       );

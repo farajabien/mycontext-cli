@@ -130,10 +130,10 @@ export class NextStepsSuggester {
     else if (context.lastCommand?.includes("generate-components")) {
       suggestions.push(
         {
-          description: "Preview components in browser",
-          command: "mycontext preview components",
+          description: "Preview components at hosted Studio",
+          command: "Visit https://studio.mycontext.app",
           priority: "medium",
-          context: "Preview shows your components",
+          context: "Upload your .mycontext/ directory to preview all components",
         },
         {
           description: "Validate component quality",

@@ -2842,8 +2842,8 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       console.log(
         chalk.white("      mycontext generate-components all --with-tests")
       );
-      console.log(chalk.cyan("   2. Preview components:"));
-      console.log(chalk.white("      mycontext preview components"));
+      console.log(chalk.cyan("   2. Preview at hosted Studio:"));
+      console.log(chalk.white("      https://studio.mycontext.app"));
       console.log(chalk.cyan("   3. Build complete app:"));
       console.log(chalk.white("      mycontext build-app --interactive"));
 

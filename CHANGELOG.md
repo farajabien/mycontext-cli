@@ -5,6 +5,45 @@ All notable changes to MyContext CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-02-06
+
+### 🏗️ Major Architecture Refactor - CLI-Only Focus
+
+#### Breaking Changes
+- **Removed Studio UI** - The bundled Next.js Studio app has been completely removed from this repository
+  - Removed `studio/` directory and all Studio-related code
+  - Removed `studio:dev`, `studio:build`, `studio:start`, and `preview` npm scripts
+  - Removed `preview` command from CLI
+- **Screen Preview Changes** - Screen previewing now points to hosted Studio app
+  - Generated screens still saved locally in `.mycontext/screens/`
+  - CLI now provides link to https://studio.mycontext.app for visual preview
+  - Local HTML/JSX files can still be opened in browser
+
+#### Added
+- **Hosted Studio Integration** - CLI now integrates with hosted MyContext Studio
+  - `generate:screens` command displays hosted Studio URL after generation
+  - Updated help documentation to mention hosted preview option
+
+#### Changed
+- **Repository Focus** - This repository is now a focused CLI tool for:
+  - Project scaffolding and initialization
+  - Context and spec generation
+  - Screen and component generation
+  - AI provider integration
+- **Documentation Updates**
+  - Updated README.md to reflect CLI-only positioning
+  - Removed Studio setup instructions
+  - Added references to hosted Studio app
+
+#### Removed
+- Studio Next.js application (moved to future monorepo)
+- Preview command and preview-related CLI options
+- Studio-related npm scripts and build processes
+
+**Migration Note:** Users who were using the local Studio preview should now use https://studio.mycontext.app to preview generated screens and components. All generated files remain in your local `.mycontext/` directory and can be uploaded to the hosted Studio for visualization.
+
+---
+
 ## [2.0.38] - 2026-01-24
 
 ### 🐛 Critical Bugfix

@@ -201,9 +201,10 @@ export class BuildAppCommand {
         console.log(chalk.gray(`   pnpm dev`));
         console.log(chalk.yellow(`\n🌐 To preview:`));
         console.log(
-          chalk.gray(
-            `   mycontext preview components --project ${result.projectPath}`
-          )
+          chalk.gray(`   Visit https://studio.mycontext.app`)
+        );
+        console.log(
+          chalk.gray(`   Upload .mycontext/ from ${result.projectPath}`)
         );
 
         // Show workflow statistics

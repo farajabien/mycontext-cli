@@ -565,11 +565,11 @@ WorkflowEngine.registerWorkflow({
     {
       id: "preview-component",
       name: "Preview Component",
-      description: "Preview component in development environment",
-      command: "mycontext preview components",
+      description: "Preview component at hosted Studio (https://studio.mycontext.app)",
+      command: "echo 'Visit https://studio.mycontext.app to preview your components'",
       dependencies: ["generate-component"],
-      autoContinue: true,
-      estimatedTime: 2,
+      autoContinue: false,
+      estimatedTime: 1,
     },
     {
       id: "validate-component",

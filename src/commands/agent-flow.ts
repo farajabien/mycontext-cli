@@ -267,7 +267,7 @@ export class AgentFlowCommand {
         console.log(chalk.gray("   mycontext generate-components all"));
         break;
       case "generate-components":
-        console.log(chalk.gray("   mycontext preview components"));
+        console.log(chalk.gray("   Preview at: https://studio.mycontext.app"));
         console.log(chalk.gray("   mycontext list components --local"));
         break;
       case "validate-workflow":

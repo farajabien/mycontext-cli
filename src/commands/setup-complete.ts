@@ -539,7 +539,7 @@ Please generate comprehensive context files that will guide the development of t
     );
     console.log(
       `   ${chalk.gray(
-        "mycontext preview components"
+        "Visit https://studio.mycontext.app"
       )}   # Preview generated components`
     );
 

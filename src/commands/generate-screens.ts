@@ -352,7 +352,7 @@ Return ONLY the TSX code wrapped in \`\`\`tsx blocks.`;
   private extractCodeBlock(content: string, lang: string): string {
     const pattern = new RegExp(`\`\`\`${lang}\\n([\\s\\S]*?)\\n\`\`\``);
     const match = content.match(pattern);
-    return match ? match[1].trim() : content;
+    return match && match[1] ? match[1].trim() : content;
   }
 
   /**

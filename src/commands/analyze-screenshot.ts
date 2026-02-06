@@ -107,8 +107,8 @@ export class AnalyzeScreenshotCommand {
 
       console.log(chalk.white("Next steps:"));
       console.log(chalk.gray("  1. ") + chalk.white(`cat ${options.output}`) + chalk.gray(" # Review context"));
-      console.log(chalk.gray("  2. ") + chalk.white("mycontext generate") + chalk.gray(" # Generate screens"));
-      console.log(chalk.gray("  3. ") + chalk.white("mycontext preview") + chalk.gray(" # Preview in Studio\n"));
+      console.log(chalk.gray("  2. ") + chalk.white("mycontext generate:screens") + chalk.gray(" # Generate screens"));
+      console.log(chalk.gray("  3. Preview at ") + chalk.cyan("https://studio.mycontext.app") + chalk.gray("\n"));
 
     } catch (error) {
       console.log(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`));

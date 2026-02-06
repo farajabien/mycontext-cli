@@ -979,19 +979,9 @@ export class GenerateComponentsCommand {
     );
     console.log(
       chalk.yellow(
-        `🔍 Next: Run 'mycontext preview:components' to validate the core components`
+        `🔍 Next: Preview at https://studio.mycontext.app to validate the core components`
       )
     );
-
-    // Save preview manifest if preview directory was used
-    if (previewDir && previewManifest) {
-      const manifestPath = path.join(previewDir, "manifest.json");
-      await this.fs.writeFile(
-        manifestPath,
-        JSON.stringify(previewManifest, null, 2)
-      );
-      console.log(chalk.blue(`📱 Preview manifest saved: ${manifestPath}`));
-    }
 
     // Log trigger event
     await this.triggerLogger.logTrigger(
@@ -2747,7 +2737,7 @@ function groupBy<T, K extends string | number>(
     console.log(chalk.green("\n✅ All components generated successfully!"));
     console.log(chalk.blue("\n➡️  Next Steps:"));
     console.log(chalk.cyan("   1. Preview components:"));
-    console.log(chalk.white("      mycontext preview components"));
+    console.log(chalk.white("      Visit https://studio.mycontext.app"));
     console.log(chalk.cyan("   2. Run tests:"));
     console.log(chalk.white("      npm test"));
     console.log(chalk.cyan("   3. Start development:"));
