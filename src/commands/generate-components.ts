@@ -31,7 +31,7 @@ interface GenerateComponentsOptions extends CommandOptions {
   architectureType?: "nextjs-app-router" | "nextjs-pages" | "react-spa"; // Architecture type
   temperature?: number;
   maxTokens?: number;
-  previewDir?: string; // Directory to write components for Studio preview
+  // previewDir?: string; // (Removed) Directory to write components for Studio preview
 }
 
 // --- Orchestration in GenerateComponentsCommand ---
@@ -890,41 +890,7 @@ export class GenerateComponentsCommand {
     await this.fs.ensureDir(desktopDir);
 
     // Setup preview directory for Studio integration
-    let previewDir: string | null = null;
-    let previewManifest: any = null;
-
-    if (options.previewDir) {
-      previewDir = path.resolve(options.previewDir);
-      await this.fs.ensureDir(previewDir);
-
-      // Initialize preview manifest
-      previewManifest = {
-        version: "1.0.0",
-        generatedAt: new Date().toISOString(),
-        source: "mycontext-cli",
-        components: [],
-      };
-
-      console.log(chalk.blue(`📱 Preview directory: ${previewDir}`));
-    } else {
-      // Default preview directory: ./studio/components/generated/
-      const defaultPreviewDir = path.resolve("./studio/components/generated");
-      if (await this.fs.exists(path.resolve("./studio"))) {
-        previewDir = defaultPreviewDir;
-        await this.fs.ensureDir(previewDir);
-
-        previewManifest = {
-          version: "1.0.0",
-          generatedAt: new Date().toISOString(),
-          source: "mycontext-cli",
-          components: [],
-        };
-
-        console.log(
-          chalk.blue(`📱 Auto-detected Studio preview directory: ${previewDir}`)
-        );
-      }
-    }
+    // Studio preview directory logic removed. CLI now outputs only to the specified output directory.
 
     let generatedCount = 0;
 
@@ -961,9 +927,7 @@ export class GenerateComponentsCommand {
         "mobile",
         mobileDir,
         options,
-        userId,
-        previewDir,
-        previewManifest
+        userId
       );
 
       // Generate desktop variant
@@ -972,9 +936,7 @@ export class GenerateComponentsCommand {
         "desktop",
         desktopDir,
         options,
-        userId,
-        previewDir,
-        previewManifest
+        userId
       );
 
       // Generate tests if requested
@@ -1045,9 +1007,7 @@ export class GenerateComponentsCommand {
     variant: "mobile" | "desktop",
     outputDir: string,
     options: GenerateComponentsOptions,
-    userId: string,
-    previewDir?: string | null,
-    previewManifest?: any
+    userId: string
   ): Promise<void> {
     try {
       // Check if user has local AI keys configured
@@ -1221,46 +1181,7 @@ export class GenerateComponentsCommand {
 
       await this.fs.writeFile(filePath, variantCode);
 
-      // Write to preview directory if specified
-      if (previewDir && previewManifest) {
-        const previewFileName = `${component.name}-${variant}.tsx`;
-        const previewFilePath = path.join(previewDir, previewFileName);
-
-        // Add JSDoc metadata for Studio display
-        const metadataCode = this.addComponentMetadata(
-          variantCode,
-          component,
-          variant,
-          codeResult.metadata
-        );
-
-        await this.fs.writeFile(previewFilePath, metadataCode);
-
-        // Add to preview manifest
-        previewManifest.components.push({
-          id: `${component.name.toLowerCase()}-${variant}-${Date.now()}`,
-          name: component.name,
-          variant: variant,
-          path: `./${previewFileName}`,
-          description: component.description,
-          type: component.type,
-          group: component.groupName,
-          validation: {
-            responsive: true,
-            accessible: true,
-            touchTargets: variant === "mobile",
-            qualityScore: codeResult.metadata?.confidence
-              ? Math.round(codeResult.metadata.confidence * 100)
-              : 85,
-          },
-          variants: ["mobile", "desktop"],
-          tags: [component.type, variant, "responsive"],
-          generatedAt: new Date().toISOString(),
-          generator: "mycontext-cli v2.0.29",
-        });
-
-        console.log(chalk.blue(`   📱 Preview: ${previewFileName}`));
-      }
+      // Studio preview directory logic removed from variant generation.
 
       console.log(
         chalk.green(`   ✅ Generated ${variant} variant: ${fileName}`)
@@ -2654,18 +2575,7 @@ function groupBy<T, K extends string | number>(
       const srcApp = path.join(projectRoot, "src", "app");
       const app = path.join(projectRoot, "app");
       const appDir = (await fs.pathExists(srcApp)) ? srcApp : app;
-      const previewDir = path.join(appDir, "preview");
-      await this.fs.ensureDir(previewDir);
-      const pagePath = path.join(previewDir, "page.tsx");
-      if (!(await fs.pathExists(pagePath))) {
-        const content = `import PreviewCanvas from '@/components/.mycontext/PreviewCanvas';
-
-export default function PreviewPage() {
-  return <PreviewCanvas />;
-}
-`;
-        await this.fs.writeFile(pagePath, content);
-      }
+      // Studio preview route logic removed.
     } catch (error) {
       console.log(
         chalk.yellow(

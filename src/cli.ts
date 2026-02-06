@@ -322,23 +322,6 @@ program
 
 
 
-// Preview components command - Coming Soon
-// program
-//   .command("preview:components")
-//   .description("Open component library preview in browser")
-//   .option("--validate", "Run validation checks on all components")
-//   .action(async (options: any) => {
-//     try {
-//       const { PreviewComponentsCommand } = await import(
-//         "./commands/preview-components"
-//       );
-//       const previewCommand = new PreviewComponentsCommand();
-//       await previewCommand.execute(options);
-//     } catch (error) {
-//       console.error(chalk.red("❌ Preview command failed:"), error);
-//       process.exit(1);
-//     }
-//   });
 
 // Review context command
 program
@@ -433,18 +416,7 @@ const generateComponentsCmd = program
       }
       await generateComponentsCommand.execute(actualTarget, {
         ...program.opts(),
-        ...options,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ Component generation failed:"), error);
-      process.exit(1);
-    }
-  });
-
-// Add validation hook to generate-components command
-PreCommandValidator.addValidationHook(generateComponentsCmd, {
-  autoFix: true,
-  strict: false,
+        // Studio/preview options removed for CLI-only operation
 });
 
 // Design analyze command

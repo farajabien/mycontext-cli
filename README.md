@@ -126,7 +126,7 @@ mycontext init my-app --framework other
 - **HTML Screens**: Production-ready HTML/Tailwind
 - **Screenshots**: High-res PNG previews
 - **Realistic Data**: Context-aware sample content
-- **Browser Preview**: Instant visual validation
+- **Preview in Studio**: Screens are previewed in the hosted MyContext Studio app (no longer bundled locally)
 
 ### 📦 **3. Export & Integrate**
 - **Claude Code / Cursor**: Optimized context packs
@@ -146,6 +146,8 @@ echo 'GEMINI_API_KEY=your-key' > .mycontext/.env
 *Also supports: Anthropic (Claude), OpenRouter (DeepSeek), xAI (Grok)*
 
 ## 📚 Documentation
+
+**Note:** The MyContext CLI no longer includes the Studio UI. To preview generated screens, use the [hosted MyContext Studio app](https://studio.mycontext.app) (coming soon). This CLI is now focused on scaffolding, context, and screen generation only.
 
 Detailed guides available in the [`docs/`](docs/) directory:
 - [Getting Started](docs/01-getting-started/quick-start.md)

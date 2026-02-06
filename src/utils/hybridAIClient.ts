@@ -2,6 +2,7 @@ import { ClaudeAgentClient } from "./claudeAgentClient";
 import { HostedApiClient } from "./hostedApiClient";
 import { OpenRouterClient } from "./openRouterClient";
 import { GeminiClient } from "./geminiClient";
+import { GitHubModelsClient } from "./githubModelsClient";
 import { XAIClient } from "../clients/XAIClient";
 import { logger, LogLevel } from "./logger";
 import chalk from "chalk";
@@ -122,6 +123,26 @@ export class HybridAIClient {
         client: claudeAgentClient,
         isAvailable: () => claudeAgentClient.checkConnection(),
       });
+    }
+
+    // GitHub Models (High-quality GPT models)
+    const githubClient = new GitHubModelsClient();
+    if (githubClient.hasApiKey()) {
+      if (process.env.DEBUG || process.env.VERBOSE) {
+        console.log(chalk.gray(`[HybridAIClient] Registering GitHub Models provider`));
+      }
+      this.providers.push({
+        name: "github",
+        priority: 0.5, // Between Claude (0) and OpenRouter (1)
+        client: githubClient,
+        isAvailable: () => githubClient.testConnection(),
+      });
+
+      // Log if this is the only provider (or first high-priority)
+      if (!HybridAIClient.hasLoggedInitialization) {
+        console.log(chalk.blue("🧠 Using GitHub Models (GPT-4o) - High Quality"));
+        HybridAIClient.hasLoggedInitialization = true;
+      }
     }
 
     // OpenRouter (recommended free tier option - prioritized over XAI)
@@ -361,7 +382,7 @@ export class HybridAIClient {
           options
         );
       } else if (provider.name === "github") {
-        const githubClient = provider.client as any;
+        const githubClient = provider.client as GitHubModelsClient;
         result = await githubClient.generateComponentRefinement(
           componentCode,
           prompt,
@@ -467,7 +488,7 @@ export class HybridAIClient {
           const qwenClient = provider.client as any;
           result = await qwenClient.generateComponent(prompt, options);
         } else if (provider.name === "github") {
-          const githubClient = provider.client as any;
+          const githubClient = provider.client as GitHubModelsClient;
           result = await githubClient.generateComponent(prompt, options);
         } else if (provider.name === "openai") {
           const openaiClient = provider.client as any;
@@ -614,7 +635,7 @@ export class HybridAIClient {
           const qwenClient = provider.client as any;
           return await qwenClient.generateText(prompt, options);
         } else if (provider.name === "github") {
-          const githubClient = provider.client as any;
+          const githubClient = provider.client as GitHubModelsClient;
           return await githubClient.generateText(prompt, options);
         } else if (provider.name === "openai") {
           const openaiClient = provider.client as any;

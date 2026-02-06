@@ -5,7 +5,7 @@ import path from "path";
 import { CONTEXT_FILES } from "../constants/fileNames";
 import { EnhancedSpinner } from "../utils/spinner";
 import { logger } from "../utils/logger";
-import { GeminiClient } from "../utils/geminiClient";
+import { HybridAIClient } from "../utils/hybridAIClient";
 import { exec } from "child_process";
 import { promisify } from "util";
 
@@ -15,6 +15,7 @@ interface ScreenGenerationOptions {
   format?: string; // html, png, both
   output?: string;
   screen?: string; // specific screen name
+  group?: string; // screen group
   all?: boolean;
   includeScreenshot?: boolean;
   screenshot?: boolean; // alias for includeScreenshot
@@ -29,6 +30,13 @@ interface ScreenMetadata {
   timestamp: string;
   format: string[];
   path: string;
+  group?: string;
+}
+
+interface ScreenToGenerate {
+  name: string;
+  prompt: string;
+  group?: string;
 }
 
 /**
@@ -37,11 +45,11 @@ interface ScreenMetadata {
  */
 export class GenerateScreensCommand {
   private spinner: EnhancedSpinner;
-  private geminiClient: GeminiClient;
+  private ai: HybridAIClient;
 
   constructor() {
     this.spinner = new EnhancedSpinner("Generating screens...");
-    this.geminiClient = new GeminiClient();
+    this.ai = new HybridAIClient();
   }
 
   async execute(screenName?: string, options: ScreenGenerationOptions = {}): Promise<void> {
@@ -62,17 +70,13 @@ export class GenerateScreensCommand {
       return;
     }
 
-    // Check if Gemini client is available
-    if (!this.geminiClient.hasApiKey()) {
-      this.spinner.fail("Gemini API key not found");
+    // Check if AI client is available (has at least one provider)
+    const providerName = await this.ai.getActiveProviderName();
+    if (providerName === "unknown") {
+      this.spinner.fail("No AI providers configured");
       console.log(
         chalk.red(
-          "\n❌ Gemini API key not found. Set GEMINI_API_KEY in .mycontext/.env"
-        )
-      );
-      console.log(
-        chalk.blue(
-          "\n💡 Get your free API key at: https://aistudio.google.com/apikey"
+          "\n❌ No AI providers configured. Set GITHUB_TOKEN or GEMINI_API_KEY."
         )
       );
       return;
@@ -196,14 +200,15 @@ export class GenerateScreensCommand {
     screenName: string | undefined,
     context: any,
     options: ScreenGenerationOptions
-  ): Promise<Array<{ name: string; prompt: string }>> {
-    const screens: Array<{ name: string; prompt: string }> = [];
+  ): Promise<ScreenToGenerate[]> {
+    const screens: ScreenToGenerate[] = [];
 
     if (screenName) {
       // Generate specific screen
       screens.push({
         name: screenName,
         prompt: `Generate a ${screenName} screen for this application`,
+        group: options.group || "custom",
       });
     } else if (options.all) {
       // Generate all screens from flows
@@ -212,14 +217,15 @@ export class GenerateScreensCommand {
         screens.push({
           name,
           prompt: `Generate a ${name} screen for this application`,
+          group: "flow",
         });
       });
     } else {
       // Generate common screens
       screens.push(
-        { name: "home", prompt: "Generate a home/landing page" },
-        { name: "login", prompt: "Generate a login screen" },
-        { name: "dashboard", prompt: "Generate a dashboard screen" }
+        { name: "home", prompt: "Generate a home/landing page", group: "core" },
+        { name: "login", prompt: "Generate a login screen", group: "core" },
+        { name: "dashboard", prompt: "Generate a dashboard screen", group: "core" }
       );
     }
 
@@ -254,50 +260,59 @@ export class GenerateScreensCommand {
    * Generate a single screen
    */
   private async generateScreen(
-    screen: { name: string; prompt: string },
+    screen: ScreenToGenerate,
     context: any,
     screensDir: string,
     options: ScreenGenerationOptions
   ): Promise<ScreenMetadata> {
     const includeScreenshot = options.format?.includes("png") || options.includeScreenshot || false;
+    const format = options.format || "html";
 
-    // Generate visual screen using Gemini
-    const result = await this.geminiClient.generateVisualScreen(
-      screen.prompt,
-      context,
-      { includeScreenshot }
-    );
+    // Build prompt based on format
+    let finalPrompt = screen.prompt;
+    if (format === "jsx") {
+      finalPrompt += ". Use React, Tailwind CSS, and Lucide/Radix components. Export as a default functional component.";
+    }
+
+    // Generate visual screen using HybridAIClient
+    let result;
+    if (format === "html") {
+      // For HTML, we can still use Gemini if available for best visual results, or fallback to generic text
+      const provider = await this.ai.getActiveProviderName();
+      if (provider === "gemini") {
+        const gemini = (this.ai as any).providers.find((p: any) => p.name === "gemini").client;
+        result = await gemini.generateVisualScreen(finalPrompt, context, { includeScreenshot });
+      } else {
+        const response = await this.ai.generateText(this.buildVisualHtmlPrompt(finalPrompt, context), options);
+        result = {
+          html: this.extractCodeBlock(response.text, "html"),
+          metadata: { model: response.provider, timestamp: new Date().toISOString() }
+        };
+      }
+    } else {
+      // JSX format
+      const response = await this.ai.generateText(this.buildVisualJsxPrompt(finalPrompt, context), options);
+      result = {
+        html: this.extractCodeBlock(response.text, "tsx") || this.extractCodeBlock(response.text, "jsx") || response.text,
+        metadata: { model: response.provider, timestamp: new Date().toISOString() }
+      };
+    }
 
     // Create screen directory
     const screenDir = path.join(screensDir, screen.name);
     await fs.ensureDir(screenDir);
 
-    // Save HTML
-    const htmlPath = path.join(screenDir, "index.html");
-    await fs.writeFile(htmlPath, result.html, "utf8");
+    // Save File
+    const fileName = format === "jsx" ? "index.tsx" : "index.html";
+    const filePath = path.join(screenDir, fileName);
+    await fs.writeFile(filePath, result.html, "utf8");
 
     // Save screenshot if generated
-    if (result.screenshot) {
+    if ((result as any).screenshot) {
       const pngPath = path.join(screenDir, "preview.png");
-      const buffer = Buffer.from(result.screenshot, "base64");
+      const buffer = Buffer.from((result as any).screenshot, "base64");
       await fs.writeFile(pngPath, buffer);
     }
-
-    // Save context metadata
-    const contextPath = path.join(screenDir, "context.json");
-    await fs.writeFile(
-      contextPath,
-      JSON.stringify(
-        {
-          prd: context.prd?.substring(0, 1000),
-          brand: context.brand?.substring(0, 500),
-          sampleData: context.sampleData,
-        },
-        null,
-        2
-      ),
-      "utf8"
-    );
 
     // Save generation metadata
     const metadataPath = path.join(screenDir, "metadata.json");
@@ -306,14 +321,34 @@ export class GenerateScreensCommand {
       prompt: screen.prompt,
       model: result.metadata.model,
       timestamp: result.metadata.timestamp,
-      format: ["html", result.screenshot ? "png" : null].filter(
+      format: [format, (result as any).screenshot ? "png" : null].filter(
         Boolean
       ) as string[],
       path: screenDir,
+      group: (screen as any).group,
     };
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), "utf8");
 
     return metadata;
+  }
+
+  private buildVisualHtmlPrompt(userPrompt: string, context: any): string {
+    return `Generate a production-ready HTML page with Tailwind CSS based on: ${userPrompt}. 
+Context: ${JSON.stringify({ prd: context.prd?.substring(0, 500) })}. 
+Return ONLY the HTML code wrapped in \`\`\`html blocks.`;
+  }
+
+  private buildVisualJsxPrompt(userPrompt: string, context: any): string {
+    return `Generate a production-ready React component (TSX) using Tailwind CSS for this screen: ${userPrompt}. 
+Context: ${JSON.stringify({ prd: context.prd?.substring(0, 500) })}. 
+Use Lucide icons and shadcn/ui patterns.
+Return ONLY the TSX code wrapped in \`\`\`tsx blocks.`;
+  }
+
+  private extractCodeBlock(content: string, lang: string): string {
+    const pattern = new RegExp(`\`\`\`${lang}\\n([\\s\\S]*?)\\n\`\`\``);
+    const match = content.match(pattern);
+    return match ? match[1].trim() : content;
   }
 
   /**
@@ -364,10 +399,12 @@ export class GenerateScreensCommand {
     screensDir: string,
     screen: ScreenMetadata
   ): Promise<void> {
-    const htmlPath = path.join(screen.path, "index.html");
+    if (!screen) return;
+    const fileName = screen.format.includes("jsx") ? "index.tsx" : "index.html";
+    const filePath = path.join(screen.path, fileName);
 
-    if (!fs.existsSync(htmlPath)) {
-      logger.warn("HTML file not found, cannot open in browser");
+    if (!fs.existsSync(filePath)) {
+      logger.warn("HTML/JSX file not found, cannot open in browser");
       return;
     }
 
@@ -382,10 +419,10 @@ export class GenerateScreensCommand {
           ? "start"
           : "xdg-open";
 
-      await execAsync(`${command} "${htmlPath}"`);
+      await execAsync(`${command} "${filePath}"`);
     } catch (error) {
       logger.warn("Could not auto-open browser:", error);
-      console.log(chalk.gray(`\n💡 Manually open: ${htmlPath}`));
+      console.log(chalk.gray(`\n💡 Manually open: ${filePath}`));
     }
   }
 }
@@ -403,9 +440,10 @@ export function registerGenerateScreensCommand(program: Command): void {
     .option("-a, --all", "Generate all screens from user flows")
     .option(
       "-f, --format <formats>",
-      "Output formats: html, png, or both",
+      "Output formats: html, png, jsx, or both",
       "html"
     )
+    .option("-g, --group <name>", "Group name for the screen")
     .option(
       "-o, --output <path>",
       "Output directory (default: .mycontext/screens)"
