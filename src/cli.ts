@@ -35,6 +35,7 @@ import { HealthCheckCommand } from "./commands/health-check";
 import { DesignAnalyzeCommand } from "./commands/design-analyze";
 import { AnalyzeScreenshotCommand } from "./commands/analyze-screenshot";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
+import { registerTestCommands } from "./commands/test";
 
 // Import sub-agent system
 import { orchestrator } from "./agents/orchestrator/SubAgentOrchestrator";
@@ -187,6 +188,9 @@ registerGenerateComponentsManifestCommand(program);
 
 // Generate actions command (UI-backend action hooks)
 registerGenerateActionsCommand(program);
+
+// Test commands (UI flow testing with AI)
+registerTestCommands(program);
 
 // Compile PRD command
 program

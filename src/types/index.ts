@@ -757,3 +757,17 @@ export * from "./feature-bundle";
 
 // Role Permission Types (excluding members already exported from feature-bundle)
 export type { Role, RoleHierarchy } from "./role-permissions";
+
+// Flow Testing Types (excluding ValidationRule which conflicts with feature-bundle)
+export type {
+  TestMission,
+  TestExecutionResult,
+  TestStep,
+  TestStatus,
+  ValidationResult,
+  TestReport,
+  TestMissionsStorage,
+  BrowserConfig,
+  TestGenerationOptions,
+  InteractiveTestSession,
+} from "./flow-testing";
