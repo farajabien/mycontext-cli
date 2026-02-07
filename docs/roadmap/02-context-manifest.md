@@ -100,6 +100,14 @@ interface ContextManifest {
   // Context Files
   contextFiles: ContextFile[];
 
+  // Test Missions (Flow Testing MCP integration)
+  testMissions?: {
+    total: number;
+    passing: number;
+    failing: number;
+    lastRun?: string;
+  };
+
   // Stats
   stats: ProjectStats;
 
@@ -621,7 +629,8 @@ class ContextManager {
 
 ## Related Documentation
 
-- [MCP Server Implementation](./01-mcp-server.md) - How manifest is consumed
+- [Context MCP Server Implementation](./01-mcp-server.md) - How manifest is consumed
+- [Flow Testing MCP Server](./06-flow-testing-mcp.md) - Test missions integration
 - [Structured Formats](./03-structured-formats.md) - JSON format for context files
 - [Dependency Graph](./04-dependency-graph.md) - How dependencies are tracked
 
@@ -631,4 +640,4 @@ class ContextManager {
 **Priority**: P0 (Critical)
 **Effort**: 3 days
 **Dependencies**: None (foundational)
-**Last Updated**: February 6, 2024
+**Last Updated**: February 7, 2026

@@ -743,6 +743,7 @@ mycontext tasks:report --format markdown > weekly-report.md
 
 - [Context Manifest](./02-context-manifest.md) - Source data for task generation
 - [Dependency Graph](./04-dependency-graph.md) - Used for task dependencies
+- [Flow Testing MCP Server](./06-flow-testing-mcp.md) - Test creation as a task type
 - [Implementation Priority](./implementation-priority.md) - Development timeline
 
 ---
@@ -751,4 +752,4 @@ mycontext tasks:report --format markdown > weekly-report.md
 **Priority**: P2 (Important)
 **Effort**: 3 days
 **Dependencies**: Context Manifest, Dependency Graph
-**Last Updated**: February 6, 2024
+**Last Updated**: February 7, 2026

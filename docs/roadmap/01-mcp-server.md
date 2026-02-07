@@ -1,10 +1,16 @@
-# MCP Server Implementation
+# Context MCP Server Implementation
 
 **Status**: 📋 Planned | **Priority**: P0 (Critical) | **Effort**: 2 weeks
 
-## What is the MCP Server?
+> **Note**: This document describes the **Context MCP Server** for querying project context. For the completed **Flow Testing MCP Server**, see [Flow Testing MCP](./06-flow-testing-mcp.md).
 
-The **Model Context Protocol (MCP) Server** is a standardized way for AI coding assistants like Claude Code to query and interact with development tools in real-time.
+## What is the Context MCP Server?
+
+The **Context Model Context Protocol (MCP) Server** is a standardized way for AI coding assistants like Claude Code to query and interact with project context and specifications in real-time.
+
+This is **separate** from the Flow Testing MCP Server:
+- **Context MCP Server** (this document): Queries project context, specs, components
+- **Flow Testing MCP Server** ([completed](./06-flow-testing-mcp.md)): Tests UI flows and user interactions
 
 Instead of AI tools manually reading files, they can **query** the MyContext MCP server:
 
@@ -549,7 +555,8 @@ describe('MCP Server', () => {
 
 ## Related Documentation
 
-- [Context Manifest Specification](./02-context-manifest.md) - What the MCP server reads
+- [Flow Testing MCP Server](./06-flow-testing-mcp.md) - Completed companion MCP server for UI testing
+- [Context Manifest Specification](./02-context-manifest.md) - What the Context MCP server reads
 - [Implementation Priority](./implementation-priority.md) - Development schedule
 - [Contributing Guide](../contributing/development-setup.md) - How to contribute
 
@@ -559,4 +566,4 @@ describe('MCP Server', () => {
 **Priority**: P0 (Critical)
 **Effort**: 2 weeks
 **Dependencies**: Context Manifest, JSON schemas
-**Last Updated**: February 6, 2024
+**Last Updated**: February 7, 2026

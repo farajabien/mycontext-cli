@@ -588,7 +588,87 @@ Transform MyContext context files from **markdown** to **structured JSON** with 
 }
 ```
 
-### 5. Technical Specifications (`specs.json`)
+### 5. Test Missions (`test-missions.json`)
+
+> **Note**: This schema is implemented and in use by the [Flow Testing MCP Server](./06-flow-testing-mcp.md).
+
+**Schema**:
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Missions Storage",
+  "type": "object",
+  "required": ["version", "missions"],
+  "properties": {
+    "version": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "missions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "mission", "expectedOutcome"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "mission": { "type": "string" },
+          "expectedOutcome": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "sourceFlow": { "type": "string" },
+          "validationRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["url-match", "element-exists", "text-contains", "element-visible"]
+                },
+                "description": { "type": "string" },
+                "selector": { "type": "string" },
+                "expectedValue": { "type": "string" }
+              }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "executionHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "missionId": { "type": "string" },
+          "executions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "executionId": { "type": "string" },
+                "status": {
+                  "type": "string",
+                  "enum": ["passed", "failed", "error", "running"]
+                },
+                "startedAt": { "type": "string", "format": "date-time" },
+                "completedAt": { "type": "string", "format": "date-time" },
+                "duration": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 6. Technical Specifications (`specs.json`)
 
 **Schema**:
 ```json
@@ -935,13 +1015,14 @@ export interface Feature {
 ## Related Documentation
 
 - [Context Manifest](./02-context-manifest.md) - Uses JSON schemas
-- [MCP Server](./01-mcp-server.md) - Consumes JSON files
+- [Context MCP Server](./01-mcp-server.md) - Consumes JSON files
+- [Flow Testing MCP Server](./06-flow-testing-mcp.md) - Uses test-missions.json schema
 - [Implementation Priority](./implementation-priority.md) - Timeline
 
 ---
 
-**Status**: 📋 Planned
+**Status**: 📋 Planned (test-missions.json ✅ Implemented)
 **Priority**: P1 (Important)
 **Effort**: 1 week
 **Dependencies**: Context Manifest
-**Last Updated**: February 6, 2024
+**Last Updated**: February 7, 2026

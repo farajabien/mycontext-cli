@@ -810,7 +810,8 @@ mycontext graph:impact Button
 ## Related Documentation
 
 - [Context Manifest](./02-context-manifest.md) - Where dependency graph is stored
-- [MCP Server](./01-mcp-server.md) - How dependencies are queried
+- [Context MCP Server](./01-mcp-server.md) - How dependencies are queried
+- [Flow Testing MCP Server](./06-flow-testing-mcp.md) - Test missions can link to user flows
 - [Implementation Priority](./implementation-priority.md) - Development timeline
 
 ---
@@ -819,4 +820,4 @@ mycontext graph:impact Button
 **Priority**: P2 (Important)
 **Effort**: 4 days
 **Dependencies**: Context Manifest
-**Last Updated**: February 6, 2024
+**Last Updated**: February 7, 2026
