@@ -49,6 +49,10 @@ export class TestReporter {
       },
       insights: this.generateInsights(execution),
       recommendations: this.generateRecommendations(execution),
+      driftReport: execution.driftAnalysis ? {
+        overallScore: execution.driftAnalysis.narrativeCompliance,
+        criticalAlerts: execution.driftAnalysis.alerts.filter(a => a.severity === 'high').length
+      } : undefined
     };
 
     // Save report to disk
@@ -200,6 +204,27 @@ export class TestReporter {
       lines.push("");
       report.recommendations.forEach((rec) => lines.push(`- ${rec}`));
       lines.push("");
+    }
+
+    // Drift Analysis
+    if (report.driftReport) {
+      lines.push("## Drift Analysis (Antigravity Grounding)");
+      lines.push("");
+      lines.push(`- **Narrative Compliance**: ${(report.driftReport.overallScore * 100).toFixed(1)}%`);
+      lines.push(`- **Critical Deviations**: ${report.driftReport.criticalAlerts}`);
+      lines.push("");
+      
+      if (report.execution.driftAnalysis && report.execution.driftAnalysis.alerts.length > 0) {
+        lines.push("### Drift Alerts");
+        lines.push("");
+        report.execution.driftAnalysis.alerts.forEach(alert => {
+          const icon = alert.severity === 'high' ? '🚨' : alert.severity === 'medium' ? '⚠️' : 'ℹ️';
+          lines.push(`${icon} **[${alert.type.toUpperCase()}]** ${alert.message}`);
+          lines.push(`  - **Expected**: ${alert.expected}`);
+          lines.push(`  - **Actual**: ${alert.actual}`);
+          lines.push("");
+        });
+      }
     }
 
     return lines.join("\n");

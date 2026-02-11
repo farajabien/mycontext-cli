@@ -38,6 +38,11 @@ export class MyContextAIClient implements AIClient {
       this.apiKey = myContextApiKey;
       this.isHostedAPI = true;
       this.modelId = "mycontext-ai"; // Hosted model alias
+    } else if (process.env.GITHUB_TOKEN) {
+      // GitHub Models (via Azure AI)
+      this.apiKey = process.env.GITHUB_TOKEN;
+      this.modelId = modelId || "gpt-4o";
+      this.isHostedAPI = false;
     } else {
       // Self-hosted fine-tuned model
       this.modelId =
@@ -53,6 +58,12 @@ export class MyContextAIClient implements AIClient {
         apiKey: this.apiKey,
         // Future: baseURL for hosted API
         ...(this.isHostedAPI && { baseURL: "https://api.mycontext.dev/v1" }),
+        // GitHub Models endpoint
+        ...(!!process.env.GITHUB_TOKEN &&
+          !process.env.MYCONTEXT_API_KEY &&
+          !process.env.OPENAI_API_KEY && {
+            baseURL: "https://models.inference.ai.azure.com",
+          }),
       });
     }
   }

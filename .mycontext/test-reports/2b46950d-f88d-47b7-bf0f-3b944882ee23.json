@@ -1,0 +1,170 @@
+{
+  "reportId": "2b46950d-f88d-47b7-bf0f-3b944882ee23",
+  "mission": {
+    "id": "update-cv-flow",
+    "name": "Update CV Flow",
+    "description": "Test the complete 'Refresh My CV' workflow including upload, processing, and download",
+    "mission": "Test the Update CV flow: Navigate to localhost:3000, click 'Refresh My CV' button to switch modes, upload a CV file by clicking the upload area, enter update notes 'Promoted to Senior Engineer in December 2024. Led team of 5 developers. Reduced API latency by 40% through optimization', click 'Refresh This CV' button, handle authentication by choosing 'Continue as Guest', wait for processing to complete, navigate to 'My CVs' page by clicking the 'My CVs' button in the header, find the newest CV card, click to preview it, and download the CV file",
+    "expectedOutcome": "CV is successfully updated, processed, appears in My CVs page, can be previewed and downloaded",
+    "validationRules": [
+      {
+        "type": "element-visible",
+        "description": "Mode toggle buttons should be visible",
+        "selector": "button"
+      },
+      {
+        "type": "element-exists",
+        "description": "File upload area should exist",
+        "selector": "[type='file']"
+      },
+      {
+        "type": "element-visible",
+        "description": "Update notes textarea should be visible"
+      },
+      {
+        "type": "element-visible",
+        "description": "Refresh This CV button should be visible"
+      },
+      {
+        "type": "url-match",
+        "description": "Should navigate to My CVs page",
+        "expectedValue": "/my-cvs"
+      },
+      {
+        "type": "element-visible",
+        "description": "CV card should be visible in My CVs"
+      }
+    ],
+    "tags": [
+      "update",
+      "cv-upload",
+      "processing",
+      "auth",
+      "download"
+    ],
+    "createdAt": "2026-02-08T09:04:33.604Z",
+    "updatedAt": "2026-02-08T09:04:33.604Z",
+    "startUrl": "http://localhost:3000",
+    "testData": {
+      "cvFileName": "sample-cv.pdf",
+      "updateNotes": "Promoted to Senior Engineer in December 2024. Led team of 5 developers. Reduced API latency by 40% through optimization. Added new skills: TypeScript, Next.js, System Design."
+    }
+  },
+  "execution": {
+    "missionId": "update-cv-flow",
+    "executionId": "2b46950d-f88d-47b7-bf0f-3b944882ee23",
+    "status": "failed",
+    "startedAt": "2026-02-08T09:34:50.810Z",
+    "completedAt": "2026-02-08T09:35:29.924Z",
+    "duration": 39114,
+    "steps": [
+      {
+        "id": "c8a4b6ae-dbce-4807-a699-ae6742f4853f",
+        "order": 0,
+        "action": "click: Refresh My CV",
+        "intent": "switching to refresh mode to start the CV update process",
+        "timestamp": "2026-02-08T09:34:55.739Z",
+        "success": true,
+        "metadata": {
+          "clickedElement": "text=\"Refresh My CV\"",
+          "url": "http://localhost:3000/"
+        },
+        "screenshot": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli-standalone/.mycontext/test-screenshots/2b46950d-f88d-47b7-bf0f-3b944882ee23-step-0.png"
+      },
+      {
+        "id": "9a2d7877-714d-4629-9cba-89be0538cfc9",
+        "order": 1,
+        "action": "click: input[type='file']",
+        "intent": "opening the file upload dialog to upload a CV file",
+        "timestamp": "2026-02-08T09:34:59.617Z",
+        "success": false,
+        "error": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\\'file\\']')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"file\" class=\"hidden\" accept=\".pdf,.docx,.doc\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    56 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n"
+      }
+    ],
+    "validationResults": [
+      {
+        "rule": {
+          "type": "element-visible",
+          "description": "Mode toggle buttons should be visible",
+          "selector": "button"
+        },
+        "passed": true,
+        "message": "Element visible: button",
+        "timestamp": "2026-02-08T09:35:29.640Z"
+      },
+      {
+        "rule": {
+          "type": "element-exists",
+          "description": "File upload area should exist",
+          "selector": "[type='file']"
+        },
+        "passed": true,
+        "message": "Element exists: [type='file']",
+        "timestamp": "2026-02-08T09:35:29.658Z"
+      },
+      {
+        "rule": {
+          "type": "element-visible",
+          "description": "Update notes textarea should be visible"
+        },
+        "passed": false,
+        "message": "Validation error: page.$: Unexpected token \"\" while parsing css selector \"\". Did you mean to CSS.escape it?",
+        "timestamp": "2026-02-08T09:35:29.662Z"
+      },
+      {
+        "rule": {
+          "type": "element-visible",
+          "description": "Refresh This CV button should be visible"
+        },
+        "passed": false,
+        "message": "Validation error: page.$: Unexpected token \"\" while parsing css selector \"\". Did you mean to CSS.escape it?",
+        "timestamp": "2026-02-08T09:35:29.664Z"
+      },
+      {
+        "rule": {
+          "type": "url-match",
+          "description": "Should navigate to My CVs page",
+          "expectedValue": "/my-cvs"
+        },
+        "passed": false,
+        "message": "URL doesn't match. Expected: /my-cvs, Got: http://localhost:3000/",
+        "timestamp": "2026-02-08T09:35:29.667Z",
+        "actualValue": "http://localhost:3000/"
+      },
+      {
+        "rule": {
+          "type": "element-visible",
+          "description": "CV card should be visible in My CVs"
+        },
+        "passed": false,
+        "message": "Validation error: page.$: Unexpected token \"\" while parsing css selector \"\". Did you mean to CSS.escape it?",
+        "timestamp": "2026-02-08T09:35:29.667Z"
+      }
+    ],
+    "finalState": {
+      "url": "http://localhost:3000/",
+      "screenshot": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli-standalone/.mycontext/test-screenshots/2b46950d-f88d-47b7-bf0f-3b944882ee23-final.png",
+      "dom": "Interactive elements:\nButton: Tailor for a Job\nButton: Refresh My CV\nButton: Reset all\nButton: Refresh This CV\nButton: \nButton: \nLink: Terms\nLink: Privacy\nInput: file ()\nInput: text (e.g., Senior Product Designer)"
+    },
+    "aiNotes": "Executed 2 steps (1 successful, 1 failed). Validated 2/6 criteria."
+  },
+  "generatedAt": "2026-02-08T09:35:29.977Z",
+  "summary": {
+    "totalSteps": 2,
+    "successfulSteps": 1,
+    "failedSteps": 1,
+    "totalValidations": 6,
+    "passedValidations": 2,
+    "failedValidations": 4,
+    "overallStatus": "failed"
+  },
+  "insights": [
+    "Test took 39s - consider optimization",
+    "67% of validations failed - review expected outcomes"
+  ],
+  "recommendations": [
+    "Review failed steps: click: input[type='file']",
+    "Update validation rules or fix issues causing failures",
+    "Consider adding explicit waits or optimizing selectors"
+  ]
+}

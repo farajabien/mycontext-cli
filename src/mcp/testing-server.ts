@@ -24,13 +24,18 @@ import {
 import { TestMissionManager } from "./test-mission-manager";
 import { BrowserTestRunner } from "./browser-test-runner";
 import { TestReporter } from "./test-reporter";
+import { ProbeManager } from "../services/ProbeManager";
+import { ContextService } from "../services/ContextService";
 import * as path from "path";
+import chalk from "chalk";
 
 export class FlowTestingMCPServer {
   private server: Server;
   private missionManager: TestMissionManager;
   private testRunner: BrowserTestRunner;
   private reporter: TestReporter;
+  private probeManager: ProbeManager;
+  private contextService: ContextService;
   private projectPath: string;
 
   constructor(projectPath?: string) {
@@ -52,6 +57,8 @@ export class FlowTestingMCPServer {
     this.missionManager = new TestMissionManager(this.projectPath);
     this.testRunner = new BrowserTestRunner(this.projectPath);
     this.reporter = new TestReporter(this.projectPath);
+    this.probeManager = new ProbeManager(this.projectPath);
+    this.contextService = new ContextService(this.projectPath);
 
     this.setupToolHandlers();
   }
@@ -78,6 +85,10 @@ export class FlowTestingMCPServer {
             return await this.handleListTestMissions(args);
           case "get_test_report":
             return await this.handleGetTestReport(args);
+          case "run_probe":
+            return await this.handleRunProbe(args);
+          case "query_context":
+            return await this.handleQueryContext(args);
           case "record_flow":
             return await this.handleRecordFlow(args);
           case "watch_tests":
@@ -216,6 +227,30 @@ export class FlowTestingMCPServer {
         },
       },
       {
+        name: "run_probe",
+        description: "Execute a repository interrogation script (e.g., find, grep, lint) to get ground truth state",
+        inputSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Name of the probe" },
+            command: { type: "string", description: "The shell command to execute" },
+            description: { type: "string", description: "What this probe is looking for" },
+          },
+          required: ["name", "command"],
+        },
+      },
+      {
+        name: "query_context",
+        description: "Query the design-manifest.json for project anchors, intent, and visual specs",
+        inputSchema: {
+          type: "object",
+          properties: {
+            path: { type: "string", description: "The path in the manifest to query (e.g., 'phases.visual_system')" },
+          },
+          required: ["path"],
+        },
+      },
+      {
         name: "record_flow",
         description:
           "Start interactive recording mode to learn a flow by observing user actions",
@@ -268,6 +303,24 @@ export class FlowTestingMCPServer {
       startUrl,
     } = args;
 
+    // Milestone 3: Grounding Pre-hook
+    await this.contextService.initialize();
+    const manifest = this.contextService.getManifest();
+    if (manifest) {
+      const grounding = await this.contextService.validateIntent(mission);
+      if (!grounding.valid) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `⚠️ MISSION REJECTED: Your mission "${mission}" deviates from the Project's Prime Objective: "${manifest.phases.functional_summary.core_purpose}".\n\nREASON: ${grounding.reason}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+
     const newMission = await this.missionManager.createMission({
       name,
       mission,
@@ -311,6 +364,13 @@ mycontext test:run ${newMission.name}
 
     if (!mission) {
       throw new Error(`Mission not found: ${missionId}`);
+    }
+
+    // Milestone 3: Pre-flight Grounding
+    await this.contextService.initialize();
+    const manifest = this.contextService.getManifest();
+    if (manifest) {
+      console.log(chalk.blue(`🛰️  Pre-flight Grounding: Anchoring mission to "${manifest.project_name}"`));
     }
 
     // Execute the test
@@ -403,6 +463,54 @@ get_test_report(executionId: "${result.executionId}")
         {
           type: "text" as const,
           text: output,
+        },
+      ],
+    };
+  }
+
+  private async handleRunProbe(args: any) {
+    const { name, command, description = "" } = args;
+    const result = await this.probeManager.runProbe({
+      name,
+      command,
+      description,
+      category: "custom",
+    });
+
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: `🔍 Probe Results: ${name}
+          
+Status: ${result.success ? "✅ Success" : "❌ Failed"}
+Output:
+\`\`\`
+${result.output || "No output"}
+\`\`\`
+${result.error ? `Error: \n\`\`\`\n${result.error}\n\`\`\`` : ""}
+`,
+        },
+      ],
+    };
+  }
+
+  private async handleQueryContext(args: any) {
+    const { path: queryPath } = args;
+    await this.contextService.initialize();
+    const result = await this.contextService.queryContext({ path: queryPath });
+
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: `📖 Manifest Query: ${queryPath}
+          
+Result:
+\`\`\`json
+${JSON.stringify(result, null, 2)}
+\`\`\`
+`,
         },
       ],
     };

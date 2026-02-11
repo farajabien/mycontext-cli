@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  global: link:../../../../Library/pnpm/global/5/node_modules/global
+
 importers:
 
   .:
@@ -59,6 +62,9 @@ importers:
       glob:
         specifier: ^10.3.10
         version: 10.4.5
+      global:
+        specifier: link:../../../../Library/pnpm/global/5/node_modules/global
+        version: link:../../../../Library/pnpm/global/5/node_modules/global
       gradient-string:
         specifier: ^3.0.0
         version: 3.0.0

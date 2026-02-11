@@ -1,0 +1,168 @@
+{
+  "version": "1.0.0",
+  "projectName": "TailorYourCV",
+  "projectUrl": "http://localhost:3000",
+  "description": "Test missions for TailorYourCV application - The CV Laundry",
+  "createdAt": "2026-02-07",
+  "missions": [
+    {
+      "id": "update-cv-flow",
+      "name": "Update CV Flow",
+      "description": "Test the complete 'Refresh My CV' workflow including upload, processing, and download",
+      "mission": "Test the Update CV flow: Navigate to localhost:3000, click 'Refresh My CV' button to switch modes, upload a CV file by clicking the upload area, enter update notes 'Promoted to Senior Engineer in December 2024. Led team of 5 developers. Reduced API latency by 40% through optimization', click 'Refresh This CV' button, handle authentication by choosing 'Continue as Guest', wait for processing to complete, navigate to 'My CVs' page by clicking the 'My CVs' button in the header, find the newest CV card, click to preview it, and download the CV file",
+      "expectedOutcome": "CV is successfully updated, processed, appears in My CVs page, can be previewed and downloaded",
+      "startUrl": "http://localhost:3000",
+      "tags": ["update", "cv-upload", "processing", "auth", "download"],
+      "validationRules": [
+        {
+          "type": "element-visible",
+          "description": "Mode toggle buttons should be visible",
+          "selector": "button"
+        },
+        {
+          "type": "element-exists",
+          "description": "File upload area should exist",
+          "selector": "[type='file']"
+        },
+        {
+          "type": "element-visible",
+          "description": "Update notes textarea should be visible"
+        },
+        {
+          "type": "element-visible",
+          "description": "Refresh This CV button should be visible"
+        },
+        {
+          "type": "url-match",
+          "description": "Should navigate to My CVs page",
+          "expectedValue": "/my-cvs"
+        },
+        {
+          "type": "element-visible",
+          "description": "CV card should be visible in My CVs"
+        }
+      ],
+      "testData": {
+        "cvFileName": "sample-cv.pdf",
+        "updateNotes": "Promoted to Senior Engineer in December 2024. Led team of 5 developers. Reduced API latency by 40% through optimization. Added new skills: TypeScript, Next.js, System Design."
+      }
+    },
+    {
+      "id": "tailor-cv-flow",
+      "name": "Tailor CV Flow",
+      "description": "Test the complete 'Tailor for a Job' workflow including JD input, processing, payment, and download",
+      "mission": "Test the Tailor CV flow: Navigate to localhost:3000, ensure 'Tailor for a Job' mode is selected, upload CV if not already persisted by clicking the upload area, paste job description 'We are seeking a Senior Full-Stack Engineer with expertise in React, Next.js, TypeScript, and Node.js. The ideal candidate will have 5+ years of experience building scalable web applications, strong problem-solving skills, and experience with cloud platforms like AWS or Vercel. You will lead technical architecture decisions and mentor junior developers', click 'Tailor for this Job' button, complete authentication as guest, wait for processing, on preview page handle payment by entering test card number 4242 4242 4242 4242, expiry 12/25, CVC 123, complete payment, and download both CV and cover letter files",
+      "expectedOutcome": "CV is tailored for the job, payment is processed successfully, CV and cover letter are downloadable",
+      "startUrl": "http://localhost:3000",
+      "tags": ["tailor", "job-description", "payment", "download", "cover-letter"],
+      "validationRules": [
+        {
+          "type": "element-visible",
+          "description": "Tailor for a Job button should be selected"
+        },
+        {
+          "type": "element-visible",
+          "description": "Job description textarea should be visible"
+        },
+        {
+          "type": "element-visible",
+          "description": "Tailor for this Job button should be clickable"
+        },
+        {
+          "type": "text-contains",
+          "description": "Processing page should show progress",
+          "expectedValue": "Processing"
+        },
+        {
+          "type": "element-exists",
+          "description": "Payment form should appear"
+        },
+        {
+          "type": "element-visible",
+          "description": "Download button should be visible after payment"
+        }
+      ],
+      "testData": {
+        "cvFileName": "sample-cv.pdf",
+        "jobDescription": "We are seeking a Senior Full-Stack Engineer with expertise in React, Next.js, TypeScript, and Node.js. The ideal candidate will have 5+ years of experience building scalable web applications, strong problem-solving skills, and experience with cloud platforms like AWS or Vercel. You will lead technical architecture decisions and mentor junior developers. Requirements: React 18+, Next.js 14+, TypeScript, Node.js, AWS/Vercel, PostgreSQL or MongoDB, REST and GraphQL APIs, Git, CI/CD pipelines. Nice to have: System design experience, open source contributions, technical blog writing.",
+        "jobTitle": "Senior Full-Stack Engineer",
+        "testCard": {
+          "number": "4242424242424242",
+          "expiry": "12/25",
+          "cvc": "123"
+        }
+      }
+    },
+    {
+      "id": "e2e-flow",
+      "name": "End-to-End Complete Flow",
+      "description": "Test both Update and Tailor flows in sequence to validate complete application workflow",
+      "mission": "Execute both CV flows end-to-end: First perform the Update CV flow by navigating to localhost:3000, switching to 'Refresh My CV' mode, uploading CV, entering update notes 'Promoted to Senior Engineer. Led team of 5. Reduced latency by 40%', clicking Refresh, authenticating as guest, waiting for processing, going to My CVs page, previewing and downloading. Then return to home page, switch to 'Tailor for a Job' mode, paste job description 'Senior React Developer with Next.js and TypeScript experience required', click Tailor, process the request, handle payment with card 4242 4242 4242 4242, and download. Finally verify both CVs appear in My CVs with different purposes",
+      "expectedOutcome": "Both Update and Tailor flows complete successfully, two CVs exist in My CVs with different metadata, both are downloadable, job description is saved and viewable",
+      "startUrl": "http://localhost:3000",
+      "tags": ["end-to-end", "update", "tailor", "complete-workflow"],
+      "validationRules": [
+        {
+          "type": "element-visible",
+          "description": "Mode toggle should work for both modes"
+        },
+        {
+          "type": "url-match",
+          "description": "Should navigate through all pages",
+          "expectedValue": "/my-cvs"
+        },
+        {
+          "type": "element-exists",
+          "description": "Multiple CV cards should exist in My CVs"
+        },
+        {
+          "type": "element-visible",
+          "description": "View JD button should be visible for tailored CV"
+        },
+        {
+          "type": "element-visible",
+          "description": "Download buttons should be available for both CVs"
+        }
+      ],
+      "testData": {
+        "cvFileName": "sample-cv.pdf",
+        "updateNotes": "Promoted to Senior Engineer in December 2024. Led team of 5. Reduced latency by 40%.",
+        "jobDescription": "Senior React Developer with 5+ years experience. Must have expertise in Next.js, TypeScript, React 18+, state management (Redux/Zustand), and modern frontend tooling. Experience with Node.js backend and REST APIs is a plus.",
+        "jobTitle": "Senior React Developer",
+        "testCard": {
+          "number": "4242424242424242",
+          "expiry": "12/25",
+          "cvc": "123"
+        }
+      }
+    }
+  ],
+  "setup": {
+    "prerequisites": [
+      "TailorYourCV application running on localhost:3000",
+      "Valid API keys configured in .env file",
+      "InstantDB configured and accessible",
+      "Sample CV file available in test-fixtures directory",
+      "MyContext CLI with Flow Testing MCP installed"
+    ],
+    "browserConfig": {
+      "headless": false,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "slowMo": 500,
+      "timeout": 60000,
+      "screenshotOnFailure": true,
+      "recordVideo": false
+    }
+  },
+  "notes": [
+    "Tests use sandbox payment mode with test card 4242 4242 4242 4242",
+    "Authentication uses 'Continue as Guest' for simplicity",
+    "File upload requires a real CV file in test-fixtures",
+    "Processing may take 10-30 seconds depending on API response times",
+    "Screenshots are captured at each step for debugging",
+    "Tests should be run with --headless=false to observe AI navigation"
+  ]
+}

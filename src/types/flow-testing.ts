@@ -17,6 +17,7 @@ export interface TestMission {
   updatedAt: string;
   sourceFlow?: string; // Reference to user flow from 02-user-flows.md
   validationRules?: ValidationRule[];
+  testData?: any; // Test data like file names, credentials, etc.
 }
 
 /**
@@ -67,7 +68,21 @@ export interface TestStep {
     inputValue?: string;
     clickedElement?: string;
     navigationTarget?: string;
+    uploadedFile?: string;
+    filePath?: string;
   };
+}
+
+/**
+ * Drift Alert - Indication of divergence from project gravity
+ */
+export interface DriftAlert {
+  type: "objective" | "visual" | "logic" | "implementation";
+  severity: "low" | "medium" | "high";
+  message: string;
+  expected: string;
+  actual: string;
+  timestamp: string;
 }
 
 /**
@@ -93,6 +108,10 @@ export interface TestExecutionResult {
     step?: string;
   };
   aiNotes?: string; // Agent's summary of what happened
+  driftAnalysis?: {
+    narrativeCompliance: number; // 0.0 to 1.0
+    alerts: DriftAlert[];
+  };
 }
 
 /**
@@ -122,6 +141,10 @@ export interface TestReport {
     passedValidations: number;
     failedValidations: number;
     overallStatus: TestStatus;
+  };
+  driftReport?: {
+    overallScore: number;
+    criticalAlerts: number;
   };
   insights?: string[]; // AI-generated insights about the test
   recommendations?: string[]; // Suggestions for improvement

@@ -1,109 +1,53 @@
 {
   "version": "1.0.0",
-  "generated_at": "2025-10-08T09:35:06.805Z",
-  "project_name": "MyApp",
+  "generated_at": "2026-02-11T12:00:00Z",
+  "project_name": "MyContext CLI Standalone",
   "phases": {
     "functional_summary": {
-      "app_name": "MyApp",
-      "core_purpose": "Application for user needs",
+      "app_name": "MyContext CLI",
+      "core_purpose": "Spec-driven development anchor for AI-powered coding",
       "key_features": [
-        "User interface",
-        "Data management"
+        "Framework scaffolding",
+        "Screenshot analysis",
+        "Context generation",
+        "Narrative compliance",
+        "Living DB anchoring"
       ],
       "primary_user_actions": [
-        "View content",
-        "Interact with interface"
+        "Init project",
+        "Generate context",
+        "Analyze screenshot",
+        "Check status"
       ],
-      "platform": "Web Application",
+      "platform": "CLI (Node.js/TypeScript)",
       "technical_requirements": [
-        "Responsive Design",
-        "Modern Browser Support"
+        "Multimodal AI support",
+        "Project-local specs",
+        "Zero-dependency output for consumers"
       ],
-      "complexity_level": "low",
-      "user_personas": [
-        "End User"
-      ],
-      "business_goals": [
-        "User engagement",
-        "Task completion",
-        "User satisfaction"
-      ],
-      "success_metrics": [
-        "User adoption",
-        "Task completion rate",
-        "User satisfaction score"
-      ]
+      "complexity_level": "medium"
     },
     "project_scope": {
-      "build_scope": "single_component",
-      "reason": "Based on 2 features and low complexity",
+      "build_scope": "full_app",
+      "reason": "CLI environment with multiple interconnected command modules",
       "expected_outputs": [
-        "design tokens",
-        "component specs"
-      ],
-      "estimated_screens": 1,
-      "estimated_components": 5,
-      "development_phases": [
-        "Design",
-        "Implementation"
-      ],
-      "technical_complexity": "low"
-    },
-    "context_gaps": {
-      "missing": [
-        "visual direction",
-        "brand personality",
-        "color palette",
-        "data structures",
-        "type definitions",
-        "component specifications",
-        "UI patterns",
-        "tone guidance",
-        "accessibility requirements",
-        "interaction patterns"
-      ],
-      "recommended_next_action": "Generate comprehensive design brief with AI assistance",
-      "visual_direction_needed": true,
-      "tone_guidance_needed": true,
-      "accessibility_requirements": [
-        "WCAG 2.1 AA compliance",
-        "keyboard navigation",
-        "screen reader support"
-      ],
-      "interaction_patterns": [
-        "hover states",
-        "loading states",
-        "error handling"
-      ],
-      "brand_consistency": [
-        "color usage",
-        "typography",
-        "spacing"
+        "CLI executable",
+        "Contextual specs",
+        "Visual screens"
       ]
     },
+    "context_gaps": {
+      "missing": [],
+      "recommended_next_action": "Complete dogfooding initialization"
+    },
     "design_brief": {
-      "theme": "light",
-      "inspiration_sources": [
-        {
-          "name": "Modern SaaS",
-          "style": "clean, professional, data-focused"
-        },
-        {
-          "name": "Material Design",
-          "style": "accessible, consistent, intuitive"
-        },
-        {
-          "name": "Tailwind UI",
-          "style": "utility-first, component-based"
-        }
-      ],
-      "blended_style": "Clean, modern interface with strong visual hierarchy and consistent spacing",
-      "primary_color": "#6366F1",
+      "theme": "dark",
+      "inspiration_sources": [],
+      "blended_style": "minimalist professional",
+      "primary_color": "#3B82F6",
       "support_colors": [
-        "#F8FAFC",
-        "#1E293B",
-        "#64748B",
-        "#E2E8F0"
+        "#10B981",
+        "#EF4444"
       ],
       "typography": {
         "heading": "Inter",
@@ -111,40 +55,26 @@
         "mono": "JetBrains Mono"
       },
       "ui_principles": [
-        "clarity",
-        "consistency",
-        "accessibility",
-        "performance"
+        "Information density",
+        "Immediate feedback",
+        "Contextual clarity"
       ],
-      "motion_style": "smooth, purposeful transitions with easing",
+      "motion_style": "fast",
       "personality_keywords": [
-        "professional",
-        "clean",
-        "intuitive",
+        "precise",
+        "anchoring",
         "reliable"
       ],
-      "emotional_tone": "confident and approachable",
-      "target_audience": "End User",
-      "accessibility_focus": [
-        "high contrast",
-        "keyboard navigation",
-        "screen reader support"
-      ]
+      "emotional_tone": "empowering",
+      "target_audience": "Software Engineers"
     },
     "visual_system": {
       "colors": {
-        "primary": "#6366F1",
-        "secondary": "#1E293B",
-        "accent": "#64748B",
-        "background": "#FFFFFF",
-        "surface": "#F8FAFC",
-        "text": "#0F172A",
-        "text_muted": "#64748B",
-        "border": "#E2E8F0",
-        "success": "#10B981",
-        "warning": "#F59E0B",
-        "error": "#EF4444",
-        "info": "#3B82F6"
+        "primary": "#3B82F6",
+        "background": "#0F172A",
+        "surface": "#1E293B",
+        "text": "#F8FAFC",
+        "text_muted": "#94A3B8"
       },
       "typography": {
         "font_families": {
@@ -180,30 +110,30 @@
         "4xl": "96px"
       },
       "radii": {
-        "none": "0px",
-        "sm": "4px",
-        "md": "8px",
-        "lg": "12px",
-        "xl": "16px",
+        "none": "0",
+        "sm": "2px",
+        "md": "4px",
+        "lg": "8px",
+        "xl": "12px",
         "full": "9999px"
       },
       "shadows": {
-        "sm": "0 1px 2px rgba(0,0,0,0.05)",
-        "md": "0 4px 6px rgba(0,0,0,0.1)",
-        "lg": "0 10px 15px rgba(0,0,0,0.1)",
-        "xl": "0 20px 25px rgba(0,0,0,0.1)"
+        "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+        "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+        "xl": "0 20px 25px -5px rgb(0 0 0 / 0.1)"
       },
       "motion": {
         "duration": {
           "fast": "150ms",
-          "normal": "300ms",
-          "slow": "500ms"
+          "normal": "250ms",
+          "slow": "350ms"
         },
         "easing": {
           "linear": "linear",
-          "ease_in": "cubic-bezier(0.4,0,1,1)",
-          "ease_out": "cubic-bezier(0,0,0.2,1)",
-          "ease_in_out": "cubic-bezier(0.4,0,0.2,1)"
+          "ease_in": "cubic-bezier(0.4, 0, 1, 1)",
+          "ease_out": "cubic-bezier(0, 0, 0.2, 1)",
+          "ease_in_out": "cubic-bezier(0.4, 0, 0.2, 1)"
         }
       },
       "breakpoints": {
@@ -214,168 +144,90 @@
       }
     },
     "component_hierarchy": {
-      "screens": [
-        {
-          "name": "Home",
-          "description": "Main landing screen",
-          "purpose": "Provide overview and navigation",
-          "components": [
-            "Header",
-            "Navigation",
-            "ContentArea"
-          ],
-          "layout_type": "single_column",
-          "navigation_flow": [
-            "Settings"
-          ],
-          "user_journey_position": "entry"
-        }
-      ],
+      "screens": [],
       "components": [
         {
-          "name": "Button",
-          "description": "Primary action button",
-          "type": "form",
-          "props": [
-            {
-              "name": "children",
-              "type": "ReactNode",
-              "required": true,
-              "description": "Button content"
-            },
-            {
-              "name": "onClick",
-              "type": "() => void",
-              "required": true,
-              "description": "Click handler"
-            }
-          ],
+          "name": "CLI Engine (cli.ts)",
+          "description": "Main entry point and command router",
+          "type": "layout",
+          "props": [],
           "interactions": [
-            "click",
-            "hover"
+            "Parse args",
+            "Route commands",
+            "Global error handling"
           ],
-          "states": [
-            "default",
-            "loading",
-            "disabled"
+          "states": [],
+          "accessibility_requirements": [],
+          "responsive_behavior": "Terminal-sized constraint",
+          "related_components": []
+        },
+        {
+          "name": "Hybrid AI Client",
+          "description": "Abstracted AI provider management",
+          "type": "display",
+          "props": [],
+          "interactions": [
+            "Provider selection",
+            "Rate limit handling",
+            "Atomic generation"
           ],
-          "accessibility_requirements": [
-            "aria-label",
-            "keyboard navigation"
-          ],
-          "responsive_behavior": "Maintains size across breakpoints",
-          "related_components": [
-            "IconButton",
-            "LinkButton"
-          ]
+          "states": [],
+          "accessibility_requirements": [],
+          "responsive_behavior": "N/A",
+          "related_components": []
         }
       ],
       "design_patterns": [
-        "card-based layout",
-        "progressive disclosure",
-        "responsive grid"
+        "Command Pattern",
+        "Provider Pattern",
+        "Strategy Pattern (AI Clients)"
       ],
       "interaction_flows": [
-        "user onboarding",
-        "primary task completion",
-        "error recovery"
-      ],
-      "state_management": [
-        "React hooks",
-        "local storage",
-        "context API"
-      ],
-      "data_flow": [
-        "Unidirectional data flow with props and callbacks"
+        "Init -> Generate -> Status",
+        "Analyze -> Preview"
       ]
     },
     "implementation_plan": {
-      "framework": "Next.js",
-      "pages": [
-        "home"
-      ],
-      "state_management": "useState + Context",
+      "framework": "Node.js (TypeScript)",
+      "pages": [],
+      "state_management": "Local Filesystem (config.json)",
       "build_requirements": [
-        "TypeScript",
-        "Tailwind CSS",
-        "shadcn/ui",
-        "SEO optimization"
+        "ts-node",
+        "commander",
+        "HybridAI"
       ],
-      "data_persistence": "localStorage",
-      "notifications": "In-app",
-      "authentication": "Simple JWT",
-      "api_integration": "REST",
-      "deployment_strategy": "Vercel",
+      "data_persistence": "JSON/Markdown on disk",
       "performance_optimizations": [
-        "Image optimization",
-        "Code splitting",
-        "Lazy loading",
-        "Bundle analysis"
+        "Parallel AI requests",
+        "Cached provider check"
       ],
-      "accessibility_implementation": [
-        "WCAG 2.1 AA compliance",
-        "Keyboard navigation",
-        "Screen reader support",
-        "Color contrast validation"
-      ],
+      "accessibility_implementation": [],
       "testing_strategy": [
-        "Jest unit tests",
-        "React Testing Library",
-        "Playwright e2e tests"
-      ],
-      "monitoring_analytics": [
-        "Vercel Analytics",
-        "Sentry error tracking"
+        "Unit tests for managers",
+        "Integration tests for commands"
       ]
     },
     "design_intent": {
-      "visual_philosophy": "MyApp embodies a professional, clean, intuitive, reliable design approach that prioritizes clarity, consistency, accessibility, performance to create an confident and approachable user experience.",
+      "visual_philosophy": "Functional elegance, terminal-first",
       "design_anchors": [
-        "clarity",
-        "consistency",
-        "accessibility"
+        "Living DB",
+        "Hard Gravity",
+        "Zero-Drift"
       ],
       "user_experience_goals": [
-        "Intuitive navigation and task completion",
-        "Accessible and inclusive design",
-        "Consistent and predictable interactions"
-      ],
-      "brand_alignment": "Design reflects professional, clean, intuitive, reliable values through #6366F1 primary color and Inter typography.",
-      "technical_constraints": [
-        "Mobile-first responsive design",
-        "Performance optimization",
-        "Cross-browser compatibility"
-      ],
-      "scalability_considerations": [
-        "Component reusability",
-        "Design token consistency",
-        "Modular architecture"
-      ],
-      "maintenance_guidelines": [
-        "Follow established design patterns",
-        "Maintain design token usage",
-        "Regular accessibility audits"
-      ],
-      "success_criteria": [
-        "User task completion rate > 90%",
-        "Accessibility score > 95",
-        "Performance score > 90"
+        "Reliability",
+        "Clarity of context",
+        "Agent-friendliness"
       ]
     }
   },
   "metadata": {
-    "ai_model_used": "hybrid",
     "confidence_scores": {
-      "functional_summary": 0.9,
-      "project_scope": 0.8,
-      "context_gaps": 0.7,
-      "design_brief": 0.8,
-      "visual_system": 0.9,
-      "component_hierarchy": 0.8,
-      "implementation_plan": 0.7,
-      "design_intent": 0.8
+      "functional_summary": 1,
+      "project_scope": 0.9,
+      "design_brief": 0.8
     },
     "fallbacks_used": [],
-    "generation_time_ms": 3334
+    "generation_time_ms": 0
   }
 }

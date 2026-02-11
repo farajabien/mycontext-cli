@@ -279,6 +279,49 @@ program
     }
   });
 
+// Generate command (orchestrator for context, types, brand, etc.)
+program
+  .command("generate [type]")
+  .description("Generate project context, types, architecture, and more")
+  .option("-f, --full", "Generate full context (PRD + A/B/C/D files)")
+  .option("-d, --description <text>", "Project description for generation")
+  .option("-c, --context-file <path>", "Context file path")
+  .option("-o, --output <dir>", "Output directory")
+  .option("--force", "Overwrite existing files")
+  .option("--verbose", "Show detailed output")
+  .option("--model <name>", "Specific AI model to use")
+  .option("--from-schema", "Generate types from InstantDB schema")
+  .action(async (type, options) => {
+    try {
+      const { GenerateCommand } = await import("./commands/generate");
+      const generateCommand = new GenerateCommand();
+      await generateCommand.execute({
+        ...program.opts(),
+        ...options,
+        type,
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Generation failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Sync README command
+program
+  .command("sync-readme")
+  .description("Synchronize root README.md with MyContext design manifest")
+  .option("--verbose", "Show detailed sync information")
+  .action(async (options) => {
+    try {
+      const { SyncREADMECommand } = await import("./commands/sync-readme");
+      const syncCommand = new SyncREADMECommand();
+      await syncCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Sync failed:"), error);
+      process.exit(1);
+    }
+  });
+
 // Generate components command
 const generateComponentsCmd = program
   .command("generate-components [target]")

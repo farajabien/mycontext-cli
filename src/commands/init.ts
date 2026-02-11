@@ -302,10 +302,13 @@ export class InitCommand {
     );
 
     console.log(chalk.yellow("4. Configure AI provider:"));
-    console.log(chalk.gray("   🔥 Gemini (Free - Recommended for screenshots):"));
+    console.log(chalk.gray("   🔥 GitHub Models (GPT-4o - Free & High Quality):"));
+    console.log(chalk.gray("      Get GitHub token: https://github.com/settings/tokens"));
+    console.log(chalk.cyan("      echo 'GITHUB_TOKEN=your-token' >> .mycontext/.env\n"));
+    console.log(chalk.gray("   ✨ Gemini (Free Tier + Vision for screenshots):"));
     console.log(chalk.gray("      Get API key: https://aistudio.google.com/apikey"));
     console.log(chalk.cyan("      echo 'GEMINI_API_KEY=your-key' >> .mycontext/.env\n"));
-    console.log(chalk.gray("   📌 Claude (Best for text generation):"));
+    console.log(chalk.gray("   📌 Claude (Best for advanced reasoning):"));
     console.log(chalk.gray("      https://console.anthropic.com/\n"));
 
     console.log(chalk.yellow("5. Generate full context:"));

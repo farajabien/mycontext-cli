@@ -31,14 +31,26 @@ interface TestInitOptions {
 export class TestCommand {
   private projectPath: string;
   private missionManager: TestMissionManager;
-  private testRunner: BrowserTestRunner;
-  private reporter: TestReporter;
+  private _testRunner?: BrowserTestRunner;
+  private _reporter?: TestReporter;
 
   constructor(projectPath?: string) {
     this.projectPath = projectPath || process.cwd();
     this.missionManager = new TestMissionManager(this.projectPath);
-    this.testRunner = new BrowserTestRunner(this.projectPath);
-    this.reporter = new TestReporter(this.projectPath);
+  }
+
+  private get testRunner(): BrowserTestRunner {
+    if (!this._testRunner) {
+      this._testRunner = new BrowserTestRunner(this.projectPath);
+    }
+    return this._testRunner;
+  }
+
+  private get reporter(): TestReporter {
+    if (!this._reporter) {
+      this._reporter = new TestReporter(this.projectPath);
+    }
+    return this._reporter;
   }
 
   /**
@@ -331,6 +343,31 @@ export class TestCommand {
 
     process.exit(failed > 0 || errors > 0 ? 1 : 0);
   }
+
+  /**
+   * Import test missions from a JSON file
+   */
+  async importMissions(filePath: string): Promise<void> {
+    console.log(chalk.blue.bold("\n📥 Importing Test Missions\n"));
+
+    try {
+      const missions = await this.missionManager.importFromJson(filePath);
+
+      console.log(chalk.green(`\n✅ Successfully imported ${missions.length} missions:\n`));
+
+      missions.forEach((mission, index) => {
+        console.log(chalk.bold(`${index + 1}. ${mission.name}`));
+        console.log(chalk.gray(`   ID: ${mission.id}`));
+        console.log(chalk.gray(`   Tags: ${mission.tags?.join(", ") || "none"}`));
+        console.log("");
+      });
+
+      console.log(chalk.gray("Run tests with: mycontext test:run <mission-name>"));
+    } catch (error: any) {
+      console.error(chalk.red(`\n❌ Import failed: ${error.message}`));
+      process.exit(1);
+    }
+  }
 }
 
 /**
@@ -344,7 +381,7 @@ export function registerTestCommands(program: Command): void {
   // test "mission description" - Run ad-hoc test
   test
     .argument("[mission]", "Natural language test mission")
-    .option("--headless", "Run in headless mode", true)
+    .option("--no-headless", "Show browser (non-headless mode)")
     .option("--url <url>", "Starting URL")
     .option("--slow-mo <ms>", "Slow down by N milliseconds")
     .option("-v, --verbose", "Verbose output")
@@ -362,7 +399,7 @@ export function registerTestCommands(program: Command): void {
     .command("test:run")
     .description("Run a saved test mission")
     .argument("<name>", "Mission name or ID")
-    .option("--headless", "Run in headless mode", true)
+    .option("--no-headless", "Show browser (non-headless mode)")
     .option("--url <url>", "Starting URL")
     .option("--slow-mo <ms>", "Slow down by N milliseconds")
     .action(async (name, options) => {
@@ -407,10 +444,20 @@ export function registerTestCommands(program: Command): void {
   program
     .command("test:all")
     .description("Run all test missions")
-    .option("--headless", "Run in headless mode", true)
+    .option("--no-headless", "Show browser (non-headless mode)")
     .option("--url <url>", "Starting URL")
     .action(async (options) => {
       const cmd = new TestCommand();
       await cmd.runAll(options);
+    });
+
+  // test:import <file> - Import missions from JSON
+  program
+    .command("test:import")
+    .description("Import test missions from a JSON file")
+    .argument("<file>", "Path to JSON file containing test missions")
+    .action(async (file) => {
+      const cmd = new TestCommand();
+      await cmd.importMissions(file);
     });
 }

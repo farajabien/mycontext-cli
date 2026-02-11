@@ -308,4 +308,83 @@ export class TestMissionManager {
 
     return missions;
   }
+
+  /**
+   * Import missions from a JSON file
+   * Supports formats like tailor-cv-test-missions.json
+   */
+  async importFromJson(filePath: string): Promise<TestMission[]> {
+    // Resolve path relative to project root if not absolute
+    const resolvedPath = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(this.projectPath, filePath);
+
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`Test missions file not found: ${resolvedPath}`);
+    }
+
+    const data = await fs.readJson(resolvedPath);
+    const missions: TestMission[] = [];
+
+    // Check if this is a missions collection file
+    if (data.missions && Array.isArray(data.missions)) {
+      // Import all missions from the collection
+      for (const missionData of data.missions) {
+        // Check if mission already exists (by ID or name)
+        const existing = await this.getMission(missionData.id || missionData.name);
+
+        if (existing) {
+          console.log(`Skipping duplicate mission: ${missionData.name}`);
+          continue;
+        }
+
+        const now = new Date().toISOString();
+
+        const mission: TestMission = {
+          id: missionData.id || uuidv4(),
+          name: missionData.name,
+          description: missionData.description || missionData.mission,
+          mission: missionData.mission,
+          expectedOutcome: missionData.expectedOutcome,
+          validationRules: missionData.validationRules || [],
+          tags: missionData.tags || [],
+          createdAt: now,
+          updatedAt: now,
+          // Preserve additional metadata if present
+          ...(missionData.startUrl && { startUrl: missionData.startUrl }),
+          ...(missionData.testData && { testData: missionData.testData }),
+        };
+
+        this.storage.missions.push(mission);
+        missions.push(mission);
+      }
+
+      await this.saveStorage();
+      return missions;
+    }
+
+    // Handle single mission object
+    if (data.name && data.mission) {
+      const existing = await this.getMission(data.id || data.name);
+
+      if (existing) {
+        throw new Error(`Mission already exists: ${data.name}`);
+      }
+
+      const mission = await this.createMission({
+        name: data.name,
+        mission: data.mission,
+        expectedOutcome: data.expectedOutcome || "Test completes successfully",
+        validationRules: data.validationRules,
+        startUrl: data.startUrl,
+        tags: data.tags || ["imported"],
+      });
+
+      return [mission];
+    }
+
+    throw new Error(
+      "Invalid JSON format: Expected a mission object or a collection with 'missions' array"
+    );
+  }
 }

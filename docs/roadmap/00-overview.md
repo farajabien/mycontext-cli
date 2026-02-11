@@ -35,6 +35,15 @@ MyContext CLI currently excels at **generating comprehensive context** for AI-po
    - Auto-import tests from user flows
    - Detailed execution reports with AI insights
 
+### What's Coming Soon 🟡
+
+1. **Code Scaffold System** (IN PLANNING)
+   - Generate production-ready code from context
+   - Auth, admin, payments, guards, PWA - all automated
+   - Context-aware: uses YOUR project specs
+   - Time savings: 5-7 days → 5 minutes
+   - Reference project: Skika (music + UGC platform)
+
 ### What's Still Missing 🔴
 
 1. **Real-Time Context Access** (Context MCP Server)
@@ -89,7 +98,14 @@ mycontext test:init --from-user-flows  # Create tests from flows
 3. Report: "Show me why the signup test failed"
 4. Auto-validate: Tests run on every change
 
-# Developer workflow FUTURE (with both MCPs):
+# Developer workflow FUTURE (with Scaffold):
+mycontext init my-app
+mycontext generate context --full
+mycontext scaffold --features all  # 5 minutes → working app!
+# → Auth, admin, payments, guards, PWA all implemented
+# → Focus on unique business logic only
+
+# Developer workflow FUTURE (with both MCPs + Scaffold):
 mycontext serve  # Starts Context MCP server
 
 # Claude Code can (via Context MCP):
@@ -109,6 +125,14 @@ mycontext serve  # Starts Context MCP server
 | Flow Testing MCP Server | 9/10 | 2 weeks | P0 | ✅ Completed |
 
 **Achievement**: Flow Testing MCP enables AI-powered UI testing with natural language test missions. Tests can be auto-imported from user flows and run autonomously.
+
+### 🟡 In Planning
+
+| Feature | Impact | Effort | Priority | Status |
+|---------|--------|--------|----------|--------|
+| Code Scaffold System | 10/10 | 6 weeks | P1 | 📋 Planning |
+
+**Vision**: Scaffold generates production-ready code for auth, admin, payments, guards, PWA, and more - all from your context files. **Time saved: 5-7 days → 5 minutes**. Reference project: [Skika](../reference-projects/skika.md).
 
 ### 🔴 Critical (Must Have)
 
@@ -262,12 +286,16 @@ mycontext serve  # Starts Context MCP server
    - [Flow Testing MCP Server](./06-flow-testing-mcp.md)
    - [Full Testing Documentation](../testing-mcp-server.md)
 
-2. **Read Detailed Plans** (Context MCP - Planned):
+2. **Explore Code Scaffold** (In Planning):
+   - [Code Scaffold System](./07-code-scaffold-system.md)
+   - [Skika Reference Project](../reference-projects/skika.md)
+
+3. **Read Detailed Plans** (Context MCP - Planned):
    - [Context MCP Server Implementation](./01-mcp-server.md)
    - [Context Manifest Specification](./02-context-manifest.md)
    - [Structured Formats Guide](./03-structured-formats.md)
 
-3. **Review Timeline**:
+4. **Review Timeline**:
    - [Implementation Priority & Schedule](./implementation-priority.md)
 
 3. **Get Involved**:
@@ -278,17 +306,23 @@ mycontext serve  # Starts Context MCP server
 
 MyContext CLI has taken a major step forward with the **Flow Testing MCP Server** (✅ completed). We can now autonomously test UI flows using natural language missions, marking our first MCP server implementation.
 
-The foundation is solid - we generate excellent context AND can now validate that it works. The next phase focuses on making that context **queryable, structured, and validated** through the Context MCP Server.
+The foundation is solid - we generate excellent context AND can now validate that it works. The next phases focus on:
+1. **Code Scaffold** - generating production-ready code from context (📋 in planning)
+2. **Context MCP** - making context queryable and structured (📋 planned)
 
 **Completed**:
 - ✅ **Flow Testing MCP Server** - AI-powered UI testing
+
+**Coming Soon**:
+- 📋 **Code Scaffold System** - Generate working code from context (5-7 days → 5 minutes)
+- 📋 **Skika Reference Project** - Learning project for scaffold patterns
 
 **Still Needed**:
 - **Context MCP Server** for real-time queries
 - **Context Manifest** for state tracking
 - **Structured Formats** for validation
 
-...MyContext is transforming from a helpful generator to an indispensable development companion.
+...MyContext is transforming from a helpful generator to a complete development automation platform.
 
 **Estimated Time to Full Completion**: 6 weeks (for Context MCP features)
 **Estimated Impact**: 10x improvement in AI coding efficiency
