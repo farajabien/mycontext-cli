@@ -9,14 +9,18 @@ import { DesignManifest } from "../types/design-pipeline";
 
 interface AgentOptions extends CommandOptions {
   prompt?: string;
+  execute?: boolean;
+  yes?: boolean;
   verbose?: boolean;
 }
 
 export class AgentCommand {
   private manifestManager: DesignManifestManager;
   private aiClient: HybridAIClient;
+  private projectPath: string;
 
   constructor(projectPath: string = process.cwd()) {
+    this.projectPath = projectPath;
     this.manifestManager = new DesignManifestManager(projectPath);
     this.aiClient = new HybridAIClient();
   }
@@ -49,13 +53,115 @@ export class AgentCommand {
       // 3. Display Proposal
       this.displayProposal(assessment);
 
-      // 4. (Future) Approval Loop & Execution
-      console.log(chalk.gray("\nNext Step: Run with --execute to apply these changes (Comming soon)."));
+      // 4. Execution Phase
+      if (options.execute) {
+        await this.runEvolutionFlow(assessment, manifest, options);
+      } else {
+        console.log(chalk.gray("\nNext Step: Run with --execute (or -e) to apply these changes autonomously."));
+      }
 
     } catch (error) {
-      spinner.fail("Agent assessment failed");
+      spinner.fail("Agent operation failed");
       console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
     }
+  }
+
+  private async runEvolutionFlow(assessment: any, currentManifest: DesignManifest, options: AgentOptions): Promise<void> {
+    if (!options.yes) {
+        const prompts = require("prompts");
+        const response = await prompts({
+            type: "confirm",
+            name: "confirm",
+            message: chalk.blue("Do you want the agent to evolve the Living Brain (Manifest + PRD) based on this assessment?"),
+            initial: true
+        });
+
+        if (!response.confirm) {
+            console.log(chalk.yellow("Aborted. No changes applied."));
+            return;
+        }
+    }
+
+    const spinner = new EnhancedSpinner("Evolving the Living Brain...");
+    spinner.start();
+
+    try {
+        // 1. Evolve Manifest
+        spinner.updateText("Updating design-manifest.json...");
+        const evolvedManifest = await this.evolveManifest(assessment, currentManifest);
+        await this.manifestManager.saveDesignManifest(evolvedManifest);
+
+        // 2. Evolve PRD
+        spinner.updateText("Synchronizing 01-prd.md...");
+        await this.syncPRD(assessment, evolvedManifest);
+
+        spinner.succeed("Evolution complete. The project state has been updated.");
+        console.log(chalk.green("\n✨ The Living Brain has evolved. You can now use 'mycontext generate:components' or other commands to implement the changes."));
+    } catch (error) {
+        spinner.fail("Evolution failed");
+        throw error;
+    }
+  }
+
+  private async evolveManifest(assessment: any, currentManifest: DesignManifest): Promise<DesignManifest> {
+      const systemPrompt = `You are the MyContext Manifest Evolver.
+Your task is to take the current design-manifest.json and a Change Proposal, and produce the UPDATED design-manifest.json.
+
+Current Manifest:
+${JSON.stringify(currentManifest, null, 2)}
+
+Change Proposal:
+${JSON.stringify(assessment, null, 2)}
+
+OUTPUT ONLY THE FULL UPDATED JSON. Ensure the structure is valid and all required fields are preserved while incorporating the new features/changes.`;
+
+      const response = await this.aiClient.generateText(systemPrompt, {
+          temperature: 0.1,
+          jsonMode: true
+      });
+
+      if (process.env.DEBUG || process.env.VERBOSE) {
+          console.log(chalk.gray(`[AgentCommand] Evolved Manifest Response: ${response.text.substring(0, 200)}...`));
+      }
+
+      try {
+          return JSON.parse(response.text);
+      } catch (e) {
+          console.error(chalk.red("Failed to parse evolved manifest JSON:"), response.text);
+          throw new Error("AI failed to produce a valid evolved manifest JSON.");
+      }
+  }
+
+  private async syncPRD(assessment: any, evolvedManifest: DesignManifest): Promise<void> {
+      const prdPath = path.join(this.projectPath, ".mycontext", "01-prd.md");
+      if (!await fs.pathExists(prdPath)) return;
+
+      const currentPRD = await fs.readFile(prdPath, "utf-8");
+
+      const systemPrompt = `You are the MyContext Narrative Synchronizer.
+Your task is to take the current 01-prd.md and an evolved Design Manifest, and update the PRD to reflect the new state of the project.
+
+Current PRD:
+${currentPRD}
+
+Evolved Manifest:
+${JSON.stringify(evolvedManifest, null, 2)}
+
+Change Summary:
+${assessment.summary}
+
+Update the sections (Features, User Actions, etc.) to align with the new manifest.
+OUTPUT THE COMPLETE UPDATED MARKDOWN CONTENT.`;
+
+      const response = await this.aiClient.generateText(systemPrompt, {
+          temperature: 0.2
+      });
+
+      if (process.env.DEBUG || process.env.VERBOSE) {
+          console.log(chalk.gray(`[AgentCommand] Sync PRD Response: ${response.text.substring(0, 200)}...`));
+      }
+
+      await fs.writeFile(prdPath, response.text);
   }
 
   private async assessPrompt(prompt: string, manifest: DesignManifest): Promise<any> {

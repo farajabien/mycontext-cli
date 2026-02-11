@@ -1,0 +1,10 @@
+{
+  "id": "f5bfc8d6-7896-401b-8ade-20c66071aa15",
+  "name": "flow-harmonizer",
+  "description": "A harmony-driven productivity app for creative flow state management.",
+  "createdAt": "2026-02-11T12:36:26.879Z",
+  "updatedAt": "2026-02-11T12:36:26.879Z",
+  "contextPath": ".mycontext",
+  "version": "0.1.0",
+  "status": "initialized"
+}
