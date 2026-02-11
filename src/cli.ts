@@ -322,6 +322,25 @@ program
     }
   });
 
+// Agent command (Zero-Drift Autonomous Orchestrator)
+program
+  .command("agent [prompt]")
+  .description("Assess a prompt against the Living Brain and propose execution tasks")
+  .action(async (prompt, options) => {
+    try {
+      const { AgentCommand } = await import("./commands/agent");
+      const agentCommand = new AgentCommand();
+      await agentCommand.execute({
+        ...program.opts(),
+        ...options,
+        prompt,
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Agent failed:"), error);
+      process.exit(1);
+    }
+  });
+
 // Generate components command
 const generateComponentsCmd = program
   .command("generate-components [target]")

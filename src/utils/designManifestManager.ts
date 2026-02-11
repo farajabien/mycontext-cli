@@ -626,4 +626,165 @@ export class DesignManifestManager {
       throw error;
     }
   }
+  /**
+   * Create a default design manifest
+   */
+  createDefaultManifest(projectName: string, description: string): DesignManifest {
+    const timestamp = new Date().toISOString();
+    return {
+      version: "1.0.0",
+      generated_at: timestamp,
+      project_name: projectName,
+      phases: {
+        functional_summary: {
+          app_name: projectName,
+          core_purpose: description,
+          key_features: [],
+          primary_user_actions: [],
+          platform: "web",
+          technical_requirements: [],
+          complexity_level: "low",
+        },
+        project_scope: {
+          build_scope: "full_app",
+          reason: "Default initialization",
+          expected_outputs: [],
+        },
+        context_gaps: {
+          missing: ["PRD detail", "User flows", "Design tokens"],
+          recommended_next_action: "Run 'mycontext generate context --full' to flesh out requirements",
+        },
+        design_brief: {
+          theme: "light",
+          inspiration_sources: [],
+          blended_style: "modern",
+          primary_color: "#3B82F6",
+          support_colors: [],
+          typography: {
+            heading: "Inter",
+            body: "Inter",
+          },
+          ui_principles: [],
+          motion_style: "normal",
+          personality_keywords: [],
+          emotional_tone: "professional",
+          target_audience: "General users",
+        },
+        visual_system: {
+          colors: {
+            primary: "#3B82F6",
+            background: "#FFFFFF",
+            surface: "#F9FAFB",
+            text: "#111827",
+            text_muted: "#6B7280",
+          },
+          typography: {
+            font_families: {
+              heading: "Inter",
+              body: "Inter",
+              mono: "ui-monospace",
+            },
+            scale: {
+              xs: "0.75rem",
+              sm: "0.875rem",
+              md: "1rem",
+              lg: "1.125rem",
+              xl: "1.25rem",
+              "2xl": "1.5rem",
+              "3xl": "1.875rem",
+              "4xl": "2.25rem",
+            },
+            weights: {
+              normal: "400",
+              medium: "500",
+              semibold: "600",
+              bold: "700",
+            },
+          },
+          spacing: {
+            xs: "0.25rem",
+            sm: "0.5rem",
+            md: "1rem",
+            lg: "1.5rem",
+            xl: "2rem",
+            "2xl": "3rem",
+            "3xl": "4rem",
+            "4xl": "6rem",
+          },
+          radii: {
+            none: "0",
+            sm: "0.125rem",
+            md: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px",
+          },
+          shadows: {
+            sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+            md: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+            lg: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+            xl: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
+          },
+          motion: {
+            duration: {
+              fast: "150ms",
+              normal: "250ms",
+              slow: "350ms",
+            },
+            easing: {
+              linear: "linear",
+              ease_in: "cubic-bezier(0.4, 0, 1, 1)",
+              ease_out: "cubic-bezier(0, 0, 0.2, 1)",
+              ease_in_out: "cubic-bezier(0.4, 0, 0.2, 1)",
+            },
+          },
+          breakpoints: {
+            sm: "640px",
+            md: "768px",
+            lg: "1024px",
+            xl: "1280px",
+          },
+        },
+        component_hierarchy: {
+          screens: [],
+          components: [],
+          design_patterns: [],
+          interaction_flows: [],
+          state_management: [],
+          data_flow: [],
+        },
+        implementation_plan: {
+          framework: "nextjs",
+          pages: [],
+          state_management: "react-query",
+          build_requirements: [],
+          data_persistence: "vantage",
+          performance_optimizations: [],
+          accessibility_implementation: [],
+          testing_strategy: [],
+        },
+        design_intent: {
+          visual_philosophy: "Clean, professional, and accessible",
+          design_anchors: ["modern", "trustworthy"],
+          user_experience_goals: ["ease of use", "clarity"],
+          brand_alignment: "Aligned with modern professional standards",
+          technical_constraints: ["Responsive design", "Accessibility compliance"],
+          scalability_considerations: ["Component-based architecture"],
+          maintenance_guidelines: ["Documented props", "Consistent naming"],
+          success_criteria: ["Project initialized", "Manifest generated"],
+        },
+        state_attestation: {
+          last_audit_at: timestamp,
+          drift_score: 0,
+          compliance_status: "compliant",
+          untracked_changes: [],
+        },
+      },
+      metadata: {
+        confidence_scores: {},
+        fallbacks_used: [],
+        generation_time_ms: 0,
+      },
+    };
+  }
 }

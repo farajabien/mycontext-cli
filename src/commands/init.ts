@@ -9,6 +9,7 @@ import { execSync } from "child_process";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { EnvExampleGenerator } from "../utils/envExampleGenerator";
+import { DesignManifestManager } from "../utils/designManifestManager";
 
 interface InitOptions extends CommandOptions {
   description?: string;
@@ -25,6 +26,7 @@ interface InitOptions extends CommandOptions {
 
 export class InitCommand {
   private fs = new FileSystemManager();
+  private manifestManager = new DesignManifestManager();
 
   async execute(projectName: string, options: InitOptions): Promise<void> {
     const spinner = new EnhancedSpinner("Initializing project...");
@@ -189,6 +191,11 @@ export class InitCommand {
       workingDir,
       useCurrentDir
     );
+    await this.createInitialManifest(
+      projectPath,
+      projectName,
+      options.description || `${projectName} - AI-powered app`
+    );
 
     spinner.success({
       text: `Project "${projectName}" initialized successfully with InstantDB!`,
@@ -224,6 +231,11 @@ export class InitCommand {
       workingDir,
       useCurrentDir
     );
+    await this.createInitialManifest(
+      projectPath,
+      projectName,
+      options.description || `${projectName} - Next.js app`
+    );
 
     spinner.success({
       text: `Project "${projectName}" initialized successfully with Next.js!`,
@@ -249,6 +261,11 @@ export class InitCommand {
       options.description || `${projectName} - AI-powered app`,
       process.cwd(),
       useCurrentDir
+    );
+    await this.createInitialManifest(
+      projectPath,
+      projectName,
+      options.description || `${projectName} - AI-powered app`
     );
 
     spinner.success({
@@ -332,6 +349,19 @@ export class InitCommand {
 
     // Exit the process gracefully after displaying all information
     process.exit(0);
+  }
+
+  /**
+   * Create the initial design manifest as a Hard Gravity anchor
+   */
+  private async createInitialManifest(
+    projectPath: string,
+    projectName: string,
+    description: string
+  ): Promise<void> {
+    const manager = new DesignManifestManager(projectPath);
+    const manifest = manager.createDefaultManifest(projectName, description);
+    await manager.saveDesignManifest(manifest);
   }
 
   private displayBranding(): void {

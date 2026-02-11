@@ -280,6 +280,12 @@ export interface DesignManifest {
     component_hierarchy: ComponentHierarchy;
     implementation_plan: ImplementationPlan;
     design_intent: DesignIntent;
+    state_attestation?: {
+      last_audit_at: string;
+      drift_score: number; // 0 (no drift) to 1 (full drift)
+      compliance_status: "compliant" | "drifting" | "critical_drift";
+      untracked_changes: string[];
+    };
     intent_validation?: {
       validation_report: import("./intent-dictionary").IntentValidationReport;
       enriched_intents: import("./intent-dictionary").EnrichedComponentSpec[];

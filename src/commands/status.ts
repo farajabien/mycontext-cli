@@ -134,15 +134,6 @@ export class StatusCommand {
         name: "Component List",
         required: false,
       },
-      // Legacy fallbacks for visibility
-      { path: "context/prd.md", name: "PRD (legacy)", required: false },
-      { path: "context/types.ts", name: "Types (legacy)", required: false },
-      { path: "context/branding.md", name: "Brand (legacy)", required: false },
-      {
-        path: "context/component-list.json",
-        name: "Comp List (legacy)",
-        required: false,
-      },
     ];
 
     for (const file of expectedFiles) {

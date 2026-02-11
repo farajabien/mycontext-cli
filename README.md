@@ -35,6 +35,28 @@ mycontext --version
 mycontext --help
 ```
 
+## 🎯 Project Vision (Living DB)
+
+<!-- mycontext:start -->
+### 🎯 Project Overview
+**MyContext CLI**: Spec-driven development anchor for AI-powered coding
+
+### ✨ Key Features
+- Framework scaffolding
+- Screenshot analysis
+- Context generation
+- Narrative compliance
+- Living DB anchoring
+
+### 🛠️ Technical Stack
+- **Framework**: Node.js (TypeScript)
+- **Data Persistence**: JSON/Markdown on disk
+- **Key Libraries**: ts-node, commander, HybridAI
+
+--- 
+_Last synchronized with MyContext Living DB on 2/11/2026_
+<!-- mycontext:end -->
+
 ## 🚀 Two Paths to Code
 
 ### Path 1: Screenshot → Spec (🔥 NEW)
@@ -192,7 +214,7 @@ echo 'GEMINI_API_KEY=your-key' > .mycontext/.env
 - **OpenRouter** (DeepSeek, etc.): `OPENROUTER_API_KEY=your-key`
 - **xAI Grok**: `XAI_API_KEY=your-key`
 
-**Provider Priority:** GitHub Models → Gemini → OpenRouter → Anthropic → xAI
+**Provider Priority:** Claude Agent SDK → GitHub Models → OpenRouter → Gemini → xAI
 
 ## 📁 Generated Context Structure
 

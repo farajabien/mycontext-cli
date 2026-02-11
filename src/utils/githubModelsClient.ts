@@ -49,14 +49,20 @@ export class GitHubModelsClient {
         console.log(chalk.gray(`[GitHubModelsClient] Generating text with model: ${model}`));
       }
 
+      const postData: any = {
+        model,
+        messages: [{ role: "user", content: prompt }],
+        temperature,
+        max_tokens: maxTokens,
+      };
+
+      if (options.jsonMode === true) {
+        postData.response_format = { type: "json_object" };
+      }
+
       const response = await axios.post(
         `${this.baseUrl}/chat/completions`,
-        {
-          model,
-          messages: [{ role: "user", content: prompt }],
-          temperature,
-          max_tokens: maxTokens,
-        },
+        postData,
         {
           headers: {
             Authorization: `Bearer ${this.apiKey}`,
