@@ -19,7 +19,7 @@ import {
   DesignIntent,
   FallbackResult,
   ValidationResult,
-} from "../../types/design-pipeline";
+} from "@mycontext/core";
 import { IntentValidator } from "../../services/IntentValidator";
 import { IntentEnricher } from "../../services/IntentEnricher";
 import chalk from "chalk";

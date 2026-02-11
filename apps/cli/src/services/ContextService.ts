@@ -1,5 +1,5 @@
-import { DesignManifestManager } from '../utils/designManifestManager';
-import { DesignManifest, EnrichedContext } from '../types/design-pipeline';
+import { DesignManifestManager } from '@mycontext/core';
+import { DesignManifest, EnrichedContext } from '@mycontext/core';
 import { logger } from '../utils/logger';
 import { HybridAIClient } from '../utils/hybridAIClient';
 

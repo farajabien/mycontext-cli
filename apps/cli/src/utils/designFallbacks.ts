@@ -9,7 +9,7 @@ import {
   DesignIntent,
   FallbackResult,
   DesignTemplate,
-} from "../types/design-pipeline";
+} from "@mycontext/core";
 import chalk from "chalk";
 
 /**

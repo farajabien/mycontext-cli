@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { DesignManifestManager } from "../utils/designManifestManager";
+import { DesignManifestManager } from "@mycontext/core";
 import { CommandOptions } from "../types";
 
 interface SyncREADMEOptions extends CommandOptions {

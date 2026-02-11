@@ -6,7 +6,7 @@ import {
 import { MyContextAIClient } from "./MyContextAIClient";
 import { ClaudeSDKClient } from "./ClaudeSDKClient";
 import { XAIClient } from "./XAIClient";
-import { EnrichedContext } from "../types/design-pipeline";
+import { EnrichedContext } from "@mycontext/core";
 
 /**
  * Simplified Provider Chain for MyContext CLI

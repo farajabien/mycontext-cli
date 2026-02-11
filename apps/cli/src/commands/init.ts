@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { EnvExampleGenerator } from "../utils/envExampleGenerator";
-import { DesignManifestManager } from "../utils/designManifestManager";
+import { DesignManifestManager } from "@mycontext/core";
 
 interface InitOptions extends CommandOptions {
   description?: string;

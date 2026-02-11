@@ -1,10 +1,9 @@
 import * as fs from "fs-extra";
 import * as path from "path";
-import { DesignManifestManager } from "./designManifestManager";
 import { ContextEnricher } from "./contextEnricher";
 import { DesignPipelineAgent } from "../agents/implementations/DesignPipelineAgent";
 import { DesignPipelineStateManager } from "./designPipelineStateManager";
-import { DesignPipelineInput, EnrichedContext } from "../types/design-pipeline";
+import { DesignManifestManager, DesignPipelineInput, EnrichedContext } from "@mycontext/core";
 import chalk from "chalk";
 
 /**

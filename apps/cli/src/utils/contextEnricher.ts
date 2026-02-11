@@ -1,5 +1,5 @@
-import { DesignManifestManager } from "./designManifestManager";
 import {
+  DesignManifestManager,
   EnrichedContext,
   DesignManifest,
   FunctionalSummary,
@@ -7,7 +7,7 @@ import {
   DesignIntent,
   ComponentHierarchy,
   ImplementationPlan,
-} from "../types/design-pipeline";
+} from "@mycontext/core";
 import chalk from "chalk";
 
 /**

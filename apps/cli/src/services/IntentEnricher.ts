@@ -4,7 +4,7 @@ import {
   EnrichedComponentSpec,
   IntentMapping,
 } from "../types/intent-dictionary";
-import { FunctionalSummary, VisualSystem } from "../types/design-pipeline";
+import { FunctionalSummary, VisualSystem } from "@mycontext/core";
 import * as fs from "fs-extra";
 import * as path from "path";
 import chalk from "chalk";
