@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MyContext Web
 
-## Getting Started
+**The Visual Studio and Landing Page for MyContext Ecosystem.**
 
-First, run the development server:
+This is the marketing website and visual development studio (in development) for MyContext, built with Next.js 16 and the App Router.
+
+---
+
+## 🎯 Purpose
+
+- **Landing Page** - Showcase MyContext's capabilities and philosophy
+- **Documentation Hub** - Comprehensive guides and API references
+- **Visual Studio** (Coming Soon) - Browser-based interface for screenshot analysis and code generation
+- **Project Dashboard** (Coming Soon) - Manage multiple MyContext projects
+
+---
+
+## 🚀 Getting Started
+
+### Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# From monorepo root
+pnpm run dev
+
+# Or run just the web app
+pnpm --filter @myycontext/web dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# From monorepo root
+pnpm run build
 
-## Learn More
+# Or build just the web app
+pnpm --filter @myycontext/web build
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏗️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Font**: [Geist](https://vercel.com/font) by Vercel
+- **Deployment**: Vercel
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📁 Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+apps/web/
+├── app/                    # Next.js App Router
+│   ├── page.tsx           # Landing page
+│   ├── docs/              # Documentation pages
+│   └── ...
+├── components/            # React components
+├── public/                # Static assets
+└── package.json
+```
+
+---
+
+## 🎨 Features
+
+### Current
+- ✅ Landing page with hero section
+- ✅ Feature showcase
+- ✅ Documentation structure
+- ✅ Responsive design
+
+### Coming Soon
+- 🚧 Visual Studio for screenshot analysis
+- 🚧 Project dashboard
+- 🚧 Real-time code generation preview
+- 🚧 Community showcase
+
+---
+
+## 📦 Part of MyContext Monorepo
+
+This package is part of the [MyContext Monorepo](https://github.com/farajabien/mycontext-cli).
+
+Related packages:
+- [mycontext-cli](../cli) - The command-line interface
+- [@myycontext/core](../../packages/core) - Core manifest engine
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see the main [Contributing Guide](../../CONTRIBUTING.md).
+
+For local development:
+```bash
+git clone https://github.com/farajabien/mycontext-cli.git
+cd mycontext-cli
+pnpm install
+pnpm run dev
+```
+
+---
+
+## 🚀 Deployment
+
+The web app is deployed on [Vercel](https://vercel.com). Every push to `main` triggers an automatic deployment.
+
+### Deploy Your Own
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/farajabien/mycontext-cli/tree/main/apps/web)
+
+---
+
+## 📄 License
+
+MIT © MyContext - See [LICENSE](../../LICENSE) for details.
+
+---
+
+## 🔗 Links
+
+- [Monorepo Documentation](https://github.com/farajabien/mycontext-cli#readme)
+- [CLI Package](https://www.npmjs.com/package/mycontext-cli)
+- [Core Package](https://www.npmjs.com/package/@myycontext/core)
+- [Next.js Documentation](https://nextjs.org/docs)

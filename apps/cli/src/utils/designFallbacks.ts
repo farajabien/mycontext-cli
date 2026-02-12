@@ -9,7 +9,7 @@ import {
   DesignIntent,
   FallbackResult,
   DesignTemplate,
-} from "@mycontext/core";
+} from "@myycontext/core";
 import chalk from "chalk";
 
 /**

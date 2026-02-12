@@ -2,10 +2,10 @@ import chalk from "chalk";
 import * as fs from "fs-extra";
 import path from "path";
 import { CommandOptions } from "../types";
-import { DesignManifestManager } from "@mycontext/core";
+import { DesignManifestManager } from "@myycontext/core";
 import { HybridAIClient } from "../utils/hybridAIClient";
 import { EnhancedSpinner } from "../utils/spinner";
-import { DesignManifest } from "@mycontext/core";
+import { DesignManifest } from "@myycontext/core";
 
 interface AgentOptions extends CommandOptions {
   prompt?: string;

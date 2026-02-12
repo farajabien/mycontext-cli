@@ -3,7 +3,7 @@ import * as path from "path";
 import { ContextEnricher } from "./contextEnricher";
 import { DesignPipelineAgent } from "../agents/implementations/DesignPipelineAgent";
 import { DesignPipelineStateManager } from "./designPipelineStateManager";
-import { DesignManifestManager, DesignPipelineInput, EnrichedContext } from "@mycontext/core";
+import { DesignManifestManager, DesignPipelineInput, EnrichedContext } from "@myycontext/core";
 import chalk from "chalk";
 
 /**

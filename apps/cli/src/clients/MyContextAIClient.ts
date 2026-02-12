@@ -4,7 +4,7 @@ import {
   AIClientOptions,
   AgentContext,
 } from "../interfaces/AIClient";
-import { EnrichedContext } from "@mycontext/core";
+import { EnrichedContext } from "@myycontext/core";
 
 /**
  * MyContext AI Client - Fine-tuned GPT-4o Mini for component generation

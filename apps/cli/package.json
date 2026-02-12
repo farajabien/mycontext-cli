@@ -1,6 +1,6 @@
 {
-  "name": "@mycontext/cli",
-  "version": "4.1.0",
+  "name": "mycontext-cli",
+  "version": "4.1.5",
   "description": "CLI tool for spec-driven development - Generate comprehensive context, visual screens, and scaffolding for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {
@@ -12,7 +12,7 @@
     "build:clean": "rm -rf dist && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🧹 Cleaned build directory')",
     "build:compile": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔨 Compiling TypeScript...') && tsc --noEmitOnError false",
     "build:alias": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔗 Resolving path aliases...') && tsc-alias",
-    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp -r src/templates dist/ && cp package.json dist/ && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
+    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp -r src/templates dist/ && cp package.json dist/ && cp README.md dist/ && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
     "dev": "ts-node src/cli.ts",
     "start": "node dist/cli.js",
     "watch": "tsc --watch --pretty",
@@ -41,14 +41,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/farajabien/mycontext-cli.git"
+    "url": "git+https://github.com/farajabien/mycontext-cli.git",
+    "directory": "apps/cli"
   },
   "homepage": "https://github.com/farajabien/mycontext-cli#readme",
   "bugs": {
     "url": "https://github.com/farajabien/mycontext-cli/issues"
   },
   "dependencies": {
-    "@mycontext/core": "workspace:*",
+    "@myycontext/core": "workspace:*",
     "@anthropic-ai/claude-agent-sdk": "^0.1.1",
     "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",

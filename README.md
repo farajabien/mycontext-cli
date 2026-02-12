@@ -6,31 +6,90 @@
 
 **Zero-Drift Autonomous Development — Spec-Driven App Evolution with a Deterministic Physics Engine.**
 
-This monorepo contains the MyContext ecosystem, designed to ground AI agents in deterministic specifications (The Living DB).
+This monorepo contains the MyContext ecosystem: AI-powered tools for converting screenshots to specs, generating production-ready code, and maintaining perfect alignment between design intent and implementation.
 
 ---
 
-## 🏗️ Structure
+## 🏗️ Repository Structure
 
-- **`apps/cli`**: The Core CLI tool for anchoring projects and evolving them autonomously.
-- **`apps/web`**: The MyContext Landing Page and Visual Studio (In Development).
-- **`packages/core`**: Shared manifest management and architectural types.
+### 📦 Apps
+
+- **[`apps/cli`](./apps/cli)** - `mycontext-cli`
+  The command-line interface for initializing projects, analyzing screenshots, generating context, and autonomous code evolution.
+  📚 [CLI Documentation](./apps/cli/README.md) | 📦 [npm package](https://www.npmjs.com/package/mycontext-cli)
+
+- **[`apps/web`](./apps/web)** - MyContext Landing Page
+  Marketing website and visual studio (in development) for the MyContext ecosystem.
+
+- **[`apps/vscode`](./apps/vscode)** - VS Code Extension
+  MyContext integration for Visual Studio Code (in development).
+
+### 📚 Packages
+
+- **[`packages/core`](./packages/core)** - `@myycontext/core`
+  Shared manifest management, architectural types, and the deterministic "Living DB" engine.
+  📚 [Core Documentation](./packages/core/README.md) | 📦 [npm package](https://www.npmjs.com/package/@myycontext/core)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-MyContext is powered by **Turborepo** and **pnpm**.
+### For Users (Install Published Packages)
 
 ```bash
-# 1. Install dependencies
+# Install the CLI globally
+npm install -g mycontext-cli
+
+# Or use with npx
+npx mycontext-cli init
+
+# Initialize a project
+mycontext init
+
+# Analyze a screenshot and generate specs
+mycontext analyze screenshot.png
+
+# Generate full context for AI coding
+mycontext generate context --full
+```
+
+### For Contributors (Local Development)
+
+MyContext uses **Turborepo** and **pnpm** for monorepo management.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/farajabien/mycontext-cli.git
+cd mycontext-cli
+
+# 2. Install dependencies
 pnpm install
 
-# 2. Build everything
+# 3. Build all packages
 pnpm run build
 
-# 3. Development
+# 4. Link CLI for local testing
+cd apps/cli && pnpm link --global
+
+# 5. Start development servers
 pnpm run dev
+```
+
+#### Development Workflow
+
+```bash
+# Build specific package
+pnpm --filter mycontext-cli build
+pnpm --filter @myycontext/core build
+
+# Run tests
+pnpm run test
+
+# Lint code
+pnpm run lint
+
+# Clean all build artifacts
+pnpm run clean
 ```
 
 ---
@@ -39,26 +98,64 @@ pnpm run dev
 
 <!-- mycontext:start -->
 ### 🎯 Project Overview
-**MyContext Monorepo**: Architectural hub for spec-driven development.
+**MyContext**: The deterministic anchor for AI-powered development. Ground your agents in specs, not hallucinations.
 
-### ✨ Key Apps
-- **CLI**: The command-line anchor for Zero-Drift evolution.
-- **Web**: Visual manifestation and interaction layer.
+### ✨ Key Capabilities
+- **Screenshot → Spec**: Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
+- **Zero-Drift Evolution**: Autonomous code generation that never strays from design intent
+- **Hard Gravity Anchors**: Deterministic specifications that keep projects aligned at scale
 
-### 🛠️ Shared Core
-- **Manifest Engine**: Deterministic state management for the Living DB.
-- **Physics Engine**: Gatekeeper for narrative compliance.
+### 🛠️ Architecture
+- **CLI**: Command-line interface for project initialization and autonomous development
+- **Core**: Manifest engine and "Physics Engine" for narrative compliance
+- **Web**: Visual studio for design-to-code workflows (coming soon)
 
---- 
-_Last synchronized with MyContext Living DB on 2/11/2026_
+---
+_Last synchronized with MyContext Living DB on 2/12/2026_
 <!-- mycontext:end -->
+
+---
+
+## 📦 Publishing Packages
+
+To publish packages to npm:
+
+```bash
+# Publish CLI
+cd apps/cli
+npm version patch  # or minor, major
+npm publish
+
+# Publish Core
+cd packages/core
+npm version patch
+npm publish
+```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Project Structure Guidelines
+- Keep packages focused and modular
+- Shared types and utilities go in `@myycontext/core`
+- CLI commands should be self-contained
+- All packages must build successfully before publishing
+
+---
 
 ## 📄 License
 
 MIT © MyContext - See [LICENSE](LICENSE) for details.
+
+---
+
+## 🔗 Links
+
+- [CLI Documentation](./apps/cli/README.md)
+- [Core Package Documentation](./packages/core/README.md)
+- [npm: mycontext-cli](https://www.npmjs.com/package/mycontext-cli)
+- [npm: @myycontext/core](https://www.npmjs.com/package/@myycontext/core)
+- [Report Issues](https://github.com/farajabien/mycontext-cli/issues)

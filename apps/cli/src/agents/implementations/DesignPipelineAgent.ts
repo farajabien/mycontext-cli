@@ -19,7 +19,7 @@ import {
   DesignIntent,
   FallbackResult,
   ValidationResult,
-} from "@mycontext/core";
+} from "@myycontext/core";
 import { IntentValidator } from "../../services/IntentValidator";
 import { IntentEnricher } from "../../services/IntentEnricher";
 import chalk from "chalk";

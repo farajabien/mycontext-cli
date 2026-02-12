@@ -7,7 +7,7 @@ import {
   DesignIntent,
   ComponentHierarchy,
   ImplementationPlan,
-} from "@mycontext/core";
+} from "@myycontext/core";
 import chalk from "chalk";
 
 /**

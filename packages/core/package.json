@@ -1,8 +1,35 @@
 {
-    "name": "@mycontext/core",
-    "version": "1.0.0",
+    "name": "@myycontext/core",
+    "version": "1.0.4",
+    "description": "The Manifest Engine and Architectural Heart of the MyContext Ecosystem",
+    "keywords": [
+        "mycontext",
+        "manifest",
+        "design-system",
+        "architecture",
+        "zero-drift"
+    ],
+    "author": "MyContext",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/farajabien/mycontext-cli.git",
+        "directory": "packages/core"
+    },
+    "homepage": "https://github.com/farajabien/mycontext-cli#readme",
+    "bugs": {
+        "url": "https://github.com/farajabien/mycontext-cli/issues"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "package.json"
+    ],
     "scripts": {
         "build": "rm -rf dist && tsc"
     },

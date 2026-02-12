@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { EnvExampleGenerator } from "../utils/envExampleGenerator";
-import { DesignManifestManager } from "@mycontext/core";
+import { DesignManifestManager } from "@myycontext/core";
 
 interface InitOptions extends CommandOptions {
   description?: string;
@@ -28,7 +28,7 @@ export class InitCommand {
   private fs = new FileSystemManager();
   private manifestManager = new DesignManifestManager();
 
-  async execute(projectName: string, options: InitOptions): Promise<void> {
+  async execute(projectName: string | undefined, options: InitOptions): Promise<void> {
     const spinner = new EnhancedSpinner("Initializing project...");
 
     try {
@@ -62,6 +62,22 @@ export class InitCommand {
       const projectPath = useCurrentDir
         ? workingDir
         : path.resolve(workingDir, finalProjectName);
+
+      // Safety check: Detect existing MyContext project
+      const mycontextPath = path.join(projectPath, ".mycontext");
+      if (await fs.pathExists(mycontextPath) && !options.force && !options.yes) {
+        const { confirmOverwrite } = await prompts({
+          type: "confirm",
+          name: "confirmOverwrite",
+          message: chalk.yellow(`⚠️  Existing .mycontext folder found in ${projectName || '.'}. Overwrite?`),
+          initial: false,
+        });
+
+        if (!confirmOverwrite) {
+          console.log(chalk.blue("\nInitialization cancelled. Use 'mycontext status' to audit your existing project instead."));
+          return;
+        }
+      }
 
       spinner.start();
 
@@ -120,12 +136,17 @@ export class InitCommand {
     options: InitOptions,
     useCurrentDir: boolean
   ): Promise<void> {
-    // 1. Run shadcn init
-    spinner.updateText("Running shadcn init...");
-    execSync("pnpm dlx shadcn@latest init", {
-      cwd: workingDir,
-      stdio: "inherit",
-    });
+    // 1. Run shadcn init if components.json doesn't exist
+    const componentsJsonPath = path.join(projectPath, "components.json");
+    if (!fs.existsSync(componentsJsonPath)) {
+      spinner.updateText("Running shadcn init...");
+      execSync("pnpm dlx shadcn@latest init", {
+        cwd: workingDir,
+        stdio: "inherit",
+      });
+    } else {
+      console.log(chalk.blue("ℹ️  shadcn/ui already initialized, skipping..."));
+    }
 
     // 2. Prompt user for instant-cli init
     spinner.stop();
@@ -216,12 +237,17 @@ export class InitCommand {
     options: InitOptions,
     useCurrentDir: boolean
   ): Promise<void> {
-    // 1. Run shadcn init
-    spinner.updateText("Running shadcn init...");
-    execSync("pnpm dlx shadcn@latest init", {
-      cwd: workingDir,
-      stdio: "inherit",
-    });
+    // 1. Run shadcn init if components.json doesn't exist
+    const componentsJsonPath = path.join(projectPath, "components.json");
+    if (!fs.existsSync(componentsJsonPath)) {
+      spinner.updateText("Running shadcn init...");
+      execSync("pnpm dlx shadcn@latest init", {
+        cwd: workingDir,
+        stdio: "inherit",
+      });
+    } else {
+      console.log(chalk.blue("ℹ️  shadcn/ui already initialized, skipping..."));
+    }
 
     // 2. Initialize MyContext directory structure and context
     spinner.updateText("Initializing MyContext project files...");

@@ -81,7 +81,7 @@ try {
   ];
   for (const p of candidates) {
     if (fs.pathExistsSync(p)) {
-      const result = dotenv.config({ path: p, silent: true });
+      const result = dotenv.config({ path: p, quiet: true });
       dotenvExpand.expand(result);
     }
   }
@@ -112,7 +112,7 @@ program
 
 // Initialize command
 program
-  .command("init <project-name>")
+  .command("init [project-name]")
   .description("Initialize a new MyContext project with your preferred framework")
   .option("--description <desc>", "project description")
   .option("--force", "force reinitialization")

@@ -1,0 +1,84 @@
+{
+    "name": "@myycontext/vscode",
+    "displayName": "MyContext Living Brain",
+    "description": "Visual interface for the MyContext Living DB and Agentic Evolution",
+    "version": "1.0.1",
+    "publisher": "mycontext",
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:mycontext-living-brain",
+        "onView:mycontext-tasks",
+        "onCommand:mycontext.status",
+        "onCommand:mycontext.syncReadme"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "mycontext-explorer",
+                    "title": "MyContext",
+                    "icon": "media/icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "mycontext-explorer": [
+                {
+                    "id": "mycontext-living-brain",
+                    "name": "Living Brain",
+                    "type": "tree"
+                },
+                {
+                    "id": "mycontext-tasks",
+                    "name": "Active Tasks",
+                    "type": "tree"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "mycontext.status",
+                "title": "MyContext: Check Status",
+                "category": "MyContext"
+            },
+            {
+                "command": "mycontext.syncReadme",
+                "title": "MyContext: Sync README",
+                "category": "MyContext"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run build",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "build": "node ./esbuild.js",
+        "watch-bundle": "node ./esbuild.js --watch"
+    },
+    "dependencies": {
+        "@myycontext/core": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "18.x",
+        "@types/vscode": "^1.85.0",
+        "@typescript-eslint/eslint-plugin": "^6.15.0",
+        "@typescript-eslint/parser": "^6.15.0",
+        "@vscode/test-electron": "^2.3.8",
+        "esbuild": "^0.27.3",
+        "eslint": "^8.56.0",
+        "glob": "^10.3.10",
+        "mocha": "^10.2.0",
+        "typescript": "^5.3.3"
+    }
+}

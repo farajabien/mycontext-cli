@@ -6,7 +6,13 @@
     "dev": "turbo run dev",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "publish:cli": "pnpm --filter mycontext-cli publish",
+    "publish:core": "pnpm --filter @myycontext/core publish",
+    "publish:all": "pnpm run build && pnpm run publish:core && pnpm run publish:cli",
+    "version:cli": "cd apps/cli && npm version",
+    "version:core": "cd packages/core && npm version",
+    "link:cli": "cd apps/cli && pnpm link --global"
   },
   "devDependencies": {
     "turbo": "latest"

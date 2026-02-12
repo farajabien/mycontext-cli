@@ -2,7 +2,7 @@ import { SubAgent } from "../interfaces/SubAgent";
 import * as fs from "fs";
 import * as path from "path";
 import { UnifiedDesignContextLoader } from "../../utils/unifiedDesignContextLoader";
-import { DesignManifest, EnrichedContext } from "@mycontext/core";
+import { DesignManifest, EnrichedContext } from "@myycontext/core";
 
 export interface PromptConstructionContext {
   prd?: string;
