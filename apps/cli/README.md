@@ -12,6 +12,14 @@
 🔒 **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard
 🚀 **Instant Setup** - Initialize Next.js projects with shadcn/ui, InstantDB, and more
 
+## 🤖 Scalable Agent Teams Architecture
+
+MyContext implements **Agent Teams** differently. Instead of fragile, direct message-passing between agents (which breaks at scale), we use a **Living Brain** (`context.json`) as a shared state machine.
+
+- **The "Blackboard" Pattern**: Agents (Architect, QA, Dev) coordinate by reading and writing to the Living Brain.
+- **Asynchronous & Decoupled**: An Architect can design a feature, log off, and a Dev agent can pick it up hours later with full context.
+- **Infinite Scalability**: Add as many specialized agents as needed; they all sync through the single source of truth.
+
 ---
 
 ## 🚀 Installation

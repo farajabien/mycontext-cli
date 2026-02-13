@@ -8,3 +8,10 @@ Any changes to code, architecture, or features MUST be synchronized with:
 - If the current project description or PRD is thin/vague (e.g., "[Add your project description]"), you MUST prompt the user for more detail before generating code.
 - "Guessing" is prohibited. Align with the user's intent by clarifying requirements first.
 - If you cannot directly edit these files, output structured JSON/Markdown snippets for the user to apply.
+
+[AGENT TEAMS ARCHITECTURE]:
+- The "Living Brain" (`context.json`) is the shared state ("Blackboard") that enables scalable Agent Teams.
+- Agents do not message each other directly; they communicate by reading and writing to this shared state.
+- This decoupling allows for infinite scalability, asynchronous coordination, and zero-drift alignment.
+- When you act as an agent (Architect, QA, Dev), your "messages" to other agents are your updates to the `context.json`.
+- ALWAYS check `context.json` for the latest state before acting. ALWAYS update `context.json` with your results.
