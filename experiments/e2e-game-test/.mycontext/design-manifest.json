@@ -1,0 +1,266 @@
+{
+  "version": "1.1.0",
+  "generated_at": "2026-02-13T11:20:05.995Z",
+  "project_name": "2D Brick Breaker Game",
+  "phases": {
+    "functional_summary": {
+      "app_name": "Brick Breaker",
+      "core_purpose": "Brick Breaker - A 2D arcade-style game where players break bricks using a paddle and ball.",
+      "key_features": [
+        "Classic arcade gameplay",
+        "Multiple levels with increasing difficulty",
+        "Power-ups and bonuses",
+        "High score tracking",
+        "Customizable paddle and ball skins"
+      ],
+      "primary_user_actions": [
+        "Move paddle to hit the ball",
+        "Break bricks to clear levels",
+        "Collect power-ups",
+        "Track and beat high scores"
+      ],
+      "platform": "web",
+      "technical_requirements": [
+        "Responsive design for desktop and mobile",
+        "Smooth animations and transitions",
+        "Optimized for performance"
+      ],
+      "complexity_level": "medium"
+    },
+    "project_scope": {
+      "build_scope": "full_game",
+      "reason": "Development of a 2D Brick Breaker game",
+      "expected_outputs": [
+        "Playable game with multiple levels",
+        "Responsive UI for desktop and mobile",
+        "High score tracking system",
+        "Customizable assets (paddle and ball skins)"
+      ]
+    },
+    "context_gaps": {
+      "missing": [],
+      "recommended_next_action": "All context gaps resolved. Proceed with implementation."
+    },
+    "design_brief": {
+      "theme": "vibrant",
+      "inspiration_sources": [
+        "Classic arcade games",
+        "Modern minimalist game design"
+      ],
+      "blended_style": "retro-modern",
+      "primary_color": "#FF5733",
+      "support_colors": [
+        "#FFC300",
+        "#DAF7A6",
+        "#C70039",
+        "#900C3F"
+      ],
+      "typography": {
+        "heading": "Press Start 2P",
+        "body": "Roboto"
+      },
+      "ui_principles": [
+        "Intuitive navigation",
+        "Engaging visuals",
+        "Responsive design"
+      ],
+      "motion_style": "dynamic",
+      "personality_keywords": [
+        "fun",
+        "challenging",
+        "nostalgic"
+      ],
+      "emotional_tone": "exciting",
+      "target_audience": "Casual gamers and arcade enthusiasts"
+    },
+    "visual_system": {
+      "colors": {
+        "primary": "#FF5733",
+        "background": "#000000",
+        "surface": "#1C1C1C",
+        "text": "#FFFFFF",
+        "text_muted": "#B3B3B3"
+      },
+      "typography": {
+        "font_families": {
+          "heading": "Press Start 2P",
+          "body": "Roboto",
+          "mono": "ui-monospace"
+        },
+        "scale": {
+          "xs": "0.75rem",
+          "sm": "0.875rem",
+          "md": "1rem",
+          "lg": "1.125rem",
+          "xl": "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem"
+        },
+        "weights": {
+          "normal": "400",
+          "medium": "500",
+          "semibold": "600",
+          "bold": "700"
+        }
+      },
+      "spacing": {
+        "xs": "0.25rem",
+        "sm": "0.5rem",
+        "md": "1rem",
+        "lg": "1.5rem",
+        "xl": "2rem",
+        "2xl": "3rem",
+        "3xl": "4rem",
+        "4xl": "6rem"
+      },
+      "radii": {
+        "none": "0",
+        "sm": "0.125rem",
+        "md": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      "shadows": {
+        "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+        "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+        "xl": "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+      },
+      "motion": {
+        "duration": {
+          "fast": "150ms",
+          "normal": "250ms",
+          "slow": "350ms"
+        },
+        "easing": {
+          "linear": "linear",
+          "ease_in": "cubic-bezier(0.4, 0, 1, 1)",
+          "ease_out": "cubic-bezier(0, 0, 0.2, 1)",
+          "ease_in_out": "cubic-bezier(0.4, 0, 0.2, 1)"
+        }
+      },
+      "breakpoints": {
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px"
+      }
+    },
+    "component_hierarchy": {
+      "screens": [
+        "Main Menu",
+        "Game Screen",
+        "Pause Menu",
+        "Game Over Screen",
+        "High Scores"
+      ],
+      "components": [
+        "Paddle",
+        "Ball",
+        "Brick",
+        "Power-Up",
+        "Scoreboard"
+      ],
+      "design_patterns": [
+        "Game loop",
+        "Collision detection",
+        "Level progression"
+      ],
+      "interaction_flows": [
+        "Start game",
+        "Pause game",
+        "Resume game",
+        "Game over",
+        "View high scores"
+      ],
+      "state_management": [
+        "Game state",
+        "Player state",
+        "Level state"
+      ],
+      "data_flow": [
+        "Player actions -> Game state",
+        "Game state -> UI updates",
+        "Score updates -> High score tracking"
+      ]
+    },
+    "implementation_plan": {
+      "framework": "nextjs",
+      "pages": [
+        "index",
+        "game",
+        "high-scores"
+      ],
+      "state_management": "zustand",
+      "build_requirements": [
+        "Game physics engine",
+        "Responsive design implementation",
+        "High score persistence"
+      ],
+      "data_persistence": "vantage",
+      "performance_optimizations": [
+        "Lazy loading assets",
+        "Optimized rendering for animations"
+      ],
+      "accessibility_implementation": [
+        "Keyboard navigation",
+        "Colorblind-friendly mode"
+      ],
+      "testing_strategy": [
+        "Unit tests for game mechanics",
+        "Integration tests for UI components",
+        "End-to-end tests for user flows"
+      ]
+    },
+    "design_intent": {
+      "visual_philosophy": "Retro-modern with vibrant colors and clean UI",
+      "design_anchors": [
+        "fun",
+        "engaging",
+        "accessible"
+      ],
+      "user_experience_goals": [
+        "intuitive gameplay",
+        "immersive experience"
+      ],
+      "brand_alignment": "Aligned with classic arcade nostalgia",
+      "technical_constraints": [
+        "Responsive design",
+        "Accessibility compliance",
+        "Optimized performance for web"
+      ],
+      "scalability_considerations": [
+        "Modular game components",
+        "Expandable level design"
+      ],
+      "maintenance_guidelines": [
+        "Documented game logic",
+        "Reusable components"
+      ],
+      "success_criteria": [
+        "Playable game with no critical bugs",
+        "Positive user feedback",
+        "High engagement metrics"
+      ]
+    },
+    "state_attestation": {
+      "last_audit_at": "2026-02-13T11:20:05.995Z",
+      "drift_score": 0,
+      "compliance_status": "compliant",
+      "untracked_changes": []
+    }
+  },
+  "metadata": {
+    "confidence_scores": {
+      "functional_summary": 0.95,
+      "project_scope": 0.9,
+      "design_brief": 0.9,
+      "component_hierarchy": 0.85,
+      "implementation_plan": 0.9
+    },
+    "fallbacks_used": [],
+    "generation_time_ms": 0
+  }
+}

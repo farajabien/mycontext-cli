@@ -23,12 +23,12 @@ export class DesignManifestManager {
     this.manifestPath = path.join(
       projectPath,
       ".mycontext",
-      "design-manifest.json"
+      "context.json"
     );
   }
 
   /**
-   * Save design manifest to .mycontext/design-manifest.json
+   * Save design manifest to .mycontext/context.json
    */
   async saveDesignManifest(manifest: DesignManifest): Promise<void> {
     try {
@@ -41,7 +41,7 @@ export class DesignManifestManager {
 
       console.log(
         chalk.green(
-          "✅ Design manifest saved to .mycontext/design-manifest.json"
+          "✅ Living Brain saved to .mycontext/context.json"
         )
       );
     } catch (error) {

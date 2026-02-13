@@ -128,10 +128,68 @@ export class AICore {
   }
 
   /**
-   * Proxy for generateText
+   * Proxy for generateText with automatic fallback
    */
   public async generateText(prompt: string, options: AIClientOptions = {}): Promise<string> {
-    return this.getBestClient().generateText(prompt, options);
+    const clients = this.getAvailableClients();
+    let lastError: any = null;
+
+    for (const client of clients) {
+      try {
+        return await client.generateText(prompt, options);
+      } catch (error: any) {
+        lastError = error;
+        const message = error.message || String(error);
+        
+        // If it's a rate limit or auth error, log it and try the next client
+        if (message.includes("429") || message.toLowerCase().includes("rate limit") || 
+            message.includes("401") || message.toLowerCase().includes("unauthorized")) {
+          console.log(chalk.yellow(`⚠️  Provider ${client.clientType} failed, trying fallback...`));
+          continue;
+        }
+        
+        // For other errors, we might still want to try fallback depending on severity
+        console.log(chalk.gray(`ℹ️  Provider ${client.clientType} error: ${message.substring(0, 50)}...`));
+      }
+    }
+
+    if (lastError) {
+      this.handleAIError(lastError);
+      throw lastError;
+    }
+    
+    throw new Error("No AI providers available - configure API keys and retry");
+  }
+
+  /**
+   * Get all clients that have API keys configured, ordered by priority
+   */
+  private getAvailableClients(): AIClient[] {
+    const priority: AIProviderName[] = ["claude", "github", "openrouter", "gemini", "xai"];
+    return priority
+      .map(type => this.providers.get(type))
+      .filter((client): client is AIClient => !!client && client.hasApiKey());
+  }
+
+  private handleAIError(error: any): void {
+    const message = error.message || String(error);
+    
+    // GitHub Models Rate Limit (429)
+    if (message.includes("429") || message.toLowerCase().includes("rate limit")) {
+      console.log(chalk.yellow("\n⚠️  AI Rate Limit Hit (GitHub Models Free Tier)"));
+      console.log(chalk.blue("💡 Recommendation:"));
+      console.log(chalk.gray("   1. Obtain a FREE OpenRouter API key at https://openrouter.ai/keys"));
+      console.log(chalk.gray("   2. Add it to .mycontext/.env: MYCONTEXT_OPENROUTER_API_KEY=sk-or-..."));
+      console.log(chalk.gray("   3. Or switch to Gemini by adding GEMINI_API_KEY to your env."));
+      return;
+    }
+
+    // Generic Auth error
+    if (message.includes("401") || message.toLowerCase().includes("unauthorized") || message.toLowerCase().includes("api key")) {
+      console.log(chalk.red("\n❌ AI Authentication Error"));
+      console.log(chalk.gray("   Please check your API keys in .mycontext/.env"));
+      return;
+    }
   }
 
   /**

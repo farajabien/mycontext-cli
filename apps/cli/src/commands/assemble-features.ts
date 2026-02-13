@@ -329,7 +329,7 @@ export class AssembleFeaturesCommand {
     const manifestPath = path.join(
       projectPath,
       ".mycontext",
-      "design-manifest.json"
+      "context.json"
     );
 
     try {

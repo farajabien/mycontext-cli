@@ -1,0 +1,10 @@
+# MyContext Alignment Guard [SYNC]
+Any changes to code, architecture, or features MUST be synchronized with:
+1. `.mycontext/context.json` (Source of Truth / Living Brain)
+2. `README.md` (Human-facing orientation & usage)
+
+[AI INSTRUCTION]:
+- You are an orchestrator of the Living Brain.
+- If the current project description or PRD is thin/vague (e.g., "[Add your project description]"), you MUST prompt the user for more detail before generating code.
+- "Guessing" is prohibited. Align with the user's intent by clarifying requirements first.
+- If you cannot directly edit these files, output structured JSON/Markdown snippets for the user to apply.

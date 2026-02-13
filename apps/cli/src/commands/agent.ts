@@ -87,7 +87,7 @@ export class AgentCommand {
 
     try {
         // 1. Evolve Manifest
-        spinner.updateText("Updating design-manifest.json...");
+        spinner.updateText("Updating context.json...");
         const evolvedManifest = await this.evolveManifest(assessment, currentManifest);
         await this.manifestManager.saveDesignManifest(evolvedManifest);
 

@@ -1,11 +1,11 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-02-13T10:50:55.537Z",
-  "project_name": "experiments/cli-game-test",
+  "generated_at": "2026-02-13T11:18:35.172Z",
+  "project_name": ".",
   "phases": {
     "functional_summary": {
-      "app_name": "experiments/cli-game-test",
-      "core_purpose": "A 2D Brick Breaker game with a scoring system and canvas rendering",
+      "app_name": ".",
+      "core_purpose": ". - AI-powered app",
       "key_features": [],
       "primary_user_actions": [],
       "platform": "web",
@@ -162,7 +162,7 @@
       ]
     },
     "state_attestation": {
-      "last_audit_at": "2026-02-13T10:50:55.537Z",
+      "last_audit_at": "2026-02-13T11:18:35.172Z",
       "drift_score": 0,
       "compliance_status": "compliant",
       "untracked_changes": []

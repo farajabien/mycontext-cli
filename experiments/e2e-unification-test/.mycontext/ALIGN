@@ -1,0 +1,6 @@
+# MyContext Alignment Guard [SYNC]
+Any changes to code, architecture, or features MUST be synchronized with:
+1. `.mycontext/context.json` (Source of Truth / Living Brain)
+2. `README.md` (Human-facing orientation & usage)
+
+[INSTRUCTION]: If you are an AI assistant and cannot directly edit these files, you MUST output structured JSON/Markdown snippets for the user to apply, ensuring the project's documentation never drifts from reality.

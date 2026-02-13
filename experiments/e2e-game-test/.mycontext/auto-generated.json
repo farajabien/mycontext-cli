@@ -1,0 +1,42 @@
+{
+  "features": [],
+  "gaps": [
+    {
+      "id": "game-type",
+      "category": "critical",
+      "question": "What type of game is this?",
+      "context": "prd",
+      "suggestedAnswers": [
+        "Turn-based (Tic-tac-toe, Chess)",
+        "Real-time (Racing, Shooting)",
+        "Puzzle (Matching, Strategy)",
+        "Card game",
+        "Board game",
+        "Other"
+      ],
+      "reasoning": "Game mentioned but type not specified"
+    },
+    {
+      "id": "game-rules",
+      "category": "critical",
+      "question": "What are the core game rules?",
+      "context": "prd",
+      "reasoning": "Game rules need to be defined for proper implementation"
+    },
+    {
+      "id": "auth-method",
+      "category": "critical",
+      "question": "How should users authenticate?",
+      "context": "prd",
+      "suggestedAnswers": [
+        "Email/password",
+        "Social login (Google, GitHub)",
+        "Magic link",
+        "No authentication needed"
+      ],
+      "reasoning": "PRD mentions users but no authentication method specified"
+    }
+  ],
+  "timestamp": "2026-02-13T11:25:30.504Z",
+  "version": "1.0"
+}

@@ -8,8 +8,8 @@
 
 🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
 🤖 **Autonomous Code Generation** - AI agents that write code grounded in deterministic specs
-🔒 **Zero-Drift Development** - Maintain perfect alignment between design intent and implementation
-📊 **Living DB** - Deterministic manifest that evolves with your project
+🧠 **Living Brain (JSON-First)** - A deterministic manifest (`context.json`) that evolves with your project
+🔒 **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard
 🚀 **Instant Setup** - Initialize Next.js projects with shadcn/ui, InstantDB, and more
 
 ---
@@ -194,10 +194,11 @@ After running `mycontext init`, your project will have:
 ```
 .mycontext/
 ├── .env                      # AI provider configuration
-├── design-manifest.json      # Living DB - source of truth
-├── context/                  # Generated context files
-│   ├── PROJECT_OVERVIEW.md
-│   ├── ARCHITECTURE.md
+├── context.json              # Living Brain - primary source of truth (JSON)
+├── ALIGN                     # Alignment Guard - Instructions for AI assistants
+├── context/                  # Exported Markdown views for humans/AI
+│   ├── 01-prd.md
+│   ├── 01a-features.md
 │   └── ...
 └── logs/                     # Operation logs
 ```

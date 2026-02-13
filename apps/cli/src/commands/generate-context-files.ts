@@ -875,6 +875,32 @@ ${response}
 
         // Check if PRD is just a template/starter sample
         if (this.isTemplatePRD(prdContent)) {
+          // If we have a fallback description, check if it's substantial
+          if (fallbackDescription) {
+            const isSubstantial = fallbackDescription.trim().length > 100 && 
+                                  fallbackDescription.split(/\s+/).length > 15;
+
+            if (isSubstantial) {
+              console.log(
+                chalk.blue(
+                  "📝 PRD is a template, but provided description is substantial. Using it as context."
+                )
+              );
+              return fallbackDescription;
+            } else {
+              console.log(
+                chalk.yellow(
+                  "⚠️  Description provided is too brief to seed a high-quality PRD."
+                )
+              );
+              console.log(
+                chalk.gray(
+                  "   Please provide more detail (e.g., features, user flows, tech stack)."
+                )
+              );
+            }
+          }
+
           console.log(
             chalk.yellow(
               "⚠️  PRD is a template - please update with your project details first"

@@ -27,7 +27,7 @@ export class SyncREADMECommand {
       const manifest = await this.manifestManager.loadDesignManifest();
       if (!manifest) {
         console.error(
-          chalk.red("❌ Design manifest not found (.mycontext/design-manifest.json)")
+          chalk.red("❌ Living Brain not found (.mycontext/context.json)")
         );
         console.log(chalk.gray("Run 'mycontext generate architecture' or create a manifest first."));
         return;

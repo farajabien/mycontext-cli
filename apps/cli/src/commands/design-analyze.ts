@@ -226,8 +226,8 @@ CONTEXT FILES:
   • Architecture: .mycontext/05-architecture.md, .mycontext/architecture.md, context/architecture.md
   • CSS: .mycontext/brand/globals.css, .mycontext/globals.css, context/globals.css, app/globals.css
 
-DESIGN MANIFEST:
-  The design manifest (.mycontext/design-manifest.json) contains:
+DESIGN MANIFEST (Living Brain):
+  The manifest (.mycontext/context.json) contains:
   • Functional summary from PRD
   • Project scope and complexity
   • Design brief and visual direction

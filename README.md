@@ -96,13 +96,17 @@ pnpm run clean
 
 ## 🎯 Project Vision (Living DB)
 
+## 🛡️ Maintainer Guard: `.ALIGN`
+To keep this project's "Living Brain" and documentation in sync, always mention or include `.mycontext/ALIGN` in your prompts when working with an AI. It forces the AI to update `.mycontext/context.json` and this `README.md` alongside any code changes.
+
 <!-- mycontext:start -->
 ### 🎯 Project Overview
 **MyContext**: The deterministic anchor for AI-powered development. Ground your agents in specs, not hallucinations.
 
 ### ✨ Key Capabilities
 - **Screenshot → Spec**: Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
-- **Zero-Drift Evolution**: Autonomous code generation that never strays from design intent
+- **Living Brain (JSON-First)**: A deterministic manifest (`context.json`) that evolves with your project
+- **Zero-Drift Sync**: Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard
 - **Hard Gravity Anchors**: Deterministic specifications that keep projects aligned at scale
 - **Autonomous Continuous Coding**: A self-evolving loop that maintains zero-drift between spec and code.
 
@@ -112,7 +116,7 @@ pnpm run clean
 - **Web**: Visual studio for design-to-code workflows (coming soon)
 
 ---
-_Last synchronized with MyContext Living DB on 2/12/2026_
+_Last synchronized with MyContext Living DB on 2026-02-13_
 <!-- mycontext:end -->
 
 ---

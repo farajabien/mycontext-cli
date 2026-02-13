@@ -50,6 +50,10 @@ export class FileSystemManager {
     const prdTemplate = this.createPRDTemplate(projectName, description);
     await fs.writeFile(path.join(mycontextPath, "01-prd.md"), prdTemplate);
 
+    // Create prompt guard (.mycontext/ALIGN)
+    const alignTemplate = this.createAlignTemplate();
+    await fs.writeFile(path.join(mycontextPath, "ALIGN"), alignTemplate);
+
     return config;
   }
 
@@ -185,6 +189,23 @@ export class FileSystemManager {
 ## Notes
 - Add more details as needed
 - Update this document as requirements evolve
+`;
+  }
+
+  /**
+   * Create the prompt guard template
+   */
+  private createAlignTemplate(): string {
+    return `# MyContext Alignment Guard [SYNC]
+Any changes to code, architecture, or features MUST be synchronized with:
+1. \`.mycontext/context.json\` (Source of Truth / Living Brain)
+2. \`README.md\` (Human-facing orientation & usage)
+
+[AI INSTRUCTION]:
+- You are the Orchestrator of the Living Brain.
+- **CRITICAL**: If the current project description or PRD is thin, vague, or still contains template placeholders (e.g., "[Add your features]"), you MUST pause and prompt the user for more detail before generating code.
+- **NEVER GUESS**: Hallucinating features or architectural decisions is prohibited. Align with the user's intent by clarifying requirements first.
+- **SYNC**: Ensure all changes are reflected in \`.mycontext/context.json\` and mirrored in \`README.md\`.
 `;
   }
 

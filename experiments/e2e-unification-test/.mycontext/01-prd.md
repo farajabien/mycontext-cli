@@ -1,8 +1,8 @@
 # Product Requirements Document
 
 ## Project Overview
-**Project Name:** experiments/cli-game-test
-**Description:** A 2D Brick Breaker game with a scoring system and canvas rendering
+**Project Name:** .
+**Description:** . - AI-powered app
 
 ## Core Features
 - [Feature 1]: Brief description

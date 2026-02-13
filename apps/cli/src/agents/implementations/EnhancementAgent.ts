@@ -11,7 +11,7 @@ import {
   DesignTokens,
   SubAgent,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 
 import { DesignTokenExtractor } from "../../utils/designTokenExtractor";
 import { ComponentValidator } from "../../utils/componentValidator";
