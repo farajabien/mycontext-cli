@@ -13,6 +13,9 @@ import {
   isGenericTypes,
   generateTypesFromTemplate,
 } from "../utils/typeTemplateGenerator";
+import { AICore } from "../core/ai/AICore";
+import { LivingContext } from "../types/living-context";
+import { ContextRenderer } from "../utils/contextRenderer";
 
 // Dynamic component generation types
 type AppType =
@@ -133,6 +136,12 @@ export class GenerateCommand {
     this.spinner = new EnhancedSpinner("Processing...");
     this.ai = new HybridAIClient();
     this.hostedApi = new HostedApiClient();
+    
+    // Initialize AICore with current working directory
+    AICore.getInstance({
+      workingDirectory: process.cwd(),
+      fallbackEnabled: true
+    });
   }
 
   async execute(options: GenerateOptions): Promise<void> {
@@ -4712,45 +4721,117 @@ ${
   /**
    * Generate full context (PRD + A/B/C/D files)
    */
+  private async generateLivingContext(
+    projectContext: any,
+    options: GenerateOptions
+  ): Promise<LivingContext> {
+    const aiCore = AICore.getInstance();
+    const prompt = `
+Generate a comprehensive project context based on the following description:
+${projectContext.description}
+
+You must extract all functional requirements, user flows, technical stack decisions, and data entities.
+`;
+
+    // The schema for LivingContext (simplified version for the LLM)
+    const schema = `
+{
+  "prd": { "title": "...", "problemStatement": "...", "goals": [], "targetAudience": "...", "successMetrics": [] },
+  "features": [{ "id": "...", "name": "...", "description": "...", "priority": "high|medium|low", "userValue": "...", "acceptanceCriteria": [], "dependencies": [] }],
+  "flows": [{ "id": "...", "name": "...", "description": "...", "steps": [], "actors": [] }],
+  "edgeCases": [{ "id": "...", "category": "...", "description": "...", "mitigation": "..." }],
+  "specs": {
+    "architecture": "...",
+    "techStack": { "frontend": [], "backend": [], "database": [], "other": [] },
+    "apiEndpoints": [{ "path": "...", "method": "...", "description": "...", "authRequired": true }],
+    "databaseSchema": { "tables": [{ "name": "...", "columns": [{ "name": "...", "type": "...", "constraints": [] }] }] }
+  }
+}
+`;
+
+    const livingContextData = await aiCore.generateStructuredText<any>(prompt, schema);
+    
+    // Merge with metadata
+    const livingContext: LivingContext = {
+      ...livingContextData,
+      metadata: {
+        version: "1.0.0",
+        generatedAt: new Date().toISOString(),
+        lastUpdatedAt: new Date().toISOString(),
+        projectConfig: {
+          id: require("crypto").randomUUID(),
+          name: livingContextData.prd.title,
+          description: livingContextData.prd.problemStatement,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          contextPath: ".mycontext",
+          version: "0.1.0",
+          status: "context-generated"
+        }
+      },
+      components: [],
+      actions: [],
+      routes: []
+    };
+
+    return livingContext;
+  }
+
   private async generateFullContext(
     projectContext: any,
     options: GenerateOptions
   ): Promise<GenerationResult> {
-    console.log(chalk.blue("🚀 Generating Full Context (PRD + A/B/C/D files)"));
+    this.spinner.updateText("🚀 Generating Living Brain (JSON Context)...");
 
-    // First generate the PRD
-    console.log("[GenerateCommand] Step 1: Generating PRD...");
-    const prdResult = await this.generateContext(projectContext, options);
-    if (!prdResult.success) {
-      console.log("[GenerateCommand] PRD generation failed:", prdResult.error);
-      return prdResult;
+    try {
+      // 1. Generate the structured JSON context
+      const livingContext = await this.generateLivingContext(projectContext, options);
+      
+      const projectRoot = this.getProjectRoot();
+      const mycontextDir = path.join(projectRoot, ".mycontext");
+      await fs.ensureDir(mycontextDir);
+
+      // 2. Save the primary JSON source of truth
+      const jsonPath = path.join(mycontextDir, "context.json");
+      await fs.writeJson(jsonPath, livingContext, { spaces: 2 });
+      console.log(chalk.green(`\n✅ Living Brain saved to: ${jsonPath}`));
+
+      // 3. Render and save the human-readable Markdown views
+      this.spinner.updateText("📝 Exporting Markdown views...");
+      
+      const renders = [
+        { name: "01-prd.md", content: ContextRenderer.renderPRD(livingContext) },
+        { name: "01a-features.md", content: ContextRenderer.renderFeatures(livingContext) },
+        { name: "01b-user-flows.md", content: ContextRenderer.renderUserFlows(livingContext) },
+        { name: "01c-edge-cases.md", content: ContextRenderer.renderEdgeCases(livingContext) },
+        { name: "01d-technical-specs.md", content: ContextRenderer.renderTechnicalSpecs(livingContext) },
+      ];
+
+      for (const render of renders) {
+        const filePath = path.join(mycontextDir, render.name);
+        await fs.writeFile(filePath, render.content);
+        console.log(chalk.gray(`   • Exported ${render.name}`));
+      }
+
+      // Update config.json status
+      await this.updateConfigStatus("context-generated");
+
+      this.spinner.success({ text: "🎉 Living Context generated and exported!" });
+
+      return {
+        success: true,
+        content: JSON.stringify(livingContext, null, 2),
+        provider: "hybrid" as any,
+        metadata: { model: "structured", tokens: 0, latency: 0 },
+      };
+    } catch (error: any) {
+      this.spinner.fail(`Generation failed: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        provider: "hybrid" as any
+      };
     }
-    console.log("[GenerateCommand] PRD generation successful");
-
-    // Then generate the A/B/C/D files
-    console.log("[GenerateCommand] Step 2: Generating A/B/C/D files...");
-    const contextFilesResult = await this.generateContextFiles(
-      projectContext,
-      options
-    );
-    if (!contextFilesResult.success) {
-      console.log(
-        "[GenerateCommand] A/B/C/D files generation failed:",
-        contextFilesResult.error
-      );
-      return contextFilesResult;
-    }
-    console.log("[GenerateCommand] A/B/C/D files generation successful");
-
-    // Update config.json status after successful context generation
-    await this.updateConfigStatus("context-generated");
-
-    return {
-      success: true,
-      content: "Full context generated successfully (PRD + A/B/C/D files)",
-      provider: "hybrid" as any,
-      metadata: { model: "hybrid", tokens: 0, latency: 0 },
-    };
   }
 
   /**

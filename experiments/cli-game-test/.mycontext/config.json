@@ -1,0 +1,10 @@
+{
+  "id": "a29ede91-3181-4cd3-8bfd-849c0e981b2d",
+  "name": "experiments/cli-game-test",
+  "description": "A 2D Brick Breaker game with a scoring system and canvas rendering",
+  "createdAt": "2026-02-13T10:50:55.528Z",
+  "updatedAt": "2026-02-13T10:58:33.494Z",
+  "contextPath": ".mycontext",
+  "version": "0.1.0",
+  "status": "context-generated"
+}

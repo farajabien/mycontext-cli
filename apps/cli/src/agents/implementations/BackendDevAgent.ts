@@ -5,6 +5,8 @@ import { CommandOptions } from "../../types";
 import chalk from "chalk";
 import path from "path";
 import * as fs from "fs-extra";
+import { AICore } from "../../core/ai/AICore";
+import { LivingContext } from "../../types/living-context";
 
 interface BackendDevAgentOptions extends CommandOptions {
   projectPath: string;
@@ -46,7 +48,7 @@ export class BackendDevAgent implements SubAgent {
   personality: string;
   llmProvider: string;
   expertise: string[];
-  private aiClient: HybridAIClient;
+  private aiCore: AICore;
   private fs: FileSystemManager;
 
   constructor() {
@@ -82,7 +84,7 @@ export class BackendDevAgent implements SubAgent {
       ];
     }
 
-    this.aiClient = new HybridAIClient();
+    this.aiCore = AICore.getInstance();
     this.fs = new FileSystemManager();
   }
 
@@ -115,17 +117,34 @@ export class BackendDevAgent implements SubAgent {
     );
 
     try {
-      // Step 1: Analyze types and context
-      const typesAnalysis = await this.analyzeTypes(
-        typesPath || path.join(projectPath, ".mycontext", "02-types.ts")
-      );
-      const componentsAnalysis = await this.analyzeComponents(
-        componentsListPath ||
-          path.join(projectPath, ".mycontext", "04-component-list.json")
-      );
-      const contextAnalysis = await this.analyzeContext(
-        contextPath || path.join(projectPath, ".mycontext", "01-prd.md")
-      );
+      // NEW: Load from Living Brain (JSON)
+      const aiCore = AICore.getInstance();
+      const livingContext = await aiCore.getLivingContext();
+
+      let typesAnalysis, componentsAnalysis, contextAnalysis;
+
+      if (livingContext) {
+        console.log("🧠 BackendDevAgent anchoring to Living Brain");
+        // We can still run AI analysis on the JSON or use it directly
+        typesAnalysis = await this.analyzeTypes(
+          typesPath || path.join(projectPath, ".mycontext", "02-types.ts"),
+          livingContext
+        );
+        componentsAnalysis = livingContext.features; // Simplified for now
+        contextAnalysis = livingContext.prd;
+      } else {
+        // Legacy: Analyze types and context
+        typesAnalysis = await this.analyzeTypes(
+          typesPath || path.join(projectPath, ".mycontext", "02-types.ts")
+        );
+        componentsAnalysis = await this.analyzeComponents(
+          componentsListPath ||
+            path.join(projectPath, ".mycontext", "04-component-list.json")
+        );
+        contextAnalysis = await this.analyzeContext(
+          contextPath || path.join(projectPath, ".mycontext", "01-prd.md")
+        );
+      }
 
       // Step 2: Generate server actions
       const serverActions = await this.generateServerActions(
@@ -176,7 +195,7 @@ export class BackendDevAgent implements SubAgent {
     }
   }
 
-  private async analyzeTypes(typesPath: string): Promise<any> {
+  private async analyzeTypes(typesPath: string, livingContext?: LivingContext): Promise<any> {
     if (!(await fs.pathExists(typesPath))) {
       console.log(
         chalk.yellow("⚠️  Types file not found, using default analysis")
@@ -222,12 +241,12 @@ Return a JSON object with this structure:
 }`;
 
     try {
-      const response = await this.aiClient.generateText(prompt, {
+      const response = await this.aiCore.generateText(prompt, {
         temperature: 0.1,
         maxTokens: 2000,
       });
 
-      return JSON.parse(response.text || "{}");
+      return JSON.parse(response || "{}");
     } catch (error) {
       console.log(chalk.yellow("⚠️  AI analysis failed, using fallback"));
       return this.fallbackTypesAnalysis(typesContent);
@@ -307,12 +326,12 @@ Return a JSON object with this structure:
 }`;
 
     try {
-      const response = await this.aiClient.generateText(prompt, {
+      const response = await this.aiCore.generateText(prompt, {
         temperature: 0.1,
         maxTokens: 1000,
       });
 
-      return JSON.parse(response.text || "{}");
+      return JSON.parse(response || "{}");
     } catch (error) {
       return {
         dataOperations: ["create", "read", "update", "delete"],
@@ -364,12 +383,12 @@ Return a JSON array of server actions with this structure:
 ]`;
 
     try {
-      const response = await this.aiClient.generateText(prompt, {
+      const response = await this.aiCore.generateText(prompt, {
         temperature: 0.2,
         maxTokens: 3000,
       });
 
-      return JSON.parse(response.text || "[]");
+      return JSON.parse(response || "[]");
     } catch (error) {
       console.log(
         chalk.yellow("⚠️  AI generation failed, using fallback server actions")
@@ -501,12 +520,12 @@ Return a JSON array of custom hooks:
 ]`;
 
     try {
-      const response = await this.aiClient.generateText(prompt, {
+      const response = await this.aiCore.generateText(prompt, {
         temperature: 0.2,
         maxTokens: 2000,
       });
 
-      return JSON.parse(response.text || "[]");
+      return JSON.parse(response || "[]");
     } catch (error) {
       return this.generateFallbackCustomHooks(serverActions);
     }

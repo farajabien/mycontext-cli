@@ -12,6 +12,8 @@ import {
 } from "./PromptConstructorAgent";
 import * as fs from "fs";
 import * as path from "path";
+import { AICore } from "../../core/ai/AICore";
+import { LivingContext } from "../../types/living-context";
 
 import {
   SubAgent,
@@ -230,18 +232,27 @@ export class CodeGenSubAgent
             }
           : component;
 
-      // Enhanced context loading from multiple files
-      const prd = options?.context?.prd || "";
-      const types = options?.context?.types || "";
-      const componentList = options?.context?.componentList || "";
-      const projectBrief = options?.context?.brief || "";
+      // Enhanced context loading from Living Brain (JSON)
+      const aiCore = AICore.getInstance();
+      const livingContext = await aiCore.getLivingContext();
+      
+      let prd = options?.context?.prd || "";
+      let types = options?.context?.types || "";
+      let enhancedContext = "";
       const stackConfig = options?.context?.stackConfig || null;
 
-      // Load additional context files if available
-      let enhancedContext = "";
+      if (livingContext) {
+        console.log("🧠 Anchoring to Living Brain (context.json)");
+        // Use structured data if MD is missing
+        if (!prd) prd = JSON.stringify(livingContext.prd, null, 2);
+        
+        enhancedContext += `\nProject Features:\n${JSON.stringify(livingContext.features, null, 2)}\n`;
+        enhancedContext += `\nUser Flows:\n${JSON.stringify(livingContext.flows, null, 2)}\n`;
+        enhancedContext += `\nTechnical Specs:\n${JSON.stringify(livingContext.specs, null, 2)}\n`;
+      }
+
+      // Legacy/Fallback context loading from multiple files
       try {
-        const fs = require("fs");
-        const path = require("path");
         const contextDir = ".mycontext";
 
         // Try to load component list for better context

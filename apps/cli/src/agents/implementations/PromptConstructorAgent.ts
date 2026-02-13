@@ -3,6 +3,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { UnifiedDesignContextLoader } from "../../utils/unifiedDesignContextLoader";
 import { DesignManifest, EnrichedContext } from "@myycontext/core";
+import { AICore } from "../../core/ai/AICore";
+import { LivingContext } from "../../types/living-context";
 
 export interface PromptConstructionContext {
   prd?: string;
@@ -134,8 +136,28 @@ export class PromptConstructorAgent
       componentHierarchy: null as any,
     };
 
-    // Analyze user-centric context files
-    if (context.prd) {
+    // NEW: Load from Living Brain (JSON)
+    const aiCore = AICore.getInstance();
+    const livingContext = await aiCore.getLivingContext();
+
+    if (livingContext) {
+      console.log("🧠 PromptConstructor anchoring to Living Brain");
+      analysis.userInteractions = livingContext.flows.flatMap(f => f.steps);
+      analysis.userActions = livingContext.features.map(f => f.name);
+      analysis.userFeedback = livingContext.edgeCases.map(ec => ec.description);
+      analysis.userJourneyFlows = livingContext.flows.map(f => f.name);
+      analysis.userErrorScenarios = livingContext.edgeCases.map(ec => ec.id);
+      analysis.userExperienceGuidelines = livingContext.prd.successMetrics;
+      analysis.userStates = ["Initial", "Loading", "Success", "Error"]; // Default states
+      analysis.userDecisionPoints = livingContext.prd.goals;
+      analysis.userErrorRecovery = livingContext.edgeCases.map(ec => ec.mitigation);
+      
+      // Technology context from Living Brain
+      analysis.techStack = livingContext.specs.techStack;
+    }
+
+    // Legacy/Fallback: Analyze user-centric context files
+    if (context.prd && !livingContext) {
       analysis.userInteractions = this.extractUserInteractions(context.prd);
       analysis.userActions = this.extractUserActions(context.prd);
       analysis.userFeedback = this.extractUserFeedback(context.prd);
@@ -203,7 +225,7 @@ export class PromptConstructorAgent
     }
   ): Promise<any> {
     try {
-      const { HybridAIClient } = await import("../../utils/hybridAIClient");
+      const aiCore = AICore.getInstance();
 
       const enhancementPrompt = `You are an expert prompt engineer specializing in React component generation.
 
@@ -238,30 +260,29 @@ Return your response as a JSON object with these keys:
   "accessibilityRequirements": ["array of accessibility features to implement"]
 }`;
 
-      const aiClient = new HybridAIClient();
-      const enhancementResponse = await aiClient.generateText(
+      const enhancementResponse = await aiCore.generateText(
         enhancementPrompt,
-        { model: process.env.MYCONTEXT_MODEL || "grok-3" }
+        { model: "gpt-4o" }
       );
 
       // Try to parse the AI response as JSON
       try {
         console.log(
           "🔍 DEBUG: AI enhancement response length:",
-          enhancementResponse.text.length
+          enhancementResponse.length
         );
         console.log(
           "🔍 DEBUG: AI enhancement response preview:",
-          enhancementResponse.text.substring(0, 200)
+          enhancementResponse.substring(0, 200)
         );
 
         // First, try to extract JSON from the response
-        const jsonMatch = enhancementResponse.text.match(/\{[\s\S]*\}/);
+        const jsonMatch = enhancementResponse.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
           console.log(
             "❌ DEBUG: No JSON found in AI enhancement response, using original analysis"
           );
-          console.log("❌ DEBUG: Full response:", enhancementResponse.text);
+          console.log("❌ DEBUG: Full response:", enhancementResponse);
           return analysis;
         }
 

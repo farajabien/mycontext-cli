@@ -1,6 +1,8 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import { ProjectIntelligenceEngine } from "../intelligence/ProjectIntelligence";
 import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { AICore } from "../../core/ai/AICore";
+import { LivingContext } from "../../types/living-context";
 
 export class ArchitectAgent implements SubAgent {
   name = "ArchitectAgent";
@@ -46,9 +48,17 @@ export class ArchitectAgent implements SubAgent {
   }
 
   async execute(input: any): Promise<any> {
-    const { context, component, codebase } = input;
+    const { context: inputContext, component, codebase } = input;
 
     try {
+      // NEW: Load from Living Brain (JSON)
+      const aiCore = AICore.getInstance();
+      const livingContext = await aiCore.getLivingContext();
+      const context = livingContext || inputContext;
+
+      if (livingContext) {
+        console.log("🧠 ArchitectAgent anchoring to Living Brain");
+      }
       // Analyze architectural requirements
       const architecture = await this.analyzeArchitecture(context, component);
 

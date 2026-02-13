@@ -16,6 +16,8 @@ import { Role, RoleDefinition, Permission } from "../../types/role-permissions";
 import * as fs from "fs/promises";
 import * as path from "path";
 import chalk from "chalk";
+import { AICore } from "../../core/ai/AICore";
+import { LivingContext } from "../../types/living-context";
 
 export interface FeatureAssemblyContext {
   projectPath: string;
@@ -59,12 +61,12 @@ export class FeatureAssemblyAgent implements SubAgent {
     "component-integration",
   ];
 
-  private aiClient: HybridAIClient;
+  private aiCore: AICore;
   private projectPath: string;
 
   constructor(projectPath: string) {
     this.projectPath = projectPath;
-    this.aiClient = new HybridAIClient();
+    this.aiCore = AICore.getInstance();
   }
 
   async run(context: FeatureAssemblyContext): Promise<FeatureAssemblyResult> {
@@ -72,13 +74,17 @@ export class FeatureAssemblyAgent implements SubAgent {
     console.log(chalk.cyan("🔧 Feature Assembly Agent starting..."));
 
     try {
+      // NEW: Load Living Context
+      const livingContext = await this.aiCore.getLivingContext();
+
       // Step 1: Analyze components and group into features
       console.log(
         chalk.gray("  📋 Analyzing components and grouping into features...")
       );
       const featureGroups = await this.analyzeAndGroupComponents(
         context.components,
-        context.contextFiles
+        context.contextFiles,
+        livingContext || undefined
       );
 
       // Step 2: Generate feature bundles for each group
@@ -183,7 +189,8 @@ export class FeatureAssemblyAgent implements SubAgent {
 
   private async analyzeAndGroupComponents(
     components: string[],
-    contextFiles: any
+    contextFiles: any,
+    livingContext?: LivingContext
   ): Promise<ComponentGroup[]> {
     const prompt = `
 Analyze the following components and group them into logical features based on functionality and purpose.
@@ -212,9 +219,8 @@ Return a JSON array of component groups with this structure:
 `;
 
     try {
-      const response = await this.aiClient.generateText(prompt);
-      const groups = JSON.parse(response.text);
-      return groups as ComponentGroup[];
+      const response = await this.aiCore.generateText(prompt);
+      return JSON.parse(response || "[]") as ComponentGroup[];
     } catch (error) {
       // Fallback to rule-based grouping
       return this.fallbackComponentGrouping(components);
@@ -317,8 +323,8 @@ Return a JSON object matching the FeatureBundle interface:
 `;
 
     try {
-      const response = await this.aiClient.generateText(prompt);
-      const bundle = JSON.parse(response.text) as FeatureBundle;
+      const response = await this.aiCore.generateText(prompt);
+      const bundle = JSON.parse(response || "{}") as FeatureBundle;
 
       // Add metadata
       bundle.metadata = {

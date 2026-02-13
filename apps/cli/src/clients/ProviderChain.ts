@@ -3,305 +3,101 @@ import {
   AIClientOptions,
   AgentContext,
 } from "../interfaces/AIClient";
-import { MyContextAIClient } from "./MyContextAIClient";
-import { ClaudeSDKClient } from "./ClaudeSDKClient";
-import { XAIClient } from "./XAIClient";
-import { EnrichedContext } from "@myycontext/core";
+import { AICore } from "../core/ai/AICore";
 
 /**
  * Simplified Provider Chain for MyContext CLI
- *
- * Primary: MyContext AI (Fine-tuned GPT-4o Mini)
- * Fallback 1: Claude SDK
- * Fallback 2: XAI (Grok)
- *
- * This replaces the complex HybridAIClient with a streamlined approach
- * focused on our specialized fine-tuned model.
+ * 
+ * Re-implemented as a wrapper around AICore to ensure unification.
  */
 export class ProviderChain implements AIClient {
   readonly clientType = "hybrid" as const;
   readonly supportsTools = true;
   readonly supportsStreaming = false;
 
-  private providers: AIClient[];
-  private myContextAI: MyContextAIClient;
-  private claudeSDK: ClaudeSDKClient;
-  private xai: XAIClient;
-
   constructor() {
-    // Initialize providers in order of preference
-    this.myContextAI = new MyContextAIClient();
-    this.claudeSDK = new ClaudeSDKClient();
-    this.xai = new XAIClient();
-
-    this.providers = [
-      this.myContextAI, // Primary: Fine-tuned model
-      this.claudeSDK, // Fallback 1: Claude SDK
-      this.xai, // Fallback 2: XAI (Grok)
-    ];
+    // AICore is likely already initialized
+    try {
+      AICore.getInstance();
+    } catch (e) {
+      AICore.getInstance({
+        workingDirectory: process.cwd(),
+        fallbackEnabled: true
+      });
+    }
   }
 
-  /**
-   * Check if any provider has API key configured
-   */
+  private get client() {
+    return AICore.getInstance().getBestClient();
+  }
+
   hasApiKey(): boolean {
-    return this.providers.some((provider) => provider.hasApiKey());
+    return this.client.hasApiKey();
   }
 
-  /**
-   * Set API key for all providers
-   */
   setApiKey(apiKey: string): void {
-    this.providers.forEach((provider) => {
-      if (provider.setApiKey) {
-        provider.setApiKey(apiKey);
-      }
-    });
+    this.client.setApiKey(apiKey);
   }
 
-  /**
-   * Check connection to any available provider
-   */
   async checkConnection(): Promise<boolean> {
-    for (const provider of this.providers) {
-      try {
-        const isConnected = await provider.checkConnection();
-        if (isConnected) {
-          return true;
-        }
-      } catch (error) {
-        console.warn(
-          `Provider ${provider.constructor.name} connection failed:`,
-          error
-        );
-        continue;
-      }
-    }
-    return false;
+    return this.client.checkConnection();
   }
 
-  /**
-   * Generate text using the first available provider
-   */
-  async generateText(
-    prompt: string,
-    options: AIClientOptions = {}
-  ): Promise<string> {
-    for (const provider of this.providers) {
-      try {
-        if (!provider.hasApiKey()) {
-          console.warn(
-            `Provider ${provider.constructor.name} has no API key, skipping`
-          );
-          continue;
-        }
-
-        const result = await provider.generateText(prompt, options);
-        console.log(`✅ Generated text using ${provider.constructor.name}`);
-        return result;
-      } catch (error) {
-        console.warn(`❌ Provider ${provider.constructor.name} failed:`, error);
-        continue;
-      }
-    }
-
-    throw new Error("All AI providers failed to generate text");
+  async generateText(prompt: string, options: AIClientOptions = {}): Promise<string> {
+    return this.client.generateText(prompt, options);
   }
 
-  /**
-   * Generate React component using MyContext AI with fallbacks
-   */
   async generateComponent(
     prompt: string,
     context?: AgentContext,
     options: AIClientOptions = {}
   ): Promise<string> {
-    for (const provider of this.providers) {
-      try {
-        if (!provider.hasApiKey()) {
-          console.warn(
-            `Provider ${provider.constructor.name} has no API key, skipping`
-          );
-          continue;
-        }
-
-        const result = await provider.generateComponent(
-          prompt,
-          context,
-          options
-        );
-        console.log(
-          `✅ Generated component using ${provider.constructor.name}`
-        );
-        return result;
-      } catch (error) {
-        console.warn(`❌ Provider ${provider.constructor.name} failed:`, error);
-        continue;
-      }
-    }
-
-    throw new Error("All AI providers failed to generate component");
+    return this.client.generateComponent(prompt, context, options);
   }
 
-  /**
-   * Generate component refinement using the first available provider
-   */
   async generateComponentRefinement(
     componentCode: string,
     prompt: string,
     context?: AgentContext,
     options: AIClientOptions = {}
   ): Promise<string> {
-    for (const provider of this.providers) {
-      try {
-        if (!provider.hasApiKey()) {
-          console.warn(
-            `Provider ${provider.constructor.name} has no API key, skipping`
-          );
-          continue;
-        }
-
-        const result = await provider.generateComponentRefinement(
-          componentCode,
-          prompt,
-          context,
-          options
-        );
-        console.log(`✅ Refined component using ${provider.constructor.name}`);
-        return result;
-      } catch (error) {
-        console.warn(`❌ Provider ${provider.constructor.name} failed:`, error);
-        continue;
-      }
-    }
-
-    throw new Error("All AI providers failed to refine component");
+    return this.client.generateComponentRefinement(componentCode, prompt, context, options);
   }
 
-  /**
-   * List models from all providers
-   */
   async listModels(): Promise<string[]> {
-    const allModels: string[] = [];
-
-    for (const provider of this.providers) {
-      try {
-        if (provider.hasApiKey()) {
-          const models = await provider.listModels();
-          allModels.push(...models);
-        }
-      } catch (error) {
-        console.warn(
-          `Failed to list models from ${provider.constructor.name}:`,
-          error
-        );
-        continue;
-      }
-    }
-
-    return [...new Set(allModels)]; // Remove duplicates
+    return this.client.listModels();
   }
 
-  /**
-   * Get the primary provider (MyContext AI)
-   */
-  getPrimaryProvider(): MyContextAIClient {
-    return this.myContextAI;
+  // Legacy compatibility methods
+  getPrimaryProvider(): any {
+    return this.client;
   }
 
-  /**
-   * Get provider by name
-   */
-  getProvider(name: string): AIClient | null {
-    switch (name.toLowerCase()) {
-      case "mycontext":
-      case "mycontext-ai":
-        return this.myContextAI;
-      case "claude":
-      case "claude-sdk":
-        return this.claudeSDK;
-      case "xai":
-      case "grok":
-        return this.xai;
-      default:
-        return null;
-    }
+  getProvider(name: string): any {
+    return this.client;
   }
 
-  /**
-   * Get provider status
-   */
-  getProviderStatus(): Array<{
-    name: string;
-    hasKey: boolean;
-    connected: boolean;
-  }> {
-    return this.providers.map((provider) => ({
-      name: provider.constructor.name,
-      hasKey: provider.hasApiKey(),
-      connected: false, // Will be updated by checkConnection
-    }));
+  getProviderStatus(): any[] {
+    return [{
+      name: "AICore",
+      hasKey: this.hasApiKey(),
+      connected: true
+    }];
   }
 
-  /**
-   * Check all provider connections
-   */
-  async checkAllConnections(): Promise<
-    Array<{ name: string; hasKey: boolean; connected: boolean }>
-  > {
-    const statuses = await Promise.all(
-      this.providers.map(async (provider) => {
-        const hasKey = provider.hasApiKey();
-        let connected = false;
-
-        if (hasKey) {
-          try {
-            connected = await provider.checkConnection();
-          } catch (error) {
-            connected = false;
-          }
-        }
-
-        return {
-          name: provider.constructor.name,
-          hasKey,
-          connected,
-        };
-      })
-    );
-
-    return statuses;
+  async checkAllConnections(): Promise<any[]> {
+    return this.getProviderStatus();
   }
 
-  /**
-   * Cleanup all providers
-   */
   async cleanup(): Promise<void> {
-    await Promise.all(
-      this.providers.map(async (provider) => {
-        if (provider.cleanup) {
-          try {
-            await provider.cleanup();
-          } catch (error) {
-            console.warn(
-              `Failed to cleanup ${provider.constructor.name}:`,
-              error
-            );
-          }
-        }
-      })
-    );
+    if (this.client.cleanup) {
+      await this.client.cleanup();
+    }
   }
 }
 
-/**
- * Singleton instance of the provider chain
- */
 let providerChainInstance: ProviderChain | null = null;
 
-/**
- * Get the global provider chain instance
- */
 export function getProviderChain(): ProviderChain {
   if (!providerChainInstance) {
     providerChainInstance = new ProviderChain();
@@ -309,12 +105,6 @@ export function getProviderChain(): ProviderChain {
   return providerChainInstance;
 }
 
-/**
- * Reset the global provider chain instance
- */
 export function resetProviderChain(): void {
-  if (providerChainInstance) {
-    providerChainInstance.cleanup();
-  }
   providerChainInstance = null;
 }

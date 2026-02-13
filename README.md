@@ -104,6 +104,7 @@ pnpm run clean
 - **Screenshot → Spec**: Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
 - **Zero-Drift Evolution**: Autonomous code generation that never strays from design intent
 - **Hard Gravity Anchors**: Deterministic specifications that keep projects aligned at scale
+- **Autonomous Continuous Coding**: A self-evolving loop that maintains zero-drift between spec and code.
 
 ### 🛠️ Architecture
 - **CLI**: Command-line interface for project initialization and autonomous development
