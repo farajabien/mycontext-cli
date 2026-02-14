@@ -755,6 +755,9 @@ export * from "./pm-integration";
 // Feature Bundle Types
 export * from "./feature-bundle";
 
+// Brain Types
+export * from "./brain";
+
 // Role Permission Types (excluding members already exported from feature-bundle)
 export type { Role, RoleHierarchy } from "./role-permissions";
 

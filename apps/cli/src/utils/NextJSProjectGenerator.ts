@@ -159,6 +159,11 @@ export class NextJSProjectGenerator {
         react: "^18.0.0",
         "react-dom": "^18.0.0",
         next: "^14.0.0",
+        "lucide-react": "^0.300.0",
+        clsx: "^2.0.0",
+        "tailwind-merge": "^2.0.0",
+        "class-variance-authority": "^0.7.0",
+        "@radix-ui/react-slot": "^1.0.0",
       },
       devDependencies: {
         typescript: "^5.0.0",
@@ -539,6 +544,66 @@ export default function HomePage() {
       content: globalCssContent,
       type: "file",
     });
+
+    // Generate error page
+    const errorPageContent = "'use client';" +
+      "\\n\\nimport { useEffect } from 'react';" +
+      "\\nimport { Button } from \"@/components/ui/button\";" +
+      "\\n\\nexport default function Error({" +
+      "\\n  error," +
+      "\\n  reset," +
+      "\\n}: {" +
+      "\\n  error: Error & { digest?: string };" +
+      "\\n  reset: () => void;" +
+      "\\n}) {" +
+      "\\n  useEffect(() => {" +
+      "\\n    console.error(error);" +
+      "\\n  }, [error]);" +
+      "\\n\\n  return (" +
+      "\\n    <div className=\"flex h-screen w-full flex-col items-center justify-center gap-4 text-center\">" +
+      "\\n      <h2 className=\"text-2xl font-bold\">Something went wrong!</h2>" +
+      "\\n      <p className=\"text-muted-foreground\">{error.message || \"An unexpected error occurred.\"}</p>" +
+      "\\n      <Button onClick={() => reset()}>Try again</Button>" +
+      "\\n    </div>" +
+      "\\n  );" +
+      "\\n}\\n";
+
+    const errorPagePath = path.join(this.projectRoot, "app", "error.tsx");
+    await fs.writeFile(errorPagePath, errorPageContent);
+    generatedFiles.push({ path: errorPagePath, content: errorPageContent, type: "file" });
+
+    // Generate not-found page
+    const notFoundPageContent = "import Link from 'next/link';" +
+      "\\nimport { Button } from \"@/components/ui/button\";" +
+      "\\n\\nexport default function NotFound() {" +
+      "\\n  return (" +
+      "\\n    <div className=\"flex h-screen w-full flex-col items-center justify-center gap-4 text-center\">" +
+      "\\n      <h2 className=\"text-2xl font-bold\">404 - Page Not Found</h2>" +
+      "\\n      <p className=\"text-muted-foreground\">Could not find requested resource</p>" +
+      "\\n      <Button asChild>" +
+      "\\n        <Link href=\"/\">Return Home</Link>" +
+      "\\n      </Button>" +
+      "\\n    </div>" +
+      "\\n  );" +
+      "\\n}\\n";
+
+    const notFoundPagePath = path.join(this.projectRoot, "app", "not-found.tsx");
+    await fs.writeFile(notFoundPagePath, notFoundPageContent);
+    generatedFiles.push({ path: notFoundPagePath, content: notFoundPageContent, type: "file" });
+
+    // Generate loading page
+    const loadingPageContent = "import { Loader2 } from \"lucide-react\";" +
+      "\\n\\nexport default function Loading() {" +
+      "\\n  return (" +
+      "\\n    <div className=\"flex h-screen w-full items-center justify-center\">" +
+      "\\n      <Loader2 className=\"h-8 w-8 animate-spin text-primary\" />" +
+      "\\n    </div>" +
+      "\\n  );" +
+      "\\n}\\n";
+
+    const loadingPagePath = path.join(this.projectRoot, "app", "loading.tsx");
+    await fs.writeFile(loadingPagePath, loadingPageContent);
+    generatedFiles.push({ path: loadingPagePath, content: loadingPageContent, type: "file" });
 
     console.log(chalk.green("✅ App Router structure generated"));
   }
