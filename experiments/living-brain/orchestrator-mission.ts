@@ -7,7 +7,7 @@ import { FileGenerator } from '../../apps/cli/src/utils/FileGenerator';
 import { DependencySentinel } from '../../apps/cli/src/core/agents/DependencySentinel';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
-import { execSync } from 'child_process';
+import { v4 as uuidv4 } from 'uuid';
 
 const findProjectRoot = () => {
     let current = process.cwd();
@@ -20,7 +20,7 @@ const findProjectRoot = () => {
     return process.cwd();
 };
 const PROJECT_ROOT = findProjectRoot();
-const BLOG_ROOT = path.join(PROJECT_ROOT, 'experiments/living-brain-blog');
+const PRICING_ROOT = path.join(PROJECT_ROOT, 'apps/cli/experiments/pricing-mission');
 
 dotenv.config({ path: path.join(PROJECT_ROOT, '.mycontext', '.env') });
 dotenv.config({ path: path.join(PROJECT_ROOT, '.env') });
@@ -28,6 +28,7 @@ dotenv.config({ path: path.join(PROJECT_ROOT, '.env') });
 class MissionOrchestrator {
   private aiCore: AICore;
   private brainClient: BrainClient;
+  private sentinel: DependencySentinel;
 
   constructor() {
     this.aiCore = AICore.getInstance({
@@ -35,89 +36,97 @@ class MissionOrchestrator {
       workingDirectory: PROJECT_ROOT
     });
     this.brainClient = BrainClient.getInstance(PROJECT_ROOT);
+    this.sentinel = new DependencySentinel(PRICING_ROOT);
   }
 
   async run() {
-    console.log(chalk.blue('🚀 Starting Mission: Dark Mode...'));
-    await this.brainClient.setNarrative('Mission: Implement Dark Mode in the Living Blog to verify Brain/Context unification.');
+    console.log(chalk.blue('🚀 Starting Fractal Mission: Pricing & FAQ...'));
+    await this.brainClient.setNarrative('Mission: Implement a comprehensive Pricing Plans page with FAQ using Fractal Decomposition.');
     await this.brainClient.setStatus('thinking');
 
-    // 1. Install Dependencies (Self-Healing)
-    await this.brainClient.addUpdate('Engineer', 'builder', 'thought', 'Installing dependencies safely...');
-    const sentinel = new DependencySentinel(BLOG_ROOT);
-    const installSuccess = await sentinel.guard('pnpm install next-themes lucide-react');
+    // Pre-flight: Ensure base dependencies
+    await this.brainClient.addUpdate('Engineer', 'builder', 'thought', 'Checking essential dependencies...');
+    await this.sentinel.guard('pnpm install next-themes lucide-react');
+
+    const rootTask = "Create a high-converting Pricing Plans page. Includes a monthly/yearly toggle, 3 pricing cards (Free, Pro, Enterprise), and a comprehensive FAQ section with accordions. Use Shadcn-like components.";
     
-    if (installSuccess) {
-        await this.brainClient.addUpdate('Engineer', 'builder', 'action', 'Dependencies installed/verified.');
-    } else {
-        await this.brainClient.addUpdate('Engineer', 'builder', 'error', 'Dependency installation failed even after self-healing.');
-        process.exit(1);
-    }
-
-    // 2. CREATE THEME PROVIDER
-    await this.generateFile(
-        'components/theme-provider.tsx',
-        `Create a ThemeProvider component using next-themes.
-         It should wrap children with 'NextThemesProvider'.
-         Props: attribute="class", defaultTheme="system", enableSystem.`
-    );
-
-    // 3. CREATE MODE TOGGLE
-    await this.generateFile(
-        'components/ModeToggle.tsx',
-        `Create a ModeToggle component using standard Tailwind/ShadCN styles (but without dependencies if possible, or use standard HTML buttons if ShadCN dropdown is too complex to scaffold blindly).
-         Better: A simple button that cycles themes (Light/Dark/System) using useTheme from next-themes.
-         Use Lucide icons (Sun, Moon).`
-    );
-
-    // 4. UPDATE LAYOUT
-    await this.brainClient.addUpdate('Engineer', 'builder', 'thought', 'Updating Layout to include ThemeProvider...');
-    // We'll just overwrite layout.tsx for simplicity in this experiment
-    const layoutPath = path.join(BLOG_ROOT, 'app/layout.tsx');
-    if (fs.existsSync(layoutPath)) {
-        let content = fs.readFileSync(layoutPath, 'utf8');
-        // Simple injection logic (heuristic)
-        if (!content.includes('ThemeProvider')) {
-             content = `import { ThemeProvider } from "@/components/theme-provider"\n` + content;
-             content = content.replace('children,', 'children, }: Readonly<{ children: React.ReactNode }>) {'); // Fix types if needed or just be loose
-             content = content.replace('<body', '<body'); 
-             content = content.replace('</body>', '</ThemeProvider></body>');
-             content = content.replace('className={inter.className}>', 'className={inter.className}><ThemeProvider attribute="class" defaultTheme="system" enableSystem>');
-        }
-        // Actually, let's just generate a fresh one to be safe and clean
-         await this.generateFile(
-            'app/layout.tsx',
-            `Create the root layout for Next.js 14.
-             Import Inter font.
-             Import "./globals.css".
-             Import { ThemeProvider } from "@/components/theme-provider".
-             Wrap the body content in ThemeProvider.
-             Export metadata.`
-        );
-    }
-
-    // 5. UPDATE HEADER
-    await this.generateFile(
-        'components/Header.tsx',
-        `Update the Header component.
-         Import ModeToggle from '@/components/ModeToggle'.
-         Place ModeToggle on the far right of the nav bar.
-         Keep existing Title "Antigravity OS".`
-    );
+    await this.processRecursiveTask(rootTask);
 
     await this.brainClient.setStatus('idle');
-    await this.brainClient.setNarrative('Mission Complete: Dark Mode Installed.');
+    await this.brainClient.setNarrative('Fractal Mission Complete: Dark Mode System Fully Assembled.');
     console.log(chalk.green('✅ Mission Complete!'));
   }
 
-  private async generateFile(relativePath: string, prompt: string) {
-      await this.brainClient.addUpdate('Engineer', 'builder', 'thought', `Generating ${relativePath}...`);
+  private async processRecursiveTask(taskDescription: string, depth = 0): Promise<void> {
+    const indent = "  ".repeat(depth);
+    console.log(chalk.cyan(`${indent}🔍 Decomposing: ${taskDescription}`));
+    
+    await this.brainClient.addUpdate('FractalPlanner', 'planner', 'thought', `[Depth ${depth}] Evaluating: ${taskDescription}`);
+
+    const complexity = await this.analyzeComplexity(taskDescription);
+
+    if (complexity.isAtomic || depth > 2) {
+        console.log(chalk.green(`${indent}⚡ Executing Atomic Unit: ${taskDescription}`));
+        await this.executeAtomicUnit(taskDescription);
+        return;
+    }
+
+    console.log(chalk.yellow(`${indent}🧩 Complex segment detected. Breaking down...`));
+    const subtasks = await this.decomposeTask(taskDescription);
+
+    for (const subtask of subtasks) {
+        await this.processRecursiveTask(subtask, depth + 1);
+    }
+  }
+
+  private async analyzeComplexity(task: string): Promise<{ isAtomic: boolean }> {
+      const prompt = `
+        Task: "${task}"
+        Is this an "Atomic Action"? 
+        Atomic Action = Creating one specific file or updating one specific component.
+        
+        NUANCE FOR UI:
+        - A single ShadCN component is ATOMIC.
+        - A group of related ShadCN components forming a logical unit (e.g. a complete Contact Form with Inputs/Button) is ATOMIC.
+        - A high-level complex feature (e.g. "Manage Users Dashboard") is NOT ATOMIC.
+        
+        Return JSON: { "isAtomic": boolean }
+      `;
+      const result = await this.aiCore.generateStructuredText(prompt, '{ "isAtomic": boolean }');
+      return result as any;
+  }
+
+  private async decomposeTask(task: string): Promise<string[]> {
+      const prompt = `
+        Break this task down into specific atomic technical steps (creating files, updating layouts):
+        "${task}"
+        
+        Return JSON: { "steps": ["step 1", "step 2"] }
+      `;
+      const result = await this.aiCore.generateStructuredText(prompt, '{ "steps": ["string"] }');
+      return (result as any).steps;
+  }
+
+  private async executeAtomicUnit(taskDescription: string) {
+      await this.brainClient.addUpdate('Engineer', 'builder', 'thought', `Executing step: ${taskDescription}`);
       
-      const generator = new FileGenerator(this.aiCore, BLOG_ROOT);
-      const code = await generator.generateFile(relativePath, prompt);
+      const prompt = `
+        You are an Atomic Builder.
+        Objective: ${taskDescription}
+        
+        Action: Decide if you need to create a new file or update an existing one.
+        If creating, decide the filename.
+        
+        Return JSON: { "action": "create" | "update", "filename": "string", "instruction": "detailed prompt for FileGenerator" }
+      `;
       
-      await this.brainClient.addUpdate('Engineer', 'builder', 'action', `Created/Updated ${relativePath}`);
-      await this.brainClient.updateArtifact('code', code, relativePath);
+      const plan = await this.aiCore.generateStructuredText(prompt, '{ "action": "string", "filename": "string", "instruction": "string" }') as any;
+      
+      const generator = new FileGenerator(this.aiCore, PRICING_ROOT);
+      const code = await generator.generateFile(plan.filename, plan.instruction);
+      
+      await this.brainClient.addUpdate('Engineer', 'builder', 'action', `Successfully finished: ${plan.filename}`);
+      await this.brainClient.updateArtifact('code', code, plan.filename);
   }
 }
 

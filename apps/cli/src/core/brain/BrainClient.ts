@@ -122,6 +122,28 @@ export class BrainClient {
     await this.saveBrain(brain);
   }
 
+  public async registerComponent(name: string, description: string, path: string, dependencies?: string[]): Promise<void> {
+    const brain = await this.getBrain();
+    if (!brain.registry) brain.registry = { components: [] };
+    
+    // Check if component already exists
+    const index = brain.registry.components.findIndex(c => c.path === path);
+    const newComp = { name, description, path, dependencies };
+    
+    if (index !== -1) {
+      brain.registry.components[index] = newComp;
+    } else {
+      brain.registry.components.push(newComp);
+    }
+    
+    await this.saveBrain(brain);
+  }
+
+  public async getRegistry(): Promise<Brain['registry']> {
+    const brain = await this.getBrain();
+    return brain.registry || { components: [] };
+  }
+
   public async reset(): Promise<void> {
     // Deep copy to avoid mutating the imported constant
     const freshBrain = JSON.parse(JSON.stringify(INITIAL_BRAIN_STATE));

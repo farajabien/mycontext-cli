@@ -19,6 +19,8 @@ export interface BrainTask {
   assignedTo: string; // agent name
   priority: "low" | "medium" | "high";
   dependencies?: string[]; // IDs of other tasks
+  subTasks?: BrainTask[]; // Recursive decomposition
+  parentId?: string; // Pointer to parent task
   created: number;
   updated: number;
 }
@@ -48,6 +50,14 @@ export interface Brain {
   tasks: BrainTask[];
   artifacts: BrainArtifacts;
   memory: Record<string, any>; // Shared memory for agents to store loose facts
+  registry: {
+    components: Array<{
+      name: string;
+      description: string;
+      path: string;
+      dependencies?: string[];
+    }>;
+  };
 }
 
 export const INITIAL_BRAIN_STATE: Brain = {
@@ -59,4 +69,7 @@ export const INITIAL_BRAIN_STATE: Brain = {
   tasks: [],
   artifacts: {},
   memory: {},
+  registry: {
+    components: [],
+  },
 };

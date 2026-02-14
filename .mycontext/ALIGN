@@ -15,3 +15,15 @@ Any changes to code, architecture, or features MUST be synchronized with:
 - This decoupling allows for infinite scalability, asynchronous coordination, and zero-drift alignment.
 - When you act as an agent (Architect, QA, Dev), your "messages" to other agents are your updates to the `context.json`.
 - ALWAYS check `context.json` for the latest state before acting. ALWAYS update `context.json` with your results.
+
+[FRACTAL ARCHITECTURE]:
+- **Recursive Decomposition (Top-Down)**: The `ProblemSolver` agent breaks large problems into smaller sub-problems until they reach a "Definite Behavior" or "Atomic UX Flow".
+  - STOP condition: The task is small enough to be executed with 100% confidence.
+  - **Nuance [UI]**: For user interfaces, a single ShadCN component or a logical group of them (e.g., a "Form Molecule" or a "Card with Header/Content") is considered atomic. Do not decompose into individual divs/buttons unless strictly necessary for complexity.
+- **Atomic Assembly (Bottom-Up)**: The `Builder` agent constructs atomic components first, then assembles them into molecules, then organisms.
+- **Robustness**: This avoids "Context Bloat" and hallucination by keeping every individual agent step small, scoped, and verifiable.
+
+[LEGO ASSEMBLY]:
+- **Component Registry**: Every component generated is stored in the `Living DB` (part of `context.json`).
+- **Semantic Retrieval**: Before generating a new component, agents search the registry for "Relevant Pieces".
+- **Lego Prompting**: Instead of generating from scratch, the prompt becomes: "Assemble these [Pieces] and add [New Behavior]". This ensures visual and logical consistency across the project.

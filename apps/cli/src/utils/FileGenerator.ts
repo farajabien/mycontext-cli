@@ -2,21 +2,51 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { AICore } from '../core/ai/AICore';
+import { BrainClient } from '../core/brain/BrainClient';
 import chalk from 'chalk';
 
 export class FileGenerator {
   private aiCore: AICore;
   private projectRoot: string;
+  private brainClient: BrainClient;
 
   constructor(aiCore: AICore, projectRoot: string = process.cwd()) {
     this.aiCore = aiCore;
     this.projectRoot = projectRoot;
+    // Find workspace root (2 levels up from apps/cli/experiments/project)
+    this.brainClient = BrainClient.getInstance(path.join(projectRoot, '../../../../')); 
   }
 
   async generateFile(relativePath: string, prompt: string, context?: string): Promise<string> {
     const filePath = path.join(this.projectRoot, relativePath);
     const exists = await fs.pathExists(filePath);
     let fullPrompt = prompt;
+
+    // Phase 11: Lego Assembly - Search Registry
+    const registry = await this.brainClient.getRegistry();
+    
+    const relevantPieces = registry.components.filter(c => {
+        const nameMatch = prompt.toLowerCase().includes(c.name.toLowerCase());
+        const descMatch = c.description.toLowerCase().split(' ').some(word => word.length > 3 && prompt.toLowerCase().includes(word.toLowerCase()));
+        return nameMatch || descMatch;
+    });
+
+    if (relevantPieces.length > 0) {
+        console.log(chalk.cyan(`🧩 Lego Pieces Found: ${relevantPieces.map(p => p.name).join(', ')}`));
+        let piecesContext = "\n\nRELEVANT LEGO PIECES (Reuse patterns/styles from these):\n";
+        for (const piece of relevantPieces) {
+            try {
+                // Find full path to piece (registry stores relative or absolute, we need to be careful)
+                // Assuming registry.path is relative to workspace root or project root.
+                // For now, let's try to read it.
+                const pieceContent = await fs.readFile(path.join(this.projectRoot, piece.path), 'utf-8');
+                piecesContext += `File: ${piece.path}\nContent:\n\`\`\`tsx\n${pieceContent}\n\`\`\`\n`;
+            } catch (e) {
+                // Ignore if file missing
+            }
+        }
+        fullPrompt += piecesContext;
+    }
 
     if (exists) {
       const existingContent = await fs.readFile(filePath, 'utf-8');
@@ -31,6 +61,8 @@ export class FileGenerator {
         
         INSTRUCTIONS:
         ${prompt}
+        
+        ${relevantPieces.length > 0 ? 'REUSE PATTERNS FROM LEGO PIECES ABOVE.' : ''}
         
         IMPORTANT: Return the FULL updated file content. Do not return a diff.
       `;
@@ -57,6 +89,14 @@ export class FileGenerator {
 
     await fs.ensureDir(path.dirname(filePath));
     await fs.writeFile(filePath, code);
+
+    // Phase 11: Auto-Register in Living DB
+    const fileName = path.basename(relativePath);
+    await this.brainClient.registerComponent(
+        fileName,
+        `Generated component for: ${prompt.substring(0, 100)}...`,
+        relativePath
+    );
     
     return code;
   }

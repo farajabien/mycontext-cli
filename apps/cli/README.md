@@ -6,11 +6,11 @@
 
 ## ✨ Key Features
 
-🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications.
-🧠 **Living Brain (Shared State)** - A single source of truth (`context.json`) that acts as the "blackboard" for all agents.
-🤖 **Context-Aware Co-Pilot** - Agents that *read* your code before writing, ensuring non-destructive updates.
-🛡️ **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard.
-🚀 **Instant Setup** - Initialize Next.js projects with `shadcn/ui`, `lucide-react`, and standard error/loading states.
+- 🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications.
+- 🧠 **Living Brain (Shared State)** - A single source of truth (`context.json`) that acts as the "blackboard" for all agents.
+- 🤖 **Context-Aware Co-Pilot** - Agents that *read* your code before writing, ensuring non-destructive updates.
+- 🛡️ **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard.
+- 🚀 **Instant Setup** - Initialize Next.js projects with `shadcn/ui`, `lucide-react`, and standard error/loading states.
 
 ## 🤖 Scalable Agent Teams Architecture
 
