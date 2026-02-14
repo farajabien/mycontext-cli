@@ -1,6 +1,6 @@
 {
   "name": "mycontext-cli",
-  "version": "4.1.5",
+  "version": "4.2.0",
   "description": "CLI tool for spec-driven development - Generate comprehensive context, visual screens, and scaffolding for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {

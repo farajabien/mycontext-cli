@@ -6,18 +6,18 @@
 
 ## ✨ Key Features
 
-🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
-🤖 **Autonomous Code Generation** - AI agents that write code grounded in deterministic specs
-🧠 **Living Brain (JSON-First)** - A deterministic manifest (`context.json`) that evolves with your project
-🔒 **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard
-🚀 **Instant Setup** - Initialize Next.js projects with shadcn/ui, InstantDB, and more
+🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications.
+🧠 **Living Brain (Shared State)** - A single source of truth (`context.json`) that acts as the "blackboard" for all agents.
+🤖 **Context-Aware Co-Pilot** - Agents that *read* your code before writing, ensuring non-destructive updates.
+🛡️ **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard.
+🚀 **Instant Setup** - Initialize Next.js projects with `shadcn/ui`, `lucide-react`, and standard error/loading states.
 
 ## 🤖 Scalable Agent Teams Architecture
 
-MyContext implements **Agent Teams** differently. Instead of fragile, direct message-passing between agents (which breaks at scale), we use a **Living Brain** (`context.json`) as a shared state machine.
+MyContext implements **Antigravity ("Shared State")** architecture. Instead of fragile, direct message-passing between agents (which breaks at scale), we use a **Living Brain** (`context.json`) as a persistent state machine.
 
-- **The "Blackboard" Pattern**: Agents (Architect, QA, Dev) coordinate by reading and writing to the Living Brain.
-- **Asynchronous & Decoupled**: An Architect can design a feature, log off, and a Dev agent can pick it up hours later with full context.
+- **The "Notebook" Pattern**: Agents (Architect, Engineer, QA) coordinate by reading and writing to the Living Brain.
+- **Context-Aware**: The CLI reads your existing components before modifying them, preventing "amnesiac" overwrites.
 - **Infinite Scalability**: Add as many specialized agents as needed; they all sync through the single source of truth.
 
 ---

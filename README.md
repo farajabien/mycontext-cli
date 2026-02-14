@@ -6,7 +6,9 @@
 
 **Zero-Drift Autonomous Development — Spec-Driven App Evolution with a Deterministic Physics Engine.**
 
-This monorepo contains the MyContext ecosystem: AI-powered tools for converting screenshots to specs, generating production-ready code, and maintaining perfect alignment between design intent and implementation.
+> **"Agent skills are cool, but without a Brain, they're just markdown files."**
+
+This monorepo contains the **MyContext** ecosystem: The first **Living Brain** for your codebase. It grounds AI agents in a deterministic "Context" (`context.json`), ensuring that every line of code generated is perfectly aligned with your design intent.
 
 ---
 

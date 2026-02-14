@@ -26,7 +26,8 @@ export default function ModeToggle() {
   return (
     <button
       onClick={cycleTheme}
-      className="p-2 rounded-md border border-gray-300 bg-gray-100 dark:bg-gray-800 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all flex items-center"
+      className="p-2 rounded-full border border-gray-300 bg-white dark:bg-gray-900 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all flex items-center justify-center"
+      aria-label="Toggle Theme"
     >
       {currentTheme === 'light' ? (
         <Sun className="w-5 h-5 text-yellow-500" />

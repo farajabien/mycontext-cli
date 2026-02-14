@@ -8,7 +8,7 @@ const Header = () => {
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
           <Link href="/">Antigravity OS</Link>
         </h1>
-        <div className="flex items-center ml-auto">
+        <div className="ml-auto">
           <ModeToggle />
         </div>
       </nav>

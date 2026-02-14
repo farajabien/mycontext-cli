@@ -1,6 +1,6 @@
 {
     "name": "@myycontext/core",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "The Manifest Engine and Architectural Heart of the MyContext Ecosystem",
     "keywords": [
         "mycontext",

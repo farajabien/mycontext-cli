@@ -4,6 +4,7 @@ import * as path from 'path';
 import { AICore } from '../../apps/cli/src/core/ai/AICore';
 import { BrainClient } from '../../apps/cli/src/core/brain/BrainClient';
 import { FileGenerator } from '../../apps/cli/src/utils/FileGenerator';
+import { DependencySentinel } from '../../apps/cli/src/core/agents/DependencySentinel';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import { execSync } from 'child_process';
@@ -41,13 +42,16 @@ class MissionOrchestrator {
     await this.brainClient.setNarrative('Mission: Implement Dark Mode in the Living Blog to verify Brain/Context unification.');
     await this.brainClient.setStatus('thinking');
 
-    // 1. INSTALL DEPENDENCIES
-    await this.brainClient.addUpdate('Engineer', 'builder', 'action', 'Installing next-themes...');
-    try {
-        execSync('pnpm add next-themes', { stdio: 'inherit', cwd: BLOG_ROOT });
-    } catch (e) {
-        await this.brainClient.addUpdate('Engineer', 'builder', 'error', 'Failed to install next-themes', { error: String(e) });
-        return;
+    // 1. Install Dependencies (Self-Healing)
+    await this.brainClient.addUpdate('Engineer', 'builder', 'thought', 'Installing dependencies safely...');
+    const sentinel = new DependencySentinel(BLOG_ROOT);
+    const installSuccess = await sentinel.guard('pnpm install next-themes lucide-react');
+    
+    if (installSuccess) {
+        await this.brainClient.addUpdate('Engineer', 'builder', 'action', 'Dependencies installed/verified.');
+    } else {
+        await this.brainClient.addUpdate('Engineer', 'builder', 'error', 'Dependency installation failed even after self-healing.');
+        process.exit(1);
     }
 
     // 2. CREATE THEME PROVIDER
