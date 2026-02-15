@@ -35,6 +35,58 @@ export class InitCommand {
       // Display ASCII art branding
       this.displayBranding();
 
+      // NEW TUI FLOW
+      // If we are running in interactive mode (no specific flags and not --yes)
+      if (!options.yes && !options.next && !options.framework && !options.specOnly) {
+         const { TUIClient } = await import("../tui/TUIClient");
+         const tui = new TUIClient();
+         
+         // Start Planning Mode to gather MegaContext
+         const megaContext = await tui.startPlanningMode();
+         
+         // Extract basic project info from MegaContext for now
+         // In the future, we will pass the full megaContext to a ScaffoldAgent
+         const finalProjectName = megaContext.project.name;
+         const useCurrentDir = finalProjectName === ".";
+         const workingDir = process.cwd();
+         const projectPath = useCurrentDir ? workingDir : path.resolve(workingDir, finalProjectName);
+         
+         // Proceed with scaffolding based on MegaContext
+         spinner.start();
+         
+         const { ScaffoldAgent } = await import("../services/ScaffoldAgent");
+         const scaffolder = new ScaffoldAgent();
+         
+         try {
+            await scaffolder.scaffold(megaContext);
+         } catch (e) {
+            spinner.error({ text: "Scaffolding failed." });
+            console.error(e);
+            return;
+         }
+         
+         // Initialize MyContext tracking (manifest, etc) after scaffold
+         // This ensures we track standard mycontext files even in the new flow
+         spinner.updateText("Initializing MyContext metadata...");
+         const projectDescription = megaContext.project.description || `${finalProjectName} - AI-powered app`;
+         
+         const config = await this.fs.initializeProject(
+            finalProjectName,
+            projectDescription,
+            workingDir,
+            useCurrentDir
+         );
+         await this.createInitialManifest(
+            projectPath,
+            finalProjectName,
+            projectDescription
+         );
+
+         spinner.success({ text: "Deterministic Scaffold Complete!" });
+         return;
+      }
+
+      // Legacy/Flag-based Flow (keeping for backward compatibility or CI/CD)
       // Handle project name
       let finalProjectName = projectName;
       let useCurrentDir = projectName === ".";

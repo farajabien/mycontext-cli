@@ -1,0 +1,247 @@
+{
+    "project": {
+        "id": "team-task-manager-123",
+        "name": "Team Task Manager",
+        "description": "A collaborative task management app for small teams.",
+        "createdAt": "2023-10-27T10:00:00Z",
+        "updatedAt": "2023-10-27T10:00:00Z",
+        "contextPath": ".mycontext",
+        "version": "1.0.0",
+        "status": "initialized",
+        "framework": "nextjs",
+        "backend": "instantdb",
+        "styling": "tailwind-shadcn"
+    },
+    "topLevelDesign": {
+        "theme": "system",
+        "colors": {
+            "primary": "hsl(222.2 47.4% 11.2%)",
+            "secondary": "hsl(210 40% 96.1%)",
+            "accent": "hsl(210 40% 96.1%)",
+            "background": "hsl(0 0% 100%)",
+            "foreground": "hsl(222.2 47.4% 11.2%)"
+        },
+        "fonts": {
+            "heading": "Inter",
+            "body": "Inter"
+        },
+        "radius": 0.5
+    },
+    "auth": {
+        "provider": "instantdb",
+        "userModel": {
+            "fields": {
+                "email": "string",
+                "avatarUrl": "string",
+                "teamId": "string"
+            }
+        },
+        "roles": [
+            {
+                "name": "admin",
+                "description": "Can manage team settings and all tasks."
+            },
+            {
+                "name": "member",
+                "description": "Can manage their own tasks and view team tasks."
+            }
+        ],
+        "permissions": [
+            {
+                "role": "admin",
+                "resource": "teams",
+                "action": "manage"
+            },
+            {
+                "role": "member",
+                "resource": "tasks",
+                "action": "read",
+                "condition": "auth.teamId == resource.teamId"
+            },
+            {
+                "role": "member",
+                "resource": "tasks",
+                "action": "create",
+                "condition": "auth.teamId == resource.teamId"
+            }
+        ]
+    },
+    "database": {
+        "entities": {
+            "users": {
+                "name": "users",
+                "fields": {
+                    "email": {
+                        "type": "string",
+                        "required": true,
+                        "unique": true
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "required": false
+                    }
+                }
+            },
+            "teams": {
+                "name": "teams",
+                "fields": {
+                    "name": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "required": true,
+                        "unique": true
+                    }
+                }
+            },
+            "tasks": {
+                "name": "tasks",
+                "fields": {
+                    "title": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "priority": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "assigneeId": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "required": true
+                    }
+                }
+            }
+        },
+        "relationships": [
+            {
+                "from": "users",
+                "to": "teams",
+                "type": "one-to-many",
+                "inverseName": "members"
+            },
+            {
+                "from": "tasks",
+                "to": "users",
+                "type": "one-to-many",
+                "inverseName": "assignedTasks"
+            },
+            {
+                "from": "tasks",
+                "to": "teams",
+                "type": "one-to-many",
+                "inverseName": "tasks"
+            }
+        ]
+    },
+    "routing": {
+        "routes": {
+            "/": {
+                "path": "/",
+                "type": "page",
+                "isProtected": false,
+                "ui": {
+                    "title": "Welcome",
+                    "description": "Landing page",
+                    "layout": "default",
+                    "components": [
+                        {
+                            "name": "HeroSection",
+                            "type": "custom"
+                        },
+                        {
+                            "name": "FeatureGrid",
+                            "type": "custom"
+                        }
+                    ]
+                }
+            },
+            "/dashboard": {
+                "path": "/dashboard",
+                "type": "layout",
+                "isProtected": true,
+                "allowedRoles": [
+                    "admin",
+                    "member"
+                ]
+            },
+            "/dashboard/tasks": {
+                "path": "/dashboard/tasks",
+                "type": "page",
+                "isProtected": true,
+                "ui": {
+                    "title": "My Tasks",
+                    "description": "Manage your daily tasks",
+                    "layout": "dashboard",
+                    "components": [
+                        {
+                            "name": "TaskStats",
+                            "type": "custom"
+                        },
+                        {
+                            "name": "TaskList",
+                            "type": "custom",
+                            "props": {
+                                "view": "list"
+                            }
+                        }
+                    ]
+                },
+                "data": {
+                    "queries": [
+                        {
+                            "name": "getMyTasks",
+                            "entity": "tasks",
+                            "source": "client-hook",
+                            "filter": {
+                                "assigneeId": "auth.id"
+                            }
+                        }
+                    ],
+                    "mutations": [
+                        {
+                            "name": "createTask",
+                            "description": "Create a new task",
+                            "args": {
+                                "title": "string"
+                            },
+                            "inputEntity": "tasks"
+                        },
+                        {
+                            "name": "updateTaskStatus",
+                            "description": "Update task status",
+                            "args": {
+                                "taskId": "string",
+                                "status": "string"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "globalState": {
+        "stores": [
+            {
+                "name": "useTaskStore",
+                "state": {
+                    "filter": "string",
+                    "sort": "string"
+                },
+                "actions": [
+                    "setFilter",
+                    "setSort"
+                ]
+            }
+        ]
+    }
+}

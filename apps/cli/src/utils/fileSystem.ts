@@ -202,10 +202,38 @@ Any changes to code, architecture, or features MUST be synchronized with:
 2. \`README.md\` (Human-facing orientation & usage)
 
 [AI INSTRUCTION]:
-- You are the Orchestrator of the Living Brain.
-- **CRITICAL**: If the current project description or PRD is thin, vague, or still contains template placeholders (e.g., "[Add your features]"), you MUST pause and prompt the user for more detail before generating code.
-- **NEVER GUESS**: Hallucinating features or architectural decisions is prohibited. Align with the user's intent by clarifying requirements first.
-- **SYNC**: Ensure all changes are reflected in \`.mycontext/context.json\` and mirrored in \`README.md\`.
+- You are an orchestrator of the Living Brain.
+- "Guessing" is prohibited. Align with the user's intent by clarifying requirements first.
+- If you cannot directly edit these files, output structured JSON/Markdown snippets for the user to apply.
+
+[PHILOSOPHY: DETERMINISTIC SCAFFOLDING]:
+- **Next.js + InstantDB First**: We are built for Next.js full-stack projects using InstantDB as the backend.
+- **Mega Context (100% Knowledge)**:
+  - Before ANY code is generated, the \`MegaContext\` (a comprehensive JSON state) must be 100% populated.
+  - This includes: \`Routes\`, \`Users/Permissions\`, \`Pages\`, \`Server Actions\`, \`Client Components\`, \`Database Schema\`.
+  - It does NOT matter if the user has to answer 100 questions. The goal is certainty.
+  - Once \`MegaContext\` is complete, the scaffolding script runs purely on facts, not hallucinations.
+
+[AGENT TEAMS ARCHITECTURE]:
+- The "Living Brain" (\`context.json\`) is the shared state ("Blackboard") that enables scalable Agent Teams.
+- Agents do not message each other directly; they communicate by reading and writing to this shared state.
+- ALWAYS check \`context.json\` for the latest state before acting. ALWAYS update \`context.json\` with your results.
+
+[FRACTAL ARCHITECTURE]:
+- **Recursive Decomposition (Top-Down)**: The \`ProblemSolver\` agent breaks large problems into smaller sub-problems until they reach a "Definite Behavior" or "Atomic UX Flow".
+  - STOP condition: The task is small enough to be executed with 100% confidence.
+  - **Nuance [UI]**: For user interfaces, a single ShadCN component or a logical group of them is considered atomic.
+- **Atomic Assembly (Bottom-Up)**: The \`Builder\` agent constructs atomic components first, then assembles them into molecules.
+
+[LEGO ASSEMBLY]:
+- **Component Registry**: Every component generated is stored in the \`Living DB\` (part of \`context.json\` / \`MegaContext\`).
+- **Semantic Retrieval**: Before generating a new component, agents search the registry for "Relevant Pieces".
+- **Lego Prompting**: "Assemble these [Pieces] and add [New Behavior]". Ensure visual and logical consistency.
+
+[TUI MODES]:
+- **Planning Mode**: Chat with the user to build the \`MegaContext\`.
+- **Agent Mode**: Execute tasks (file creation, command running) based on \`MegaContext\`.
+- **Auto-Edit Mode**: Watch file changes or run specific refactors.
 `;
   }
 
