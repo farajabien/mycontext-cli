@@ -32,7 +32,29 @@ Any changes to code, architecture, or features MUST be synchronized with:
 - **Semantic Retrieval**: Before generating a new component, agents search the registry for "Relevant Pieces".
 - **Lego Prompting**: "Assemble these [Pieces] and add [New Behavior]". Ensure visual and logical consistency.
 
+[UNIFIED CONTEXT SCHEMA]:
+- `context.json` supports two complementary shapes that can coexist:
+  - **MegaContext**: Typed, structured fields for deterministic scaffolding (`database.entities`, `routing.routes`, `auth.roles`)
+  - **Brain**: Narrative, registry, checkpoints, memory for existing/scanned projects (`brain.narrative`, `brain.registry`, `brain.checkpoints`)
+- The `UnifiedContext` type in `types/unified-context.ts` bridges both schemas.
+- `getContextSummary()` extracts data from either shape; `isMegaContext()` / `isBrainContext()` detect which fields are populated.
+
+[PROJECT SCANNER — CONTEXT SYNC]:
+- **File Tree Scanning**: `mycontext scan` walks the real project file tree (respecting .gitignore) and reads key files.
+- **LLM Assessment**: `mycontext scan --assess` compares ACTUAL code against PLANNED context.json via LLM.
+- **Context Drift Detection**: Identifies routes/components/entities that exist in code but not in context, or vice versa.
+- **Deep Merge**: Uses `deepMerge()` — recursive merge with array dedup by name/id — to safely update context without data loss.
+- **TUI Integration**: PlanningMode's "📂 Scan & Assess" option runs this automatically during refinement.
+
+[CONTEXT SYNCER — SELF-RECONTEXTUALIZATION]:
+- `mycontext sync` autonomously updates `context.json` and `README.md`:
+  1. Scans real file tree via `ProjectScanner`
+  2. LLM assesses drift and generates `ContextDiffReport`
+  3. Deep merges suggestions into `context.json`
+  4. LLM generates README content between `<!-- mycontext:start -->` / `<!-- mycontext:end -->` markers
+- Supports `--dry-run`, `--context`, `--readme` flags.
+
 [TUI MODES]:
-- **Planning Mode**: Chat with the user to build the `MegaContext`.
+- **Planning Mode**: Chat with the user to build the `MegaContext`. If existing context is found, offers Refine/Scan/Sync/Fresh.
 - **Agent Mode**: Execute tasks (file creation, command running) based on `MegaContext`.
 - **Auto-Edit Mode**: Watch file changes or run specific refactors.

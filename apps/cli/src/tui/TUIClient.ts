@@ -6,8 +6,10 @@ import { PlanningMode } from "./PlanningMode";
 export class TUIClient {
   private state: TUIState;
   private planningMode: PlanningMode;
+  private projectPath: string;
 
-  constructor() {
+  constructor(projectPath: string = process.cwd()) {
+    this.projectPath = projectPath;
     this.state = {
       mode: "PLANNING",
       input: "",
@@ -18,7 +20,7 @@ export class TUIClient {
       },
       isProcessing: false,
     };
-    this.planningMode = new PlanningMode(this);
+    this.planningMode = new PlanningMode(this, this.projectPath);
   }
 
   /**

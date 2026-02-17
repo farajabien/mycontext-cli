@@ -13,8 +13,24 @@ export class FileGenerator {
   constructor(aiCore: AICore, projectRoot: string = process.cwd()) {
     this.aiCore = aiCore;
     this.projectRoot = projectRoot;
-    // Find workspace root (2 levels up from apps/cli/experiments/project)
-    this.brainClient = BrainClient.getInstance(path.join(projectRoot, '../../../../')); 
+    // Walk up to find workspace root (directory containing .mycontext/)
+    this.brainClient = BrainClient.getInstance(this.findWorkspaceRoot(projectRoot)); 
+  }
+
+  /**
+   * Walk up directory tree to find the workspace root (contains .mycontext/)
+   */
+  private findWorkspaceRoot(startDir: string): string {
+    let dir = startDir;
+    for (let i = 0; i < 10; i++) { // max 10 levels up
+      if (fs.existsSync(path.join(dir, '.mycontext'))) {
+        return dir;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break; // reached filesystem root
+      dir = parent;
+    }
+    return startDir; // fallback to project root
   }
 
   async generateFile(relativePath: string, prompt: string, context?: string): Promise<string> {

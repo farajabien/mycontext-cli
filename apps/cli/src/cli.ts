@@ -500,6 +500,76 @@ program
     }
   });
 
+// Scan project and assess progress against context.json
+program
+  .command("scan")
+  .description("Scan project structure and assess progress against context.json")
+  .option("--assess", "Use AI to assess progress and suggest context merges")
+  .option("--json", "Output results as JSON")
+  .option("--project <path>", "Project path (defaults to current directory)")
+  .action(async (options: any) => {
+    try {
+      const fsExtra = await import("fs-extra");
+      const pathMod = await import("path");
+      const { ProjectScanner } = await import("./services/ProjectScanner");
+      const projectPath = options.project || process.cwd();
+      const scanner = new ProjectScanner(projectPath);
+
+      console.log(chalk.blue("📂 Scanning project structure...\n"));
+      const snapshot = await scanner.scan();
+      scanner.displaySnapshot(snapshot);
+
+      if (options.assess) {
+        // Load existing context
+        const contextPath = pathMod.join(projectPath, ".mycontext", "context.json");
+        if (await fsExtra.pathExists(contextPath)) {
+          const existingContext = await fsExtra.readJson(contextPath);
+          console.log(chalk.blue("\n🧠 Assessing progress against Living Brain...\n"));
+          const report = await scanner.assessProgress(snapshot, existingContext);
+          
+          if (options.json) {
+            console.log(JSON.stringify({ snapshot: { stats: snapshot.stats }, report }, null, 2));
+          } else {
+            scanner.displayReport(report);
+          }
+        } else {
+          console.log(chalk.yellow("\n⚠️  No .mycontext/context.json found. Run 'mycontext init' first."));
+        }
+      } else if (options.json) {
+        console.log(JSON.stringify({ stats: snapshot.stats, fileTree: snapshot.fileTree }, null, 2));
+      }
+    } catch (error) {
+      console.error(chalk.red("❌ Scan failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Sync context.json and README automatically
+program
+  .command("sync")
+  .description("Auto-update context.json and README.md by scanning the project and using AI")
+  .option("--context", "Only sync context.json")
+  .option("--readme", "Only sync README.md")
+  .option("--dry-run", "Show what would change without writing files")
+  .option("--project <path>", "Project path (defaults to current directory)")
+  .action(async (options: any) => {
+    try {
+      const { ContextSyncer } = await import("./services/ContextSyncer");
+      const projectPath = options.project || process.cwd();
+      const syncer = new ContextSyncer(projectPath);
+
+      if (options.context) {
+        await syncer.syncContext(undefined, { dryRun: options.dryRun });
+      } else if (options.readme) {
+        await syncer.syncReadme({ dryRun: options.dryRun });
+      } else {
+        await syncer.syncAll({ dryRun: options.dryRun });
+      }
+    } catch (error) {
+      console.error(chalk.red("❌ Sync failed:"), error);
+      process.exit(1);
+    }
+  });
 
 
 // Update command (mycontext update)

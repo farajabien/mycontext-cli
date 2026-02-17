@@ -1,24 +1,21 @@
 # mycontext-cli
 
-**The Command-Line Anchor for Zero-Drift Autonomous Development.**
+**The Command-Line Brain for Zero-Drift Autonomous Development.**
 
-`mycontext-cli` is your AI-powered development companion that transforms screenshots into specs, generates production-ready code, and keeps your implementation perfectly aligned with design intent.
+`mycontext-cli` is your AI-powered development companion that builds a **Living Brain** (`context.json`) for your codebase — so AI agents operate on facts, not hallucinations. It scaffolds projects deterministically, detects context drift, and keeps your implementation perfectly aligned with design intent.
+
+[![npm version](https://img.shields.io/npm/v/mycontext-cli.svg)](https://www.npmjs.com/package/mycontext-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## ✨ Key Features
 
-- 🎯 **Screenshot → Spec** - Reverse-engineer any UI into comprehensive specifications.
-- 🧠 **Living Brain (Shared State)** - A single source of truth (`context.json`) that acts as the "blackboard" for all agents.
-- 🤖 **Context-Aware Co-Pilot** - Agents that *read* your code before writing, ensuring non-destructive updates.
-- 🛡️ **Zero-Drift Sync** - Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard.
-- 🚀 **Instant Setup** - Initialize Next.js projects with `shadcn/ui`, `lucide-react`, and standard error/loading states.
-
-## 🤖 Scalable Agent Teams Architecture
-
-MyContext implements **Antigravity ("Shared State")** architecture. Instead of fragile, direct message-passing between agents (which breaks at scale), we use a **Living Brain** (`context.json`) as a persistent state machine.
-
-- **The "Notebook" Pattern**: Agents (Architect, Engineer, QA) coordinate by reading and writing to the Living Brain.
-- **Context-Aware**: The CLI reads your existing components before modifying them, preventing "amnesiac" overwrites.
-- **Infinite Scalability**: Add as many specialized agents as needed; they all sync through the single source of truth.
+- 🧠 **Living Brain** — A single source of truth (`context.json`) that acts as the shared "blackboard" for all agents
+- 🔄 **Self-Recontextualization** — `mycontext sync` autonomously updates context + README by scanning your actual code
+- 📂 **Bidirectional Drift Detection** — Finds what's in code but not in context, and vice versa
+- 🏗️ **Deterministic Scaffolding** — AI interview → MegaContext → scaffold with zero guessing
+- 🧱 **Lego Assembly** — Component registry + semantic retrieval for consistent code generation
+- 🌲 **Fractal Architecture** — Recursive decomposition down to atomic UX flows
+- 🤖 **Scalable Agent Teams** — Agents coordinate via shared state, not fragile message-passing
 
 ---
 
@@ -37,191 +34,170 @@ npx mycontext-cli init
 ## 🛠️ Commands Reference
 
 ### `mycontext init`
-Initialize a new project with the MyContext ecosystem.
+Interactive TUI that interviews you → builds a complete MegaContext → deterministically scaffolds.
 
 ```bash
 mycontext init
-
-# Skip prompts (use defaults)
-mycontext init --yes
 ```
 
 **What it does:**
-- Creates `.mycontext/` directory structure
-- Generates initial `design-manifest.json`
-- Sets up shadcn/ui components
-- Optional InstantDB initialization
-- Installs required dependencies
+- Detects existing context.json → offers Refine / Scan / Sync / Fresh
+- AI-driven interview to populate MegaContext (entities, routes, roles, design)
+- Scaffolds Next.js + InstantDB with schema, routes, ALIGN, README, .env
 
 ---
 
-### `mycontext analyze <screenshot>`
-Analyze a screenshot and generate comprehensive specifications.
+### `mycontext scan`
+Walk the real file tree and compare against your planned context.
 
 ```bash
-mycontext analyze path/to/screenshot.png
+# Quick scan — file tree stats
+mycontext scan
 
-# Output to specific file
-mycontext analyze screenshot.png --output .mycontext/screen-spec.json
+# AI-powered assessment — drift detection + merge suggestions
+mycontext scan --assess
+
+# Machine-readable output
+mycontext scan --assess --json
 ```
 
-**What it does:**
-- Uses Gemini 2.0 Flash vision model
-- Extracts UI components, layout, and design tokens
-- Generates detailed specifications
-- Updates design manifest
+---
+
+### `mycontext sync` ✨ NEW
+Autonomous self-recontextualization. Scans → assesses → deep merges context.json → LLM-generates README.
+
+```bash
+# Full sync (context.json + README)
+mycontext sync
+
+# Preview changes without writing
+mycontext sync --dry-run
+
+# Sync only context or only README
+mycontext sync --context
+mycontext sync --readme
+```
+
+**How it works:**
+1. `ProjectScanner` walks your file tree and reads key files
+2. LLM compares actual code vs. planned context → generates `ContextDiffReport`
+3. `deepMerge()` safely updates context.json (recursive, arrays deduped by name/id)
+4. LLM generates README content between `<!-- mycontext:start -->` / `<!-- mycontext:end -->` markers
 
 ---
 
 ### `mycontext generate`
-Generate context files, components, or code from your specifications.
+Generate context files, types, and code from your specifications.
 
 ```bash
-# Generate full context for AI coding assistants
+# Full context generation
 mycontext generate context --full
 
-# Generate specific components
+# Generate types from schema
+mycontext generate types --from-schema
+
+# Generate components
 mycontext generate components
-
-# Generate Next.js routes from specs
-mycontext generate screens
-
-# Generate sample data
-mycontext generate sample-data
 ```
-
-**Context files include:**
-- Project overview and architecture
-- Design tokens and component hierarchy
-- Data models and API specifications
-- Current implementation status
-
----
-
-### `mycontext status`
-Check narrative compliance - analyze drift between spec and implementation.
-
-```bash
-mycontext status
-
-# Detailed report
-mycontext status --verbose
-```
-
-**What it checks:**
-- Design manifest integrity
-- Component implementation status
-- Missing dependencies
-- Configuration issues
 
 ---
 
 ### `mycontext agent`
-Autonomous development agent for feature implementation.
+Multi-agent task execution via the Brain blackboard pattern.
 
 ```bash
-# Generate implementation plan
+# Plan a feature
 mycontext agent --plan "Add user authentication"
 
-# Execute autonomous code generation
+# Execute autonomously
 mycontext agent --execute "Implement shopping cart"
 ```
 
-**Features:**
-- Multi-agent orchestration (Architect, CodeGen, QA, Security)
-- Deterministic prompt construction
-- Context-aware code generation
-- Built-in testing and validation
+---
+
+### `mycontext analyze`
+Reverse-engineer UI from screenshots into specifications.
+
+```bash
+mycontext analyze screenshot.png
+```
 
 ---
 
-## 🎯 Quick Start Example
+## 🎯 Quick Start
 
 ```bash
-# 1. Create a new Next.js project
-npx create-next-app my-app
-cd my-app
-
-# 2. Initialize MyContext
+# 1. Initialize (in any project directory)
 npx mycontext-cli init
 
-# 3. Configure AI provider (choose one)
-# GitHub Models (Free, High Quality)
-echo 'GITHUB_TOKEN=your-token' >> .mycontext/.env
-
-# Or Gemini (Free tier + Vision)
+# 2. Configure AI (choose one — all have free tiers)
 echo 'GEMINI_API_KEY=your-key' >> .mycontext/.env
+# Or: GITHUB_TOKEN, OPENROUTER_API_KEY, ANTHROPIC_API_KEY, XAI_API_KEY
 
-# 4. Analyze a design screenshot
-mycontext analyze designs/homepage.png
+# 3. Scan your project
+mycontext scan --assess
 
-# 5. Generate full context for AI assistants
-mycontext generate context --full
-
-# 6. Use autonomous agent for feature development
-mycontext agent --plan "Add dark mode toggle"
+# 4. Auto-sync context + README
+mycontext sync
 ```
 
 ---
 
-## 🔧 Configuration
+## 🔧 AI Provider Setup
 
-### AI Provider Setup
+Configure in `.mycontext/.env` — MyContext auto-detects whichever key is present:
 
-MyContext supports multiple AI providers. Configure in `.mycontext/.env`:
+| Provider | Env Variable | Free Tier | Get Key |
+|----------|-------------|-----------|---------|
+| **Gemini** | `GEMINI_API_KEY` | ✅ Yes | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| **GitHub Models** | `GITHUB_TOKEN` | ✅ Yes | [github.com/settings/tokens](https://github.com/settings/tokens) |
+| **OpenRouter** | `OPENROUTER_API_KEY` | Credits | [openrouter.ai/keys](https://openrouter.ai/keys) |
+| **Anthropic** | `ANTHROPIC_API_KEY` | Credits | [console.anthropic.com](https://console.anthropic.com/) |
+| **xAI (Grok)** | `XAI_API_KEY` | Credits | [x.ai](https://x.ai/) |
 
-**GitHub Models** (Recommended - Free & High Quality)
-```bash
-GITHUB_TOKEN=ghp_your_token_here
-# Get token: https://github.com/settings/tokens
-```
-
-**Gemini** (Free Tier + Vision for screenshots)
-```bash
-GEMINI_API_KEY=your_gemini_key
-# Get key: https://aistudio.google.com/apikey
-```
-
-**Claude** (Best for advanced reasoning)
-```bash
-ANTHROPIC_API_KEY=your_claude_key
-# Get key: https://console.anthropic.com/
-```
-
-**OpenAI**
-```bash
-OPENAI_API_KEY=your_openai_key
-```
+Provider fallback chain: Gemini → GitHub Models → OpenRouter → Anthropic → xAI
 
 ---
 
 ## 📁 Project Structure
 
-After running `mycontext init`, your project will have:
+After running `mycontext init`:
 
 ```
 .mycontext/
-├── .env                      # AI provider configuration
-├── context.json              # Living Brain - primary source of truth (JSON)
-├── ALIGN                     # Alignment Guard - Instructions for AI assistants
-├── context/                  # Exported Markdown views for humans/AI
-│   ├── 01-prd.md
-│   ├── 01a-features.md
-│   └── ...
-└── logs/                     # Operation logs
+├── .env                      # AI provider keys
+├── context.json              # Living Brain — primary source of truth
+├── ALIGN                     # Alignment Guard — rules for AI assistants
+└── context/                  # Exported Markdown views for humans/AI
+    ├── 01-prd.md
+    ├── 01a-features.md
+    └── ...
 ```
 
 ---
 
-## 🎯 The Philosophy: Hard Gravity
+## 🏛️ Architecture: Unified Context
 
-Every project starts with a **deterministic spec**. The CLI ensures that code never drifts from its design intent, providing a "Hard Gravity" anchor that keeps the project cohesive even as it scales beyond human capacity to track every detail.
+`context.json` supports two schemas that coexist:
 
-**Zero-Drift Development:**
-1. **Screenshot → Spec** - AI vision extracts design intent
-2. **Spec → Code** - Agents generate implementation
-3. **Code → Validation** - Continuous narrative compliance checks
-4. **Never Drift** - Living DB maintains alignment
+| Schema | Purpose | Key Fields |
+|--------|---------|------------|
+| **MegaContext** | Deterministic scaffolding | `database.entities`, `routing.routes`, `auth.roles`, `topLevelDesign` |
+| **Brain** | Existing/scanned projects | `brain.narrative`, `brain.registry`, `brain.checkpoints`, `brain.memory` |
+
+The `UnifiedContext` type bridges both. `getContextSummary()` extracts data from either shape. `deepMerge()` safely combines them.
+
+---
+
+## 🎯 Philosophy: Hard Gravity
+
+Every project starts with a **deterministic spec**. The CLI ensures code never drifts from design intent:
+
+1. **Interview → MegaContext** — AI-driven 100% knowledge collection
+2. **MegaContext → Scaffold** — Deterministic generation, zero guessing
+3. **Scan → Assess** — Continuous bidirectional drift detection
+4. **Sync → Update** — Autonomous self-recontextualization
+5. **Never Drift** — Living Brain maintains alignment
 
 ---
 
@@ -229,7 +205,6 @@ Every project starts with a **deterministic spec**. The CLI ensures that code ne
 
 This package is part of the [MyContext Monorepo](https://github.com/farajabien/mycontext-cli).
 
-For local development:
 ```bash
 git clone https://github.com/farajabien/mycontext-cli.git
 cd mycontext-cli
@@ -242,13 +217,11 @@ cd apps/cli && pnpm link --global
 
 ## 📄 License
 
-MIT © MyContext - See [LICENSE](https://github.com/farajabien/mycontext-cli/blob/main/LICENSE) for details.
-
----
+MIT © MyContext — See [LICENSE](https://github.com/farajabien/mycontext-cli/blob/main/LICENSE)
 
 ## 🔗 Links
 
-- [Documentation](https://github.com/farajabien/mycontext-cli#readme)
-- [Report Issues](https://github.com/farajabien/mycontext-cli/issues)
+- [Monorepo](https://github.com/farajabien/mycontext-cli)
 - [npm Package](https://www.npmjs.com/package/mycontext-cli)
+- [Report Issues](https://github.com/farajabien/mycontext-cli/issues)
 - [Core Package (@myycontext/core)](https://www.npmjs.com/package/@myycontext/core)

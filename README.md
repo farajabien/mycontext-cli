@@ -103,22 +103,34 @@ To keep this project's "Living Brain" and documentation in sync, always mention 
 
 <!-- mycontext:start -->
 ### 🎯 Project Overview
-**MyContext**: The deterministic anchor for AI-powered development. Ground your agents in specs, not hallucinations.
+**MyContext**: The deterministic anchor for AI-powered development. Ground your agents in specs, not hallucinations. An *agent-for-agents* platform that builds a **Living Brain** (`context.json`) so AI agents operate with 100% knowledge.
 
 ### ✨ Key Capabilities
-- **Screenshot → Spec**: Reverse-engineer any UI into comprehensive specifications (Powered by Gemini 2.0 Flash)
-- **Living Brain (JSON-First)**: A deterministic manifest (`context.json`) that evolves with your project
-- **Zero-Drift Sync**: Perfect alignment between design intent, code, and documentation via the `.ALIGN` guard
-- **Hard Gravity Anchors**: Deterministic specifications that keep projects aligned at scale
-- **Autonomous Continuous Coding**: A self-evolving loop that maintains zero-drift between spec and code.
+| Command | Description |
+|---------|-------------|
+| `mycontext init` | Interactive TUI interview → MegaContext → deterministic scaffold |
+| `mycontext scan --assess` | Walk file tree → LLM compares code vs context → bidirectional drift detection |
+| `mycontext sync` | **NEW** — Autonomous self-recontextualization: scan → assess → deep merge context.json + LLM-generate README |
+| `mycontext generate` | Deterministic code generation from 100% populated MegaContext |
+| `mycontext agent` | Multi-agent task execution via Brain blackboard pattern |
 
-### 🛠️ Architecture
-- **CLI**: Command-line interface for project initialization and autonomous development
-- **Core**: Manifest engine and "Physics Engine" for narrative compliance
-- **Web**: Visual studio for design-to-code workflows (coming soon)
+### 🏛️ Architecture
+- **Unified Context Schema** — `MegaContext` (typed scaffolding) + `Brain` (narrative, registry, memory) coexist in one `context.json`
+- **Deep Merge** — Recursive merge with array dedup (no more data loss on context updates)
+- **Fractal Architecture** — Recursive decomposition → atomic assembly
+- **Lego Assembly** — Component registry + semantic retrieval + assembly prompting
+
+### 📊 Project Status
+| Phase | Status |
+|-------|--------|
+| Foundation & CLI Core | ✅ Complete |
+| Multi-Agent Architecture | ✅ Complete |
+| Fractal Architecture & Lego Assembly | ✅ Complete |
+| Project Scanner & Context Sync | ✅ Complete |
+| Self-Recontextualization & Unified Context | ✅ Complete |
 
 ---
-_Last synchronized with MyContext Living DB on 2026-02-13_
+_Last synchronized with MyContext Living Brain on 2026-02-17_
 <!-- mycontext:end -->
 
 ---

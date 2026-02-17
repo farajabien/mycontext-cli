@@ -39,7 +39,7 @@ export class InitCommand {
       // If we are running in interactive mode (no specific flags and not --yes)
       if (!options.yes && !options.next && !options.framework && !options.specOnly) {
          const { TUIClient } = await import("../tui/TUIClient");
-         const tui = new TUIClient();
+         const tui = new TUIClient(process.cwd());
          
          // Start Planning Mode to gather MegaContext
          const megaContext = await tui.startPlanningMode();
@@ -425,8 +425,7 @@ export class InitCommand {
     console.log(chalk.gray("• Use --yes flag to skip prompts"));
     console.log(chalk.gray("• Run 'mycontext status' to check project progress\n"));
 
-    // Exit the process gracefully after displaying all information
-    process.exit(0);
+    // Return cleanly — let Commander handle process exit
   }
 
   /**
