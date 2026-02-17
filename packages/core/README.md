@@ -2,17 +2,23 @@
 
 **The Manifest Engine and Architectural Heart of the MyContext Ecosystem.**
 
-`@myycontext/core` provides the shared logic, types, and manifest management required for Spec-Driven Development. It is the deterministic source of truth for the **Living DB**.
+`@myycontext/core` provides the shared types, manifest management, and **Living Brain** primitives that power the entire [MyContext](https://github.com/farajabien/mycontext-cli) ecosystem.
+
+[![npm version](https://img.shields.io/npm/v/@myycontext/core.svg)](https://www.npmjs.com/package/@myycontext/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## 🏗️ Role in the Ecosystem
 
-This package is the foundational layer that powers:
-- **Design Manifest Management** - Loading, saving, and validating `design-manifest.json`
-- **Architectural Types** - TypeScript interfaces for AI agents, components, and design pipelines
-- **Context Enrichment** - Bridging raw specifications with agentic execution context
-- **Hard Gravity Engine** - Ensuring zero-drift between design intent and implementation
+This package is the foundational layer used by `mycontext-cli` and other tools:
+
+| Capability | Description |
+|------------|-------------|
+| **Brain Types** | `Brain`, `BrainTask`, `BrainUpdate`, `BrainArtifacts` — shared state for agent coordination |
+| **Component Types** | `Component`, atomic/molecule/organism classification for Lego Assembly |
+| **Design Pipeline** | Full design-to-code pipeline types: manifests, tokens, screens, feature bundles |
+| **Manifest Manager** | `DesignManifestManager` — atomic read/write/validate for `design-manifest.json` |
 
 ---
 
@@ -26,208 +32,116 @@ pnpm add @myycontext/core
 
 ---
 
-## 📖 API Reference
+## 📖 Exports
 
-### `DesignManifestManager`
+### Brain Types
 
-The central manager for the `design-manifest.json` file.
+```typescript
+import type { Brain, BrainTask, BrainUpdate, BrainArtifacts, BrainRole } from '@myycontext/core';
+import { INITIAL_BRAIN_STATE } from '@myycontext/core';
+
+// Brain is the shared "blackboard" for agent teams
+const brain: Brain = {
+  version: "2.1.0",
+  narrative: "Building user authentication",
+  status: "implementing",
+  checkpoints: ["phase-1-complete"],
+  updates: [],
+  tasks: [],
+  artifacts: {},
+  memory: {},
+  registry: { components: [] }
+};
+```
+
+### Component Types
+
+```typescript
+import type { Component } from '@myycontext/core';
+
+const button: Component = {
+  id: 'primary-button',
+  name: 'PrimaryButton',
+  type: 'atomic',
+  status: 'implemented',
+  description: 'Main CTA button',
+  dependencies: [],
+  designTokens: []
+};
+```
+
+### Design Manifest Manager
 
 ```typescript
 import { DesignManifestManager } from '@myycontext/core';
 
-// Initialize with project root
 const manager = new DesignManifestManager('/path/to/project');
 
 // Load manifest
 const manifest = await manager.load();
 
-// Save manifest with atomic writes
+// Save with atomic writes
 await manager.save(manifest);
 
-// Validate manifest
+// Validate
 const isValid = manager.validate(manifest);
 ```
 
-**Features:**
-- ✅ **Atomic Saves** - Ensures data integrity during manifest updates
-- ✅ **Schema Validation** - Strict checking to maintain "Hard Gravity" anchors
-- ✅ **Default Scaffolding** - Generates initial manifests for new projects
-- ✅ **Type Safety** - Full TypeScript support with exported types
-
----
-
-### Core Types
-
-The package exports comprehensive TypeScript types for the MyContext ecosystem:
+### Design Pipeline Types
 
 ```typescript
 import type {
   DesignManifest,
-  Component,
-  Screen,
   DesignToken,
+  Screen,
   FeatureBundle,
-  PMIntegration,
   AnalysisResult,
   RolePermissions,
   FlowTestingConfig
 } from '@myycontext/core';
 ```
 
-#### `DesignManifest`
-The main manifest structure representing the Living DB:
-
-```typescript
-interface DesignManifest {
-  projectName: string;
-  version: string;
-  description?: string;
-  designTokens: DesignTokens;
-  components: Component[];
-  screens: Screen[];
-  featureBundles?: FeatureBundle[];
-  pmIntegration?: PMIntegration;
-  metadata?: {
-    createdAt: string;
-    updatedAt: string;
-    lastSyncedAt?: string;
-  };
-}
-```
-
-#### `Component`
-Represents a UI component in the design system:
-
-```typescript
-interface Component {
-  id: string;
-  name: string;
-  type: 'atomic' | 'molecule' | 'organism' | 'template';
-  description?: string;
-  props?: Record<string, any>;
-  dependencies?: string[];
-  designTokens?: string[];
-  status: 'planned' | 'in-progress' | 'implemented' | 'tested';
-}
-```
-
-#### `FeatureBundle`
-Groups related features for implementation:
-
-```typescript
-interface FeatureBundle {
-  id: string;
-  name: string;
-  description: string;
-  features: Feature[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  status: 'planned' | 'in-progress' | 'completed';
-  dependencies?: string[];
-}
-```
-
----
-
-## 🔧 Usage Examples
-
-### Basic Manifest Management
-
-```typescript
-import { DesignManifestManager } from '@myycontext/core';
-
-const manager = new DesignManifestManager(process.cwd());
-
-// Load existing manifest
-const manifest = await manager.load();
-
-// Add a new component
-manifest.components.push({
-  id: 'button-primary',
-  name: 'PrimaryButton',
-  type: 'atomic',
-  description: 'Primary action button',
-  status: 'planned',
-  props: {
-    variant: 'primary',
-    size: 'medium'
-  }
-});
-
-// Save changes
-await manager.save(manifest);
-```
-
-### Type-Safe Component Creation
-
-```typescript
-import type { Component } from '@myycontext/core';
-
-const createComponent = (name: string): Component => ({
-  id: name.toLowerCase(),
-  name,
-  type: 'atomic',
-  status: 'planned',
-  dependencies: [],
-  designTokens: []
-});
-
-const button = createComponent('Button');
-```
-
-### Feature Bundle Management
-
-```typescript
-import type { FeatureBundle } from '@myycontext/core';
-
-const authBundle: FeatureBundle = {
-  id: 'auth-bundle',
-  name: 'Authentication System',
-  description: 'Complete user authentication flow',
-  priority: 'high',
-  status: 'in-progress',
-  features: [
-    {
-      id: 'login',
-      name: 'User Login',
-      description: 'Email/password authentication',
-      status: 'completed'
-    },
-    {
-      id: 'signup',
-      name: 'User Registration',
-      description: 'New user signup flow',
-      status: 'in-progress'
-    }
-  ]
-};
-```
-
 ---
 
 ## 🏛️ Architecture
 
-The core package follows a modular architecture:
+```
+@myycontext/core/src/
+├── index.ts                    # Package entry — re-exports all
+├── manifest-manager.ts         # DesignManifestManager class
+└── types/
+    ├── brain.ts                # Brain, BrainTask, BrainUpdate
+    ├── components.ts           # Component (atomic → organism)
+    ├── design-pipeline.ts      # DesignManifest, DesignToken, Screen
+    ├── analysis.ts             # AnalysisResult
+    ├── enhancement.ts          # Enhancement types
+    ├── feature-bundle.ts       # FeatureBundle
+    ├── flow-testing.ts         # FlowTestingConfig
+    ├── index.ts                # Type barrel
+    ├── intent-dictionary.ts    # Intent classification
+    ├── pm-integration.ts       # PM tool integration
+    ├── progress.ts             # Progress tracking
+    └── role-permissions.ts     # RolePermissions
+```
 
-```
-@myycontext/core/
-├── manifest/               # Manifest management
-│   └── DesignManifestManager.ts
-├── types/                  # TypeScript definitions
-│   ├── manifest.ts
-│   ├── components.ts
-│   ├── features.ts
-│   └── ...
-└── utils/                  # Shared utilities
-    └── ...
-```
+---
+
+## 🔗 Relationship to `mycontext-cli`
+
+The CLI (`mycontext-cli`) extends these core types:
+
+| Core provides | CLI extends with |
+|--------------|------------------|
+| `Brain` | `UnifiedContext` (merges Brain + MegaContext) |
+| `Component` | Component registry in `context.json` |
+| `DesignManifest` | `MegaContext` for deterministic scaffolding |
 
 ---
 
 ## 🤝 Contributing
 
-This package is part of the [MyContext Monorepo](https://github.com/farajabien/mycontext-cli).
+Part of the [MyContext Monorepo](https://github.com/farajabien/mycontext-cli).
 
-For local development:
 ```bash
 git clone https://github.com/farajabien/mycontext-cli.git
 cd mycontext-cli
@@ -235,17 +149,13 @@ pnpm install
 pnpm --filter @myycontext/core build
 ```
 
----
-
 ## 📄 License
 
-MIT © MyContext - See [LICENSE](https://github.com/farajabien/mycontext-cli/blob/main/LICENSE) for details.
-
----
+MIT © MyContext — See [LICENSE](https://github.com/farajabien/mycontext-cli/blob/main/LICENSE)
 
 ## 🔗 Links
 
-- [Monorepo Documentation](https://github.com/farajabien/mycontext-cli#readme)
-- [CLI Package (mycontext-cli)](https://www.npmjs.com/package/mycontext-cli)
-- [Report Issues](https://github.com/farajabien/mycontext-cli/issues)
+- [Monorepo](https://github.com/farajabien/mycontext-cli#readme)
+- [CLI Package](https://www.npmjs.com/package/mycontext-cli)
 - [npm Package](https://www.npmjs.com/package/@myycontext/core)
+- [Report Issues](https://github.com/farajabien/mycontext-cli/issues)
