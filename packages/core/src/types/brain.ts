@@ -7,7 +7,7 @@ export interface BrainUpdate {
   agent: string;
   role: BrainRole;
   message: string;
-  type: "thought" | "action" | "error" | "completion";
+  type: "thought" | "action" | "error" | "completion" | "feedback";
   metadata?: Record<string, any>;
 }
 
@@ -41,10 +41,12 @@ export interface BrainArtifacts {
   [key: string]: any;
 }
 
+export type BrainStatus = "idle" | "thinking" | "implementing" | "verifying" | "paused" | "user_input" | "error";
+
 export interface Brain {
   version: string;
   narrative: string; // The high-level goal/story currently being pursued
-  status: "idle" | "thinking" | "implementing" | "verifying" | "paused";
+  status: BrainStatus;
   checkpoints: string[]; // List of significant milestones achieved
   updates: BrainUpdate[];
   tasks: BrainTask[];

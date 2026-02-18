@@ -108,7 +108,7 @@ To keep this project's "Living Brain" and documentation in sync, always mention 
 ### ✨ Key Capabilities
 | Command | Description |
 |---------|-------------|
-| `mycontext init` | Interactive TUI interview → MegaContext → deterministic scaffold |
+| `mycontext init` | Interactive TUI interview OR **Auto-Init** for existing projects (AI narrative generation) |
 | `mycontext scan --assess` | Walk file tree → LLM compares code vs context → bidirectional drift detection |
 | `mycontext sync` | **NEW** — Autonomous self-recontextualization: scan → assess → deep merge context.json + LLM-generate README |
 | `mycontext generate` | Deterministic code generation from 100% populated MegaContext |

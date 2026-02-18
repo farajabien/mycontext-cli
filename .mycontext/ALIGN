@@ -54,7 +54,14 @@ Any changes to code, architecture, or features MUST be synchronized with:
   4. LLM generates README content between `<!-- mycontext:start -->` / `<!-- mycontext:end -->` markers
 - Supports `--dry-run`, `--context`, `--readme` flags.
 
+[DOCTOR — HEALTH & DIAGNOSTICS]:
+- `mycontext doctor` ensures project health and configuration correctness.
+- **Auto-Fix First**: Detects issues in Next.js, Turborepo, Node.js, and Dead Code, then auto-fixes them where possible.
+- **Grading System**: Assigns a letter grade (A+ to F) based on diagnostics.
+- **Monorepo Aware**: Understands Turborepo structure and runs specific rules for root vs. workspaces.
+
+
 [TUI MODES]:
-- **Planning Mode**: Chat with the user to build the `MegaContext`. If existing context is found, offers Refine/Scan/Sync/Fresh.
+- **Planning Mode**: Chat with the user to build the `MegaContext`. If existing project is detected, offers **Auto-Init** with AI narrative generation.
 - **Agent Mode**: Execute tasks (file creation, command running) based on `MegaContext`.
 - **Auto-Edit Mode**: Watch file changes or run specific refactors.

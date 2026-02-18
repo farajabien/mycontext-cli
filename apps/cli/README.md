@@ -86,6 +86,28 @@ mycontext sync --readme
 
 ---
 
+### `mycontext doctor` ✨ NEW
+Diagnose and fix project issues. Identify Next.js best practices, Turborepo misconfigurations, and dead code.
+
+```bash
+# Run diagnostics
+mycontext doctor
+
+# Auto-fix fixable issues
+mycontext doctor --fix
+
+# Run on a specific workspace in a monorepo
+mycontext doctor --project apps/web
+```
+
+**What it checks:**
+- **Next.js**: Root layouts, metadata, client directives, image/link usage
+- **Turborepo**: `turbo.json`, workspace protocols, pipeline coverage
+- **Node.js**: Lock files, `.gitignore`, engines, unused deps
+- **Dead Code**: Unused exports, orphan files, unused components
+
+---
+
 ### `mycontext generate`
 Generate context files, types, and code from your specifications.
 

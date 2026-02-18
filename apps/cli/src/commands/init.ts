@@ -10,6 +10,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import { EnvExampleGenerator } from "../utils/envExampleGenerator";
 import { DesignManifestManager } from "@myycontext/core";
+import { GeminiClient } from "../utils/geminiClient";
 
 interface InitOptions extends CommandOptions {
   description?: string;
@@ -34,6 +35,85 @@ export class InitCommand {
     try {
       // Display ASCII art branding
       this.displayBranding();
+
+      // Check for existing project & Auto-Init
+      const currentDir = process.cwd();
+      const hasPackageJson = await fs.pathExists(path.join(currentDir, "package.json"));
+      // The user specifically mentioned "if directory and node modules exist"
+      const hasNodeModules = await fs.pathExists(path.join(currentDir, "node_modules"));
+      const isInteractive = !options.yes && !projectName;
+
+      if (isInteractive && hasPackageJson && hasNodeModules) {
+        const { useExisting } = await prompts({
+            type: "confirm",
+            name: "useExisting",
+            message: chalk.yellow("⚠️  Existing project detected. Initialize MyContext in current directory?"),
+            initial: true
+        });
+
+        if (useExisting) {
+            spinner.start();
+            spinner.updateText("Analyzing project...");
+
+             // 1. Get Project Name
+             let name = path.basename(currentDir);
+             let pkgDescription = "";
+             try {
+                 const pkg = await fs.readJson(path.join(currentDir, "package.json"));
+                 if (pkg.name) name = pkg.name;
+                 if (pkg.description) pkgDescription = pkg.description;
+             } catch (e) {
+                 // ignore
+             }
+
+             // 2. Scan README for Narrative
+             let description = pkgDescription || `${name} - AI-powered app`;
+             const readmePath = path.join(currentDir, "README.md");
+             if (await fs.pathExists(readmePath)) {
+                 spinner.updateText("Reading README.md...");
+                 const readmeContent = await fs.readFile(readmePath, "utf-8");
+                 
+                 // Generate narrative using Gemini
+                 const gemini = new GeminiClient();
+                 if (gemini.hasApiKey()) {
+                     spinner.updateText("Generating project narrative from README...");
+                     try {
+                        const response = await gemini.generateText(
+                            `Summarize the following README into a concise, one-sentence project description/narrative (max 20 words) that captures the core essence of the project:\n\n${readmeContent.slice(0, 5000)}`
+                        );
+                        if (response.content) {
+                            description = response.content.trim();
+                        }
+                     } catch (e) {
+                         // Fallback silently
+                     }
+                 }
+             }
+
+             // 3. Initialize
+             spinner.updateText("Initializing MyContext metadata...");
+             
+             // Reuse existing initialization logic but pass specific params
+             const config = await this.fs.initializeProject(
+                 name,
+                 description,
+                 currentDir,
+                 true // useCurrentDir
+             );
+             
+             await this.createInitialManifest(
+                 path.resolve(currentDir),
+                 name,
+                 description
+             );
+
+             spinner.success({ text: `Project "${name}" initialized with context!` });
+             console.log(chalk.gray(`\nNarrative: ${description}\n`));
+             
+             this.showNextSteps(config, undefined, true);
+             return;
+        }
+      }
 
       // NEW TUI FLOW
       // If we are running in interactive mode (no specific flags and not --yes)

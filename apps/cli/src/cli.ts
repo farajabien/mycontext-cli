@@ -608,6 +608,11 @@ program.addCommand(buildStrategyCommand);
 const healthCheckCommand = new HealthCheckCommand();
 healthCheckCommand.register(program);
 
+// Doctor command (project diagnostics & auto-fix)
+const { DoctorCommand } = require("./commands/doctor");
+const doctorCommand = new DoctorCommand();
+doctorCommand.register(program);
+
 
 // Analyze command for existing projects
 program

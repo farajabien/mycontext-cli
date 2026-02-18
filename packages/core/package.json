@@ -1,46 +1,49 @@
 {
-    "name": "@myycontext/core",
-    "version": "1.0.5",
-    "description": "The Manifest Engine and Architectural Heart of the MyContext Ecosystem",
-    "keywords": [
-        "mycontext",
-        "manifest",
-        "design-system",
-        "architecture",
-        "zero-drift"
-    ],
-    "author": "MyContext",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/farajabien/mycontext-cli.git",
-        "directory": "packages/core"
-    },
-    "homepage": "https://github.com/farajabien/mycontext-cli#readme",
-    "bugs": {
-        "url": "https://github.com/farajabien/mycontext-cli/issues"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "files": [
-        "dist",
-        "README.md",
-        "package.json"
-    ],
-    "scripts": {
-        "build": "rm -rf dist && tsc"
-    },
-    "dependencies": {
-        "fs-extra": "^11.1.1",
-        "path": "^0.12.7",
-        "chalk": "^5.3.0"
-    },
-    "devDependencies": {
-        "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.0.0",
-        "typescript": "^5.0.0"
-    }
+  "name": "@myycontext/core",
+  "version": "1.0.5",
+  "description": "The Manifest Engine and Architectural Heart of the MyContext Ecosystem",
+  "keywords": [
+    "mycontext",
+    "manifest",
+    "design-system",
+    "architecture",
+    "zero-drift"
+  ],
+  "author": "MyContext",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farajabien/mycontext-cli.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/farajabien/mycontext-cli#readme",
+  "bugs": {
+    "url": "https://github.com/farajabien/mycontext-cli/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
