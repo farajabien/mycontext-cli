@@ -279,7 +279,8 @@ Rules:
 - "missing_in_context": Code exists but context.json doesn't know about it
 - "missing_in_code": context.json plans it but code doesn't have it yet
 - "outdated": Code has evolved beyond what context.json describes
-- Focus on actionable, specific findings. Max 10 diffs.`;
+- Focus on actionable, specific findings. Max 10 diffs.
+- If PLANNED CONTEXT is empty or minimal, infer the Project Name, Description, and Tech Stack from the code and include them in 'suggestedContextMerge'.`;
 
     try {
       const ai = this.getAICore();

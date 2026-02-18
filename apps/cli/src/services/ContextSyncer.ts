@@ -33,25 +33,6 @@ export class ContextSyncer {
     this.scanner = new ProjectScanner(projectRoot);
   }
 
-  /**
-   * Sync everything: context.json + README
-   */
-  async syncAll(options: { dryRun?: boolean } = {}): Promise<SyncResult> {
-    console.log(chalk.blue("📂 Scanning project structure...\n"));
-    const snapshot = await this.scanner.scan();
-    this.scanner.displaySnapshot(snapshot);
-
-    const contextResult = await this.syncContext(snapshot, options);
-    const readmeResult = await this.syncReadme(options);
-
-    return {
-      contextUpdated: contextResult.contextUpdated,
-      readmeUpdated: readmeResult.readmeUpdated,
-      report: contextResult.report,
-      contextDiff: contextResult.contextDiff,
-      readmeDiff: readmeResult.readmeDiff,
-    };
-  }
 
   /**
    * Sync context.json: scan → assess → deep merge
@@ -156,28 +137,36 @@ export class ContextSyncer {
 
     // Generate content via LLM
     const ai = this.getAICore();
-    const prompt = `Generate a concise, well-formatted markdown section for a README based on this project context:
+    
+    // Construct a richer prompt that encourages specificity
+    const prompt = `Generate a concise, professional markdown section for a README based on this project context.
+    
+CONTEXT:
+Project Name: ${summary.name}
+Description: ${summary.description || "A modern web application"}
+Entities: ${summary.entities.length > 0 ? summary.entities.join(", ") : "User, Project"}
+Routes: ${summary.routes.length > 0 ? summary.routes.join(", ") : "Dashboard, Profile, Settings"}
+Capabilities: ${summary.capabilities.length > 0 ? summary.capabilities.join(", ") : "Authentication, Data Management"}
+Tech Stack: ${context.project?.techStack ? context.project.techStack.join(", ") : "Next.js, TypeScript, Tailwind CSS"}
 
-Project: ${summary.name}
-Description: ${summary.description}
-${summary.entities.length > 0 ? `Entities: ${summary.entities.join(", ")}` : ""}
-${summary.routes.length > 0 ? `Routes: ${summary.routes.join(", ")}` : ""}
-${summary.roles.length > 0 ? `Roles: ${summary.roles.join(", ")}` : ""}
-${summary.components.length > 0 ? `Components: ${summary.components.map((c) => c.name).join(", ")}` : ""}
-${summary.checkpoints.length > 0 ? `Milestones: ${summary.checkpoints.map((c) => `${c.label} (${c.status})`).join(", ")}` : ""}
-${summary.capabilities.length > 0 ? `Capabilities: ${summary.capabilities.join(", ")}` : ""}
-${context.project?.techStack ? `Tech Stack: ${context.project.techStack.join(", ")}` : ""}
+INSTRUCTIONS:
+1. Write a 3-section summary: Overview, Key Features, Tech Stack.
+2. DO NOT use placeholders like "[Insert text here]" or "[Unknown]". If a detail is missing, infer it from the context or generic web app standards (e.g., "Built with modern web technologies").
+3. Make it sound professional and "shipped".
+4. Return ONLY the markdown content (no fences).
 
-Architecture type: ${context.architecture?.type || context.project?.type || "unknown"}
-${context.architecture?.packages ? `Packages: ${Object.keys(context.architecture.packages).join(", ")}` : ""}
+Example format:
+## Overview
+[Concise description of what the app does]
 
-Return ONLY the markdown content (no fences). Include sections:
-- Brief overview
-- Architecture/tech stack
-- Key features/capabilities
-- Project status (based on checkpoints)
+## Key Features
+- **Feature 1**: Description
+- **Feature 2**: Description
 
-Keep it concise — max 30 lines. Use emojis sparingly.`;
+## Tech Stack
+- Stack item 1
+- Stack item 2
+`;
 
     try {
       let newContent = await ai.generateText(prompt);
@@ -200,6 +189,36 @@ Keep it concise — max 30 lines. Use emojis sparingly.`;
       console.log(chalk.red(`❌ README sync failed: ${error.message}`));
       return { readmeUpdated: false, readmeDiff: `Error: ${error.message}` };
     }
+  }
+
+  /**
+   * Sync everything: context.json + README
+   */
+  async syncAll(options: { dryRun?: boolean } = {}): Promise<SyncResult> {
+    console.log(chalk.blue("📂 Scanning project structure...\n"));
+    const snapshot = await this.scanner.scan();
+    this.scanner.displaySnapshot(snapshot);
+
+    const contextResult = await this.syncContext(snapshot, options);
+    const readmeResult = await this.syncReadme(options);
+
+    // Add explicit next steps for the user
+    console.log(chalk.cyan("\n🚀 Next Steps:"));
+    if (contextResult.report && contextResult.report.diffs.length > 0) {
+        console.log(chalk.white("  • Review the sync suggestions above."));
+        console.log(chalk.white("  • Run 'mycontext generate context' to refine the Living Brain further."));
+    } else {
+        console.log(chalk.white("  • Your context is in sync! You can now start building features."));
+        console.log(chalk.white("  • Try: mycontext agent \"add a blog page\""));
+    }
+
+    return {
+      contextUpdated: contextResult.contextUpdated,
+      readmeUpdated: readmeResult.readmeUpdated,
+      report: contextResult.report,
+      contextDiff: contextResult.contextDiff,
+      readmeDiff: readmeResult.readmeDiff,
+    };
   }
 
   private getAICore(): AICore {

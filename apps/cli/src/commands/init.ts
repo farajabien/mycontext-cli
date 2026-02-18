@@ -541,7 +541,11 @@ ${readmeSnippet}
       chalk.gray("   # Reverse-engineer any UI into a comprehensive spec!\n")
     );
 
-    console.log(chalk.yellow("4. Configure AI provider:"));
+    console.log(chalk.yellow("4. Keep your Brain in sync:"));
+    console.log(chalk.cyan("   mycontext sync"));
+    console.log(chalk.gray("   # Auto-update context.json & README as you code\n"));
+
+    console.log(chalk.yellow("5. Configure AI provider:"));
     console.log(chalk.gray("   🔥 GitHub Models (GPT-4o - Free & High Quality):"));
     console.log(chalk.gray("      Get GitHub token: https://github.com/settings/tokens"));
     console.log(chalk.cyan("      echo 'GITHUB_TOKEN=your-token' >> .mycontext/.env\n"));
@@ -551,10 +555,10 @@ ${readmeSnippet}
     console.log(chalk.gray("   📌 Claude (Best for advanced reasoning):"));
     console.log(chalk.gray("      https://console.anthropic.com/\n"));
 
-    console.log(chalk.yellow("5. Generate full context:"));
+    console.log(chalk.yellow("6. Generate full context:"));
     console.log(chalk.gray("   mycontext generate context --full\n"));
 
-    console.log(chalk.yellow("6. Start development:"));
+    console.log(chalk.yellow("7. Start development:"));
     console.log(chalk.gray("   pnpm dev\n"));
 
     console.log(chalk.green("✨ Tips:"));
