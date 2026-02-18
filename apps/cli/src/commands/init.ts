@@ -52,51 +52,113 @@ export class InitCommand {
         });
 
         if (useExisting) {
+            // 1. Get Project Name (default)
+            let name = path.basename(currentDir);
+            let pkgDescription = "";
+            try {
+                const pkg = await fs.readJson(path.join(currentDir, "package.json"));
+                if (pkg.name) name = pkg.name;
+                if (pkg.description) pkgDescription = pkg.description;
+            } catch (e) {
+                // ignore
+            }
+
+            // 2. Ask user how to proceed
+            const { initMode } = await prompts({
+                type: "select",
+                name: "initMode",
+                message: "How would you like to initialize context?",
+                choices: [
+                    { title: "Scan Project (Recommended)", value: "scan", description: "Analyzes file tree & key files to build context" },
+                    { title: "Read README", value: "readme", description: "Generates summary from README file" },
+                    { title: "Manual Input", value: "manual", description: "Enter project description yourself" }
+                ],
+                initial: 0
+            });
+
             spinner.start();
-            spinner.updateText("Analyzing project...");
+            let description = pkgDescription || `${name} - AI-powered app`;
 
-             // 1. Get Project Name
-             let name = path.basename(currentDir);
-             let pkgDescription = "";
-             try {
-                 const pkg = await fs.readJson(path.join(currentDir, "package.json"));
-                 if (pkg.name) name = pkg.name;
-                 if (pkg.description) pkgDescription = pkg.description;
-             } catch (e) {
-                 // ignore
-             }
+            if (initMode === "scan") {
+                spinner.updateText("Scanning project structure...");
+                try {
+                    const { ProjectScanner } = await import("../services/ProjectScanner");
+                    const scanner = new ProjectScanner(currentDir);
+                    const snapshot = await scanner.scan();
 
-             // 2. Scan README for Narrative
-             let description = pkgDescription || `${name} - AI-powered app`;
-             const readmePath = path.join(currentDir, "README.md");
-             if (await fs.pathExists(readmePath)) {
-                 spinner.updateText("Reading README.md...");
-                 const readmeContent = await fs.readFile(readmePath, "utf-8");
-                 
-                 // Generate narrative using Gemini
-                 const gemini = new GeminiClient();
-                 if (gemini.hasApiKey()) {
-                     spinner.updateText("Generating project narrative from README...");
-                     try {
-                        const response = await gemini.generateText(
-                            `Summarize the following README into a concise, one-sentence project description/narrative (max 20 words) that captures the core essence of the project:\n\n${readmeContent.slice(0, 5000)}`
-                        );
-                        if (response.content) {
-                            description = response.content.trim();
-                        }
-                     } catch (e) {
-                         // Fallback silently
+                    // Build a rich description from the snapshot
+                    const stats = snapshot.stats;
+                    const techStack = [];
+                    // Simple heuristic for tech stack based on extensions/files
+                    if (snapshot.fileTree.some(f => f.path === "next.config.js" || f.path === "next.config.mjs")) techStack.push("Next.js");
+                    if (snapshot.fileTree.some(f => f.path.endsWith(".ts") || f.path.endsWith(".tsx"))) techStack.push("TypeScript");
+                    if (snapshot.fileTree.some(f => f.path === "tailwind.config.js" || f.path === "tailwind.config.ts")) techStack.push("Tailwind CSS");
+                    
+                    const topLevelDirs = snapshot.fileTree
+                        .filter(f => f.type === "dir" && !f.path.includes("/"))
+                        .map(f => f.path)
+                        .join(", ");
+
+                    // Read README snippet if available
+                    let readmeSnippet = "";
+                    const readmeFile = snapshot.keyFiles.find(f => f.path.toLowerCase() === "readme.md");
+                    if (readmeFile) {
+                        readmeSnippet = readmeFile.content.slice(0, 1000);
+                    }
+
+                    description = `Project: ${name}
+Description: ${pkgDescription}
+Tech Stack: ${techStack.join(", ")}
+Stats: ${stats.totalFiles} files, ${stats.componentFiles} components, ${stats.routeFiles} routes.
+Structure: ${topLevelDirs}
+README Summary:
+${readmeSnippet}
+`;
+                    spinner.succeed("Project scanned successfully!");
+                } catch (e) {
+                    spinner.warn({ text: "Scan failed, falling back to basic details." });
+                }
+            } else if (initMode === "readme") {
+                // EXISTING README LOGIC
+                 const readmePath = path.join(currentDir, "README.md");
+                 if (await fs.pathExists(readmePath)) {
+                     spinner.updateText("Reading README.md...");
+                     const readmeContent = await fs.readFile(readmePath, "utf-8");
+                     
+                     // Generate narrative using Gemini
+                     const gemini = new GeminiClient();
+                     if (gemini.hasApiKey()) {
+                         spinner.updateText("Generating project narrative from README...");
+                         try {
+                            const response = await gemini.generateText(
+                                `Summarize the following README into a concise, one-sentence project description/narrative (max 20 words) that captures the core essence of the project:\n\n${readmeContent.slice(0, 5000)}`
+                            );
+                            if (response.content) {
+                                description = response.content.trim();
+                            }
+                         } catch (e) {
+                             // Fallback silently
+                         }
                      }
                  }
-             }
+            } else if (initMode === "manual") {
+                spinner.stop();
+                const response = await prompts({
+                    type: "text",
+                    name: "desc",
+                    message: "Enter project description:",
+                    validate: value => value.length > 0 ? true : "Description is required"
+                });
+                description = response.desc;
+                spinner.start();
+            }
 
              // 3. Initialize
              spinner.updateText("Initializing MyContext metadata...");
              
-             // Reuse existing initialization logic but pass specific params
              const config = await this.fs.initializeProject(
                  name,
-                 description,
+                 description, // Now potentially rich context
                  currentDir,
                  true // useCurrentDir
              );
@@ -108,7 +170,10 @@ export class InitCommand {
              );
 
              spinner.success({ text: `Project "${name}" initialized with context!` });
-             console.log(chalk.gray(`\nNarrative: ${description}\n`));
+             
+             // If manual/scan, we might have a long description, so maybe truncate for display
+             const displayDesc = description.length > 100 ? description.slice(0, 100) + "..." : description;
+             console.log(chalk.gray(`\nNarrative: ${displayDesc}\n`));
              
              this.showNextSteps(config, undefined, true);
              return;

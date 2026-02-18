@@ -83,6 +83,7 @@ const KEY_FILE_PATTERNS: RegExp[] = [
   /route\.(tsx|jsx|ts|js)$/,
   /schema\.(ts|js|prisma)$/,
   /globals\.css$/,
+  /readme\.md$/i,
 ];
 
 const MAX_FILE_READ_SIZE = 3000; // chars per file

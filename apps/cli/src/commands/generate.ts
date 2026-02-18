@@ -4726,12 +4726,48 @@ ${
     options: GenerateOptions
   ): Promise<LivingContext> {
     const aiCore = AICore.getInstance();
-    const prompt = `
-Generate a comprehensive project context based on the following description:
+
+    // Check for existing context.json to respect prior state
+    const projectRoot = this.getProjectRoot();
+    const contextPath = path.join(projectRoot, ".mycontext", "context.json");
+    let existingContext: any = null;
+    try {
+        if (await fs.pathExists(contextPath)) {
+            existingContext = await fs.readJson(contextPath);
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    let prompt = "";
+    if (existingContext && existingContext.prd && Object.keys(existingContext.prd).length > 0) {
+        prompt = `
+Update and refine the following project context based on the provided description/update.
+EXISTING CONTEXT:
+${JSON.stringify(existingContext).slice(0, 15000)}
+
+PROJECT DESCRIPTION / UPDATE:
 ${projectContext.description}
 
-You must extract all functional requirements, user flows, technical stack decisions, and data entities.
+INSTRUCTIONS:
+1. Merge the new information from the description into the existing context.
+2. Update technical specs if the description mentions specific tech stacks (e.g. Next.js, Tailwind).
+3. valid existing details should be preserved unless contradicted by the new description.
 `;
+    } else {
+        prompt = `
+Generate a comprehensive project context based on the provided project analysis/description.
+
+PROJECT ANALYSIS:
+${projectContext.description}
+
+INSTRUCTIONS:
+1. Analyze the project details provided above (which may include file structure, tech stack, and README summary).
+2. Extract functional requirements, user flows, and technical limits.
+3. If the description includes a file tree, infer the project architecture from it.
+4. Generate a complete PRD and Technical Spec that reflects this ACTUAL existing project.
+`;
+    }
 
     // The schema for LivingContext (simplified version for the LLM)
     const schema = `
