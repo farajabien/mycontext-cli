@@ -1,279 +1,254 @@
 {
-  "brain": {
-    "version": "2.1.0",
-    "narrative": "MyContext CLI — An agent-for-agents platform. A deterministic scaffolding system that builds the Living Brain (context.json) so AI agents can operate on a project with 100% knowledge instead of guessing.",
-    "status": "active",
-    "checkpoints": [
+  "prd": {
+    "title": "MyContext Monorepo",
+    "problemStatement": "Development teams face challenges in maintaining alignment between their design intent and the actual implementation, leading to code drift, inefficiencies, and inconsistencies. Existing AI agents lack a deterministic context, often producing outputs that are misaligned with user requirements.",
+    "goals": [
+      "Provide a deterministic framework to ensure code evolution aligns with design intent.",
+      "Enable zero-drift autonomous development through context-driven AI agents.",
+      "Create a unified ecosystem, including CLI tools, a web interface, and developer IDE extensions."
+    ],
+    "targetAudience": "Software developers, technical leads, and organizations seeking to streamline development processes and maintain code quality through AI-driven tools.",
+    "successMetrics": [
+      "Successful deployment and adoption of the MyContext CLI tool.",
+      "Increased accuracy of AI-generated code aligned with design intent.",
+      "Positive feedback from developers using the Visual Studio Code extension."
+    ]
+  },
+  "features": [
+    {
+      "id": "feature-1",
+      "name": "Deterministic Context Engine",
+      "description": "A deterministic physics engine that ensures code generation aligns with the context defined in context.json.",
+      "priority": "high",
+      "userValue": "Developers can trust that generated code aligns with their design specifications.",
+      "acceptanceCriteria": [
+        "The engine processes context.json and generates code that matches the defined structure and rules.",
+        "The engine handles edge cases and provides appropriate feedback for conflicts."
+      ],
+      "dependencies": [
+        "@mycontext/core"
+      ]
+    },
+    {
+      "id": "feature-2",
+      "name": "CLI Tool",
+      "description": "A command-line interface for initializing projects, analyzing screenshots, generating context, and autonomous code evolution.",
+      "priority": "high",
+      "userValue": "Developers can efficiently manage projects and initiate context-driven development from the command line.",
+      "acceptanceCriteria": [
+        "CLI successfully initializes new projects and generates context.json.",
+        "The interface is user-friendly and provides clear feedback.",
+        "Integration with the deterministic context engine is seamless."
+      ],
+      "dependencies": [
+        "@mycontext/core"
+      ]
+    },
+    {
+      "id": "feature-3",
+      "name": "Visual Studio Code Extension",
+      "description": "An extension to integrate MyContext features into the Visual Studio Code editor.",
+      "priority": "medium",
+      "userValue": "Developers can use MyContext tools directly within their IDE for a seamless workflow.",
+      "acceptanceCriteria": [
+        "The extension integrates with existing VS Code projects.",
+        "Developers can access MyContext features such as context editing and code generation."
+      ],
+      "dependencies": [
+        "@mycontext/core",
+        "mycontext-cli"
+      ]
+    },
+    {
+      "id": "feature-4",
+      "name": "Web Interface",
+      "description": "A visual studio and marketing website for the MyContext ecosystem.",
+      "priority": "medium",
+      "userValue": "Users can visually interact with the MyContext ecosystem and learn more about its capabilities.",
+      "acceptanceCriteria": [
+        "The web interface provides a clear overview of MyContext features.",
+        "Basic visual studio features are functional for project management."
+      ],
+      "dependencies": []
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-1",
+      "name": "Project Initialization with CLI",
+      "description": "Users initialize a new project using the MyContext CLI.",
+      "steps": [
+        "User runs the CLI command to initialize a new project.",
+        "CLI prompts the user for project details.",
+        "CLI generates a context.json file and initial project structure."
+      ],
+      "actors": [
+        "Developer"
+      ]
+    },
+    {
+      "id": "flow-2",
+      "name": "Code Generation Based on Context",
+      "description": "AI agents generate code based on the deterministic context defined in context.json.",
+      "steps": [
+        "User updates context.json with new specifications.",
+        "CLI or IDE extension triggers the code generation process.",
+        "Deterministic context engine generates code and provides feedback."
+      ],
+      "actors": [
+        "Developer"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "edge-1",
+      "category": "File conflicts",
+      "description": "Generated code conflicts with existing files in the project.",
+      "mitigation": "Provide detailed feedback on conflicts and allow the user to resolve them manually or automatically overwrite."
+    },
+    {
+      "id": "edge-2",
+      "category": "Invalid context.json",
+      "description": "User provides an incomplete or incorrect context.json file.",
+      "mitigation": "Implement validation for context.json and provide clear error messages to guide the user."
+    }
+  ],
+  "specs": {
+    "architecture": "Monorepo structure with distinct directories for CLI, web interface, VS Code extension, and shared core functionalities.",
+    "techStack": {
+      "frontend": [
+        "React",
+        "HTML",
+        "CSS"
+      ],
+      "backend": [
+        "Node.js"
+      ],
+      "database": [
+        "JSON (Living DB)",
+        "Option for external database integration"
+      ],
+      "other": [
+        "NPM for package management",
+        "GitHub for version control"
+      ]
+    },
+    "apiEndpoints": [
       {
-        "id": "phase-1-foundation",
-        "label": "Foundation & CLI Core",
-        "status": "complete"
+        "path": "/context/generate",
+        "method": "POST",
+        "description": "Generates a context.json file based on input parameters.",
+        "authRequired": true
       },
       {
-        "id": "phase-2-multi-agent",
-        "label": "Multi-Agent Architecture (Agent Teams + Brain)",
-        "status": "complete"
-      },
-      {
-        "id": "phase-3-fractal-lego",
-        "label": "Fractal Architecture & Lego Assembly",
-        "status": "complete"
-      },
-      {
-        "id": "phase-4-project-scanner",
-        "label": "Project Scanner & Context Sync",
-        "status": "complete"
-      },
-      {
-        "id": "phase-5-self-recontextualization",
-        "label": "Self-Recontextualization & Unified Context",
-        "status": "complete"
+        "path": "/code/evolve",
+        "method": "POST",
+        "description": "Triggers autonomous code evolution based on the context.json file.",
+        "authRequired": true
       }
     ],
-    "updates": [],
-    "tasks": [],
-    "artifacts": {},
-    "memory": {
-      "lastScan": {
-        "totalFiles": 302,
-        "totalDirs": 79,
-        "routeFiles": 8,
-        "componentFiles": 5,
-        "apiFiles": 1,
-        "schemaFiles": 3,
-        "testFiles": 0,
-        "keyFilesRead": 30
-      }
-    },
-    "registry": {
-      "components": [
+    "databaseSchema": {
+      "tables": [
         {
-          "name": "PricingPlans",
-          "description": "High-converting pricing page with monthly/yearly toggle and FAQ",
-          "path": "apps/cli/experiments/pricing-mission/PricingPlans.jsx"
+          "name": "contexts",
+          "columns": [
+            {
+              "name": "id",
+              "type": "UUID",
+              "constraints": [
+                "PRIMARY KEY"
+              ]
+            },
+            {
+              "name": "name",
+              "type": "VARCHAR(255)",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "data",
+              "type": "JSON",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "TIMESTAMP",
+              "constraints": [
+                "NOT NULL"
+              ]
+            }
+          ]
         },
         {
-          "name": "ModeToggle",
-          "description": "Dark/light mode toggle using next-themes",
-          "path": "components/ModeToggle.tsx"
+          "name": "users",
+          "columns": [
+            {
+              "name": "id",
+              "type": "UUID",
+              "constraints": [
+                "PRIMARY KEY"
+              ]
+            },
+            {
+              "name": "username",
+              "type": "VARCHAR(255)",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "password_hash",
+              "type": "VARCHAR(255)",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "email",
+              "type": "VARCHAR(255)",
+              "constraints": [
+                "NOT NULL"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP",
+              "constraints": [
+                "NOT NULL"
+              ]
+            }
+          ]
         }
       ]
     }
   },
-  "project": {
-    "name": "mycontext-cli",
-    "description": "Agent-for-agents platform: deterministic scaffolding system with Living Brain, Agent Teams, Fractal Architecture, and Lego Assembly for Next.js + InstantDB projects.",
-    "version": "4.2.0",
-    "type": "monorepo",
-    "techStack": [
-      "TypeScript",
-      "Node.js",
-      "Commander.js",
-      "Chalk",
-      "fs-extra",
-      "Gemini AI",
-      "pnpm workspaces"
-    ],
-    "targetStack": [
-      "Next.js",
-      "InstantDB",
-      "Tailwind",
-      "ShadCN/UI"
-    ]
+  "metadata": {
+    "version": "1.0.0",
+    "generatedAt": "2026-02-18T11:50:21.101Z",
+    "lastUpdatedAt": "2026-02-18T11:50:21.102Z",
+    "projectConfig": {
+      "id": "958b8e40-5067-4a4c-9fa1-a1c2454fb87a",
+      "name": "MyContext Monorepo",
+      "description": "Development teams face challenges in maintaining alignment between their design intent and the actual implementation, leading to code drift, inefficiencies, and inconsistencies. Existing AI agents lack a deterministic context, often producing outputs that are misaligned with user requirements.",
+      "createdAt": "2026-02-18T11:50:21.102Z",
+      "updatedAt": "2026-02-18T11:50:21.102Z",
+      "contextPath": ".mycontext",
+      "version": "0.1.0",
+      "status": "context-generated"
+    }
   },
-  "architecture": {
-    "type": "monorepo",
-    "packages": {
-      "apps/cli": {
-        "name": "mycontext-cli",
-        "version": "4.2.0",
-        "description": "The main CLI application — `npx mycontext`",
-        "entrypoint": "src/cli.ts",
-        "modules": {
-          "commands": {
-            "count": 50,
-            "files": [
-              "init.ts",
-              "generate.ts",
-              "generate-components.ts",
-              "status.ts",
-              "validate.ts",
-              "setup.ts",
-              "update.ts",
-              "auth.ts",
-              "help.ts",
-              "enhance.ts",
-              "refine.ts",
-              "agent.ts",
-              "agent-flow.ts",
-              "analyze.ts",
-              "analyze-screenshot.ts",
-              "build-app.ts",
-              "build-strategy.ts",
-              "clone-starter.ts",
-              "compile-prd.ts",
-              "design-analyze.ts",
-              "export-progress.ts",
-              "generate-actions.ts",
-              "generate-components-manifest.ts",
-              "generate-context-files.ts",
-              "generate-design-prompt.ts",
-              "generate-sample-data.ts",
-              "generate-screens.ts",
-              "generate-screens-list.ts",
-              "generate-todos.ts",
-              "health-check.ts",
-              "import-project-plan.ts",
-              "list.ts",
-              "migrate.ts",
-              "playbooks.ts",
-              "pm-integration.ts",
-              "predict.ts",
-              "promote.ts",
-              "refine-component.ts",
-              "review-context.ts",
-              "sanitize.ts",
-              "setup-complete.ts",
-              "setup-database.ts",
-              "setup-instantdb.ts",
-              "setup-mcp.ts",
-              "setup-shadcn.ts",
-              "suggest.ts",
-              "sync-readme.ts",
-              "test.ts",
-              "workflow.ts",
-              "assemble-features.ts"
-            ]
-          },
-          "services": {
-            "count": 12,
-            "files": [
-              "ContextService.ts",
-              "MissionOrchestrator.ts",
-              "ProjectScanner.ts",
-              "ContextSyncer.ts",
-              "ScaffoldAgent.ts",
-              "TriggerLogger.ts",
-              "WebhookServer.ts",
-              "gemini-vision.ts",
-              "Orchestrator.ts",
-              "FractalProblemSolver.ts",
-              "FractalBuilder.ts",
-              "FractalOrchestrator.ts",
-              "LegoDb.ts"
-            ]
-          },
-          "core": {
-            "agents": [
-              "DependencySentinel.ts"
-            ],
-            "ai": [
-              "AICore.ts"
-            ],
-            "brain": [
-              "BrainClient.ts"
-            ]
-          },
-          "tui": {
-            "files": [
-              "TUIClient.ts",
-              "PlanningMode.ts"
-            ],
-            "description": "Text User Interface — interactive planning, agent, and auto-edit modes"
-          },
-          "utils": {
-            "count": 49,
-            "key": [
-              "FileGenerator.ts",
-              "NextJSProjectGenerator.ts",
-              "ProjectStateAnalyzer.ts",
-              "contextLoader.ts",
-              "contextManager.ts",
-              "geminiClient.ts",
-              "githubModelsClient.ts",
-              "openRouterClient.ts",
-              "spinner.ts",
-              "workflowEngine.ts",
-              "routeGenerator.ts",
-              "serverActionGenerator.ts",
-              "deepMerge.ts"
-            ]
-          },
-          "types": {
-            "count": 13,
-            "key": [
-              "mega-context.ts",
-              "unified-context.ts",
-              "living-context.ts",
-              "tui.ts"
-            ]
-          },
-          "templates": {
-            "count": 10,
-            "categories": [
-              "instantdb",
-              "playbooks",
-              "ui-spec"
-            ]
-          },
-          "config": {
-            "count": 6,
-            "files": [
-              "ai-providers.json",
-              "api.ts",
-              "build-strategies.json",
-              "dependencies.json",
-              "intent-dictionary.json",
-              "model-versions.json"
-            ]
-          }
-        }
-      },
-      "apps/web": {
-        "name": "mycontext-web",
-        "description": "Web dashboard — Brain viewer and management UI",
-        "techStack": [
-          "Next.js",
-          "React"
-        ]
-      },
-      "apps/vscode": {
-        "name": "mycontext-vscode",
-        "description": "VS Code extension for MyContext integration"
-      },
-      "packages/core": {
-        "name": "@mycontext/core",
-        "description": "Shared types and manifest manager",
-        "exports": [
-          "brain.ts",
-          "components.ts",
-          "analysis.ts",
-          "enhancement.ts",
-          "feature-bundle.ts",
-          "flow-testing.ts",
-          "intent-dictionary.ts",
-          "pm-integration.ts",
-          "progress.ts",
-          "role-permissions.ts",
-          "design-pipeline.ts",
-          "manifest-manager.ts"
-        ]
-      }
-    },
-    "experiments": [
-      "apps/cli/experiments/living-brain-blog",
-      "apps/cli/experiments/pricing-mission",
-      "experiments/e2e-final-test",
-      "experiments/living-brain-blog"
-    ]
-  },
-  "capabilities": {
-    "init": "Interactive TUI interview → MegaContext → Scaffold (context-aware: detects existing context)",
-    "scan": "Walk real file tree → read key files → LLM progress assessment → context merge suggestions",
-    "sync": "Autonomous self-recontextualization: scan → assess → deep merge context.json + LLM-generate README",
-    "generate": "Deterministic code generation from 100% populated MegaContext",
-    "agent": "Multi-agent task execution via Brain blackboard pattern",
-    "fractal": "Recursive problem decomposition → atomic assembly",
-    "lego": "Component registry + semantic retrieval + assembly prompting"
-  }
+  "components": [],
+  "actions": [],
+  "routes": []
 }

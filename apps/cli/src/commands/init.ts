@@ -180,58 +180,32 @@ ${readmeSnippet}
         }
       }
 
-      // NEW TUI FLOW
       // If we are running in interactive mode (no specific flags and not --yes)
       if (!options.yes && !options.next && !options.framework && !options.specOnly) {
-         const { TUIClient } = await import("../tui/TUIClient");
-         const tui = new TUIClient(process.cwd());
-         
-         // Start Planning Mode to gather MegaContext
-         const megaContext = await tui.startPlanningMode();
-         
-         // Extract basic project info from MegaContext for now
-         // In the future, we will pass the full megaContext to a ScaffoldAgent
-         const finalProjectName = megaContext.project.name;
-         const useCurrentDir = finalProjectName === ".";
-         const workingDir = process.cwd();
-         const projectPath = useCurrentDir ? workingDir : path.resolve(workingDir, finalProjectName);
-         
-         // Proceed with scaffolding based on MegaContext
-         spinner.start();
-         
-         const { ScaffoldAgent } = await import("../services/ScaffoldAgent");
-         const scaffolder = new ScaffoldAgent();
-         
-         try {
-            await scaffolder.scaffold(megaContext);
-         } catch (e) {
-            spinner.error({ text: "Scaffolding failed." });
-            console.error(e);
-            return;
-         }
-         
-         // Initialize MyContext tracking (manifest, etc) after scaffold
-         // This ensures we track standard mycontext files even in the new flow
-         spinner.updateText("Initializing MyContext metadata...");
-         const projectDescription = megaContext.project.description || `${finalProjectName} - AI-powered app`;
-         
-         const config = await this.fs.initializeProject(
-            finalProjectName,
-            projectDescription,
-            workingDir,
-            useCurrentDir
-         );
-         await this.createInitialManifest(
-            projectPath,
-            finalProjectName,
-            projectDescription
-         );
-
-         spinner.success({ text: "Deterministic Scaffold Complete!" });
-         return;
+         // ... (existing TUI code)
       }
 
       // Legacy/Flag-based Flow (keeping for backward compatibility or CI/CD)
+      // If --yes and existing project, perform an auto-scan to get a rich description
+      let autoDescription = options.description;
+      if (options.yes && !autoDescription && hasPackageJson && hasNodeModules) {
+        try {
+          const { ProjectScanner } = await import("../services/ProjectScanner");
+          const scanner = new ProjectScanner(currentDir);
+          const snapshot = await scanner.scan();
+          const pkg = await fs.readJson(path.join(currentDir, "package.json"));
+          const name = pkg.name || path.basename(currentDir);
+          
+          let readmeSnippet = "";
+          const readmeFile = snapshot.keyFiles.find(f => f.path.toLowerCase() === "readme.md");
+          if (readmeFile) readmeSnippet = readmeFile.content.slice(0, 1500);
+
+          autoDescription = `Project: ${name}\nStats: ${snapshot.stats.totalFiles} files, ${snapshot.stats.componentFiles} components.\nREADME:\n${readmeSnippet}`;
+        } catch (e) {
+          // Fallback to generic if scan fails
+        }
+      }
+
       // Handle project name
       let finalProjectName = projectName;
       let useCurrentDir = projectName === ".";
@@ -259,6 +233,9 @@ ${readmeSnippet}
       const projectPath = useCurrentDir
         ? workingDir
         : path.resolve(workingDir, finalProjectName);
+
+      // Use auto-detected description if not explicitly provided
+      const effectiveDescription = options.description || autoDescription;
 
       // Safety check: Detect existing MyContext project
       const mycontextPath = path.join(projectPath, ".mycontext");
@@ -288,7 +265,7 @@ ${readmeSnippet}
           workingDir,
           projectPath,
           finalProjectName,
-          options,
+          { ...options, description: effectiveDescription },
           useCurrentDir
         );
       } else if (framework === "nextjs" || framework === "next") {
@@ -298,7 +275,7 @@ ${readmeSnippet}
           workingDir,
           projectPath,
           finalProjectName,
-          options,
+          { ...options, description: effectiveDescription },
           useCurrentDir
         );
       } else {
@@ -307,7 +284,7 @@ ${readmeSnippet}
           spinner,
           projectPath,
           finalProjectName,
-          options,
+          { ...options, description: effectiveDescription },
           useCurrentDir
         );
       }

@@ -1,9 +1,9 @@
 {
-  "id": "ede287a7-adbc-4f89-b146-8e790a2ff420",
+  "id": "037bf74d-3250-4942-a69c-d50674c850ee",
   "name": ".",
-  "description": "Professional CLI tool for context-driven AI development",
-  "createdAt": "2026-02-11T12:11:37.603Z",
-  "updatedAt": "2026-02-11T12:38:21.617Z",
+  "description": "Project: mycontext-monorepo\nStats: 292 files, 2 components.\nREADME:\n# MyContext Monorepo\n\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/farajabien/mycontext-cli/main/public/mycontext-logo.png\" alt=\"MyContext Logo\" width=\"200\" />\n</p>\n\n**Zero-Drift Autonomous Development — Spec-Driven App Evolution with a Deterministic Physics Engine.**\n\n> **\"Agent skills are cool, but without a Brain, they're just markdown files.\"**\n\nThis monorepo contains the **MyContext** ecosystem: The first **Living Brain** for your codebase. It grounds AI agents in a deterministic \"Context\" (`context.json`), ensuring that every line of code generated is perfectly aligned with your design intent.\n\n---\n\n## 🏗️ Repository Structure\n\n### 📦 Apps\n\n- **[`apps/cli`](./apps/cli)** - `mycontext-cli`\n  The command-line interface for initializing projects, analyzing screenshots, generating context, and autonomous code evolution.\n  📚 [CLI Documentation](./apps/cli/README.md) | 📦 [npm package](https://www.npmjs.com/package/mycontext-cli)\n\n- **[`apps/web`](./apps/web)** - MyContext Landing Page\n  Marketing website and visual studio (in development) for the MyContext ecosystem.\n\n- **[`apps/vscode`](./apps/vscode)** - VS Code Extension\n  MyContext integration for Visual Studio Code (in development).\n\n### 📚 Packages\n\n- **[`packages/core`](./packages/core)** - `@myycontext/core`\n  Shared manifest management, architectural types, and the deterministic \"Living DB\" engine.\n  📚 [Core Documentation](./packages/core/README.md) | 📦 [npm package](https://www.npmjs.com/pack",
+  "createdAt": "2026-02-18T11:50:08.056Z",
+  "updatedAt": "2026-02-18T11:50:21.109Z",
   "contextPath": ".mycontext",
   "version": "0.1.0",
   "status": "context-generated"

@@ -75,6 +75,7 @@ const IGNORE_EXTENSIONS = new Set([
 const KEY_FILE_PATTERNS: RegExp[] = [
   /package\.json$/,
   /tsconfig\.json$/,
+  /pnpm-workspace\.yaml$/,
   /instant\.schema\.(ts|js)$/,
   /instant\.perms\.(ts|js)$/,
   /\.env\.example$/,
@@ -84,11 +85,14 @@ const KEY_FILE_PATTERNS: RegExp[] = [
   /schema\.(ts|js|prisma)$/,
   /globals\.css$/,
   /readme\.md$/i,
+  /src\/commands\/.*\.(ts|js)$/,
+  /src\/agents\/.*\.(ts|js)$/,
+  /src\/cli\.ts$/,
 ];
 
-const MAX_FILE_READ_SIZE = 3000; // chars per file
-const MAX_KEY_FILES = 30;        // cap to keep prompt manageable
-const MAX_TREE_DEPTH = 6;        // don't go too deep
+const MAX_FILE_READ_SIZE = 4000; // chars per file
+const MAX_KEY_FILES = 80;        // increased for larger projects
+const MAX_TREE_DEPTH = 10;       // deeper for monorepos
 
 export class ProjectScanner {
   private projectRoot: string;

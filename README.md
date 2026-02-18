@@ -102,35 +102,22 @@ pnpm run clean
 To keep this project's "Living Brain" and documentation in sync, always mention or include `.mycontext/ALIGN` in your prompts when working with an AI. It forces the AI to update `.mycontext/context.json` and this `README.md` alongside any code changes.
 
 <!-- mycontext:start -->
-### 🎯 Project Overview
-**MyContext**: The deterministic anchor for AI-powered development. Ground your agents in specs, not hallucinations. An *agent-for-agents* platform that builds a **Living Brain** (`context.json`) so AI agents operate with 100% knowledge.
 
-### ✨ Key Capabilities
-| Command | Description |
-|---------|-------------|
-| `mycontext init` | Interactive TUI interview OR **Auto-Init** for existing projects (AI narrative generation) |
-| `mycontext scan --assess` | Walk file tree → LLM compares code vs context → bidirectional drift detection |
-| `mycontext sync` | **NEW** — Autonomous self-recontextualization: scan → assess → deep merge context.json + LLM-generate README |
-| `mycontext generate` | Deterministic code generation from 100% populated MegaContext |
-| `mycontext agent` | Multi-agent task execution via Brain blackboard pattern |
+## Overview
+This is a modern web application designed to streamline user interactions and project management. It provides an intuitive interface for managing user profiles, navigating dashboards, and customizing settings, all while ensuring a secure and seamless experience.
 
-### 🏛️ Architecture
-- **Unified Context Schema** — `MegaContext` (typed scaffolding) + `Brain` (narrative, registry, memory) coexist in one `context.json`
-- **Deep Merge** — Recursive merge with array dedup (no more data loss on context updates)
-- **Fractal Architecture** — Recursive decomposition → atomic assembly
-- **Lego Assembly** — Component registry + semantic retrieval + assembly prompting
+## Key Features
+- **Authentication**: Secure user login and account management.
+- **Dashboard**: Centralized hub for accessing and managing projects.
+- **Profile Management**: Update and personalize user information with ease.
+- **Settings**: Customize application preferences and configurations.
+- **Data Management**: Efficient handling and organization of project-related data.
 
-### 📊 Project Status
-| Phase | Status |
-|-------|--------|
-| Foundation & CLI Core | ✅ Complete |
-| Multi-Agent Architecture | ✅ Complete |
-| Fractal Architecture & Lego Assembly | ✅ Complete |
-| Project Scanner & Context Sync | ✅ Complete |
-| Self-Recontextualization & Unified Context | ✅ Complete |
+## Tech Stack
+- Next.js
+- TypeScript
+- Tailwind CSS
 
----
-_Last synchronized with MyContext Living Brain on 2026-02-17_
 <!-- mycontext:end -->
 
 ---
