@@ -333,7 +333,7 @@ export async function runDoctor(
 
   // Auto-fix if requested
   let fixedCount = 0;
-  if (options.fix && !options.dryRun) {
+  if ((options.fix || options.prune) && !options.dryRun) {
     for (const { root, project: scanProject } of scanRoots) {
       const isWorkspace = project.isMonorepo && root !== project.root;
       const ctx = createRuleContext(root, scanProject, isWorkspace);
@@ -342,6 +342,11 @@ export async function runDoctor(
 
       for (const rule of rules) {
         if (!rule.fix) continue;
+
+        // Skip dead code rules if prune is not enabled and vice versa
+        if (rule.category === "dead" && !options.prune) continue;
+        if (rule.category !== "dead" && !options.fix) continue;
+
         const ruleDiags = rootDiags.filter(d => d.ruleId === rule.id && d.autoFixable);
         for (const diag of ruleDiags) {
           try {
@@ -361,7 +366,7 @@ export async function runDoctor(
     diagnostics: allDiagnostics,
     project,
     ruleResults,
-    fixedCount: options.fix ? fixedCount : undefined,
+    fixedCount: (options.fix || options.prune) ? fixedCount : undefined,
     duration: Date.now() - start,
   };
 }
@@ -416,7 +421,8 @@ export function displayResult(result: DoctorResult, options: DoctorOptions = {})
           const loc = diag.line ? chalk.dim(`:${diag.line}`) : "";
           console.log(`  ${icon} ${chalk.dim(diag.ruleId.padEnd(35))} ${diag.message}`);
           if (options.verbose && diag.filePath) {
-            console.log(`    ${chalk.dim("→")} ${chalk.cyan(diag.filePath)}${loc}`);
+            const absPath = path.resolve(project.root, diag.filePath);
+            console.log(`    ${chalk.dim("→")} ${chalk.cyan(absPath)}${loc}`);
           }
           if (options.verbose && diag.help) {
             console.log(`    ${chalk.dim("💡")} ${chalk.dim(diag.help)}`);

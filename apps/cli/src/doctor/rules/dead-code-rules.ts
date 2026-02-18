@@ -63,7 +63,8 @@ const orphanFiles: DoctorRule = {
 
       // Find import/require statements
       const importRegex = /(?:import|require)\s*\(?['"]([^'"]+)['"]\)?/g;
-      const exportFromRegex = /export\s+.*\s+from\s+['"]([^'"]+)['"]/g;
+      const importFromRegex = /import\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/g;
+      const exportFromRegex = /export\s+[\s\S]*?\s+from\s+['"]([^'"]+)['"]/g;
       let match;
 
       const processImport = (importPath: string) => {
@@ -84,6 +85,10 @@ const orphanFiles: DoctorRule = {
       };
 
       while ((match = importRegex.exec(content)) !== null) {
+        const m = match[1];
+        if (m) processImport(m);
+      }
+      while ((match = importFromRegex.exec(content)) !== null) {
         const m = match[1];
         if (m) processImport(m);
       }
@@ -116,10 +121,20 @@ const orphanFiles: DoctorRule = {
     // Otherwise, the detection is probably incomplete
     if (orphans.length > 0 && orphans.length < allFiles.length * 0.3) {
       for (const orphan of orphans.slice(0, 20)) { // cap at 20 to avoid noise
-        results.push(diag(this, orphan, `File appears unused — not imported anywhere`));
+        results.push(diag(this, orphan, `File appears unused — not imported anywhere`, { autoFixable: true }));
       }
     }
     return results;
+  },
+  async fix(ctx, diag) {
+    if (diag.autoFixable) {
+      const fs = require("fs-extra");
+      const path = require("path");
+      const absPath = path.join(ctx.root, diag.filePath);
+      await fs.unlink(absPath);
+      return true;
+    }
+    return false;
   },
 };
 
@@ -248,10 +263,20 @@ const unusedComponents: DoctorRule = {
 
       // The component definition itself counts as 1 reference (import in its own file)
       if (references <= 1) {
-        results.push(diag(this, cf, `Component "${basename}" appears unused`));
+        results.push(diag(this, cf, `Component "${basename}" appears unused`, { autoFixable: true }));
       }
     }
     return results;
+  },
+  async fix(ctx, diag) {
+    if (diag.autoFixable) {
+      const fs = require("fs-extra");
+      const path = require("path");
+      const absPath = path.join(ctx.root, diag.filePath);
+      await fs.unlink(absPath);
+      return true;
+    }
+    return false;
   },
 };
 

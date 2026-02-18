@@ -97,6 +97,7 @@ export interface DoctorOptions {
   category?: DoctorCategory;   // rule category filter
   dryRun?: boolean;
   json?: boolean;
+  prune?: boolean;
 }
 
 export interface DiagnoseOptions {

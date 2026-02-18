@@ -25,6 +25,7 @@ export class DoctorCommand {
       .option("--project <name>", "Select workspace project (monorepo)")
       .option("--category <cat>", "Run only a specific category (nextjs|turbo|node|dead)")
       .option("--dry-run", "Show what --fix would do without changing files")
+      .option("--prune", "Prune dead code (destructive)")
       .option("--json", "Output JSON (for programmatic use)")
       .action(async (directory: string | undefined, opts: any) => {
         await this.run(directory || ".", {
@@ -35,6 +36,7 @@ export class DoctorCommand {
           category: opts.category as DoctorCategory | undefined,
           dryRun: opts.dryRun,
           json: opts.json,
+          prune: opts.prune,
         });
       });
   }

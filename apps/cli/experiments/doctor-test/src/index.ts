@@ -1,0 +1,11 @@
+import { used } from "./used"; console.log(used);
+import { val1 } from './valid1'; console.log(val1);
+import { val2 } from './valid2'; console.log(val2);
+import { val3 } from './valid3'; console.log(val3);
+import { val4 } from './valid4'; console.log(val4);
+import { val5 } from './valid5'; console.log(val5);
+import { val6 } from './valid6'; console.log(val6);
+import { val7 } from './valid7'; console.log(val7);
+import { val8 } from './valid8'; console.log(val8);
+import { val9 } from './valid9'; console.log(val9);
+import { val10 } from './valid10'; console.log(val10);
