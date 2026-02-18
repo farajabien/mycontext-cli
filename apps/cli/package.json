@@ -54,7 +54,7 @@
     "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^4.11.1",
     "@modelcontextprotocol/sdk": "^1.26.0",
-    "@myycontext/core": "workspace:*",
+    "@myycontext/core": "^1.0.5",
     "@playwright/test": "^1.58.2",
     "@types/figlet": "^1.7.0",
     "axios": "^1.6.0",

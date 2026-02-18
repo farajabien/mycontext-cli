@@ -253,6 +253,7 @@ export class PlanningMode {
     // 2. AI Generation
     const spinner = new EnhancedSpinner("Dreaming up the architecture...");
     spinner.start();
+    const thoughtInterval = this.startThinkingStream(spinner);
 
     const ALIGN_RULES = `
 [PHILOSOPHY: DETERMINISTIC SCAFFOLDING]:
@@ -297,6 +298,7 @@ export class PlanningMode {
       generatedContext.project.contextPath = ".mycontext";
       generatedContext.project.createdAt = new Date().toISOString();
 
+      clearInterval(thoughtInterval);
       spinner.success({ text: "Architecture plan generated!" });
 
       // 3. Review & Edit Loop
@@ -328,6 +330,7 @@ export class PlanningMode {
    * Ensure an API key is available for AI generation
    */
   private async ensureApiKey(): Promise<void> {
+    // Check for existing keys
     if (
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
@@ -338,26 +341,63 @@ export class PlanningMode {
       process.env.ANTHROPIC_API_KEY ||
       process.env.XAI_API_KEY
     ) {
-      return; // At least one key exists
+      return;
     }
 
-    // No keys — prompt user
-    console.log(chalk.yellow("\n⚠️  No AI API keys found in environment."));
-    console.log(chalk.gray("You need at least one key to generate the architecture plan."));
-    this.showApiKeyHelp();
+    // Loop until we get a key or user quits
+    while (true) {
+      console.log(chalk.yellow("\n⚠️  No AI API keys found in environment."));
+      console.log(chalk.gray("You need at least one key to generate the architecture plan."));
+      this.showApiKeyHelp();
 
-    const response = await prompts({
-      type: "password",
-      name: "apiKey",
-      message: "Enter your Gemini API Key (free):",
-    });
+      const response = await prompts({
+        type: "password",
+        name: "apiKey",
+        message: "Enter your Gemini API Key (free):",
+      });
 
-    if (response.apiKey) {
-      process.env.GEMINI_API_KEY = response.apiKey.trim();
-    } else {
-      console.log(chalk.red("❌ No API key provided. Exiting."));
-      process.exit(1);
+      if (response.apiKey && response.apiKey.trim().length > 0) {
+        process.env.GEMINI_API_KEY = response.apiKey.trim();
+        return; // Success
+      }
+
+      // If failed, ask to retry
+      console.log(chalk.red("❌ No API key provided."));
+      const { retry } = await prompts({
+        type: "confirm",
+        name: "retry",
+        message: "Would you like to try again?",
+        initial: true
+      });
+
+      if (!retry) {
+        console.log(chalk.red("Exiting."));
+        process.exit(1);
+      }
     }
+  }
+
+  /**
+   * Simulate a "Thinking Stream" to keep user engaged
+   */
+  private startThinkingStream(spinner: EnhancedSpinner): NodeJS.Timeout {
+    const thoughts = [
+        "Analyzing project requirements...",
+        "Drafting InstantDB schema...",
+        "Defining User Roles & Permissions...",
+        "Structuring Next.js App Router...",
+        "Selecting ShadCN components...",
+        "Refining determinism rules...",
+        "Finalizing MegaContext..."
+    ];
+    let i = 0;
+    return setInterval(() => {
+        const thought = thoughts[i];
+        if (thought) {
+            spinner.updateText(thought);
+            i++;
+        }
+    }, 2000); // Update every 2s
   }
 
   /**

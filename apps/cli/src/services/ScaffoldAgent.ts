@@ -22,9 +22,18 @@ export class ScaffoldAgent {
     
     const projectPath = path.resolve(process.cwd(), context.project.name);
 
+    // Visual Roadmap
+    console.log(chalk.cyan("\n📋 Execution Plan:"));
+    console.log(chalk.gray("  1. Bootstrap Next.js + InstantDB"));
+    console.log(chalk.gray("  2. Install InstantDB SDK"));
+    console.log(chalk.gray("  3. Generate InstantDB Schema"));
+    console.log(chalk.gray("  4. Generate Route Structure"));
+    console.log(chalk.gray("  5. Persist Living Brain (.mycontext)"));
+    console.log(""); 
+
     // 1. Framework Scaffold (Next.js)
     if (!fs.existsSync(projectPath)) {
-        this.spinner.updateText("Bootstrapping Next.js + InstantDB...");
+        this.spinner.updateText("[1/5] Bootstrapping Next.js + InstantDB...");
         this.spinner.start();
         try {
             // Using a more deterministic install command (pnpm dlx create-next-app)
@@ -33,39 +42,41 @@ export class ScaffoldAgent {
             execSync(`pnpm dlx create-next-app@latest ${context.project.name} --typescript --tailwind --eslint --app --no-src-dir --import-alias "@/*" --use-pnpm`, {
                 stdio: "ignore" 
             });
-            this.spinner.success({ text: "Next.js shell created." });
+            this.spinner.success({ text: "[1/5] Next.js shell created." });
         } catch (e) {
             this.spinner.error({ text: "Failed to scaffold Next.js app." });
             throw e;
         }
+    } else {
+        console.log(chalk.yellow("  [1/5] Directory exists, skipping scaffold."));
     }
 
     // 2. Install InstantDB
-    this.spinner.updateText("Installing InstantDB SDK...");
+    this.spinner.updateText("[2/5] Installing InstantDB SDK...");
     this.spinner.start();
     execSync("pnpm add @instantdb/react @instantdb/admin", { cwd: projectPath, stdio: "ignore" });
-    this.spinner.success({ text: "InstantDB SDK installed." });
+    this.spinner.success({ text: "[2/5] InstantDB SDK installed." });
 
     // 3. Generate Schema
-    this.spinner.updateText("Generating InstantDB Schema...");
+    this.spinner.updateText("[3/5] Generating InstantDB Schema...");
     this.spinner.start();
     await this.generateSchemaFile(projectPath, context);
-    this.spinner.success({ text: "Schema generated from MegaContext." });
+    this.spinner.success({ text: "[3/5] Schema generated from MegaContext." });
 
     // 4. Generate Routes & Pages
-    this.spinner.updateText("Generating Route Structure...");
+    this.spinner.updateText("[4/5] Generating Route Structure...");
     this.spinner.start();
     await this.generateRoutes(projectPath, context);
-    this.spinner.success({ text: "Routes & Layouts generated." });
+    this.spinner.success({ text: "[4/5] Routes & Layouts generated." });
 
     // 5. Persist "Living Brain"
-    this.spinner.updateText("Initializing Living Brain (.mycontext)...");
+    this.spinner.updateText("[5/5] Initializing Living Brain (.mycontext)...");
     this.spinner.start();
     await this.saveContext(projectPath, context);
     await this.createAlign(projectPath);
     await this.createReadme(projectPath, context);
     await this.createEnvFile(projectPath);
-    this.spinner.success({ text: "Context, Utils, & .env saved." });
+    this.spinner.success({ text: "[5/5] Context, Utils, & .env saved." });
 
     console.log(chalk.green(`\n✅ Project "${context.project.name}" is ready!`));
     console.log(chalk.gray(`   cd ${context.project.name} && pnpm dev`));
