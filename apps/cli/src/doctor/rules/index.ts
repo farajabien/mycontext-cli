@@ -5,6 +5,8 @@ import { nextjsRules } from "./nextjs-rules";
 import { turboRules } from "./turbo-rules";
 import { nodeRules } from "./node-rules";
 import { deadCodeRules } from "./dead-code-rules";
+import { typescriptRules } from "./typescript-rules";
+import { instantdbRules } from "./instantdb-rules";
 import type { DoctorRule } from "../types";
 
 export const allRules: DoctorRule[] = [
@@ -12,6 +14,8 @@ export const allRules: DoctorRule[] = [
   ...turboRules,
   ...nodeRules,
   ...deadCodeRules,
+  ...typescriptRules,
+  ...instantdbRules,
 ];
 
-export { nextjsRules, turboRules, nodeRules, deadCodeRules };
+export { nextjsRules, turboRules, nodeRules, deadCodeRules, typescriptRules, instantdbRules };

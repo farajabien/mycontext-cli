@@ -1055,11 +1055,26 @@ Use the business entities from the context above, not generic types.`;
     try {
       this.spinner.updateText("🔄 Generating types from InstantDB schema...");
 
-      // Check if schema file exists
-      const schemaPath = ".mycontext/schema.ts";
-      if (!(await this.fs.exists(schemaPath))) {
+      // Check if schema file exists in multiple possible locations
+      const schemaPaths = [
+        "instant.schema.ts",
+        "src/instant.schema.ts",
+        ".mycontext/schema.ts",
+        "instant.schema.js",
+      ];
+
+      let schemaPath: string | null = null;
+      for (const path of schemaPaths) {
+        if (await this.fs.exists(path)) {
+          schemaPath = path;
+          break;
+        }
+      }
+
+      if (!schemaPath) {
         throw new Error(
-          `Schema file not found: ${schemaPath}. Run 'mycontext generate:schema' first.`
+          `Schema file not found. Looked in: ${schemaPaths.join(", ")}. ` +
+          `Please create an InstantDB schema file (e.g., instant.schema.ts)`
         );
       }
 

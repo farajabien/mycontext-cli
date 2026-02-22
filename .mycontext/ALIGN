@@ -8,6 +8,76 @@ Any changes to code, architecture, or features MUST be synchronized with:
 - "Guessing" is prohibited. Align with the user's intent by clarifying requirements first.
 - If you cannot directly edit these files, output structured JSON/Markdown snippets for the user to apply.
 
+⸻
+
+🎯 [ULTIMATE VISION: DETERMINISTIC COMPILER]
+
+MyContext is a **natural-language-to-project compiler** for full-stack Next.js apps.
+
+**What It Is:**
+- A deterministic compilation system where natural language → structured manifest → scripted project generation
+- A recursive agent that ensures 100% specification completeness before any code is generated
+- A canonical project brain (context.json + registries) that serves as the single source of truth
+
+**What It Is NOT:**
+- ❌ An autonomous coder (AI does not guess or hallucinate)
+- ❌ A trial-and-error code generator (no brute-force LLM coding)
+- ❌ A chat-based assistant (it's a compiler with a conversational interface)
+
+**Goal:**
+Run ONE "mega script" after the agent has fully validated the specification, and the entire project scaffolds with all pages, features, roles, components, auth, and actions already wired — with minimal human intervention.
+
+⸻
+
+[CORE PRINCIPLES]:
+
+1. **Deterministic Compilation**
+   - LLM only interprets user intent into ASL (Abstract Specification Language)
+   - ALL code generation is scripted and deterministic
+   - Output always matches manifest and context
+   - No hallucination, no guessing
+
+2. **Canonical Project State (Single Source of Truth)**
+   ```
+   .mycontext/
+   ├── context.json              # Master brain
+   ├── components_registry.json  # Component catalog
+   ├── types_registry.json       # Type definitions
+   ├── design_manifest.json      # Design tokens & styles
+   └── permissions_manifest.json # Auth & RBAC rules
+   ```
+
+3. **Recursive Clarification Loop (100% Specification)**
+   - Agent asks questions until MegaContext is fully defined
+   - NO code generation until specification is complete
+   - User answers 100 questions if needed — certainty > speed
+   - All diffs require explicit user approval
+
+4. **Separation of Concerns**
+   ```
+   [User Input (NL)]
+        ↓
+   [LLM: Natural Language → ASL/Intent]
+        ↓
+   [Planner: Validate, Detect Gaps, Query User]
+        ↓
+   [ASL/Manifest (100% Complete)]
+        ↓
+   [Script Engine: Deterministic Generation]
+        ↓
+   [Verifier: TypeScript, Build, Schema Drift]
+        ↓
+   [Brain Update: context.json + registries]
+   ```
+
+5. **Iterative Refinement (Templates Improve Over Time)**
+   - Early projects refine script templates
+   - Templates stabilize with each project
+   - Future projects leverage proven patterns
+   - Goal: Near-perfect scaffolding by Project 20
+
+⸻
+
 [PHILOSOPHY: DETERMINISTIC SCAFFOLDING]:
 - **Next.js + InstantDB First**: We are built for Next.js full-stack projects using InstantDB as the backend.
 - **Mega Context (100% Knowledge)**:
@@ -15,6 +85,11 @@ Any changes to code, architecture, or features MUST be synchronized with:
   - This includes: `Routes`, `Users/Permissions`, `Pages`, `Server Actions`, `Client Components`, `Database Schema`.
   - It does NOT matter if the user has to answer 100 questions. The goal is certainty.
   - Once `MegaContext` is complete, the scaffolding script runs purely on facts, not hallucinations.
+- **LLM Role is Limited**:
+  - Parse natural language → ASL
+  - Generate clarifying questions
+  - Validate completeness
+  - **Does NOT write code directly**
 
 [AGENT TEAMS ARCHITECTURE]:
 - The "Living Brain" (`context.json`) is the shared state ("Blackboard") that enables scalable Agent Teams.
@@ -32,7 +107,65 @@ Any changes to code, architecture, or features MUST be synchronized with:
 - **Semantic Retrieval**: Before generating a new component, agents search the registry for "Relevant Pieces".
 - **Lego Prompting**: "Assemble these [Pieces] and add [New Behavior]". Ensure visual and logical consistency.
 
+[SCOPE OF GENERATED PROJECT]:
+
+The "mega script" generates a COMPLETE Next.js application including:
+- ✅ Full project scaffold (Next.js 15+ App Router)
+- ✅ Pages, layouts, nested routes
+- ✅ Client and server components
+- ✅ Server actions and data manipulation
+- ✅ Authentication flows (login, register, logout)
+- ✅ Role-based access control (guards, middleware)
+- ✅ Permission checks (RBAC)
+- ✅ User profile pages
+- ✅ shadCN UI components (fully typed props, animations, variants)
+- ✅ InstantDB schema (instant.schema.ts)
+- ✅ TypeScript types (Insert, WithRelations, entity types)
+- ✅ Everything defined in the manifest
+
+**Manual refinement limited to:**
+- Optional advanced UX features
+- Fine-tuning component behaviors
+- User-specific styling preferences
+
+⸻
+
+[PROGRESSIVE TESTING ROADMAP]:
+
+We build MyContext iteratively by testing with apps of increasing complexity:
+
+**Phase 1: Todo App (Baseline)**
+- Single entity: Task
+- CRUD operations
+- No auth
+- Goal: Prove deterministic scaffolding works
+
+**Phase 2: Blog (Auth + Relations)**
+- Entities: User, Post, Comment
+- Auth: Email/password
+- Roles: admin, author, reader
+- Nested relations
+- Goal: Prove auth guards and permissions work
+
+**Phase 3: E-commerce (Complex State)**
+- Entities: User, Product, Order, Payment
+- Shopping cart, checkout flow
+- Payment webhooks, order tracking
+- Goal: Prove complex state management
+
+**Phase 4: SaaS Dashboard (Multi-tenant)**
+- Entities: Tenant, User, Subscription, Feature
+- Multi-tenant isolation
+- Real-time updates, usage tracking
+- Feature flags, billing
+- Goal: Prove enterprise-grade scaffolding
+
+Each phase refines templates → Future projects get better results automatically.
+
+⸻
+
 [TUI MODES]:
-- **Planning Mode**: Chat with the user to build the `MegaContext`.
+- **Planning Mode**: Chat with the user to build the `MegaContext` (recursive clarification loop).
 - **Agent Mode**: Execute tasks (file creation, command running) based on `MegaContext`.
 - **Auto-Edit Mode**: Watch file changes or run specific refactors.
+- **Scaffold Mode**: Run the deterministic mega-script to generate the full project.
