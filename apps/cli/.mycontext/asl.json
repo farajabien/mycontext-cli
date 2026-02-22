@@ -1,0 +1,149 @@
+{
+  "version": "1.0",
+  "entities": [
+    {
+      "name": "Post",
+      "fields": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "author",
+          "type": "ref"
+        },
+        {
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "name": "tags",
+          "type": "json"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Comment",
+      "fields": [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "author",
+          "type": "ref"
+        },
+        {
+          "name": "post",
+          "type": "ref"
+        },
+        {
+          "name": "createdAt",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "password",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "name": "createdAt",
+          "type": "date"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "provider": "email"
+  },
+  "permissions": [
+    {
+      "role": "admin",
+      "resource": "*",
+      "actions": [
+        "create",
+        "read",
+        "update",
+        "delete",
+        "manage"
+      ]
+    },
+    {
+      "role": "editor",
+      "resource": "Post",
+      "actions": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "role": "author",
+      "resource": "Post",
+      "actions": [
+        "create",
+        "read",
+        "update"
+      ]
+    },
+    {
+      "role": "user",
+      "resource": "Comment",
+      "actions": [
+        "create",
+        "read"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "path": "/",
+      "name": "HomePage",
+      "type": "page"
+    },
+    {
+      "path": "/posts",
+      "name": "PostListPage",
+      "type": "page"
+    },
+    {
+      "path": "/posts/:id",
+      "name": "PostDetailPage",
+      "type": "page"
+    },
+    {
+      "path": "/admin",
+      "name": "AdminDashboard",
+      "type": "layout"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { InitCommand } from "./commands/init";
+import { InitInteractiveCommand } from "./commands/init-interactive";
 import { ValidateCommand } from "./commands/validate";
 import { GenerateCommand } from "./commands/generate";
 import { StatusCommand } from "./commands/status";
@@ -124,13 +125,20 @@ program
   .option("--scaffold-next", "scaffold a Next.js app (optional)")
   .option("--skip-shadcn", "do not run shadcn/ui init automatically")
   .option("--spec-only", "initialize ONLY context files (skip framework setup)")
+  .option("--interactive", "Use recursive clarification loop to build 100% complete ASL specification")
   .action(async (projectName, options) => {
     try {
-      const initCommand = new InitCommand();
-      await initCommand.execute(projectName, {
-        ...program.opts(),
-        ...options,
-      });
+      // If --interactive flag is provided, use the new InitInteractiveCommand
+      if (options.interactive) {
+        const interactiveCommand = new InitInteractiveCommand();
+        await interactiveCommand.execute();
+      } else {
+        const initCommand = new InitCommand();
+        await initCommand.execute(projectName, {
+          ...program.opts(),
+          ...options,
+        });
+      }
     } catch (error) {
       console.error(chalk.red("❌ Init failed:"), error);
       process.exit(1);
