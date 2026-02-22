@@ -253,7 +253,7 @@ Consider:
 4. What patterns exist in similar applications?
 
 ## Guidelines
-1. **Entities**: Must have 'name' and 'fields'. Fields must have 'name' and 'type' (string, number, boolean, date, json, ref).
+1. **Entities**: Must be a Record/Object where keys are entity names. Each entity must have 'name' and 'fields'. Fields must have 'name' and 'type' (string, number, boolean, date, json, ref).
 2. **Auth**: If needed, provider must be 'email', 'oauth-github', 'oauth-google', or 'magic-link'.
 3. **Permissions**: Each permission must have 'role', 'resource' (entity name or '*'), and 'actions' (array of: 'create', 'read', 'update', 'delete', 'manage'). **DO NOT USE 'can'**.
 4. **Pages**: Must have 'path' (e.g., '/dashboard'), 'name' (component name), 'type' ('page' or 'layout').

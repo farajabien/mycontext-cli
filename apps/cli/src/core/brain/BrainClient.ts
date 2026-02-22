@@ -1,7 +1,7 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { Brain, BrainUpdate, BrainTask, BrainRole, INITIAL_BRAIN_STATE } from '@myycontext/core/src/types/brain';
+import { Brain, BrainUpdate, BrainTask, BrainRole, INITIAL_BRAIN_STATE } from '@myycontext/core';
 import { v4 as uuidv4 } from 'uuid';
 import chalk from 'chalk';
 
@@ -127,7 +127,7 @@ export class BrainClient {
     if (!brain.registry) brain.registry = { components: [] };
     
     // Check if component already exists
-    const index = brain.registry.components.findIndex(c => c.path === path);
+    const index = brain.registry.components.findIndex((c: any) => c.path === path);
     const newComp = { name, description, path, dependencies };
     
     if (index !== -1) {

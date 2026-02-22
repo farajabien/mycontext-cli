@@ -1,0 +1,71 @@
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+
+const entityCardVariants = cva(
+  'transition-all',
+  {
+    variants: {
+      variant: {
+        default: 'hover:shadow-md',
+        interactive: 'cursor-pointer hover:shadow-md hover:border-primary',
+        selected: 'border-primary shadow-md',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+)
+
+export interface EntityCardProps extends VariantProps<typeof entityCardVariants> {
+  title: string
+  description?: string
+  metadata?: React.ReactNode
+  actions?: React.ReactNode
+  children?: React.ReactNode
+  onClick?: () => void
+  className?: string
+}
+
+export function EntityCard({
+  title,
+  description,
+  metadata,
+  actions,
+  children,
+  variant,
+  onClick,
+  className,
+}: EntityCardProps) {
+  return (
+    <Card
+      className={cn(entityCardVariants({ variant }), className)}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      } : undefined}
+    >
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex-1 space-y-1">
+            <CardTitle>{title}</CardTitle>
+            {description && <CardDescription>{description}</CardDescription>}
+          </div>
+          {actions && <div className="ml-4">{actions}</div>}
+        </div>
+      </CardHeader>
+      {(metadata || children) && (
+        <CardContent>
+          {metadata && <div className="space-y-2">{metadata}</div>}
+          {children}
+        </CardContent>
+      )}
+    </Card>
+  )
+}

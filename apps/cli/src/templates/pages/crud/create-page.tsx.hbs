@@ -1,0 +1,42 @@
+import { Metadata } from 'next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EntityForm } from '@/components/crud/entity-form'
+import { create{{entityName}} } from '@/app/actions/crud'
+
+export const metadata: Metadata = {
+title: 'Create {{entityName}}',
+description: 'Create a new {{entityLower}}',
+}
+
+export default function Create{{entityName}}Page() {
+const fields = [
+{{#each fields}}
+{
+name: '{{name}}',
+type: '{{type}}',
+label: '{{capitalize name}}',
+required: {{#if required}}true{{else}}false{{/if}},
+},
+{{/each}}
+]
+
+return (
+<div className="container mx-auto py-10">
+  <div className="mb-8">
+    <h1 className="text-3xl font-bold tracking-tight">Create {{entityName}}</h1>
+    <p className="text-muted-foreground">Add a new {{entityLower}} to your collection</p>
+  </div>
+
+  <Card className="mx-auto max-w-2xl">
+    <CardHeader>
+      <CardTitle>{{entityName}} Information</CardTitle>
+      <CardDescription>Enter the details for your new {{entityLower}}</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <EntityForm entityName="{{entityName}}" entityLower="{{entityLower}}" fields={fields} action={create{{entityName}}
+        } submitLabel="Create {{entityName}}" />
+    </CardContent>
+  </Card>
+</div>
+)
+}

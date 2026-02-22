@@ -90,5 +90,5 @@ export interface LivingContext {
   routes: RouteDefinition[];
 
   // Dynamic State (The Living Brain)
-  brain: import("@myycontext/core/src/types/brain").Brain;
+  brain: import("@myycontext/core").Brain;
 }

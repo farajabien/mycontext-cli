@@ -104,7 +104,7 @@ export type RelationType =
 // ============================================================================
 
 export interface AuthSpec {
-  provider: "email" | "oauth-github" | "oauth-google" | "magic-link";
+  provider: "email" | "oauth-github" | "oauth-google" | "magic-link" | string | string[];
   roles: RoleSpec[];
   defaultRole?: string; // Role assigned to new users
   userEntity?: string; // Which entity represents users (default: "User")

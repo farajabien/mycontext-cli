@@ -1,0 +1,90 @@
+import { Suspense } from 'react'
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EntityDetailSkeleton } from '@/components/crud/entity-skeleton'
+import { db } from '@/lib/instant'
+
+interface PageProps {
+params: Promise<{ id: string }>
+  }
+
+  export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { id } = await params
+    return {
+    title: `{{entityName}} ${id}`,
+    description: `View {{entityLower}} details`,
+    }
+    }
+
+    async function {{entityName}}Details({ id }: { id: string }) {
+    const { data, error } = await db.query({
+    {{entityLower}}s: {
+    $: {
+    where: {
+    id,
+    },
+    },
+    },
+    })
+
+    if (error || !data.{{entityLower}}s?.[0]) {
+    notFound()
+    }
+
+    const {{entityLower}} = data.{{entityLower}}s[0]
+
+    return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{{entityName}} Details</CardTitle>
+        <CardDescription>View and manage this {{entityLower}}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {{#each fields}}
+        <div className="grid grid-cols-3 gap-4">
+          <dt className="font-medium text-muted-foreground">{{capitalize name}}:</dt>
+          <dd className="col-span-2">
+            {{#if (eq type 'date')}}
+            {new Date({{../entityLower}}.{{name}}).toLocaleDateString()}
+            {{else if (eq type 'boolean')}}
+            { {{../entityLower}}.{{name}} ? 'Yes' : 'No' }
+            {{else}}
+            { {{../entityLower}}.{{name}} }
+            {{/if}}
+          </dd>
+        </div>
+        {{/each}}
+      </CardContent>
+    </Card>
+    )
+    }
+
+    export default async function {{entityName}}DetailPage({ params }: PageProps) {
+    const { id } = await params
+
+    return (
+    <div className="container mx-auto py-10">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{{entityName}} Details</h1>
+          <p className="text-muted-foreground">View and manage this {{entityLower}}</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/{{entityLower}}s">Back to List</Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/{{entityLower}}s/${id}/edit`}>Edit</Link>
+          </Button>
+        </div>
+      </div>
+
+      <Suspense fallback={<EntityDetailSkeleton />}>
+      <{{entityName}}Details id={id} />
+      </Suspense>
+    </div>
+    )
+    }

@@ -1,0 +1,60 @@
+import { Suspense } from 'react'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { EntityTable } from '@/components/crud/entity-table'
+import { EntityTableSkeleton } from '@/components/crud/entity-skeleton'
+import { db } from '@/lib/instant'
+
+export const metadata: Metadata = {
+  title: '{{entityName}}s',
+  description: 'Manage your {{entityLower}}s',
+}
+
+async function {{entityName}}Data() {
+  // Fetch data using InstantDB
+  const { data, error } = await db.query({ {{entityLower}}s: {} })
+
+  if (error) {
+    throw new Error(`Failed to load {{entityLower}}s: ${error.message}`)
+  }
+
+  const columns = [
+{{#each fields}}
+    {
+      key: '{{name}}' as const,
+      label: '{{capitalize name}}',
+      sortable: true,
+{{#if (eq type 'date')}}
+      render: (value: any) => new Date(value).toLocaleDateString(),
+{{/if}}
+    },
+{{/each}}
+  ]
+
+  return <EntityTable data={data.{{entityLower}}s || []} columns={columns} entityLower="{{entityLower}}" />
+}
+
+export default function {{entityName}}sPage() {
+  return (
+    <div className="container mx-auto py-10">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{{entityName}}s</h1>
+          <p className="text-muted-foreground">
+            Manage your {{entityLower}}s
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/{{entityLower}}s/new">Create {{entityName}}</Link>
+        </Button>
+      </div>
+
+      <div className="mt-8">
+        <Suspense fallback={<EntityTableSkeleton />}>
+          <{{entityName}}Data />
+        </Suspense>
+      </div>
+    </div>
+  )
+}

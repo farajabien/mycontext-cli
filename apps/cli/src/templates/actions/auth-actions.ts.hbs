@@ -1,0 +1,140 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
+import { db } from '@/lib/instant'
+import { z } from 'zod'
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
+const registerSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
+export async function login(formData: FormData) {
+  try {
+    const validated = loginSchema.parse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    })
+
+    // Authenticate with InstantDB
+    const { user, error } = await db.auth.signInWithPassword({
+      email: validated.email,
+      password: validated.password,
+    })
+
+    if (error) {
+      return { error: error.message || 'Invalid credentials' }
+    }
+
+    // Store session in cookie
+    const cookieStore = await cookies()
+    cookieStore.set('session', user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message }
+    }
+    return { error: 'An unexpected error occurred' }
+  }
+}
+
+export async function register(formData: FormData) {
+  try {
+    const validated = registerSchema.parse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+    })
+
+    // Create account with InstantDB
+    const { user, error } = await db.auth.signUp({
+      email: validated.email,
+      password: validated.password,
+    })
+
+    if (error) {
+      return { error: error.message || 'Failed to create account' }
+    }
+
+    // Update user profile with name
+    await db.transact([
+      db.tx.users[user.id].update({
+        name: validated.name,
+      }),
+    ])
+
+    // Store session in cookie
+    const cookieStore = await cookies()
+    cookieStore.set('session', user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message }
+    }
+    return { error: 'An unexpected error occurred' }
+  }
+}
+
+export async function logout() {
+  try {
+    await db.auth.signOut()
+
+    const cookieStore = await cookies()
+    cookieStore.delete('session')
+
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    return { error: 'Failed to log out' }
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('session')
+
+    if (!sessionCookie) {
+      return { user: null }
+    }
+
+    const { data, error } = await db.query({
+      users: {
+        $: {
+          where: {
+            id: sessionCookie.value,
+          },
+        },
+      },
+    })
+
+    if (error || !data.users?.[0]) {
+      return { user: null }
+    }
+
+    return { user: data.users[0] }
+  } catch (error) {
+    return { user: null }
+  }
+}

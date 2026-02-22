@@ -41,6 +41,8 @@ import type {
 import { Planner } from "../services/Planner";
 import { InferenceEngine } from "../services/InferenceEngine";
 import { AICore } from "../core/ai/AICore";
+import { ScaffoldEngine } from "../services/ScaffoldEngine";
+import { ScaffoldPreview } from "../services/ScaffoldPreview";
 
 export class InitInteractiveCommand {
   private planner: Planner;
@@ -55,7 +57,18 @@ export class InitInteractiveCommand {
       fallbackEnabled: true,
       workingDirectory: process.cwd(),
     });
-    this.asl = { version: "1.0" };
+    this.asl = { 
+      version: "1.0",
+      project: {
+        name: "my-app",
+        description: "",
+        framework: "nextjs",
+        backend: "instantdb",
+        styling: "tailwind-shadcn",
+        packageManager: "pnpm",
+        typescript: true
+      }
+    };
   }
 
   /**
@@ -74,6 +87,19 @@ export class InitInteractiveCommand {
       // Step 2: Decompose into tasks
       console.log(chalk.cyan("\n🤖 Breaking down into tasks...\n"));
       const tasks = await this.planner.decompose(initialInput);
+      
+      // Seed project name from input if possible (basic heuristic)
+      if (this.asl.project) {
+        const nameMatch = initialInput.match(/^([A-Z][a-zA-Z0-9]+):/);
+        if (nameMatch && nameMatch[1]) {
+          this.asl.project.name = nameMatch[1].toLowerCase();
+        } else {
+          // Default to a sanitized version of first 2 words
+          const words = initialInput.split(' ').slice(0, 2).map(w => w.replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
+          this.asl.project.name = words.join('-') || "my-app";
+        }
+      }
+
       this.displayTaskDecomposition(tasks);
 
       // Step 3: Recursive inference loop
@@ -98,7 +124,26 @@ export class InitInteractiveCommand {
         console.log(chalk.gray(`   Auto-inferred: ${this.getAutoInferredCount()} items`));
         console.log(chalk.gray(`   User prompted: ${this.getUserPromptedCount()} items`));
         console.log(chalk.gray(`   Overall confidence: ${this.planner.getState().confidenceScore}%\n`));
-        console.log(chalk.cyan("Next step: Run ") + chalk.bold("mycontext scaffold --from-manifest\n"));
+
+        // Step 8: Ask about scaffolding
+        const shouldScaffold = await this.askScaffold();
+
+        if (shouldScaffold) {
+          // Step 9: Show full scaffold preview
+          await this.showScaffoldPreview();
+
+          // Step 10: Get scaffold confirmation
+          const scaffoldConfirmed = await this.confirmScaffold();
+
+          if (scaffoldConfirmed) {
+            // Step 11: Run scaffold
+            await this.runScaffold();
+          } else {
+            console.log(chalk.cyan("\nYou can run scaffolding later with: ") + chalk.bold("mycontext scaffold --from-manifest\n"));
+          }
+        } else {
+          console.log(chalk.cyan("\nNext step: Run ") + chalk.bold("mycontext scaffold --from-manifest\n"));
+        }
       } else {
         console.log(chalk.yellow("\n⚠ Setup cancelled\n"));
       }
@@ -189,7 +234,7 @@ export class InitInteractiveCommand {
 
           if (critique.confidence >= 90) {
             // Accept inference
-            this.asl = { ...this.asl, ...inference.result };
+            this.mergeInference(inference.result);
             task.inference = inference.result;
             task.reasoning = inference.reasoning;
 
@@ -267,7 +312,7 @@ export class InitInteractiveCommand {
     ]);
 
     if (confirmed && inference) {
-      this.asl = { ...this.asl, ...inference.result };
+      this.mergeInference(inference.result);
       task.inference = inference.result;
       this.planner.markTaskComplete(task.id);
     } else {
@@ -305,7 +350,7 @@ export class InitInteractiveCommand {
         []
       );
 
-      this.asl = { ...this.asl, ...parsedInference.result };
+      this.mergeInference(parsedInference.result);
       task.inference = parsedInference.result;
 
       spinner.succeed("Answer processed");
@@ -314,6 +359,37 @@ export class InitInteractiveCommand {
       spinner.fail("Failed to process answer");
       console.error(chalk.red(error));
     }
+  }
+
+  /**
+   * Helper to merge inference results into current ASL
+   */
+  private mergeInference(result: Partial<ASL>): void {
+    if (!result) return;
+
+    // Handle entities (special case for array to object)
+    if (result.entities) {
+      if (!this.asl.entities) this.asl.entities = {};
+      
+      if (Array.isArray(result.entities)) {
+        result.entities.forEach((entity: EntitySpec) => {
+          this.asl.entities![entity.name] = entity;
+        });
+      } else {
+        this.asl.entities = { ...this.asl.entities, ...result.entities };
+      }
+    }
+
+    // Merge other sections
+    if (result.project) this.asl.project = { ...this.asl.project, ...result.project } as any;
+    if (result.auth) this.asl.auth = { ...this.asl.auth, ...result.auth } as any;
+    if (result.permissions) {
+      this.asl.permissions = [...(this.asl.permissions || []), ...result.permissions];
+    }
+    if (result.pages) {
+      this.asl.pages = [...(this.asl.pages || []), ...result.pages];
+    }
+    if (result.design) this.asl.design = { ...this.asl.design, ...result.design };
   }
 
   /**
@@ -900,5 +976,107 @@ Return only valid JSON, no markdown.`;
       config: "Configuration",
     };
     return labels[type] || type;
+  }
+
+  // ============================================================================
+  // SCAFFOLD FLOW METHODS
+  // ============================================================================
+
+  /**
+   * Ask if user wants to scaffold now
+   */
+  private async askScaffold(): Promise<boolean> {
+    const { shouldScaffold } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "shouldScaffold",
+        message: "Ready to scaffold your project?",
+        default: true,
+      },
+    ]);
+
+    return shouldScaffold;
+  }
+
+  /**
+   * Show full scaffold preview (per user preference for "full manifest")
+   */
+  private async showScaffoldPreview(): Promise<void> {
+    const spinner = ora("Generating scaffold preview...").start();
+
+    try {
+      const preview = new ScaffoldPreview(this.asl as ASL);
+      const manifest = preview.generateManifest();
+
+      spinner.stop();
+
+      console.log(chalk.bold.cyan("\n📦 Scaffold Preview\n"));
+
+      // File tree
+      console.log(chalk.bold("Project Structure:\n"));
+      console.log(manifest.fileTree);
+      console.log();
+
+      // Components summary
+      console.log(chalk.bold("Components:"));
+      console.log(chalk.cyan(`  shadCN: ${manifest.componentsSummary.shadcn.length} components`));
+      console.log(chalk.gray(`  ${manifest.componentsSummary.shadcn.join(", ")}`));
+      console.log(chalk.cyan(`  Custom: ${manifest.componentsSummary.custom} components`));
+      console.log();
+
+      // Features
+      console.log(chalk.bold("Features:"));
+      manifest.features.forEach(feature => {
+        console.log(chalk.green(`  ✓ ${feature}`));
+      });
+      console.log();
+
+      // Stats
+      console.log(chalk.bold("Stats:"));
+      console.log(chalk.cyan(`  Total files: ${manifest.totalFiles}`));
+      console.log(chalk.cyan(`  Estimated time: ${manifest.estimatedTime}`));
+      console.log();
+    } catch (error) {
+      spinner.fail("Failed to generate preview");
+      console.error(chalk.red(error));
+      throw error;
+    }
+  }
+
+  /**
+   * Get confirmation before scaffolding
+   */
+  private async confirmScaffold(): Promise<boolean> {
+    const { confirmed } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: "Proceed with scaffolding?",
+        default: true,
+      },
+    ]);
+
+    return confirmed;
+  }
+
+  /**
+   * Run scaffold engine
+   */
+  private async runScaffold(): Promise<void> {
+    console.log(chalk.cyan("\n🚀 Starting deterministic compilation...\n"));
+
+    try {
+      const scaffoldEngine = new ScaffoldEngine();
+      await scaffoldEngine.scaffold(this.asl as ASL);
+
+      console.log(chalk.green("\n✓ Project scaffolded successfully!\n"));
+      console.log(chalk.bold("Next steps:\n"));
+      console.log(chalk.cyan(`  1. cd ${this.asl.project?.name || "your-project"}`));
+      console.log(chalk.cyan("  2. pnpm install"));
+      console.log(chalk.cyan("  3. pnpm dev\n"));
+    } catch (error) {
+      console.error(chalk.red("\n✗ Scaffold failed:"), error);
+      throw error;
+    }
   }
 }

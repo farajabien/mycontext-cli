@@ -93,3 +93,5 @@ jspm_packages/
 tests/test-apps/
 
 .turbo/
+
+test-integration/

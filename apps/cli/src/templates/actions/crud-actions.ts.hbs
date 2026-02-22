@@ -1,0 +1,113 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { db } from '@/lib/instant'
+import { z } from 'zod'
+
+const {{entityLower}}Schema = z.object({
+{{#each fields}}
+  {{name}}: z.{{zodType type}}(){{#if required}}.min(1, '{{capitalize name}} is required'){{/if}},
+{{/each}}
+})
+
+export async function create{{entityName}}(formData: FormData) {
+  try {
+    const validated = {{entityLower}}Schema.parse({
+{{#each fields}}
+      {{name}}: formData.get('{{name}}'),
+{{/each}}
+    })
+
+    const id = db.id()
+
+    await db.transact([
+      db.tx.{{entityName}}[id].update(validated)
+    ])
+
+    revalidatePath('/{{entityLower}}s')
+    revalidatePath(`/{{entityLower}}s/${id}`)
+
+    return { success: true, id }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message }
+    }
+    return { success: false, error: 'Failed to create {{entityLower}}' }
+  }
+}
+
+export async function update{{entityName}}(id: string, formData: FormData) {
+  try {
+    const validated = {{entityLower}}Schema.parse({
+{{#each fields}}
+      {{name}}: formData.get('{{name}}'),
+{{/each}}
+    })
+
+    await db.transact([
+      db.tx.{{entityName}}[id].update(validated)
+    ])
+
+    revalidatePath('/{{entityLower}}s')
+    revalidatePath(`/{{entityLower}}s/${id}`)
+
+    return { success: true }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message }
+    }
+    return { success: false, error: 'Failed to update {{entityLower}}' }
+  }
+}
+
+export async function delete{{entityName}}(id: string) {
+  try {
+    await db.transact([
+      db.tx.{{entityName}}[id].delete()
+    ])
+
+    revalidatePath('/{{entityLower}}s')
+
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: 'Failed to delete {{entityLower}}' }
+  }
+}
+
+export async function get{{entityName}}(id: string) {
+  try {
+    const { data, error } = await db.query({
+      {{entityLower}}s: {
+        $: {
+          where: {
+            id,
+          },
+        },
+      },
+    })
+
+    if (error || !data.{{entityLower}}s?.[0]) {
+      return { {{entityLower}}: null, error: 'Not found' }
+    }
+
+    return { {{entityLower}}: data.{{entityLower}}s[0] }
+  } catch (error) {
+    return { {{entityLower}}: null, error: 'Failed to fetch {{entityLower}}' }
+  }
+}
+
+export async function list{{entityName}}s() {
+  try {
+    const { data, error } = await db.query({
+      {{entityLower}}s: {},
+    })
+
+    if (error) {
+      return { {{entityLower}}s: [], error: error.message }
+    }
+
+    return { {{entityLower}}s: data.{{entityLower}}s || [] }
+  } catch (error) {
+    return { {{entityLower}}s: [], error: 'Failed to fetch {{entityLower}}s' }
+  }
+}

@@ -1,0 +1,129 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+
+interface Column<T> {
+  key: keyof T
+  label: string
+  sortable?: boolean
+  render?: (value: any, item: T) => React.ReactNode
+}
+
+interface EntityTableProps<T extends { id: string }> {
+  data: T[]
+  columns: Column<T>[]
+  entityLower: string
+  onDelete?: (id: string) => Promise<void>
+}
+
+export function EntityTable<T extends { id: string }>({
+  data,
+  columns,
+  entityLower,
+  onDelete,
+}: EntityTableProps<T>) {
+  const [sortKey, setSortKey] = useState<keyof T | null>(null)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+
+  const handleSort = (key: keyof T) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortOrder('asc')
+    }
+  }
+
+  const sortedData = [...data].sort((a, b) => {
+    if (!sortKey) return 0
+
+    const aVal = a[sortKey]
+    const bVal = b[sortKey]
+
+    if (aVal === bVal) return 0
+
+    const comparison = aVal < bVal ? -1 : 1
+    return sortOrder === 'asc' ? comparison : -comparison
+  })
+
+  return (
+    <div className="rounded-md border">
+      <table className="w-full">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            {columns.map((column) => (
+              <th
+                key={String(column.key)}
+                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"
+              >
+                {column.sortable ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort(column.key)}
+                    className="-ml-3"
+                  >
+                    {column.label}
+                    <ArrowUpDown className="ml-2 size-4" />
+                  </Button>
+                ) : (
+                  column.label
+                )}
+              </th>
+            ))}
+            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedData.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length + 1}
+                className="h-24 text-center text-muted-foreground"
+              >
+                No items found
+              </td>
+            </tr>
+          ) : (
+            sortedData.map((item) => (
+              <tr key={item.id} className="border-b transition-colors hover:bg-muted/50">
+                {columns.map((column) => (
+                  <td key={String(column.key)} className="p-4 align-middle">
+                    {column.render
+                      ? column.render(item[column.key], item)
+                      : String(item[column.key])}
+                  </td>
+                ))}
+                <td className="p-4 align-middle">
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/${entityLower}s/${item.id}`}>View</Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/${entityLower}s/${item.id}/edit`}>Edit</Link>
+                    </Button>
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete(item.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}

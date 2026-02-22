@@ -41,14 +41,14 @@ export class FileGenerator {
     // Phase 11: Lego Assembly - Search Registry
     const registry = await this.brainClient.getRegistry();
     
-    const relevantPieces = registry.components.filter(c => {
+    const relevantPieces = registry.components.filter((c: any) => {
         const nameMatch = prompt.toLowerCase().includes(c.name.toLowerCase());
-        const descMatch = c.description.toLowerCase().split(' ').some(word => word.length > 3 && prompt.toLowerCase().includes(word.toLowerCase()));
+        const descMatch = c.description.toLowerCase().split(' ').some((word: string) => word.length > 3 && prompt.toLowerCase().includes(word.toLowerCase()));
         return nameMatch || descMatch;
     });
 
     if (relevantPieces.length > 0) {
-        console.log(chalk.cyan(`🧩 Lego Pieces Found: ${relevantPieces.map(p => p.name).join(', ')}`));
+        console.log(chalk.cyan(`🧩 Lego Pieces Found: ${relevantPieces.map((p: any) => p.name).join(', ')}`));
         let piecesContext = "\n\nRELEVANT LEGO PIECES (Reuse patterns/styles from these):\n";
         for (const piece of relevantPieces) {
             try {

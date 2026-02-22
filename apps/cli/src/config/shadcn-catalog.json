@@ -1,0 +1,93 @@
+{
+  "components": [
+    {
+      "name": "button",
+      "dependencies": [],
+      "useCases": ["forms", "actions", "navigation"],
+      "description": "Interactive button component with variants",
+      "required": true
+    },
+    {
+      "name": "form",
+      "dependencies": ["label", "button"],
+      "useCases": ["auth", "crud", "settings"],
+      "description": "Form wrapper with validation support",
+      "required": false
+    },
+    {
+      "name": "input",
+      "dependencies": ["label"],
+      "useCases": ["auth", "forms"],
+      "description": "Text input field",
+      "required": false
+    },
+    {
+      "name": "card",
+      "dependencies": [],
+      "useCases": ["lists", "dashboard"],
+      "description": "Container with header, content, footer",
+      "required": false
+    },
+    {
+      "name": "table",
+      "dependencies": [],
+      "useCases": ["lists", "admin", "data-display"],
+      "description": "Data table component",
+      "required": false
+    },
+    {
+      "name": "dialog",
+      "dependencies": ["button"],
+      "useCases": ["modals", "forms", "confirmations"],
+      "description": "Modal dialog component",
+      "required": false
+    },
+    {
+      "name": "toast",
+      "dependencies": [],
+      "useCases": ["notifications", "feedback"],
+      "description": "Toast notification system",
+      "required": false
+    },
+    {
+      "name": "select",
+      "dependencies": [],
+      "useCases": ["forms", "filters"],
+      "description": "Dropdown select component",
+      "required": false
+    },
+    {
+      "name": "label",
+      "dependencies": [],
+      "useCases": ["forms"],
+      "description": "Form label component",
+      "required": false
+    },
+    {
+      "name": "textarea",
+      "dependencies": ["label"],
+      "useCases": ["forms", "comments"],
+      "description": "Multi-line text input",
+      "required": false
+    },
+    {
+      "name": "dropdown-menu",
+      "dependencies": ["button"],
+      "useCases": ["navigation", "actions", "admin"],
+      "description": "Dropdown menu component",
+      "required": false
+    },
+    {
+      "name": "badge",
+      "dependencies": [],
+      "useCases": ["status", "labels", "counts"],
+      "description": "Badge/pill component for status",
+      "required": false
+    }
+  ],
+  "metadata": {
+    "version": "latest",
+    "totalComponents": 12,
+    "lastUpdated": "2026-02-22"
+  }
+}

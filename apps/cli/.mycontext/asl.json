@@ -2,56 +2,44 @@
   "version": "1.0",
   "entities": [
     {
-      "name": "Post",
+      "name": "Hotspot",
       "fields": [
         {
-          "name": "title",
+          "name": "location",
           "type": "string"
         },
         {
-          "name": "content",
+          "name": "type",
           "type": "string"
         },
         {
-          "name": "author",
-          "type": "ref"
-        },
-        {
-          "name": "createdAt",
-          "type": "date"
-        },
-        {
-          "name": "updatedAt",
-          "type": "date"
-        },
-        {
-          "name": "tags",
+          "name": "photos",
           "type": "json"
         },
         {
-          "name": "status",
-          "type": "string"
+          "name": "reportedBy",
+          "type": "ref"
         }
       ]
     },
     {
-      "name": "Comment",
+      "name": "CleanUpEvent",
       "fields": [
         {
-          "name": "content",
+          "name": "hotspotId",
+          "type": "ref"
+        },
+        {
+          "name": "date",
+          "type": "date"
+        },
+        {
+          "name": "status",
           "type": "string"
         },
         {
-          "name": "author",
-          "type": "ref"
-        },
-        {
-          "name": "post",
-          "type": "ref"
-        },
-        {
-          "name": "createdAt",
-          "type": "date"
+          "name": "participants",
+          "type": "json"
         }
       ]
     },
@@ -59,24 +47,29 @@
       "name": "User",
       "fields": [
         {
-          "name": "name",
-          "type": "string"
-        },
-        {
           "name": "email",
           "type": "string"
         },
         {
-          "name": "password",
+          "name": "ecoTokensBalance",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "Reward",
+      "fields": [
+        {
+          "name": "name",
           "type": "string"
         },
         {
-          "name": "role",
+          "name": "description",
           "type": "string"
         },
         {
-          "name": "createdAt",
-          "type": "date"
+          "name": "cost",
+          "type": "number"
         }
       ]
     }
@@ -97,53 +90,61 @@
       ]
     },
     {
-      "role": "editor",
-      "resource": "Post",
+      "role": "user",
+      "resource": "Hotspot",
       "actions": [
         "create",
-        "read",
-        "update",
-        "delete"
-      ]
-    },
-    {
-      "role": "author",
-      "resource": "Post",
-      "actions": [
-        "create",
-        "read",
-        "update"
+        "read"
       ]
     },
     {
       "role": "user",
-      "resource": "Comment",
+      "resource": "CleanUpEvent",
       "actions": [
-        "create",
         "read"
+      ]
+    },
+    {
+      "role": "user",
+      "resource": "Reward",
+      "actions": [
+        "read"
+      ]
+    },
+    {
+      "role": "user",
+      "resource": "User",
+      "actions": [
+        "read",
+        "update"
       ]
     }
   ],
   "pages": [
     {
-      "path": "/",
-      "name": "HomePage",
+      "path": "/dashboard",
+      "name": "Dashboard",
       "type": "page"
     },
     {
-      "path": "/posts",
-      "name": "PostListPage",
+      "path": "/hotspots",
+      "name": "Hotspots",
       "type": "page"
     },
     {
-      "path": "/posts/:id",
-      "name": "PostDetailPage",
+      "path": "/events",
+      "name": "CleanUpEvents",
       "type": "page"
     },
     {
-      "path": "/admin",
-      "name": "AdminDashboard",
-      "type": "layout"
+      "path": "/rewards",
+      "name": "Rewards",
+      "type": "page"
+    },
+    {
+      "path": "/profile",
+      "name": "UserProfile",
+      "type": "page"
     }
   ]
 }
