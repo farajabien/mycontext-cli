@@ -58,6 +58,8 @@ const orphanFiles: DoctorRule = {
     ];
 
     for (const f of allFiles) {
+      // Skip generated files
+      if (f.startsWith(".mycontext/") || f.includes("/.mycontext/")) continue;
       const content = await ctx.readFile(f);
       if (!content) continue;
 
@@ -159,6 +161,11 @@ const unusedExports: DoctorRule = {
     const allFiles = await ctx.findFiles(/\.(ts|tsx|js|jsx)$/);
     if (allFiles.length > 300) return results; // too big, skip
 
+    // Track server action files (their exports are invoked via form actions, not imports)
+    const serverActionFiles = new Set<string>();
+    // Common server action function patterns (also include getters used as server functions)
+    const serverActionPatterns = /^(signIn|signUp|signOut|login|logout|register|create|update|delete|remove|submit|send|handle|process|get|fetch|complete|fix)/;
+
     // Build a map of all exported names
     const exports: Array<{ name: string; file: string; line: number }> = [];
     let allContent = "";
@@ -167,6 +174,16 @@ const unusedExports: DoctorRule = {
       const content = await ctx.readFile(f);
       if (!content) continue;
       allContent += content + "\n";
+
+      // Detect server action modules — skip all their exports
+      // Check for "use server" anywhere in the file (top-level or after imports)
+      if (content.includes('"use server"') || content.includes("'use server'")) {
+        serverActionFiles.add(f);
+        continue;
+      }
+
+      // Skip .mycontext/ generated files from unused export detection
+      if (f.startsWith(".mycontext/") || f.includes("/.mycontext/")) continue;
 
       const lines = content.split("\n");
       for (let i = 0; i < lines.length; i++) {
@@ -199,6 +216,14 @@ const unusedExports: DoctorRule = {
       }
     }
 
+    // Also check for action= and formAction= references in JSX
+    const actionRefPattern = /(?:action|formAction)\s*=\s*\{?\s*(\w+)/g;
+    const actionReferences = new Set<string>();
+    let actionMatch;
+    while ((actionMatch = actionRefPattern.exec(allContent)) !== null) {
+      if (actionMatch[1]) actionReferences.add(actionMatch[1]);
+    }
+
     // For each export, check if it's referenced elsewhere
     const unused: typeof exports = [];
     for (const exp of exports) {
@@ -206,6 +231,10 @@ const unusedExports: DoctorRule = {
       if (["default", "metadata", "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"].includes(exp.name)) continue;
       // Skip index files (barrel exports)
       if (/index\.(ts|tsx|js|jsx)$/.test(exp.file)) continue;
+      // Skip server action function patterns
+      if (serverActionPatterns.test(exp.name)) continue;
+      // Skip if referenced in action= or formAction= attributes
+      if (actionReferences.has(exp.name)) continue;
 
       // Count references (subtract 1 for the export itself)
       const regex = new RegExp(`\\b${exp.name}\\b`, "g");
@@ -251,6 +280,8 @@ const unusedComponents: DoctorRule = {
     }
 
     for (const cf of componentFiles) {
+      // Skip generated files and .mycontext/
+      if (cf.startsWith(".mycontext/") || cf.includes("/.mycontext/")) continue;
       // Extract component name from file path
       const basename = path.basename(cf, path.extname(cf));
       // Skip if it's a page/layout/route

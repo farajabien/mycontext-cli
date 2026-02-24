@@ -40,7 +40,16 @@ export class AgentCommand {
       // 1. Load the manifest
       const manifest = await this.manifestManager.loadDesignManifest();
       if (!manifest) {
-        spinner.fail("No design manifest found. Run 'mycontext init' first.");
+        const contextPath = path.join(this.projectPath, ".mycontext", "context.json");
+        const contextExists = await fs.pathExists(contextPath);
+
+        if (contextExists) {
+          spinner.fail("Structured Design Manifest not found. Your 'context.json' may be in a legacy format.");
+          console.log(chalk.blue("\n➡️  To migrate, run:"), chalk.white("mycontext design analyze"));
+          console.log(chalk.gray("This will compute the 8-phase reasoning manifest required for Agent Mode.\n"));
+        } else {
+          spinner.fail("No design manifest found. Run 'mycontext init' first.");
+        }
         return;
       }
 

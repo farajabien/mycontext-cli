@@ -64,6 +64,7 @@ export interface ContextDiffReport {
 const IGNORE_DIRS = new Set([
   "node_modules", ".next", ".git", "dist", "build", ".turbo",
   ".pnpm-store", "coverage", ".cache", ".vercel", "__pycache__",
+  "storybook-static", "out", ".expo", ".server", ".client",
 ]);
 
 const IGNORE_EXTENSIONS = new Set([
@@ -195,7 +196,29 @@ export class ProjectScanner {
         // Categorize
         if (/page\.(tsx|jsx)$/.test(item) || /route\.(tsx|jsx|ts)$/.test(item))
           stats.routeFiles++;
-        if (/^[A-Z].*\.(tsx|jsx)$/.test(item))
+        // BUT exclude Next.js convention files and non-component directories
+        const isNextJsConvention = /^(page|layout|loading|error|not-found|template|route|middleware|global-error)\.(tsx|jsx|ts|js)$/.test(item);
+        const isInMyContext = itemRelPath.startsWith(".mycontext/") || itemRelPath.includes("/.mycontext/");
+        const isInActions = itemRelPath.includes("/actions/") || itemRelPath.startsWith("actions/");
+        const isInLib = /^lib\/|\/lib\//.test(itemRelPath) && !itemRelPath.includes("/components/");
+        const isInHooks = /^hooks\/|\/hooks\//.test(itemRelPath);
+
+        // Feature-focused component detection exclusions:
+        const isTestFile = /\.(test|spec|stories)\.(tsx|jsx)$/.test(item);
+        const isIconFile = /Icon\.(tsx|jsx)$/i.test(item) || itemRelPath.includes("/icons/") || itemRelPath.includes("/svgs/");
+        const isShadcnUI = itemRelPath.includes("components/ui/") || itemRelPath.includes("/ui/");
+        const isBarrelFile = item.startsWith("index.") && /\.(tsx|jsx|ts|js)$/.test(item);
+
+        if (
+          !isNextJsConvention && !isInMyContext && !isInActions && !isInLib && !isInHooks &&
+          !isTestFile && !isIconFile && !isShadcnUI && !isBarrelFile &&
+          (
+            (/^[A-Z].*\.(tsx|jsx)$/.test(item)) ||
+            ((itemRelPath.includes("/components/") || itemRelPath.startsWith("components/")) && /\.(tsx|jsx)$/.test(item)) ||
+            /[-.](?:client|form|sheet|drawer|modal|dialog)\.(tsx|jsx)$/i.test(item) ||
+            /(?:Client|Form|Sheet|Drawer|Modal|Dialog)\.(tsx|jsx)$/.test(item)
+          )
+        )
           stats.componentFiles++;
         if (itemRelPath.includes("/api/"))
           stats.apiFiles++;

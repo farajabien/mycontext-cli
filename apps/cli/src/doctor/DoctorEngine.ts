@@ -202,15 +202,35 @@ function createRuleContext(root: string, project: ProjectInfo, isWorkspace: bool
 
 // ─── Score Calculation ─────────────────────────────────────────────
 
-function calculateScore(diagnostics: Diagnostic[], totalRules: number): { score: number; grade: string } {
+function calculateScore(diagnostics: Diagnostic[], totalRules: number, ruleResults: RuleResult[]): { score: number; grade: string } {
   if (totalRules === 0) return { score: 100, grade: "A+" };
 
-  const errors = diagnostics.filter(d => d.severity === "error").length;
   const warnings = diagnostics.filter(d => d.severity === "warning").length;
 
-  // Each error costs 5 points, each warning costs 2 points, min 0
-  const deductions = (errors * 5) + (warnings * 2);
-  const score = Math.max(0, Math.min(100, 100 - deductions));
+  // Categorize rules into three tiers:
+  // 1. Fully passed (0 diagnostics)
+  // 2. Warning-only (has warnings but no errors) — partial credit
+  // 3. Error rules (has at least 1 error) — failed
+  const fullyPassed = ruleResults.filter(r => r.passed).length;
+  const warningOnly = ruleResults.filter(r =>
+    !r.passed && r.diagnostics.every(d => d.severity === "warning")
+  ).length;
+  const errorRules = ruleResults.filter(r =>
+    !r.passed && r.diagnostics.some(d => d.severity === "error")
+  ).length;
+
+  // Base score: fully passed = 100%, warning-only = 50%, error = 0%
+  const effectivePass = fullyPassed + warningOnly * 0.5;
+  const baseScore = 100 * (effectivePass / totalRules);
+
+  // Warning penalty: diminishing returns, capped at 10pts
+  //   5 warnings → ~3pts, 20 warnings → ~6pts, 50 warnings → ~8pts
+  const warningPenalty = Math.min(warnings * 0.15, 10);
+
+  // Error penalty: 5pts per rule with errors, capped at 15pts
+  const errorPenalty = Math.min(errorRules * 5, 15);
+
+  const score = Math.max(0, Math.min(100, Math.round(baseScore - warningPenalty - errorPenalty)));
 
   let grade: string;
   if (score >= 95) grade = "A+";
@@ -358,7 +378,7 @@ export async function runDoctor(
     }
   }
 
-  const { score, grade } = calculateScore(allDiagnostics, ruleResults.length);
+  const { score, grade } = calculateScore(allDiagnostics, ruleResults.length, ruleResults);
 
   return {
     score,
@@ -419,11 +439,9 @@ export function displayResult(result: DoctorResult, options: DoctorOptions = {})
         for (const diag of rr.diagnostics) {
           const icon = diag.severity === "error" ? chalk.red("✗") : chalk.yellow("⚠");
           const loc = diag.line ? chalk.dim(`:${diag.line}`) : "";
-          console.log(`  ${icon} ${chalk.dim(diag.ruleId.padEnd(35))} ${diag.message}`);
-          if (options.verbose && diag.filePath) {
-            const absPath = path.resolve(project.root, diag.filePath);
-            console.log(`    ${chalk.dim("→")} ${chalk.cyan(absPath)}${loc}`);
-          }
+          // Always show filePath for actionable feedback
+          const fileHint = diag.filePath ? ` ${chalk.dim(`(${diag.filePath}${loc})`)}` : "";
+          console.log(`  ${icon} ${chalk.dim(diag.ruleId.padEnd(35))} ${diag.message}${fileHint}`);
           if (options.verbose && diag.help) {
             console.log(`    ${chalk.dim("💡")} ${chalk.dim(diag.help)}`);
           }

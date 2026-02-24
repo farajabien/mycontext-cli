@@ -1055,78 +1055,33 @@ Use the business entities from the context above, not generic types.`;
     try {
       this.spinner.updateText("🔄 Generating types from InstantDB schema...");
 
-      // Check if schema file exists in multiple possible locations
-      const schemaPaths = [
-        "instant.schema.ts",
-        "src/instant.schema.ts",
-        ".mycontext/schema.ts",
-        "instant.schema.js",
-      ];
+      const { generateTypesFromSchemaFile } = await import("../utils/generateTypesFromSchema");
+      const projectRoot = this.getProjectRoot();
 
-      let schemaPath: string | null = null;
-      for (const path of schemaPaths) {
-        if (await this.fs.exists(path)) {
-          schemaPath = path;
-          break;
-        }
-      }
+      const { content, entityCount, fieldCount } = await generateTypesFromSchemaFile(projectRoot);
 
-      if (!schemaPath) {
-        throw new Error(
-          `Schema file not found. Looked in: ${schemaPaths.join(", ")}. ` +
-          `Please create an InstantDB schema file (e.g., instant.schema.ts)`
-        );
-      }
+      // Write the generated types
+      const typesPath = path.join(projectRoot, ".mycontext", "types.ts");
+      await fs.ensureDir(path.dirname(typesPath));
+      await fs.writeFile(typesPath, content, "utf-8");
 
-      // Run the schema types generator script
-      const { spawn } = require("child_process");
-      const tsx = require.resolve("tsx");
+      this.spinner.stop();
+      console.log(
+        chalk.green(
+          `✅ Generated types for ${entityCount} entities (${fieldCount} fields) → .mycontext/types.ts`
+        )
+      );
 
-      return new Promise((resolve, reject) => {
-        const child = spawn(
-          "node",
-          [tsx, "scripts/generateTypesFromSchema.ts"],
-          {
-            stdio: "pipe",
-            cwd: process.cwd(),
-          }
-        );
-
-        let output = "";
-        let error = "";
-
-        child.stdout.on("data", (data: any) => {
-          output += data.toString();
-        });
-
-        child.stderr.on("data", (data: any) => {
-          error += data.toString();
-        });
-
-        child.on("close", async (code: any) => {
-          if (code === 0) {
-            // Read the generated types file
-            const typesPath = ".mycontext/types.ts";
-            if (await this.fs.exists(typesPath)) {
-              const typesContent = await this.fs.readFile(typesPath);
-              resolve({
-                success: true,
-                content: typesContent,
-                provider: "schema-generator" as any,
-                metadata: {
-                  model: "schema-generator",
-                  tokens: typesContent.length / 4,
-                  latency: 200,
-                },
-              });
-            } else {
-              reject(new Error("Types file was not generated"));
-            }
-          } else {
-            reject(new Error(`Schema types generation failed: ${error}`));
-          }
-        });
-      });
+      return {
+        success: true,
+        content,
+        provider: "schema-generator" as any,
+        metadata: {
+          model: "schema-generator",
+          tokens: content.length / 4,
+          latency: 200,
+        },
+      };
     } catch (error) {
       return {
         success: false,

@@ -183,22 +183,58 @@ const metadataExport: DoctorRule = {
   name: "Metadata Export",
   category: "nextjs",
   severity: "warning",
-  description: "Pages/layouts should export metadata or generateMetadata for SEO",
+  description: "Public pages/layouts should export metadata or generateMetadata for SEO",
   help: "Add 'export const metadata = { title: ... }' or 'export async function generateMetadata()'",
   appliesTo: ["nextjs"],
   async check(ctx: RuleContext) {
     const results: Diagnostic[] = [];
     const pages = await ctx.findFiles(/page\.(tsx|jsx|ts|js)$/);
 
+    // Route groups that are typically auth-gated (no SEO needed)
+    const authGatedGroups = new Set([
+      "(pms)", "(admin)", "(dashboard)", "(agents)", "(app)",
+      "(protected)", "(auth)", "(settings)", "(account)", "(manage)",
+    ]);
+
+    // Detect additional auth-gated groups by checking for auth patterns in layouts
+    const layouts = await ctx.findFiles(/layout\.(tsx|jsx|ts|js)$/);
+    const authPatterns = /\b(redirect|getServerSession|auth|session|middleware|cookies|signIn|requireAuth|useAuth)\b/;
+    const detectedAuthGroups = new Set<string>();
+
+    for (const layout of layouts) {
+      const content = await ctx.readFile(layout);
+      if (!content) continue;
+      if (authPatterns.test(content)) {
+        // Extract route group from path, e.g. "app/(pms)/[slug]/layout.tsx" → "(pms)"
+        const groupMatch = layout.match(/\(([^)]+)\)/);
+        if (groupMatch) {
+          detectedAuthGroups.add(`(${groupMatch[1]})`);
+        }
+      }
+    }
+
     for (const p of pages) {
+      // Skip pages in auth-gated route groups
+      const isAuthGated = [...authGatedGroups, ...detectedAuthGroups].some(
+        group => p.includes(`/${group}/`) || p.startsWith(`${group}/`)
+      );
+      if (isAuthGated) continue;
+
+      // Skip API routes
+      if (p.includes("/api/")) continue;
+
       const content = await ctx.readFile(p);
       if (!content) continue;
+
+      // Skip client components (they can't export metadata)
+      if (content.includes('"use client"') || content.includes("'use client'")) continue;
+
       // Check if there's metadata or generateMetadata
       const hasMetadata = content.includes("export const metadata") ||
         content.includes("export async function generateMetadata") ||
         content.includes("export function generateMetadata");
       if (!hasMetadata) {
-        results.push(diag(this, p, "Page missing metadata export for SEO"));
+        results.push(diag(this, p, "Public page missing metadata export for SEO"));
       }
     }
     return results;
@@ -317,10 +353,31 @@ const loadingFiles: DoctorRule = {
       const hasLoading = await ctx.fileExists(path.join(dir, "loading.tsx")) ||
         await ctx.fileExists(path.join(dir, "loading.jsx"));
       if (!hasLoading) {
-        results.push(diag(this, p, "Page with async data has no loading.tsx for Suspense"));
+        results.push(diag(this, p, "Page with async data has no loading.tsx for Suspense", {
+          autoFixable: true,
+        }));
       }
     }
     return results;
+  },
+  async fix(ctx, d) {
+    const dir = path.dirname(d.filePath);
+    const loadingPath = path.join(dir, "loading.tsx");
+    const absPath = path.join(ctx.root, loadingPath);
+
+    const skeleton = `export default function Loading() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    </div>
+  );
+}
+`;
+
+    const { writeFile, ensureDir } = await import("fs-extra");
+    await ensureDir(path.dirname(absPath));
+    await writeFile(absPath, skeleton);
+    return true;
   },
 };
 
