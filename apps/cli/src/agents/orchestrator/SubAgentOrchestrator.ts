@@ -14,7 +14,7 @@ import {
   OrchestratorStatus,
   SubAgentStatus,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 import { EnhancedSpinner } from "../../utils/spinner";
 import { logger } from "../../utils/logger";
 import chalk from "chalk";

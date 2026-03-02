@@ -1,7 +1,7 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import { HybridAIClient } from "../../utils/hybridAIClient";
 import { ContextLoader } from "../../utils/contextLoader";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 import chalk from "chalk";
 import path from "path";
 

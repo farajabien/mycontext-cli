@@ -308,6 +308,8 @@ export interface DesignPipelineInput {
   prd: string;
   types?: string;
   branding?: string;
+  readme?: string;
+  project_snapshot?: any; // ProjectSnapshot from cli-services
   component_list?: string;
   project_path: string;
   force_regenerate?: boolean;

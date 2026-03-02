@@ -3,6 +3,7 @@ import * as path from "path";
 import { ContextEnricher } from "./contextEnricher";
 import { DesignPipelineAgent } from "../agents/implementations/DesignPipelineAgent";
 import { DesignPipelineStateManager } from "./designPipelineStateManager";
+import { ProjectScanner } from "../services/ProjectScanner";
 import { DesignManifestManager, DesignPipelineInput, EnrichedContext } from "@myycontext/core";
 import chalk from "chalk";
 
@@ -52,6 +53,11 @@ export class UnifiedDesignContextLoader {
         )
       );
 
+      // New: Run Project Scanner for real-world signal
+      console.log(chalk.gray("   Scanning project for technical context..."));
+      const scanner = new ProjectScanner(this.projectPath);
+      const projectSnapshot = await scanner.scan();
+
       // 2. Check if design manifest exists and is valid
       const hasDesignManifest = await this.manifestManager.hasValidManifest();
       const shouldGenerateManifest =
@@ -78,6 +84,8 @@ export class UnifiedDesignContextLoader {
           prd: contextFiles.prd,
           types: contextFiles.types,
           branding: contextFiles.brand,
+          readme: contextFiles.readme,
+          project_snapshot: projectSnapshot,
           component_list: contextFiles.componentList,
           project_path: this.projectPath,
           force_regenerate: shouldGenerateManifest,
@@ -154,6 +162,7 @@ export class UnifiedDesignContextLoader {
     prd: string;
     types: string;
     brand: string;
+    readme: string;
     componentList: string;
     architecture: string;
     globals: string;
@@ -162,10 +171,17 @@ export class UnifiedDesignContextLoader {
       prd: "",
       types: "",
       brand: "",
+      readme: "",
       componentList: "",
       architecture: "",
       globals: "",
     };
+
+    // Load README (root)
+    contextFiles.readme = await this.loadContextFile([
+      "./README.md",
+      "../README.md", // if in a subdirectory
+    ]);
 
     // Load PRD
     contextFiles.prd = await this.loadContextFile([
@@ -365,6 +381,8 @@ export class UnifiedDesignContextLoader {
       prd: contextFiles.prd,
       types: contextFiles.types,
       branding: contextFiles.brand,
+      readme: contextFiles.readme,
+      project_snapshot: await new ProjectScanner(this.projectPath).scan(),
       component_list: contextFiles.componentList,
       project_path: this.projectPath,
       force_regenerate: true,

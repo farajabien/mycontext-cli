@@ -336,6 +336,30 @@ Input: "A blog with user authentication"
 
 ---
 
+## 🎯 Test X: End-to-End Workflow with shadcn/ui Integration (2026-02-25)
+
+### Test Type: Full Project Setup + UI + Feature Planning
+
+**Steps:**
+1. Initialized new project with MyContext CLI
+2. Ran `npx shadcn@latest init` to set up shadcn/ui
+3. Ran `bash scripts/install-all-shadcn.sh` to install all shadcn/ui components
+4. Ran `pnpm tsx apps/cli/src/cli.ts plan-feature` and entered: "Add a dashboard with analytics cards and filters"
+5. Approved the plan
+
+**Results:**
+- All shadcn/ui components present in `components/ui`
+- Feature and todos added to `.mycontext/context.json`
+- No errors in any step
+
+**Status:** ✅ **PASS**
+
+**Artifacts:**
+- `components/ui/` (57+ shadcn/ui components)
+- `.mycontext/context.json` (feature and todos present)
+
+---
+
 **Test conducted by**: Claude Code (AI Assistant)
 **Environment**: MyContext CLI v4.2.6
 **AI Provider**: GitHub Models (via AICore)

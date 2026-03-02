@@ -1,6 +1,6 @@
 import { SubAgent } from "../interfaces/SubAgent";
 import { ProjectIntelligenceEngine } from "../intelligence/ProjectIntelligence";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 import { AICore } from "../../core/ai/AICore";
 import { LivingContext } from "../../types/living-context";
 

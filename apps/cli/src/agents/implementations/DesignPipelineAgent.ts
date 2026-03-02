@@ -103,7 +103,7 @@ export class DesignPipelineAgent
         console.log(chalk.gray("  Phase 1: Parsing PRD..."));
         const functionalSummary = await this.executePhaseWithErrorHandling(
           1,
-          () => this.parsePRD(input.prd, input.project_path),
+          () => this.parsePRD(input.prd, input.readme || "", input.project_path),
           partialResults
         );
         partialResults.functionalSummary = functionalSummary;
@@ -411,6 +411,8 @@ export class DesignPipelineAgent
     ) {
       return "Quota exceeded";
     } else {
+      console.error(chalk.red(`[DesignPipelineAgent] Unhandled failure: ${errorMessage}`));
+      if (error?.stack) console.error(chalk.gray(error.stack));
       return "Unknown error";
     }
   }
@@ -504,13 +506,16 @@ export class DesignPipelineAgent
 
   private async parsePRD(
     prd: string,
+    readme: string,
     projectPath: string
   ): Promise<FunctionalSummary> {
     const prompt = `
-You are a product analyst. Parse this PRD into a structured functional summary.
+You are a product analyst. Parse this PRD and README into a structured functional summary.
 
 PRD:
 ${prd}
+
+${readme ? `README:\n${readme}\n` : ""}
 
 Output JSON with this exact structure:
 {
@@ -534,7 +539,7 @@ Focus on extracting the core essence and user value proposition.`;
         maxTokens: 1000,
       });
 
-      const parsed = JSON.parse(response.text);
+      const parsed = JSON.parse(this.extractJSON(response.text));
       return this.validateFunctionalSummary(parsed);
     } catch (error) {
       console.log(
@@ -599,7 +604,7 @@ Return JSON:
         maxTokens: 500,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(chalk.yellow("  ⚠️  AI classification failed"));
@@ -665,6 +670,20 @@ Return JSON:
     if (!hasTypes) missing.push("data structures", "type definitions");
     if (!hasComponentList)
       missing.push("component specifications", "UI patterns");
+
+    // "Living Brain" Technical Gap Detection
+    if (input.project_snapshot) {
+      const { stats, fileTree } = input.project_snapshot;
+      console.log(chalk.gray(`   Analyzing snapshot: ${stats.totalFiles} files, ${stats.componentFiles} existing components`));
+      
+      const existingComponents = fileTree
+        .filter((f: any) => f.type === "file" && (f.path.includes("/components/") || f.path.includes("/ui/")))
+        .map((f: any) => path.basename(f.path));
+
+      if (existingComponents.length > 0) {
+        console.log(chalk.gray(`   Detected ${existingComponents.length} existing UI files on disk`));
+      }
+    }
 
     missing.push(
       "tone guidance",
@@ -741,7 +760,7 @@ Output JSON:
         maxTokens: 1500,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(chalk.yellow("  ⚠️  AI design brief generation failed"));
@@ -842,7 +861,7 @@ Output JSON:
         maxTokens: 2000,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(chalk.yellow("  ⚠️  AI visual system generation failed"));
@@ -997,7 +1016,7 @@ Output JSON:
         maxTokens: 2000,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(
@@ -1073,7 +1092,7 @@ Output JSON:
         maxTokens: 1000,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(chalk.yellow("  ⚠️  AI implementation planning failed"));
@@ -1162,7 +1181,7 @@ Output JSON:
         maxTokens: 800,
       });
 
-      return JSON.parse(response.text);
+      return JSON.parse(this.extractJSON(response.text));
     } catch (error) {
       // AI generation failed - re-throw to halt pipeline
       console.log(chalk.yellow("  ⚠️  AI design intent synthesis failed"));
@@ -1739,5 +1758,32 @@ Output JSON:
       errorCount: 0,
       successCount: 0,
     };
+  }
+
+  /**
+   * Robustly extract JSON from AI response (strips markdown code blocks)
+   */
+  private extractJSON(text: string): string {
+    if (!text) return "";
+    
+    // Remove markdown code blocks if present (```json ... ``` or ``` ...)
+    let cleaned = text.trim();
+    const markdownRegex = /```(?:json)?\s*([\s\S]*?)\s*```/g;
+    const matches = Array.from(cleaned.matchAll(markdownRegex));
+    
+    if (matches.length > 0 && matches[0] && matches[0][1]) {
+      cleaned = matches[0][1].trim();
+    }
+    
+    // Sometimes there might be multiple blocks or trailing text
+    // Try to find the first '{' and last '}'
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
+    
+    return cleaned;
   }
 }

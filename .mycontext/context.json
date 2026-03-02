@@ -98,6 +98,24 @@
       "actors": [
         "Developer"
       ]
+    },
+    {
+      "id": "flow-3",
+      "name": "Post-Scaffold LLM Enhancement",
+      "description": "After deterministic scaffolding, the planner agent may invoke the LLM to enhance or refactor existing components only (never generate from scratch).",
+      "steps": [
+        "Mega script completes deterministic scaffold (all code matches manifest/context).",
+        "Planner agent identifies opportunities for enhancement or refactor (e.g., improve a component, add animation, refactor logic).",
+        "LLM receives a single component or group of components and a specific enhancement/refactor query.",
+        "LLM output is reviewed and integrated; all changes update the component registry and context.json."
+      ],
+      "actors": [
+        "Planner Agent",
+        "LLM",
+        "Developer"
+      ],
+      "notes": "LLM is never used for initial codegen—only for post-scaffold enhancement/refactor. As CLI/planner enforce alignment, the ALIGN file's role becomes advisory/redundant."
+    }
     }
   ],
   "edgeCases": [

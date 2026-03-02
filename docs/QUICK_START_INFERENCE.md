@@ -272,3 +272,34 @@ A: It's automatically saved to `.mycontext/asl.json`
 4. Build deterministic generators that consume the ASL
 
 Happy building! 🚀
+
+---
+
+## Full End-to-End Workflow: Project Init → shadcn/ui Install → Feature Planning
+
+1. **Initialize a New Project**
+   ```bash
+   mycontext init my-test-app --framework nextjs
+   cd my-test-app
+   ```
+2. **Initialize shadcn/ui**
+   ```bash
+   npx shadcn@latest init
+   # Follow prompts to configure shadcn/ui and Tailwind CSS
+   ```
+3. **Install All shadcn/ui Components**
+   ```bash
+   bash scripts/install-all-shadcn.sh
+   # Installs all canonical shadcn/ui components in components/ui
+   ```
+4. **Plan a New Feature**
+   ```bash
+   pnpm tsx apps/cli/src/cli.ts plan-feature
+   # Enter a feature description (e.g., "Add a dashboard with analytics cards and filters")
+   # Approve the plan and verify updates to .mycontext/context.json and todos
+   ```
+5. **Verify**
+   - All shadcn/ui components are present in components/ui
+   - The new feature is reflected in context.json and any generated todos/roadmap
+
+This workflow ensures your project is fully set up for modern UI and feature planning with MyContext.

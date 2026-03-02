@@ -30,271 +30,156 @@ export class InitCommand {
   private manifestManager = new DesignManifestManager();
 
   async execute(projectName: string | undefined, options: InitOptions): Promise<void> {
-    const spinner = new EnhancedSpinner("Initializing project...");
+    const spinner = new EnhancedSpinner("Initializing...");
 
     try {
-      // Display ASCII art branding
       this.displayBranding();
 
-      // Check for existing project & Auto-Init
       const currentDir = process.cwd();
+      const currentDirName = path.basename(currentDir);
       const hasPackageJson = await fs.pathExists(path.join(currentDir, "package.json"));
-      // The user specifically mentioned "if directory and node modules exist"
       const hasNodeModules = await fs.pathExists(path.join(currentDir, "node_modules"));
-      const isInteractive = !options.yes && !projectName;
+      const mycontextPath = path.join(currentDir, ".mycontext");
+      const hasMyContext = await fs.pathExists(mycontextPath);
 
-      if (isInteractive && hasPackageJson && hasNodeModules) {
-        const { useExisting } = await prompts({
+      // Handle project name resolution
+      let finalProjectName = projectName;
+      let useCurrentDir = projectName === "." || !projectName;
+
+      if (useCurrentDir) {
+        finalProjectName = currentDirName;
+      }
+
+      // 1. Existing Project Flow (package.json exists)
+      if (hasPackageJson && !options.next && !options.framework && !options.specOnly) {
+        const isInteractive = !options.yes;
+        if (isInteractive) {
+          const { useExisting } = await prompts({
             type: "confirm",
             name: "useExisting",
-            message: chalk.yellow("⚠️  Existing project detected. Initialize MyContext in current directory?"),
+            message: chalk.yellow(`⚠️  Existing project detected (${finalProjectName}). Initialize MyContext here?`),
             initial: true
-        });
+          });
 
-        if (useExisting) {
-            // 1. Get Project Name (default)
-            let name = path.basename(currentDir);
-            let pkgDescription = "";
-            try {
-                const pkg = await fs.readJson(path.join(currentDir, "package.json"));
-                if (pkg.name) name = pkg.name;
-                if (pkg.description) pkgDescription = pkg.description;
-            } catch (e) {
-                // ignore
-            }
-
-            // 2. Ask user how to proceed
+          if (useExisting) {
             const { initMode } = await prompts({
-                type: "select",
-                name: "initMode",
-                message: "How would you like to initialize context?",
-                choices: [
-                    { title: "Scan Project (Recommended)", value: "scan", description: "Analyzes file tree & key files to build context" },
-                    { title: "Read README", value: "readme", description: "Generates summary from README file" },
-                    { title: "Manual Input", value: "manual", description: "Enter project description yourself" }
-                ],
-                initial: 0
+              type: "select",
+              name: "initMode",
+              message: "How would you like to initialize context?",
+              choices: [
+                { title: "Scan Project (Recommended)", value: "scan", description: "Analyzes file tree & key files to build context" },
+                { title: "Manual Input", value: "manual", description: "Enter project description yourself" }
+              ],
+              initial: 0
             });
 
             spinner.start();
-            let description = pkgDescription || `${name} - AI-powered app`;
+            let description = options.description || `${finalProjectName} - AI-powered app`;
 
             if (initMode === "scan") {
-                spinner.updateText("Scanning project structure...");
-                try {
-                    const { ProjectScanner } = await import("../services/ProjectScanner");
-                    const scanner = new ProjectScanner(currentDir);
-                    const snapshot = await scanner.scan();
-
-                    // Build a rich description from the snapshot
-                    const stats = snapshot.stats;
-                    const techStack = [];
-                    // Simple heuristic for tech stack based on extensions/files
-                    if (snapshot.fileTree.some(f => f.path === "next.config.js" || f.path === "next.config.mjs")) techStack.push("Next.js");
-                    if (snapshot.fileTree.some(f => f.path.endsWith(".ts") || f.path.endsWith(".tsx"))) techStack.push("TypeScript");
-                    if (snapshot.fileTree.some(f => f.path === "tailwind.config.js" || f.path === "tailwind.config.ts")) techStack.push("Tailwind CSS");
-                    
-                    const topLevelDirs = snapshot.fileTree
-                        .filter(f => f.type === "dir" && !f.path.includes("/"))
-                        .map(f => f.path)
-                        .join(", ");
-
-                    // Read README snippet if available
-                    let readmeSnippet = "";
-                    const readmeFile = snapshot.keyFiles.find(f => f.path.toLowerCase() === "readme.md");
-                    if (readmeFile) {
-                        readmeSnippet = readmeFile.content.slice(0, 1000);
-                    }
-
-                    description = `Project: ${name}
-Description: ${pkgDescription}
-Tech Stack: ${techStack.join(", ")}
-Stats: ${stats.totalFiles} files, ${stats.componentFiles} components, ${stats.routeFiles} routes.
-Structure: ${topLevelDirs}
-README Summary:
-${readmeSnippet}
-`;
-                    spinner.succeed("Project scanned successfully!");
-                } catch (e) {
-                    spinner.warn({ text: "Scan failed, falling back to basic details." });
-                }
-            } else if (initMode === "readme") {
-                // EXISTING README LOGIC
-                 const readmePath = path.join(currentDir, "README.md");
-                 if (await fs.pathExists(readmePath)) {
-                     spinner.updateText("Reading README.md...");
-                     const readmeContent = await fs.readFile(readmePath, "utf-8");
-                     
-                     // Generate narrative using Gemini
-                     const gemini = new GeminiClient();
-                     if (gemini.hasApiKey()) {
-                         spinner.updateText("Generating project narrative from README...");
-                         try {
-                            const response = await gemini.generateText(
-                                `Summarize the following README into a concise, one-sentence project description/narrative (max 20 words) that captures the core essence of the project:\n\n${readmeContent.slice(0, 5000)}`
-                            );
-                            if (response.content) {
-                                description = response.content.trim();
-                            }
-                         } catch (e) {
-                             // Fallback silently
-                         }
-                     }
-                 }
-            } else if (initMode === "manual") {
-                spinner.stop();
-                const response = await prompts({
-                    type: "text",
-                    name: "desc",
-                    message: "Enter project description:",
-                    validate: value => value.length > 0 ? true : "Description is required"
-                });
-                description = response.desc;
-                spinner.start();
+              spinner.updateText("Scanning project structure...");
+              try {
+                const { ProjectScanner } = await import("../services/ProjectScanner");
+                const scanner = new ProjectScanner(currentDir);
+                const snapshot = await scanner.scan();
+                description = `Project: ${finalProjectName}\nStats: ${snapshot.stats.totalFiles} files.\nContext: ${options.description || ''}`;
+              } catch (e) {
+                // fallback
+              }
+            } else if (initMode === "manual" && !options.description) {
+              spinner.stop();
+              const response = await prompts({
+                type: "text",
+                name: "desc",
+                message: "Enter project description:",
+                validate: value => value.length > 0 ? true : "Description is required"
+              });
+              description = response.desc;
+              spinner.start();
             }
 
-             // 3. Initialize
-             spinner.updateText("Initializing MyContext metadata...");
-             
-             const config = await this.fs.initializeProject(
-                 name,
-                 description, // Now potentially rich context
-                 currentDir,
-                 true // useCurrentDir
-             );
-             
-             await this.createInitialManifest(
-                 path.resolve(currentDir),
-                 name,
-                 description
-             );
-
-             spinner.success({ text: `Project "${name}" initialized with context!` });
-             
-             // If manual/scan, we might have a long description, so maybe truncate for display
-             const displayDesc = description.length > 100 ? description.slice(0, 100) + "..." : description;
-             console.log(chalk.gray(`\nNarrative: ${displayDesc}\n`));
-             
-             this.showNextSteps(config, undefined, true);
-             return;
+            const config = await this.fs.initializeProject(finalProjectName!, description, currentDir, true);
+            await this.createInitialManifest(currentDir, finalProjectName!, description);
+            spinner.success({ text: `Project "${finalProjectName!}" initialized with context!` });
+            this.showNextSteps(config, undefined, true);
+            return;
+          }
         }
       }
 
-      // If we are running in interactive mode (no specific flags and not --yes)
-      if (!options.yes && !options.next && !options.framework && !options.specOnly) {
-         // ... (existing TUI code)
-      }
+      // 2. New Project Flow (No package.json or explicitly requested new)
+      if (!hasPackageJson && !options.yes && !options.specOnly) {
+        const { framework } = await prompts({
+          type: "select",
+          name: "framework",
+          message: "No package.json found. What would you like to build?",
+          choices: [
+            { title: "Next.js + InstantDB (Full Stack)", value: "instantdb" },
+            { title: "Next.js + shadcn (UI Only)", value: "nextjs" },
+            { title: "Basic MyContext (Spec Only)", value: "basic" }
+          ],
+          initial: 0
+        });
 
-      // Legacy/Flag-based Flow (keeping for backward compatibility or CI/CD)
-      // If --yes and existing project, perform an auto-scan to get a rich description
-      let autoDescription = options.description;
-      if (options.yes && !autoDescription && hasPackageJson && hasNodeModules) {
-        try {
-          const { ProjectScanner } = await import("../services/ProjectScanner");
-          const scanner = new ProjectScanner(currentDir);
-          const snapshot = await scanner.scan();
-          const pkg = await fs.readJson(path.join(currentDir, "package.json"));
-          const name = pkg.name || path.basename(currentDir);
-          
-          let readmeSnippet = "";
-          const readmeFile = snapshot.keyFiles.find(f => f.path.toLowerCase() === "readme.md");
-          if (readmeFile) readmeSnippet = readmeFile.content.slice(0, 1500);
-
-          autoDescription = `Project: ${name}\nStats: ${snapshot.stats.totalFiles} files, ${snapshot.stats.componentFiles} components.\nREADME:\n${readmeSnippet}`;
-        } catch (e) {
-          // Fallback to generic if scan fails
+        if (framework === "basic") {
+          options.specOnly = true;
+        } else {
+          options.framework = framework;
         }
       }
 
-      // Handle project name
-      let finalProjectName = projectName;
-      let useCurrentDir = projectName === ".";
-
+      // Resolution for final naming if still undefined
       if (!finalProjectName && !options.yes) {
         const responses = await prompts([
           {
             type: "text",
             name: "name",
             message: "Project name:",
-            initial: "my-app",
-            validate: (value: string) =>
-              value.length > 0 || "Project name is required",
+            initial: currentDirName,
+            validate: (value: string) => value.length > 0 || "Project name is required",
           },
         ]);
-        finalProjectName = responses.name || "my-app";
-        useCurrentDir = finalProjectName === ".";
+        finalProjectName = responses.name || currentDirName;
+        useCurrentDir = finalProjectName === "." || finalProjectName === currentDirName;
+        if (finalProjectName === ".") finalProjectName = currentDirName;
       }
 
-      if (!finalProjectName) {
-        finalProjectName = "my-app";
-      }
+      if (!finalProjectName) finalProjectName = currentDirName || "my-app";
 
       const workingDir = process.cwd();
-      const projectPath = useCurrentDir
-        ? workingDir
-        : path.resolve(workingDir, finalProjectName);
+      const projectPath = useCurrentDir ? workingDir : path.resolve(workingDir, finalProjectName);
+      const effectiveDescription = options.description || `${finalProjectName} - AI-powered app`;
 
-      // Use auto-detected description if not explicitly provided
-      const effectiveDescription = options.description || autoDescription;
-
-      // Safety check: Detect existing MyContext project
-      const mycontextPath = path.join(projectPath, ".mycontext");
-      if (await fs.pathExists(mycontextPath) && !options.force && !options.yes) {
+      // Safety check for overwrite
+      if (await fs.pathExists(path.join(projectPath, ".mycontext")) && !options.force && !options.yes) {
         const { confirmOverwrite } = await prompts({
           type: "confirm",
           name: "confirmOverwrite",
-          message: chalk.yellow(`⚠️  Existing .mycontext folder found in ${projectName || '.'}. Overwrite?`),
+          message: chalk.yellow(`⚠️  Existing .mycontext folder found in ${useCurrentDir ? '.' : finalProjectName}. Overwrite?`),
           initial: false,
         });
 
         if (!confirmOverwrite) {
-          console.log(chalk.blue("\nInitialization cancelled. Use 'mycontext status' to audit your existing project instead."));
+          console.log(chalk.blue("\nInitialization cancelled."));
           return;
         }
       }
 
       spinner.start();
 
-      // Determine framework (default to instantdb for backward compatibility)
-      const framework = options.framework || "instantdb";
-
-      if (framework === "instantdb") {
-        // InstantDB workflow
-        await this.initInstantDBProject(
-          spinner,
-          workingDir,
-          projectPath,
-          finalProjectName,
-          { ...options, description: effectiveDescription },
-          useCurrentDir
-        );
-      } else if (framework === "nextjs" || framework === "next") {
-        // Next.js workflow (shadcn + MyContext only)
-        await this.initNextJSProject(
-          spinner,
-          workingDir,
-          projectPath,
-          finalProjectName,
-          { ...options, description: effectiveDescription },
-          useCurrentDir
-        );
+      if (options.specOnly) {
+        await this.initBasicProject(spinner, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
       } else {
-        // Default: MyContext only
-        await this.initBasicProject(
-          spinner,
-          projectPath,
-          finalProjectName,
-          { ...options, description: effectiveDescription },
-          useCurrentDir
-        );
+        const framework = options.framework || "instantdb";
+        if (framework === "instantdb") {
+          await this.initInstantDBProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
+        } else {
+          await this.initNextJSProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
+        }
       }
     } catch (error) {
       spinner.error({ text: "Failed to initialize project" });
-      console.error(
-        chalk.red(
-          `Error: ${error instanceof Error ? error.message : String(error)}`
-        )
-      );
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
       throw error;
     }
   }
@@ -488,55 +373,27 @@ ${readmeSnippet}
   ): void {
     const projectPath = useCurrentDir ? "." : config.name;
 
-    console.log(chalk.blue("\n🎯 Quick Start:\n"));
+    console.log(chalk.blue("\n🎯 Next Steps:\n"));
 
     if (!useCurrentDir) {
-      console.log(chalk.yellow("1. Navigate to your project:"));
-      console.log(chalk.gray(`   cd ${projectPath}\n`));
+      console.log(chalk.yellow("  1.  cd " + projectPath));
     }
 
     if (framework === "instantdb") {
-      console.log(chalk.yellow("2. Configure InstantDB:"));
-      console.log(
-        chalk.gray("   • Add your InstantDB App ID to .env.local:")
-      );
-      console.log(
-        chalk.cyan("     NEXT_PUBLIC_INSTANT_APP_ID=your-app-id")
-      );
-      console.log(
-        chalk.gray("   • Template files copied to lib/ (or src/lib/):")
-      );
-      console.log(chalk.gray("     - instant-client.ts (Client SDK)"));
-      console.log(chalk.gray("     - instant-admin.ts (Admin SDK)"));
-      console.log(chalk.gray("     - auth.ts (Auth helpers)"));
-      console.log(chalk.gray("     - instantdb-storage.ts (File storage)\n"));
+      console.log(chalk.yellow("  2.  Configure InstantDB in .env.local"));
+      console.log(chalk.cyan("      NEXT_PUBLIC_INSTANT_APP_ID=your-app-id\n"));
     }
 
-    console.log(chalk.yellow("3. ️  Analyze a screenshot (Gemini 2.0 Flash):"));
-    console.log(chalk.cyan("   mycontext analyze /path/to/screenshot.png"));
-    console.log(
-      chalk.gray("   # Reverse-engineer any UI into a comprehensive spec!\n")
-    );
+    console.log(chalk.yellow("  3.  Generate Manifest (Living Brain):"));
+    console.log(chalk.cyan("      mycontext design analyze\n"));
 
-    console.log(chalk.yellow("4. Keep your Brain in sync:"));
-    console.log(chalk.cyan("   mycontext sync"));
-    console.log(chalk.gray("   # Auto-update context.json & README as you code\n"));
+    console.log(chalk.yellow("  4.  Assemble Atomic Components:"));
+    console.log(chalk.cyan("      mycontext generate components\n"));
 
-    console.log(chalk.yellow("5. Configure AI provider:"));
-    console.log(chalk.gray("   🔥 GitHub Models (GPT-4o - Free & High Quality):"));
-    console.log(chalk.gray("      Get GitHub token: https://github.com/settings/tokens"));
-    console.log(chalk.cyan("      echo 'GITHUB_TOKEN=your-token' >> .mycontext/.env\n"));
-    console.log(chalk.gray("   ✨ Gemini (Free Tier + Vision for screenshots):"));
-    console.log(chalk.gray("      Get API key: https://aistudio.google.com/apikey"));
-    console.log(chalk.cyan("      echo 'GEMINI_API_KEY=your-key' >> .mycontext/.env\n"));
-    console.log(chalk.gray("   📌 Claude (Best for advanced reasoning):"));
-    console.log(chalk.gray("      https://console.anthropic.com/\n"));
+    console.log(chalk.yellow("  5.  Keep Brain in sync:"));
+    console.log(chalk.cyan("      mycontext sync\n"));
 
-    console.log(chalk.yellow("6. Generate full context:"));
-    console.log(chalk.gray("   mycontext generate context --full\n"));
-
-    console.log(chalk.yellow("7. Start development:"));
-    console.log(chalk.gray("   pnpm dev\n"));
+    console.log(chalk.green("✨ MyContext v4.2.10 | Context-Driven Development Activated\n"));
 
     console.log(chalk.green("✨ Tips:"));
     console.log(chalk.gray("• Check .mycontext/ for all generated files"));
@@ -579,12 +436,12 @@ ${readmeSnippet}
       console.log(gradient.pastel.multiline(logo));
       console.log(
         chalk.cyan.bold(
-          "    🚀 Screenshot → Spec → Code (Powered by Gemini 2.0 Flash)\n"
+          "    🧠 Living Brain | Context-Driven Development (v4.2.10)\n"
         )
       );
     } catch (error) {
       // Fallback to simple text if figlet fails
-      console.log(chalk.blue.bold("\n🚀 MyContext - Screenshot to Spec\n"));
+      console.log(chalk.blue.bold("\n🧠 MyContext - Context-Driven Development\n"));
     }
   }
 }

@@ -218,10 +218,19 @@ The "mega script" scaffolds a **COMPLETE Next.js application** including:
 - ✅ TypeScript types (Insert, WithRelations, entity types)
 - ✅ **Everything defined in the manifest**
 
-**Manual refinement limited to:**
-- Optional advanced UX features
-- Fine-tuning component behaviors
-- User-specific styling preferences
+
+## 🛠️ Post-Scaffold LLM Enhancement (NEW)
+
+After the deterministic mega script scaffolds the full application, MyContext supports **LLM-driven enhancement and refactoring** of existing components. The LLM is never used to generate code from scratch. Instead, the workflow is:
+
+1. **Mega script completes deterministic scaffold** (all code matches manifest/context).
+2. **Planner agent** identifies opportunities for enhancement or refactor (e.g., improve a component, add animation, refactor logic).
+3. **LLM receives a single component or group of components** (never the whole app) and a specific enhancement/refactor query.
+4. **LLM output is reviewed and integrated**—all changes update the component registry and context.json.
+
+This ensures all LLM-driven code is traceable, reviewable, and always based on existing, deterministic code. No hallucination, no guessing.
+
+> **Note:** As the CLI and planner enforce alignment and deterministic scaffolding, the ALIGN file's role becomes advisory/redundant and may be deprecated in the future.
 
 ---
 

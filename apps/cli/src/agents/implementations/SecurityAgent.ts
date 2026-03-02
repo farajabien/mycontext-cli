@@ -1,5 +1,5 @@
 import { SubAgent } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 
 export class SecurityAgent implements SubAgent {
   name = "SecurityAgent";

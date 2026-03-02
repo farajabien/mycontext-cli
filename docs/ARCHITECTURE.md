@@ -448,6 +448,16 @@ $ mycontext doctor
 
 ---
 
+## Planner/LLM Workflow: E2E Testbed
+
+- All new workflow steps (shadcn/ui install, plan-feature, LLM enhancement) are validated in `experiments/flip/my-app`.
+- This project serves as the canonical testbed for end-to-end validation of the deterministic, planner-driven, LLM-assisted workflow.
+- Test results and lessons learned are documented in TEST_RESULTS.md and TESTING_ROADMAP.md.
+
+This ensures the workflow is robust, repeatable, and ready for broader adoption.
+
+---
+
 ## Progressive Testing & Iterative Refinement
 
 ### Testing Phases
@@ -525,6 +535,27 @@ After each project:
 6. **Version Control:** Manifest versioning and rollback
 7. **Testing Generation:** Auto-generate unit and integration tests
 8. **API Documentation:** Auto-generate OpenAPI specs from actions
+
+---
+
+## Architecture Update: Planner-Driven, LLM-Assisted Workflow
+
+- The MyContext CLI now enforces a deterministic, planner-driven workflow for all new features and enhancements.
+- LLMs are only used to clarify user intent and enhance/refactor code after initial scaffolding.
+- The ALIGN file is now redundant; alignment is enforced by the CLI and planner agent.
+- Feature planning is performed interactively via the `plan-feature` command, with LLM clarification and planner agent review.
+- shadcn/ui install is a standard part of project setup, ensuring modern UI components are available for all features.
+- All changes are validated in experiments and documented in project docs.
+
+See TESTING_ROADMAP.md and QUICK_START_INFERENCE.md for workflow details.
+
+---
+
+## Multi-README Sync (Planned)
+
+- To ensure all projects reflect the latest deterministic, planner-driven, LLM-assisted workflow, a multi-README sync automation is planned.
+- This will update all project-level READMEs (e.g., apps/cli, apps/web, experiments/flip/my-app) with the current workflow, setup steps, and planner/LLM integration details.
+- See TESTING_ROADMAP.md for progress and next steps.
 
 ---
 

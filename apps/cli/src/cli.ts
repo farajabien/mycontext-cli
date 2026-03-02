@@ -37,6 +37,7 @@ import { DesignAnalyzeCommand } from "./commands/design-analyze";
 import { AnalyzeScreenshotCommand } from "./commands/analyze-screenshot";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 import { registerTestCommands } from "./commands/test";
+import { PlanFeatureCommand } from "./commands/plan-feature";
 
 // Import sub-agent system
 import { orchestrator } from "./agents/orchestrator/SubAgentOrchestrator";
@@ -237,9 +238,6 @@ program
       process.exit(1);
     }
   });
-
-
-
 
 // Review context command
 program

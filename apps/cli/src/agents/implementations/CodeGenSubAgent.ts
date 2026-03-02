@@ -20,7 +20,7 @@ import {
   ComponentGenerationInput,
   ComponentGenerationOutput,
 } from "../interfaces/SubAgent";
-import { getSubAgentPersonality } from "@/constants/subAgentPersonalities";
+import { getSubAgentPersonality } from "../../constants/subAgentPersonalities";
 import { GenerateComponentsCommand } from "../../commands/generate-components";
 
 // shadcn/ui component mapping for intelligent imports

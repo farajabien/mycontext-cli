@@ -421,6 +421,45 @@ Prove enterprise-grade scaffolding with multi-tenancy, billing, and real-time fe
 
 ---
 
+## New Milestone: Automated shadcn/ui Install & Feature Planning
+
+- [x] Add script to install all shadcn/ui components (`scripts/install-all-shadcn.sh`)
+- [x] Document shadcn/ui install as a required step in project setup
+- [x] Validate feature planning workflow (`plan-feature` CLI) in experiments
+- [ ] Automate verification of shadcn/ui presence in `components/ui` for all new projects
+- [ ] Integrate shadcn/ui install into MyContext CLI init flow (future)
+
+This ensures all projects are ready for modern UI and feature planning out of the box.
+
+---
+
+## New Workflow: Deterministic Planner + LLM Enhancement
+
+- LLMs are only used to enhance/refactor code after initial scaffold (never generate from scratch)
+- The CLI/planner enforces alignment, making ALIGN files redundant
+- Feature planning is performed via the `plan-feature` CLI command:
+  1. User describes feature
+  2. LLM clarifies/cleans request
+  3. Planner agent proposes todos/context updates
+  4. User reviews/approves plan
+- shadcn/ui install is now a standard step for all new projects (see `scripts/install-all-shadcn.sh`)
+- End-to-end workflow validated in `experiments/flip/my-app`
+
+See also: QUICK_START_INFERENCE.md, TEST_RESULTS.md
+
+---
+
+## Planner/LLM Integration: Next Steps
+
+- [ ] Automate multi-README sync to ensure all project READMEs reflect latest workflow
+- [ ] Expand planner agent to support more advanced feature decomposition and context management
+- [ ] Integrate LLM enhancement phase into additional CLI commands (e.g., refactor, improve)
+- [ ] Add more E2E tests in experiments to cover edge cases and advanced scenarios
+
+These steps will further strengthen the deterministic, planner-driven, LLM-assisted workflow and ensure robust documentation across all projects.
+
+---
+
 ## Summary: Iterative Refinement Curve
 
 | Phase | Complexity | Files | Manual Edits | Template Quality |
