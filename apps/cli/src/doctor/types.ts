@@ -30,7 +30,7 @@ export interface WorkspaceInfo {
 
 // ─── Diagnostics ──────────────────────────────────────────────────
 
-export type DoctorCategory = "nextjs" | "turbo" | "node" | "dead";
+export type DoctorCategory = "nextjs" | "turbo" | "node" | "dead" | "security";
 
 export interface Diagnostic {
   ruleId: string;

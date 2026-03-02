@@ -156,6 +156,7 @@ async function detectWorkspaces(root: string, pkg: any): Promise<WorkspaceInfo[]
 const IGNORE_DIRS = new Set([
   "node_modules", ".next", ".git", "dist", "build", ".turbo",
   ".pnpm-store", "coverage", ".cache", ".vercel", "__pycache__",
+  ".mycontext",
 ]);
 
 function createRuleContext(root: string, project: ProjectInfo, isWorkspace: boolean = false): RuleContext {
@@ -424,7 +425,7 @@ export function displayResult(result: DoctorResult, options: DoctorOptions = {})
   console.log();
 
   // Group diagnostics by category
-  const categories: DoctorCategory[] = ["nextjs", "turbo", "node", "dead"];
+  const categories: DoctorCategory[] = ["security", "nextjs", "turbo", "node", "dead"];
   for (const cat of categories) {
     const catResults = ruleResults.filter(r => r.category === cat);
     if (catResults.length === 0) continue;
@@ -490,6 +491,8 @@ function formatCategory(cat: DoctorCategory): string {
     case "turbo": return "🌀 Turborepo";
     case "node": return "📦 Node.js / Structure";
     case "dead": return "💀 Dead Code";
+    case "security": return "🛡️ Security";
+    default: return cat;
   }
 }
 
