@@ -1,4 +1,5 @@
 import { SubAgent } from "../interfaces/SubAgent";
+import * as path from "path";
 import { HybridAIClient } from "../../utils/hybridAIClient";
 import { FileSystemManager } from "../../utils/fileSystem";
 import {

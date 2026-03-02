@@ -24,14 +24,7 @@ export interface TestMission {
  * Validation Rule - Specific things to check during testing
  */
 export interface ValidationRule {
-  type:
-    | "url-match"
-    | "element-exists"
-    | "text-contains"
-    | "element-visible"
-    | "form-submitted"
-    | "data-updated"
-    | "custom";
+  type: string;
   description: string;
   selector?: string; // CSS selector or accessibility label
   expectedValue?: string;

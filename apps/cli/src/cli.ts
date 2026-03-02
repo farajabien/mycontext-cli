@@ -37,6 +37,7 @@ import { DesignAnalyzeCommand } from "./commands/design-analyze";
 import { AnalyzeScreenshotCommand } from "./commands/analyze-screenshot";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 import { registerTestCommands } from "./commands/test";
+import { registerVisionTestCommands } from "./commands/vision-test";
 import { PlanFeatureCommand } from "./commands/plan-feature";
 
 // Import sub-agent system
@@ -200,6 +201,9 @@ registerGenerateActionsCommand(program);
 
 // Test commands (UI flow testing with AI)
 registerTestCommands(program);
+
+// Vision test commands (AI-powered vision-based testing)
+registerVisionTestCommands(program);
 
 // Compile PRD command
 program

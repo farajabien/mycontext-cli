@@ -1,15 +1,14 @@
 import { Command } from "commander";
-import { prompt } from "inquirer";
+import inquirer from "inquirer";
 import { clarifyFeatureRequestWithLLM } from "../services/llmClarifier";
 import { FeaturePlannerAgent } from "../agents/implementations/FeaturePlannerAgent";
-import { updateContextJson } from "../utils/fileSystem";
-import { loadContextJson } from "../utils/contextLoader";
+import { ContextManager } from "../utils/contextManager";
 
 export const PlanFeatureCommand = new Command("plan-feature")
   .description("Describe a new feature/enhancement, clarify with LLM, and let the planner agent review, plan, and update the brain/todos.")
   .action(async () => {
     // 1. Prompt user for feature/enhancement description
-    const { featureDescription } = await prompt([
+    const { featureDescription } = await inquirer.prompt([
       {
         type: "input",
         name: "featureDescription",
@@ -18,7 +17,8 @@ export const PlanFeatureCommand = new Command("plan-feature")
     ]);
 
     // 2. Load current context
-    const context = await loadContextJson();
+    const contextManager = new ContextManager();
+    const context = await contextManager.loadContext();
 
     // 3. Clarify/clean request with LLM
     const clarifiedRequest = await clarifyFeatureRequestWithLLM(featureDescription, context);
@@ -32,12 +32,12 @@ export const PlanFeatureCommand = new Command("plan-feature")
     console.log(plan.summary);
     if (plan.todos && plan.todos.length > 0) {
       console.log("\nTodos:");
-      plan.todos.forEach((todo, idx) => {
+      plan.todos.forEach((todo: any, idx: number) => {
         console.log(`  [ ] ${todo}`);
       });
     }
 
-    const { approve } = await prompt([
+    const { approve } = await inquirer.prompt([
       {
         type: "confirm",
         name: "approve",
@@ -47,7 +47,8 @@ export const PlanFeatureCommand = new Command("plan-feature")
     ]);
 
     if (approve) {
-      await updateContextJson(plan.contextUpdates);
+      const updatedContext = await contextManager.mergeContext(context, plan.contextUpdates as any);
+      await contextManager.saveContext(updatedContext);
       console.log("\n✅ Feature/plan added to context.json and roadmap.");
     } else {
       console.log("\n❌ Plan not applied.");

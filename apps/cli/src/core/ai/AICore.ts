@@ -230,4 +230,39 @@ export class AICore {
       return null;
     }
   }
+
+  /**
+   * Save the Living Brain (context.json) - complete overwrite
+   */
+  public async saveLivingContext(context: any): Promise<void> {
+    try {
+      const contextPath = path.join(this.config.workingDirectory, ".mycontext", "context.json");
+      await fs.ensureDir(path.dirname(contextPath));
+      await fs.writeJson(contextPath, context, { spaces: 2 });
+    } catch (error) {
+      console.error("❌ Failed to save Living Context:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update the Living Brain (context.json) - merge partial updates
+   */
+  public async updateLivingContext(updates: any): Promise<void> {
+    try {
+      const contextPath = path.join(this.config.workingDirectory, ".mycontext", "context.json");
+      const existingContext = (await this.getLivingContext()) || {};
+
+      // Deep merge the updates into existing context
+      const updatedContext = {
+        ...existingContext,
+        ...updates,
+      };
+
+      await fs.writeJson(contextPath, updatedContext, { spaces: 2 });
+    } catch (error) {
+      console.error("❌ Failed to update Living Context:", error);
+      throw error;
+    }
+  }
 }
