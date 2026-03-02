@@ -105,121 +105,152 @@ export class VisionTestCommand {
   /**
    * Create a new vision test mission
    */
-  async createVisionMission(): Promise<void> {
+  async createVisionMission(options: {
+    name?: string;
+    mission?: string;
+    expected?: string;
+    url?: string;
+    interactive?: boolean;
+  } = {}): Promise<void> {
     console.log(chalk.bold.blue("\n🎬 Create Vision Test Mission\n"));
 
-    const answers = await prompts([
-      {
-        type: "text",
-        name: "name",
-        message: "Mission name:",
-        validate: (value) => (value.length > 0 ? true : "Name is required"),
-      },
-      {
-        type: "text",
-        name: "mission",
-        message: "What should the AI test? (natural language):",
-        validate: (value) =>
-          value.length > 0 ? true : "Mission description is required",
-      },
-      {
-        type: "text",
-        name: "expectedOutcome",
-        message: "Expected outcome:",
-        validate: (value) =>
-          value.length > 0 ? true : "Expected outcome is required",
-      },
-      {
-        type: "text",
-        name: "startUrl",
-        message: "Starting URL:",
-        initial: "http://localhost:3000",
-      },
-      {
-        type: "confirm",
-        name: "recordDemo",
-        message: "Record demo artifacts?",
-        initial: false,
-      },
-    ]);
-
-    if (!answers.name) {
-      console.log(chalk.yellow("\nCancelled"));
-      return;
-    }
-
+    let name = options.name;
+    let missionDesc = options.mission;
+    let expectedOutcome = options.expected;
+    let startUrl = options.url || "http://localhost:3000";
+    let recordDemo = false;
     let demoConfig;
 
-    if (answers.recordDemo) {
-      const demoAnswers = await prompts([
+    if (options.interactive !== false) {
+      const answers = await prompts([
         {
-          type: "multiselect",
-          name: "formats",
-          message: "Select output formats:",
-          choices: [
-            { title: "Video (MP4/WebM)", value: "video" },
-            { title: "Screenshots", value: "screenshots" },
-            { title: "HTML Replay", value: "html-replay" },
-            { title: "Markdown Script", value: "markdown-script" },
-          ],
-          min: 1,
+          type: "text",
+          name: "name",
+          message: "Mission name:",
+          initial: options.name,
+          validate: (value) => (value.length > 0 ? true : "Name is required"),
         },
         {
-          type: "select",
-          name: "quality",
-          message: "Video quality:",
-          choices: [
-            { title: "720p", value: "720p" },
-            { title: "1080p", value: "1080p" },
-            { title: "4K", value: "4K" },
-          ],
-          initial: 1,
+          type: "text",
+          name: "mission",
+          message: "What should the AI test? (natural language):",
+          initial: options.mission,
+          validate: (value) =>
+            value.length > 0 ? true : "Mission description is required",
+        },
+        {
+          type: "text",
+          name: "expectedOutcome",
+          message: "Expected outcome:",
+          initial: options.expected,
+          validate: (value) =>
+            value.length > 0 ? true : "Expected outcome is required",
+        },
+        {
+          type: "text",
+          name: "startUrl",
+          message: "Starting URL:",
+          initial: options.url || "http://localhost:3000",
         },
         {
           type: "confirm",
-          name: "voiceover",
-          message: "Generate voice-over script?",
+          name: "recordDemo",
+          message: "Record demo artifacts?",
           initial: false,
         },
       ]);
 
-      let style = "technical";
-      if (demoAnswers.voiceover) {
-        const styleAnswer = await prompts({
-          type: "select",
-          name: "style",
-          message: "Narration style:",
-          choices: [
-            { title: "Technical", value: "technical" },
-            { title: "Casual", value: "casual" },
-            { title: "Marketing", value: "marketing" },
-            { title: "Educational", value: "educational" },
-          ],
-        });
-        style = styleAnswer.style;
+      if (!answers.name) {
+        console.log(chalk.yellow("\nCancelled"));
+        return;
       }
 
-      demoConfig = {
-        outputFormats: demoAnswers.formats,
-        videoQuality: demoAnswers.quality,
-        includeVoiceOver: demoAnswers.voiceover,
-        narrationStyle: style as any,
-        generateAudio: false,
-      };
+      name = answers.name;
+      missionDesc = answers.mission;
+      expectedOutcome = answers.expectedOutcome;
+      startUrl = answers.startUrl;
+      recordDemo = answers.recordDemo;
+
+      if (recordDemo) {
+        const demoAnswers = await prompts([
+          {
+            type: "multiselect",
+            name: "formats",
+            message: "Select output formats:",
+            choices: [
+              { title: "Video (MP4/WebM)", value: "video" },
+              { title: "Screenshots", value: "screenshots" },
+              { title: "HTML Replay", value: "html-replay" },
+              { title: "Markdown Script", value: "markdown-script" },
+            ],
+            min: 1,
+          },
+          {
+            type: "select",
+            name: "quality",
+            message: "Video quality:",
+            choices: [
+              { title: "720p", value: "720p" },
+              { title: "1080p", value: "1080p" },
+              { title: "4K", value: "4K" },
+            ],
+            initial: 1,
+          },
+          {
+            type: "confirm",
+            name: "voiceover",
+            message: "Generate voice-over script?",
+            initial: false,
+          },
+        ]);
+
+        let style = "technical";
+        if (demoAnswers.voiceover) {
+          const styleAnswer = await prompts({
+            type: "select",
+            name: "style",
+            message: "Narration style:",
+            choices: [
+              { title: "Technical", value: "technical" },
+              { title: "Casual", value: "casual" },
+              { title: "Marketing", value: "marketing" },
+              { title: "Educational", value: "educational" },
+            ],
+          });
+          style = styleAnswer.style;
+        }
+
+        demoConfig = {
+          outputFormats: demoAnswers.formats,
+          videoQuality: demoAnswers.quality,
+          includeVoiceOver: demoAnswers.voiceover,
+          narrationStyle: style as any,
+          generateAudio: false,
+        };
+      }
+    } else {
+      if (!name || !missionDesc || !expectedOutcome) {
+        console.error(
+          chalk.red(
+            "❌ Missing required fields. Please provide --name, --mission, and --expected when using --no-interactive."
+          )
+        );
+        process.exit(1);
+      }
     }
 
     // Create vision mission
     const visionMission: VisionTestMission = {
       id: `vision-${Date.now()}`,
-      name: answers.name,
-      description: answers.mission,
-      mission: answers.mission,
-      expectedOutcome: answers.expectedOutcome,
+      name: name!,
+      description: missionDesc!,
+      mission: missionDesc!,
+      expectedOutcome: expectedOutcome!,
       tags: ["vision-test"],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      sourceFlow: answers.startUrl,
-      recordDemo: answers.recordDemo,
+      sourceFlow: startUrl,
+      recordDemo,
       demoConfig,
     };
 
@@ -227,7 +258,7 @@ export class VisionTestCommand {
     const saved = await this.missionManager.createMission(visionMission);
 
     console.log(chalk.green(`\n✅ Vision test mission created: ${saved.id}`));
-    console.log(chalk.gray(`\nRun with: mycontext test:vision ${saved.name}`));
+    console.log(chalk.gray(`\nRun with: mycontext test:vision "${saved.name}"`));
   }
 
   /**
@@ -362,9 +393,14 @@ export function registerVisionTestCommands(program: Command): void {
   program
     .command("test:vision:init")
     .description("Create a new vision test mission")
-    .action(async () => {
+    .option("--name <name>", "Mission name")
+    .option("--mission <mission>", "What should the AI test?")
+    .option("--expected <expected>", "Expected outcome")
+    .option("--url <url>", "Starting URL")
+    .option("--no-interactive", "Disable interactive prompts")
+    .action(async (options) => {
       const cmd = new VisionTestCommand();
-      await cmd.createVisionMission();
+      await cmd.createVisionMission(options);
     });
 
   // demo:record - Generate demo

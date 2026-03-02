@@ -213,6 +213,49 @@ export class MyContextAIClient implements AIClient {
   }
 
   /**
+   * Generate text from image using MyContext AI (Multimodal)
+   */
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    if (!this.apiKey || !this.openai) {
+      throw new Error("OpenAI API key not configured for MyContext AI");
+    }
+
+    try {
+      const fs = await import("fs");
+      const imageBuffer = await fs.promises.readFile(imagePath);
+      const base64Image = imageBuffer.toString("base64");
+      const mimeType = imagePath.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+
+      const response = await this.openai.chat.completions.create({
+        model: options.model || this.modelId,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`,
+                },
+              },
+            ] as any,
+          },
+        ],
+        max_tokens: options.maxTokens || 4000,
+      });
+
+      return response.choices[0]?.message?.content || "";
+    } catch (error) {
+      throw new Error(`MyContext AI vision generation failed: ${error}`);
+    }
+  }
+
+  /**
    * List available models (returns our fine-tuned model)
    */
   async listModels(): Promise<string[]> {

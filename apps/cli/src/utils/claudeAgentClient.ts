@@ -620,6 +620,19 @@ export class ClaudeAgentClient implements AgentAIClient {
   }
 
   /**
+   * Generate text from image using Claude Agent SDK (Multimodal)
+   */
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    // Claude vision models are handled through specific SDK tools or multimodal messages
+    // For now we'll throw an error to trigger fallback in AICore
+    throw new Error("Claude Agent SDK vision generation not yet implemented in this client");
+  }
+
+  /**
    * Run agent workflow with context management
    */
   async runAgentWorkflow(

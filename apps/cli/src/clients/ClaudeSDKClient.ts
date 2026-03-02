@@ -171,6 +171,19 @@ ${context?.brand ? `Brand Guidelines: ${context.brand}` : ""}`;
   }
 
   /**
+   * Generate text from image using Claude API (Multimodal)
+   */
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    // Claude vision models are handled through the Claude Agent SDK or specific message formats
+    // For now we'll throw an error to trigger fallback in AICore
+    throw new Error("Claude SDK vision generation not yet implemented in this client");
+  }
+
+  /**
    * List available models
    */
   async listModels(): Promise<string[]> {

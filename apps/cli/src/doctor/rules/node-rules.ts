@@ -271,6 +271,47 @@ const noUnusedDeps: DoctorRule = {
   },
 };
 
+const zodVersion: DoctorRule = {
+  id: "node/zod-version-conflict",
+  name: "Zod Version Conflict",
+  category: "node",
+  severity: "error",
+  description: "Detects potential zod v4 export issues (Module not found: Package path ./v4 is not exported)",
+  help: "Pin zod to ^3.24.0 in pnpm.overrides to resolve @ai-sdk conflicts",
+  appliesTo: ["node", "nextjs", "turbo"],
+  async check(ctx) {
+    const results: Diagnostic[] = [];
+    const pkg = await ctx.readJson("package.json");
+    if (!pkg) return results;
+
+    const hasZod = pkg.dependencies?.zod || pkg.devDependencies?.zod;
+    const hasPnpmOverrides = !!pkg.pnpm?.overrides?.zod;
+
+    if (hasZod && !hasPnpmOverrides) {
+      results.push(diag(this, "package.json", "Potential Zod v4 conflict detected. @ai-sdk requires specific path exports.", {
+        autoFixable: true,
+        help: "Add \"pnpm\": { \"overrides\": { \"zod\": \"^3.24.0\" } } to package.json"
+      }));
+    }
+    return results;
+  },
+  async fix(ctx, d) {
+    const pkg = await ctx.readJson("package.json");
+    if (!pkg) return false;
+    
+    if (!pkg.pnpm) pkg.pnpm = {};
+    if (!pkg.pnpm.overrides) pkg.pnpm.overrides = {};
+    pkg.pnpm.overrides.zod = "^3.24.0";
+    
+    // Also ensure zod itself is at a good version
+    if (pkg.dependencies?.zod) pkg.dependencies.zod = "^3.24.0";
+    
+    const { writeJson } = await import("fs-extra");
+    await writeJson(path.join(ctx.root, "package.json"), pkg, { spaces: 2 });
+    return true;
+  }
+};
+
 export const nodeRules: DoctorRule[] = [
   singleLockFile,
   noNestedNodeModules,
@@ -279,4 +320,5 @@ export const nodeRules: DoctorRule[] = [
   gitignoreComplete,
   envExample,
   noUnusedDeps,
+  zodVersion,
 ];

@@ -7,7 +7,7 @@
  */
 
 import { Page } from "playwright";
-import { GeminiVisionService } from "./gemini-vision";
+import { AICore } from "../core/ai/AICore";
 import {
   VisualElement,
   VisionAnalysisResult,
@@ -18,7 +18,7 @@ import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 
 export class VisionElementFinder {
-  private visionService: GeminiVisionService;
+  private aiCore: AICore;
   private screenshotsDir: string;
   private confidenceThreshold: number;
 
@@ -26,7 +26,10 @@ export class VisionElementFinder {
     projectPath: string,
     confidenceThreshold: number = 70 // Minimum confidence to trust vision over DOM
   ) {
-    this.visionService = new GeminiVisionService();
+    this.aiCore = AICore.getInstance({
+      fallbackEnabled: true,
+      workingDirectory: projectPath
+    });
     this.screenshotsDir = path.join(
       projectPath,
       ".mycontext",
@@ -287,13 +290,15 @@ CRITICAL: Always check alignment with Prime Objective. If your action deviates, 
       if (element.visualCoordinates) {
         const { x, y } = element.visualCoordinates;
         await page.mouse.click(x, y);
-        await page.keyboard.type(value);
+        // Keyboard.type is appropriate for visual coordinates after focus
+        await page.keyboard.type(value, { delay: 50 });
         return true;
       }
 
       // Fallback to DOM selector
       if (element.domSelector) {
-        await page.fill(element.domSelector, value);
+        // Use locator().pressSequentially() instead of page.fill() for React state sync
+        await page.locator(element.domSelector).pressSequentially(value, { delay: 50 });
         return true;
       }
 
@@ -413,88 +418,39 @@ Return a comprehensive JSON analysis:
   }
 
   /**
-   * Analyze screenshot with custom prompt
+   * Analyze screenshot with custom prompt using AICore fallback
    */
   private async analyzeScreenshotWithPrompt(
     screenshotPath: string,
     prompt: string
   ): Promise<any> {
-    // Use Gemini Vision to analyze
-    const imageData = await fs.readFile(screenshotPath);
-    const base64Image = imageData.toString("base64");
-
-    // Call Gemini API
-    // (Simplified - actual implementation would use the GeminiVisionService)
-    // For now, we'll use a placeholder structure
-
-    return {
-      screenshot: screenshotPath,
-      timestamp: new Date().toISOString(),
-      elements: [],
-      interactiveElements: [],
-      uiState: {
-        url: "",
-        loadingState: "loaded" as const,
-        modalOpen: false,
-        mainContent: "",
-      },
-      designSystem: {
-        colors: [],
-        typography: [],
-        spacing: "",
-      },
-      layoutStructure: {
-        type: "responsive" as const,
-        sections: [],
-      },
-      aiInterpretation: "",
-    };
+    return this.askVisionAI(screenshotPath, prompt);
   }
 
   /**
-   * Ask vision AI with a custom prompt
+   * Ask vision AI with a custom prompt via AICore (with fallback)
    */
   private async askVisionAI(
     screenshotPath: string,
     prompt: string
   ): Promise<any> {
     try {
-      // Read image
-      const imageData = await fs.readFile(screenshotPath);
-      const base64Image = imageData.toString("base64");
-      const mimeType = "image/png";
-
-      // Use Gemini to analyze
-      // This is a simplified version - we'll integrate with GeminiVisionService properly
-      const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-      const apiKey =
-        process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-      if (!apiKey) {
-        throw new Error("Gemini API key not found");
-      }
-
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            data: base64Image,
-            mimeType,
-          },
-        },
-      ]);
-
-      const response = await result.response;
-      const text = response.text();
+      const text = await this.aiCore.generateVisionText(prompt, screenshotPath);
 
       // Extract JSON from response
       const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
-      const jsonText = jsonMatch ? jsonMatch[1] : text;
+      const jsonText = jsonMatch?.[1] || text;
 
-      return JSON.parse(jsonText);
+      try {
+        return JSON.parse(jsonText);
+      } catch (parseError) {
+        // If JSON parsing fails, try to find ANY JSON object in the string
+        const fallbackMatch = text.match(/\{[\s\S]*\}/);
+        if (fallbackMatch) {
+          return JSON.parse(fallbackMatch[0]);
+        }
+        throw parseError;
+      }
     } catch (error) {
       console.error("Vision AI query failed:", error);
       throw error;

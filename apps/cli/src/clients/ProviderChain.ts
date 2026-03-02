@@ -68,6 +68,14 @@ export class ProviderChain implements AIClient {
     return this.client.listModels();
   }
 
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    return AICore.getInstance().generateVisionText(prompt, imagePath, options);
+  }
+
   // Legacy compatibility methods
   getPrimaryProvider(): any {
     return this.client;

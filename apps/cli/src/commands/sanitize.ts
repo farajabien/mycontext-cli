@@ -257,25 +257,98 @@ export class SanitizeCommand {
       }
     }
 
+    // Ensure we can resolve aliases from tsconfig if available
+    let tsconfigPaths: Record<string, string[]> = {};
+    let baseUrl = ".";
+    const tsconfigPath = path.join(projectPath, "tsconfig.json");
+    if (await fs.pathExists(tsconfigPath)) {
+      try {
+        // Use a more robust parser or basic cleanup
+        const rawTsconfig = await fs.readFile(tsconfigPath, "utf-8");
+        // Remove comments (both // and /* */)
+        const cleanTsconfig = rawTsconfig.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? "" : m);
+        const parsedTsconfig = JSON.parse(cleanTsconfig);
+        if (parsedTsconfig.compilerOptions) {
+          if (parsedTsconfig.compilerOptions.paths) {
+            tsconfigPaths = parsedTsconfig.compilerOptions.paths;
+          }
+          if (parsedTsconfig.compilerOptions.baseUrl) {
+            baseUrl = parsedTsconfig.compilerOptions.baseUrl;
+          }
+        }
+      } catch (err) {
+        // ignore parsing errors
+      }
+    }
+
+    const resolveImportPath = (importStr: string): string[] => {
+      // Direct matches
+      const possiblePaths = [
+        importStr,
+        importStr.replace(/\.(ts|tsx|js|jsx)$/, ""),
+      ];
+
+      // Resolve aliases
+      for (const [aliasPattern, destPaths] of Object.entries(tsconfigPaths)) {
+        const hasWildcard = aliasPattern.endsWith("/*");
+        const aliasBase = hasWildcard ? aliasPattern.slice(0, -2) : aliasPattern;
+
+        if (hasWildcard) {
+          if (importStr.startsWith(aliasBase)) {
+            let subPath = importStr.slice(aliasBase.length);
+            if (subPath.startsWith("/")) subPath = subPath.slice(1);
+
+            for (const dest of destPaths) {
+              const destBase = dest.replace("/*", "");
+              const resolved = path.join(baseUrl, destBase, subPath);
+              let normalized = resolved.replace(/\\/g, "/");
+              if (normalized.startsWith("./")) normalized = normalized.slice(2);
+              if (normalized.startsWith("/")) normalized = normalized.slice(1);
+              possiblePaths.push(normalized);
+            }
+          }
+        } else if (importStr === aliasPattern) {
+          for (const dest of destPaths) {
+            const resolved = path.join(baseUrl, dest);
+            let normalized = resolved.replace(/\\/g, "/");
+            if (normalized.startsWith("./")) normalized = normalized.slice(2);
+            if (normalized.startsWith("/")) normalized = normalized.slice(1);
+            possiblePaths.push(normalized);
+          }
+        }
+      }
+
+      // Also handle baseUrl direct imports if not relative
+      if (!importStr.startsWith(".") && !importStr.startsWith("/")) {
+        const baseUrlResolved = path.join(baseUrl, importStr);
+        possiblePaths.push(baseUrlResolved.replace(/\\/g, "/").replace(/^\.\//, ""));
+      }
+
+      return possiblePaths;
+    };
+
     // Check for unreachable files
     for (const file of files) {
       const relativePath = path.relative(projectPath, file);
 
-      // Skip entry points
+      // Skip entry points and common Next.js special files
       if (this.isEntryPoint(relativePath)) {
         continue;
       }
 
+      const relativeWithoutExt = relativePath.replace(/\.(ts|tsx|js|jsx)$/, "");
+
       // Check if file is imported anywhere
       let isImported = false;
       for (const [_, imports] of importMap) {
-        if (
-          imports.has(relativePath) ||
-          imports.has(relativePath.replace(/\.(ts|tsx|js|jsx)$/, ""))
-        ) {
-          isImported = true;
-          break;
-        }
+         for (const importStr of imports) {
+            const possiblePaths = resolveImportPath(importStr);
+            if (possiblePaths.some(p => p === relativePath || p === relativeWithoutExt || relativePath.endsWith(p))) {
+                 isImported = true;
+                 break;
+            }
+         }
+         if (isImported) break;
       }
 
       if (!isImported) {
@@ -404,7 +477,7 @@ export class SanitizeCommand {
 
   private extractImports(content: string): string[] {
     const imports: string[] = [];
-    const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+    const importRegex = /import\s+(?:.*?\s+from\s+)?['"]([^'"]+)['"]/g;
     let match;
 
     while ((match = importRegex.exec(content)) !== null) {
@@ -446,7 +519,21 @@ export class SanitizeCommand {
       "pages/_document.tsx",
     ];
 
-    return entryPoints.some((entry) => filePath.includes(entry));
+    if (entryPoints.some((entry) => filePath.includes(entry))) return true;
+
+    // Next.js App Router special files
+    const nextjsSpecialFiles = [
+        "layout.tsx", "layout.js", "layout.jsx",
+        "page.tsx", "page.js", "page.jsx",
+        "loading.tsx", "loading.js", "loading.jsx",
+        "error.tsx", "error.js", "error.jsx",
+        "not-found.tsx", "not-found.js", "not-found.jsx",
+        "route.ts", "route.js" // API Routes
+    ];
+
+    if (nextjsSpecialFiles.some((entry) => filePath.endsWith(entry))) return true;
+
+    return false;
   }
 
   private async isDependencyUsed(

@@ -1,8 +1,13 @@
 import axios from "axios";
 import { logger } from "./logger";
 import chalk from "chalk";
+import { AIClient, AIClientOptions, AgentContext } from "../interfaces/AIClient";
 
-export class GitHubModelsClient {
+export class GitHubModelsClient implements AIClient {
+  readonly clientType = "direct-api" as const;
+  readonly supportsTools = false;
+  readonly supportsStreaming = false;
+
   private apiKey: string | undefined;
   private baseUrl = "https://models.inference.ai.azure.com";
 
@@ -14,10 +19,14 @@ export class GitHubModelsClient {
     return !!this.apiKey;
   }
 
+  public setApiKey(apiKey: string): void {
+    this.apiKey = apiKey;
+  }
+
   /**
-   * Test connection to GitHub Models API
+   * Check connection to GitHub Models API
    */
-  public async testConnection(): Promise<boolean> {
+  public async checkConnection(): Promise<boolean> {
     if (!this.apiKey) return false;
     try {
       // Try to list models as a connection test
@@ -35,7 +44,10 @@ export class GitHubModelsClient {
   /**
    * Generate text using GitHub Models
    */
-  public async generateText(prompt: string, options: any = {}): Promise<string> {
+  public async generateText(
+    prompt: string, 
+    options: AIClientOptions = {}
+  ): Promise<string> {
     if (!this.apiKey) {
       throw new Error("GITHUB_TOKEN or GITHUB_MODELS_API_KEY not found in environment");
     }
@@ -55,10 +67,6 @@ export class GitHubModelsClient {
         temperature,
         max_tokens: maxTokens,
       };
-
-      if (options.jsonMode === true) {
-        postData.response_format = { type: "json_object" };
-      }
 
       const response = await axios.post(
         `${this.baseUrl}/chat/completions`,
@@ -82,7 +90,11 @@ export class GitHubModelsClient {
   /**
    * Generate component using GitHub Models
    */
-  public async generateComponent(prompt: string, options: any = {}): Promise<string> {
+  public async generateComponent(
+    prompt: string, 
+    context?: AgentContext,
+    options: AIClientOptions = {}
+  ): Promise<string> {
     const systemPrompt = `You are an expert React developer. 
 Generate a high-quality, responsive React component using Tailwind CSS.
 Include necessary imports (Lucide, Radix, etc. as needed).
@@ -98,7 +110,8 @@ Return ONLY the code block.`;
   public async generateComponentRefinement(
     componentCode: string,
     prompt: string,
-    options: any = {}
+    context?: AgentContext,
+    options: AIClientOptions = {}
   ): Promise<string> {
     const systemPrompt = `You are an expert React developer. 
 Refine the provided React component based on the user request. 
@@ -110,9 +123,74 @@ Return ONLY the updated code block.`;
   }
 
   /**
+   * Generate text from image using GitHub Models (GPT-4o Vision)
+   */
+  public async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error("GITHUB_TOKEN or GITHUB_MODELS_API_KEY not found in environment");
+    }
+
+    const model = options.model || "gpt-4o";
+
+    try {
+      const fs = await import("fs");
+      const imageData = await fs.promises.readFile(imagePath);
+      const base64Image = imageData.toString("base64");
+      const mimeType = imagePath.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+
+      const postData: any = {
+        model,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`,
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: options.maxTokens || 4000,
+      };
+
+      const response = await axios.post(
+        `${this.baseUrl}/chat/completions`,
+        postData,
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.choices[0].message.content;
+    } catch (error: any) {
+      const message = error.response?.data?.error?.message || error.message;
+      logger.error(`GitHub Models Vision error: ${message}`);
+      throw new Error(`GitHub Models vision generation failed: ${message}`);
+    }
+  }
+
+  /**
    * List available models (placeholder - can be expanded)
    */
   public async listModels(): Promise<string[]> {
     return ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"];
+  }
+
+  /**
+   * Cleanup resources
+   */
+  public async cleanup(): Promise<void> {
+    // No specific cleanup needed
   }
 }

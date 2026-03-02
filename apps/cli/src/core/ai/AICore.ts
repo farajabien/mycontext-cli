@@ -83,6 +83,10 @@ export class AICore {
     if (xai.hasApiKey()) this.providers.set("xai", xai as any);
   }
 
+  public getClient(name: AIProviderName): AIClient | undefined {
+    return this.providers.get(name);
+  }
+
   public getBestClient(): AIClient {
     // Use override if present
     const envOverride = (process.env.MYCONTEXT_PROVIDER || process.env.AI_PROVIDER) as AIProviderName;
@@ -159,6 +163,44 @@ export class AICore {
     }
     
     throw new Error("No AI providers available - configure API keys and retry");
+  }
+
+  /**
+   * Proxy for generateVisionText with automatic fallback
+   */
+  public async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const clients = this.getAvailableClients();
+    let lastError: any = null;
+
+    for (const client of clients) {
+      try {
+        return await client.generateVisionText(prompt, imagePath, options);
+      } catch (error: any) {
+        lastError = error;
+        const message = error.message || String(error);
+        
+        // If it's a rate limit, auth error, or not implemented error, try the next client
+        if (message.includes("429") || message.toLowerCase().includes("rate limit") || 
+            message.includes("401") || message.toLowerCase().includes("unauthorized") ||
+            message.toLowerCase().includes("not implemented")) {
+          console.log(chalk.yellow(`⚠️  Provider vision generation failed, trying fallback...`));
+          continue;
+        }
+        
+        console.log(chalk.gray(`ℹ️  Vision provider error: ${message.substring(0, 50)}...`));
+      }
+    }
+
+    if (lastError) {
+      this.handleAIError(lastError);
+      throw lastError;
+    }
+    
+    throw new Error("No AI providers with vision support available");
   }
 
   /**

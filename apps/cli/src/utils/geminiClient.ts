@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
 import { logger } from "./logger";
 import axios from "axios"; // Kept for edge cases if needed, but primarily using SDK
+import OpenAI from "openai";
 
 export interface GeminiMessage {
   role: "user" | "assistant" | "system";
@@ -37,11 +38,17 @@ export interface GeminiVisualResponse {
   };
 }
 
+import { AIClient, AIClientOptions, AgentContext } from "../interfaces/AIClient";
+
 /**
  * Gemini API Client using official Google Generative AI SDK
  * Supports text generation, multimodal interaction, and visual generation
  */
-export class GeminiClient {
+export class GeminiClient implements AIClient {
+  readonly clientType = "direct-api" as const;
+  readonly supportsTools = false;
+  readonly supportsStreaming = false;
+
   private apiKey?: string;
   private genAI?: GoogleGenerativeAI;
   private model: string;
@@ -101,21 +108,109 @@ export class GeminiClient {
   }
 
   /**
-   * Generate text completion using Gemini with fallback
+   * Set API key for Gemini API
+   */
+  setApiKey(apiKey: string): void {
+    this.apiKey = apiKey;
+    this.initializeClient();
+  }
+
+  /**
+   * Check connection to Gemini API
+   */
+  async checkConnection(): Promise<boolean> {
+    try {
+      if (!this.genAI) this.initializeClient();
+      if (!this.genAI) return false;
+      
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      await model.generateContent("ping");
+      return true;
+    } catch (error) {
+      logger.error("Gemini connection check failed:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Get GitHub token for text backups
+   */
+  private getGitHubToken(): string | undefined {
+    return process.env.GITHUB_TOKEN;
+  }
+
+  /**
+   * Generate text completion using Gemini or GitHub Models (Fallback/Cost-Saving)
    */
   async generateText(
+    prompt: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const input: GeminiMessage[] = [{ role: "user", content: prompt }];
+    const config: GeminiGenerationConfig = {
+      temperature: options.temperature,
+      maxTokens: options.maxTokens,
+    };
+    
+    const response = await this.executeGenerateText(input, config);
+    return response.content;
+  }
+
+  /**
+   * Internal generation logic that returns rich response
+   */
+  private async executeGenerateText(
     input: GeminiMessage[] | string,
     config?: GeminiGenerationConfig
   ): Promise<GeminiResponse> {
+    const githubToken = this.getGitHubToken();
+    
+    // Normalize input to array of messages
+    const messages = typeof input === "string" ? [{ role: "user", content: input }] as GeminiMessage[] : input;
+
+    // Use GitHub Models if available for strict text generation (Cost Savings)
+    if (githubToken) {
+       try {
+           logger.debug("Routing text generation to GitHub Models for cost optimization");
+           const openai = new OpenAI({
+               baseURL: "https://models.inference.ai.azure.com",
+               apiKey: githubToken,
+           });
+
+           const sysMsg = messages.find(m => m.role === "system");
+           const completion = await openai.chat.completions.create({
+               messages: messages.map(m => ({
+                   role: m.role,
+                   content: m.content
+               })),
+               model: "gpt-4o-mini",
+               temperature: config?.temperature ?? 0.7,
+               max_tokens: config?.maxTokens ?? 8192,
+               top_p: config?.topP ?? 0.95,
+           });
+
+           return {
+               content: completion.choices[0]?.message.content || "",
+               text: completion.choices[0]?.message.content || "",
+               model: "gpt-4o-mini (github-models)",
+               finishReason: completion.choices[0]?.finish_reason,
+               usage: completion.usage ? {
+                   promptTokens: completion.usage.prompt_tokens,
+                   completionTokens: completion.usage.completion_tokens,
+                   totalTokens: completion.usage.total_tokens
+               } : undefined
+           };
+       } catch(error: any) {
+           logger.warn(`GitHub Models failed: ${error.message}. Falling back to Gemini...`);
+       }
+    }
+
     if (!this.genAI) {
         this.initializeClient();
         if (!this.genAI) throw new Error("Gemini API key not configured");
     }
 
     let lastError: any;
-    
-    // Normalize input to array of messages
-    const messages = typeof input === "string" ? [{ role: "user", content: input }] as GeminiMessage[] : input;
 
     // Extract system instruction if present
     const systemMessage = messages.find(m => m.role === "system");
@@ -219,7 +314,7 @@ export class GeminiClient {
 
       const systemPrompt = this.buildVisualPrompt(prompt, context);
 
-      const response = await this.generateText(
+      const response = await this.executeGenerateText(
         [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },
@@ -273,22 +368,63 @@ IMPORTANT: Output ONLY valid HTML code within \`\`\`html blocks.
     return content;
   }
 
+  /**
+   * Generate component using Gemini
+   */
+  async generateComponent(
+    prompt: string,
+    context?: AgentContext,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const visualResponse = await this.generateVisualScreen(prompt, context as any, options as any);
+    return visualResponse.html;
+  }
+
+  /**
+   * Generate component refinement using Gemini
+   */
+  async generateComponentRefinement(
+    componentCode: string,
+    prompt: string,
+    context?: AgentContext,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const refinementPrompt = `Refine this component: ${prompt}\n\nExisting Code:\n${componentCode}`;
+    return this.generateText(refinementPrompt, options);
+  }
+
+  /**
+   * Generate text from image (Vision implementation of interface)
+   */
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const response = await this.generateFromImage(prompt, imagePath, {
+      ...options,
+      systemPrompt: options.systemPrompt
+    });
+    return response.content;
+  }
+
   private async generateScreenshot(html: string): Promise<string> {
     logger.debug("Screenshot generation not yet implemented");
     return "";
   }
 
   /**
-   * Test Gemini API connection
+   * List available models
    */
-  async testConnection(): Promise<boolean> {
-    try {
-      await this.generateText("Say 'Hello' if connected.");
-      return true;
-    } catch (error) {
-      logger.error("Gemini connection test failed:", error);
-      return false;
-    }
+  async listModels(): Promise<string[]> {
+    return this.MODELS;
+  }
+
+  /**
+   * Cleanup resources
+   */
+  async cleanup(): Promise<void> {
+    // No specific cleanup for Gemini SDK
   }
 
   /**
@@ -347,10 +483,6 @@ IMPORTANT: Output ONLY valid HTML code within \`\`\`html blocks.
       logger.error("Gemini vision generation failed:", error.message);
       throw new Error(`Gemini vision generation failed: ${error.message}`);
     }
-  }
-
-  async listModels(): Promise<string[]> {
-      return this.MODELS;
   }
 
   private getMimeType(filePath: string): string {

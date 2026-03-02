@@ -90,6 +90,13 @@ export interface AIClient {
     options?: AIClientOptions
   ): Promise<string>;
 
+  // New: Vision-based text generation
+  generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options?: AIClientOptions
+  ): Promise<string>;
+
   // Model management
   listModels(): Promise<string[]>;
 

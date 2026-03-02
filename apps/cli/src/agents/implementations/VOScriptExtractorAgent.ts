@@ -11,6 +11,7 @@ import {
   SubAgent,
 } from "../interfaces/SubAgent";
 import { GeminiVisionService } from "../../services/gemini-vision";
+import { GeminiClient } from "../../utils/geminiClient";
 import {
   VisionTestStep,
   VOScript,
@@ -368,23 +369,13 @@ Write 1-2 sentences of narration for this step. Be natural and engaging.
 Do NOT include any formatting, just the plain narration text.`;
 
     try {
-      const { GoogleGenerativeAI } = require("@google/generative-ai");
-      const apiKey =
-        process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+      const aiCore = AICore.getInstance();
 
-      if (!apiKey) {
-        // Fallback narration
-        return this.generateFallbackNarration(step, style);
-      }
+      const narration = await aiCore.generateText(prompt, {
+        temperature: 0.7,
+      });
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const narration = response.text().trim();
-
-      return narration;
+      return narration.trim();
     } catch (error) {
       console.warn("Narration generation failed, using fallback:", error);
       return this.generateFallbackNarration(step, style);

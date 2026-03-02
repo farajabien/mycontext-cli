@@ -173,6 +173,19 @@ ${context?.brand ? `Brand Guidelines: ${context.brand}` : ""}`;
   }
 
   /**
+   * Generate text from image using X AI API (Multimodal)
+   */
+  async generateVisionText(
+    prompt: string,
+    imagePath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    // XAI vision models are not yet fully integrated in this client's multimodal format
+    // For now we'll throw an error to trigger fallback in AICore
+    throw new Error("XAI vision generation not yet implemented in this client");
+  }
+
+  /**
    * List available models
    */
   async listModels(): Promise<string[]> {
