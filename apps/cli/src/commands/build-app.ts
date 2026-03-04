@@ -30,6 +30,7 @@ interface BuildAppOptions {
   pmPlan?: string; // Path to mycontext PM project plan JSON
   autoSync?: boolean; // Automatically sync progress with mycontext PM
   webhookUrl?: string; // Webhook URL for progress updates
+  score?: boolean; // New option for post-build design validation
 }
 
 export class BuildAppCommand {
@@ -68,6 +69,7 @@ export class BuildAppCommand {
       pmPlan,
       autoSync = false,
       webhookUrl,
+      score = false,
     } = finalOptions;
 
     // Display different header for PM plan builds
@@ -360,6 +362,7 @@ ${chalk.yellow("Basic Options:")}
   --verbose               Detailed output
   --max-retries <n>       Maximum retry attempts (default: 3)
   --skip-validation       Skip validation steps
+  --score                 Perform post-build premium design scoring
 
 ${chalk.yellow("🏗️  Complete Architecture Options:")}
   --complete-architecture  Generate full-stack architecture

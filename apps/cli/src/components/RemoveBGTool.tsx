@@ -12,15 +12,16 @@ export function RemoveBGTool() {
   useEffect(() => {
     const handleUpload = (e: any) => {
       setStatus('processing');
-      // Deterministic processing simulation
+    // Test mode fast-forward
+    const isTestMode = typeof window !== 'undefined' && (window as any).__MYCONTEXT_TEST_MODE__;
+    const timeout = isTestMode ? 100 : 3000;
       setTimeout(() => {
         setStatus('done');
-        setResult(e.detail.url); // For demo, we just use the original as "result"
-        // Deduct token
+        setResult(e.detail.url);
         const tokens = parseInt(localStorage.getItem('user_tokens') || '10');
-        localStorage.setItem('user_tokens', (tokens - 1).toString());
+        localStorage.setItem('user_tokens', Math.max(0, tokens - 1).toString());
         window.dispatchEvent(new Event('local-storage-update'));
-      }, 3000);
+      }, timeout);
     };
 
     window.addEventListener('image-uploaded', handleUpload);

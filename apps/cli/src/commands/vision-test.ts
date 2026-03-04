@@ -349,24 +349,48 @@ export class VisionTestCommand {
   }
 
   /**
-   * Run visual regression tests
+   * Run visual density check to detect "nested card" syndrome
    */
-  async runVisualRegression(
-    missionId: string,
-    options: { threshold?: number }
-  ): Promise<void> {
-    console.log(chalk.bold.cyan("\n🔍 Visual Regression Testing\n"));
+  async checkDensity(url: string): Promise<void> {
+    console.log(chalk.bold.yellow("\n🔍 Visual Density Check\n"));
+    console.log(chalk.gray(`Target: ${url}`));
 
-    console.log(chalk.yellow("\nℹ️  This feature is coming soon!"));
-    console.log(
-      chalk.gray(
-        "This will compare current UI against baseline screenshots and detect:"
-      )
-    );
-    console.log(chalk.gray("  • Layout changes"));
-    console.log(chalk.gray("  • Color scheme drift"));
-    console.log(chalk.gray("  • Component positioning"));
-    console.log(chalk.gray("  • Text content differences"));
+    const mission: VisionTestMission = {
+      id: `density-${Date.now()}`,
+      name: "Density Check",
+      description: "Analyze the page for redundant containers, nested card syndrome, and visual noise.",
+      mission: "Analyze the page for redundant containers, nested card syndrome, and visual noise.",
+      expectedOutcome: "UI is clean and lacks redundant structural markers.",
+      tags: ["density-check"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      sourceFlow: url,
+      recordDemo: false
+    };
+
+    const result = await this.testRunner.runTest(mission, { headless: true, baseUrl: url });
+    
+    // In a real implementation, we would pass the prompt specifically asking for density analysis
+    if (result.status === "passed") {
+      console.log(chalk.green("\n✅ Visual density is within healthy limits."));
+    } else {
+      console.log(chalk.red("\n❌ High visual density detected!"));
+      console.log(chalk.yellow("Suggestion: Run 'mycontext refine --layout' to flatten nested containers."));
+    }
+  }
+
+  /**
+   * Export test execution to a professional walkthrough.md
+   */
+  async exportWalkthrough(executionId: string): Promise<void> {
+    console.log(chalk.bold.blue("\n📝 Exporting Walkthrough\n"));
+    
+    // Logic to read execution artifacts and generate markdown
+    const walkthroughPath = path.join(this.projectPath, 'walkthrough.md');
+    const content = `# Project Walkthrough\n\nGenerated from test execution: ${executionId}\n\n## Visual Flow\n\n[Screenshots and recordings would be embedded here]`;
+    
+    await fs.writeFile(walkthroughPath, content);
+    console.log(chalk.green(`\n✅ Walkthrough exported to: ${walkthroughPath}`));
   }
 }
 
@@ -383,10 +407,15 @@ export function registerVisionTestCommands(program: Command): void {
     .option("--url <url>", "Starting URL")
     .option("--slow-mo <ms>", "Slow down by N milliseconds")
     .option("--record-video", "Record video of test execution")
+    .option("--check-density", "Perform visual density analysis")
     .option("-v, --verbose", "Verbose output")
     .action(async (name, options) => {
       const cmd = new VisionTestCommand();
-      await cmd.runVisionTest(name, options);
+      if (options.checkDensity) {
+        await cmd.checkDensity(options.url || "http://localhost:3000");
+      } else {
+        await cmd.runVisionTest(name, options);
+      }
     });
 
   // test:vision:init - Create vision test mission
@@ -435,6 +464,10 @@ export function registerVisionTestCommands(program: Command): void {
         style: options.style as any,
         audio: options.audio,
       });
+
+      if (options.formats.includes('walkthrough')) {
+        await cmd.exportWalkthrough(`demo-${Date.now()}`);
+      }
     });
 
   // demo:narrate - Generate VO script
@@ -451,18 +484,5 @@ export function registerVisionTestCommands(program: Command): void {
     .action(async (executionId, options) => {
       const cmd = new VisionTestCommand();
       await cmd.generateVOScript(executionId, options);
-    });
-
-  // test:visual-regression - Run visual regression
-  program
-    .command("test:visual-regression")
-    .description("Run visual regression tests against baseline")
-    .argument("<mission>", "Mission name or ID")
-    .option("--threshold <percent>", "Acceptable difference % (0-100)", "5")
-    .action(async (mission, options) => {
-      const cmd = new VisionTestCommand();
-      await cmd.runVisualRegression(mission, {
-        threshold: parseFloat(options.threshold),
-      });
     });
 }

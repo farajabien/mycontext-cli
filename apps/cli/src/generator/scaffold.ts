@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { FSR } from '@myycontext/core';
+import { FSR, FSRComponent } from '@myycontext/core';
 import { 
   generateNextPageTemplate, 
   generateServerComponentTemplate, 
@@ -71,9 +71,10 @@ export class DeterministicScaffoldGenerator {
       await fs.ensureDir(pageDir);
 
       const rootComponent = fsr.components.find((c: any) => c.name === fsr.entryPoint.component);
-      const children = rootComponent ? rootComponent.children : [];
+      const childNames = rootComponent ? rootComponent.children || [] : [];
+      const children = childNames.map(name => fsr.components.find(c => c.name === name)).filter(Boolean) as FSRComponent[];
       
-      const pageContent = generateNextPageTemplate(fsr.entryPoint.component || 'Page', children);
+      const pageContent = generateNextPageTemplate(fsr.entryPoint.component || 'Page', children, fsr.uiRules);
       await fs.writeFile(path.join(pageDir, 'page.tsx'), pageContent);
       console.log(chalk.green(`✓ Page generated: app/${normalizedPath}/page.tsx`));
     }

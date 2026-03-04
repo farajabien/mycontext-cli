@@ -21,6 +21,7 @@ export interface FSRComponent {
   props?: Record<string, string>; // Expected props
   dependencies?: string[]; // e.g., icons, third-party libraries
   state?: FSRComponentState; // Deterministically scaffolding state logic
+  weight?: 'primary' | 'secondary' | 'hidden'; // Layout importance
 }
 
 export interface FSRServerAction {
@@ -43,7 +44,8 @@ export interface FSRModel {
 }
 
 export interface FSRUiRules {
-  [key: string]: string | boolean | number;
+  [key: string]: string | boolean | number | undefined;
+  testMode?: boolean;
 }
 
 export interface FSRContraints {

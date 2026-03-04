@@ -1,8 +1,26 @@
-import { FSRComponent, FSRServerAction, FSRModel } from "@myycontext/core";
+import { FSRComponent, FSRServerAction, FSRModel, FSRUiRules } from "@myycontext/core";
 
-export const generateNextPageTemplate = (componentName: string, children: string[] = []): string => {
-  const childImports = children.map((c: string) => `import { ${c} } from "@/components/${c}";`).join('\n');
-  const childRender = children.map((c: string) => `<${c} />`).join('\n        ');
+export const generateNextPageTemplate = (componentName: string, children: FSRComponent[] = [], uiRules?: FSRUiRules): string => {
+  const childImports = children.map((c) => `import { ${c.name} } from "@/components/${c.name}";`).join('\n');
+  
+  const primaryChildren = children.filter(c => c.weight === 'primary' || !c.weight);
+  const secondaryChildren = children.filter(c => c.weight === 'secondary');
+  
+  const primaryRender = primaryChildren.map((c) => `<${c.name} />`).join('\n            ');
+  const secondaryRender = secondaryChildren.map((c) => `<${c.name} />`).join('\n            ');
+
+  const layoutContent = secondaryChildren.length > 0 
+    ? `<div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-8 flex flex-col gap-12">
+            ${primaryRender}
+          </div>
+          <div className="lg:col-span-4 flex flex-col gap-12">
+            ${secondaryRender}
+          </div>
+        </div>`
+    : `<div className="flex flex-col gap-12">
+          ${primaryRender}
+        </div>`;
 
   return `import React from 'react';
 ${childImports}
@@ -10,10 +28,8 @@ ${childImports}
 export default async function ${componentName}() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-50/50">
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <div className="flex flex-col gap-12">
-          ${childRender}
-        </div>
+      <main className="max-w-7xl mx-auto px-6 py-16">
+        ${layoutContent}
       </main>
     </div>
   );
@@ -153,21 +169,24 @@ export const generateClientComponentTemplate = (component: FSRComponent): string
         </div>
       )}`;
   } else if (component.state?.type === 'asset_processing') {
+    const testModeLogic = `    // Test mode fast-forward
+    const isTestMode = typeof window !== 'undefined' && (window as any).__MYCONTEXT_TEST_MODE__;
+    const timeout = isTestMode ? 100 : 3000;`;
+
     stateRender = `  const [status, setStatus] = useState<'idle' | 'processing' | 'done'>('idle');
   const [result, setResult] = useState<string | null>(null);
 
   useEffect(() => {
     const handleUpload = (e: any) => {
       setStatus('processing');
-      // Deterministic processing simulation
+${testModeLogic}
       setTimeout(() => {
         setStatus('done');
-        setResult(e.detail.url); // For demo, we just use the original as "result"
-        // Deduct token
+        setResult(e.detail.url);
         const tokens = parseInt(localStorage.getItem('user_tokens') || '10');
-        localStorage.setItem('user_tokens', (tokens - 1).toString());
+        localStorage.setItem('user_tokens', Math.max(0, tokens - 1).toString());
         window.dispatchEvent(new Event('local-storage-update'));
-      }, 3000);
+      }, timeout);
     };
 
     window.addEventListener('image-uploaded', handleUpload);

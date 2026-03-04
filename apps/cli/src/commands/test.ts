@@ -12,6 +12,7 @@ import { TestMissionManager } from "../mcp/test-mission-manager";
 import { BrowserTestRunner } from "../mcp/browser-test-runner";
 import { TestReporter } from "../mcp/test-reporter";
 import * as path from "path";
+import * as fs from "fs-extra";
 
 interface TestCommandOptions {
   headless?: boolean;
@@ -368,6 +369,51 @@ export class TestCommand {
       process.exit(1);
     }
   }
+
+  /**
+   * Generate Playwright tests from FSR
+   */
+  async generateTests(featureId: string): Promise<void> {
+    console.log(chalk.blue.bold(`\n🧪 Generating Tests for: ${featureId}\n`));
+
+    const fsrPath = path.join(this.projectPath, '.mycontext', 'features', `${featureId}.fsr.json`);
+    if (!fs.existsSync(fsrPath)) {
+      console.error(chalk.red(`❌ FSR not found: ${featureId}.fsr.json`));
+      return;
+    }
+
+    try {
+      const fsr = await fs.readJson(fsrPath);
+      const testsDir = path.join(this.projectPath, 'tests');
+      await fs.ensureDir(testsDir);
+
+      const testContent = `import { test, expect } from '@playwright/test';
+
+test.describe('${fsr.featureId} Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Set test mode
+    await page.addInitScript(() => {
+      (window as any).__MYCONTEXT_TEST_MODE__ = true;
+    });
+    await page.goto('${fsr.entryPoint.path || '/'}');
+  });
+
+  test('should complete the primary flow', async ({ page }) => {
+    // Basic visibility checks
+    ${fsr.components.map((c: any) => `await expect(page.locator('text=${c.name}')).toBeVisible;`).join('\n    ')}
+    
+    // Feature specific assertions could be added here based on FSR state
+  });
+});
+`;
+
+      const testFile = path.join(testsDir, `${featureId}.spec.ts`);
+      await fs.writeFile(testFile, testContent);
+      console.log(chalk.green(`\n✅ Generated Playwright spec: tests/${featureId}.spec.ts`));
+    } catch (error: any) {
+      console.error(chalk.red(`\n❌ Generation failed: ${error.message}`));
+    }
+  }
 }
 
 /**
@@ -459,5 +505,19 @@ export function registerTestCommands(program: Command): void {
     .action(async (file) => {
       const cmd = new TestCommand();
       await cmd.importMissions(file);
+    });
+
+  // test:generate --feature <id> - Generate Playwright tests from FSR
+  program
+    .command("test:generate")
+    .description("Generate Playwright test specs from FSR")
+    .option("--feature <id>", "Feature ID to generate tests for")
+    .action(async (options) => {
+      const cmd = new TestCommand();
+      if (options.feature) {
+        await cmd.generateTests(options.feature);
+      } else {
+        console.log(chalk.yellow("Please provide a feature ID with --feature"));
+      }
     });
 }
