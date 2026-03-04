@@ -1,0 +1,68 @@
+{
+  "featureId": "removebg",
+  "description": "remove background app with token tracking",
+  "entryPoint": {
+    "type": "page",
+    "path": "/removebg",
+    "component": "RemoveBGPage"
+  },
+  "components": [
+    {
+      "name": "RemoveBGPage",
+      "type": "server",
+      "children": [
+        "RemoveBGTool"
+      ]
+    },
+    {
+      "name": "RemoveBGTool",
+      "type": "client",
+      "children": [
+        "ImageUploader",
+        "ImagePreview",
+        "TokenDisplay"
+      ],
+      "state": {
+        "type": "asset_processing",
+        "model": "ImageProcess"
+      }
+    },
+    {
+      "name": "ImageUploader",
+      "type": "client",
+      "state": {
+        "type": "image_uploader"
+      }
+    },
+    {
+      "name": "ImagePreview",
+      "type": "client",
+      "props": {
+        "src": "string",
+        "processing": "boolean"
+      }
+    },
+    {
+      "name": "TokenDisplay",
+      "type": "client",
+      "state": {
+        "type": "local_storage",
+        "target": "user_tokens"
+      }
+    }
+  ],
+  "models": [
+    {
+      "name": "ImageProcess",
+      "fields": {
+        "id": "string",
+        "originalUrl": "string",
+        "resultUrl": "string",
+        "status": "string"
+      }
+    }
+  ],
+  "uiRules": {
+    "show_confetti_on_success": true
+  }
+}

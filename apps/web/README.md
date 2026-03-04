@@ -1,17 +1,17 @@
 # MyContext Web
 
-**The Visual Studio and Landing Page for MyContext Ecosystem.**
+**The Visual Studio and Landing Page for MyContext DS-NLC Ecosystem.**
 
-This is the marketing website and visual development studio (in development) for MyContext, built with Next.js 16 and the App Router.
+This is the marketing website and visual compiler studio (in development) for MyContext, built with Next.js 16 and the App Router.
 
 ---
 
 ## 🎯 Purpose
 
-- **Landing Page** - Showcase MyContext's capabilities and philosophy
-- **Documentation Hub** - Comprehensive guides and API references
-- **Visual Studio** (Coming Soon) - Browser-based interface for screenshot analysis and code generation
-- **Project Dashboard** (Coming Soon) - Manage multiple MyContext projects
+- **Landing Page** - Showcase MyContext's Domain-Specific Natural Language Compiler (DS-NLC) philosophy.
+- **Documentation Hub** - Comprehensive guides on using `mycontext plan` and `mycontext build` to eliminate hallucinated LLM generation.
+- **Visual Studio** (Coming Soon) - Browser-based interface for Feature Structured Representation (FSR) graph visualization and visual dragging.
+- **Project Dashboard** (Coming Soon) - Manage remote MyContext feature schemas.
 
 ---
 
@@ -56,29 +56,10 @@ pnpm --filter @myycontext/web build
 ```
 apps/web/
 ├── app/                    # Next.js App Router
-│   ├── page.tsx           # Landing page
-│   ├── docs/              # Documentation pages
-│   └── ...
-├── components/            # React components
-├── public/                # Static assets
-└── package.json
+├── components/             # Local web components
+├── public/                 # Static assets
+└── package.json            # Deployment deps
 ```
-
----
-
-## 🎨 Features
-
-### Current
-- ✅ Landing page with hero section
-- ✅ Feature showcase
-- ✅ Documentation structure
-- ✅ Responsive design
-
-### Coming Soon
-- 🚧 Visual Studio for screenshot analysis
-- 🚧 Project dashboard
-- 🚧 Real-time code generation preview
-- 🚧 Community showcase
 
 ---
 
@@ -87,8 +68,8 @@ apps/web/
 This package is part of the [MyContext Monorepo](https://github.com/farajabien/mycontext-cli).
 
 Related packages:
-- [mycontext-cli](../cli) - The command-line interface
-- [@myycontext/core](../../packages/core) - Core manifest engine
+- [mycontext-cli](../cli) - The command-line compiler
+- [@myycontext/core](../../packages/core) - Core FSR definition engine
 
 ---
 
@@ -104,27 +85,9 @@ pnpm install
 pnpm run dev
 ```
 
----
-
-## 🚀 Deployment
-
-The web app is deployed on [Vercel](https://vercel.com). Every push to `main` triggers an automatic deployment.
-
-### Deploy Your Own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/farajabien/mycontext-cli/tree/main/apps/web)
-
----
-
-## 📄 License
+## 📄 License & Links
 
 MIT © MyContext - See [LICENSE](../../LICENSE) for details.
 
----
-
-## 🔗 Links
-
-- [Monorepo Documentation](https://github.com/farajabien/mycontext-cli#readme)
 - [CLI Package](https://www.npmjs.com/package/mycontext-cli)
 - [Core Package](https://www.npmjs.com/package/@myycontext/core)
-- [Next.js Documentation](https://nextjs.org/docs)

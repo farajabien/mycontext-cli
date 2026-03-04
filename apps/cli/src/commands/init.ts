@@ -170,13 +170,20 @@ export class InitCommand {
       if (options.specOnly) {
         await this.initBasicProject(spinner, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
       } else {
-        const framework = options.framework || "instantdb";
+        const framework = options.framework || "nextjs";
         if (framework === "instantdb") {
           await this.initInstantDBProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
         } else {
           await this.initNextJSProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
         }
       }
+
+      // Generate initial premium landing page immediately
+      spinner.updateText("Generating premium landing page...");
+      const { DeterministicScaffoldGenerator } = await import("../generator/scaffold");
+      const scaffolder = new DeterministicScaffoldGenerator(projectPath);
+      await scaffolder.generateRootLandingPage([]); 
+      
     } catch (error) {
       spinner.error({ text: "Failed to initialize project" });
       console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
@@ -285,9 +292,6 @@ export class InitCommand {
     this.showNextSteps(config, "instantdb", useCurrentDir);
   }
 
-  /**
-   * Initialize a Next.js project (shadcn + MyContext only)
-   */
   private async initNextJSProject(
     spinner: EnhancedSpinner,
     workingDir: string,
@@ -296,12 +300,29 @@ export class InitCommand {
     options: InitOptions,
     useCurrentDir: boolean
   ): Promise<void> {
-    // 1. Run shadcn init if components.json doesn't exist
+    // 1. Check for Next.js presence, bootstrap if missing
+    const hasPackageJson = await fs.pathExists(path.join(projectPath, "package.json"));
+    if (!hasPackageJson) {
+      spinner.updateText("Bootstrapping Next.js project...");
+      const projectNameParam = useCurrentDir ? "." : projectName;
+      // Using --yes and specific version to match user's environment
+      execSync(`npx -y create-next-app@latest ${projectNameParam} --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --skip-install --no-react-compiler --no-git`, {
+        cwd: workingDir,
+        stdio: "inherit",
+      });
+      
+      // Install dependencies silently
+      spinner.updateText("Installing dependencies...");
+      execSync("pnpm install", { cwd: projectPath, stdio: "ignore" });
+    }
+
+    // 2. Run shadcn init if components.json doesn't exist
     const componentsJsonPath = path.join(projectPath, "components.json");
     if (!fs.existsSync(componentsJsonPath)) {
       spinner.updateText("Running shadcn init...");
-      execSync("pnpm dlx shadcn@latest init", {
-        cwd: workingDir,
+      // -d for defaults, -y for non-interactive
+      execSync("pnpm dlx shadcn@latest init -d -y", {
+        cwd: projectPath,
         stdio: "inherit",
       });
     } else {

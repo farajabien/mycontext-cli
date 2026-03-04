@@ -39,7 +39,7 @@ import { PreCommandValidator } from "./utils/PreCommandValidator";
 import { registerTestCommands } from "./commands/test";
 import { registerVisionTestCommands } from "./commands/vision-test";
 import { PlanFeatureCommand } from "./commands/plan-feature";
-
+import { PlanCommand } from "./commands/plan";
 // Import sub-agent system
 import { orchestrator } from "./agents/orchestrator/SubAgentOrchestrator";
 import { CodeGenSubAgent } from "./agents/implementations/CodeGenSubAgent";
@@ -204,6 +204,16 @@ registerTestCommands(program);
 
 // Vision test commands (AI-powered vision-based testing)
 registerVisionTestCommands(program);
+
+import { BuildFeatureCommand } from "./commands/build-feature";
+
+// Plan feature interactively
+const planCommand = new PlanCommand();
+planCommand.register(program);
+
+// Build feature from FSR pattern
+const buildFeatureCommand = new BuildFeatureCommand();
+buildFeatureCommand.register(program);
 
 // Compile PRD command
 program

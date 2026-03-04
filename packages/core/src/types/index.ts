@@ -774,3 +774,6 @@ export type {
   TestGenerationOptions,
   InteractiveTestSession,
 } from "./flow-testing";
+
+// FSR schema types
+export * from "./fsr";
