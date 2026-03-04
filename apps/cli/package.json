@@ -1,6 +1,6 @@
 {
   "name": "mycontext-cli",
-  "version": "4.2.12",
+  "version": "4.2.16",
   "description": "CLI tool for spec-driven development - Generate comprehensive context, visual screens, and scaffolding for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {
@@ -12,7 +12,7 @@
     "build:clean": "rm -rf dist && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🧹 Cleaned build directory')",
     "build:compile": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔨 Compiling TypeScript...') && tsc --noEmitOnError false",
     "build:alias": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '🔗 Resolving path aliases...') && tsc-alias",
-    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp -r src/templates dist/ && cp package.json dist/ && cp README.md dist/ && chmod +x dist/cli.js && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
+    "build:copy": "([ \"$npm_config_loglevel\" = \"silent\" ] || echo '📋 Copying config files...') && cp -r src/config dist/ && cp -r src/templates dist/ && chmod +x dist/cli.js && ([ \"$npm_config_loglevel\" = \"silent\" ] || echo '✅ Build complete')",
     "dev": "ts-node src/cli.ts",
     "start": "node dist/cli.js",
     "watch": "tsc --watch --pretty",
@@ -104,8 +104,7 @@
   },
   "files": [
     "dist/",
-    "README.md",
-    "package.json"
+    "README.md"
   ],
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }
