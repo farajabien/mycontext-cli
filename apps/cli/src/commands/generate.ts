@@ -907,11 +907,14 @@ Use the business entities from the context above, not generic types.`;
 
       if (hasLocalKeys) {
         // Use local AI first (user's own keys)
+        // DEFAULT to gpt-4o-mini for planning tasks to avoid 8k token limits
+        const model = options.model || process.env.MYCONTEXT_MODEL || "gpt-4o-mini";
+
         this.spinner.updateText(
-          `🔧 Generating TypeScript types with ${await this.ai.getActiveProviderName()}...`
+          `🔧 Generating TypeScript types with ${await this.ai.getActiveProviderName()} (${model})...`
         );
         const { text, provider } = await this.ai.generateText(prompt, {
-          model: options.model || process.env.MYCONTEXT_MODEL,
+          model,
           modelCandidates: this.getModelCandidates(options),
           spinnerCallback: (text: string, resetTimer: boolean = false) => {
             this.spinner.updateText(text);
@@ -923,6 +926,14 @@ Use the business entities from the context above, not generic types.`;
 
         // Parse the generated content and create structured files
         const structuredContent = this.parseAndStructureTypes(text);
+
+        // Update SSOT (Brain)
+        await this.updateLivingContext({
+          metadata: {
+            lastUpdatedAt: new Date().toISOString(),
+            status: "types-generated"
+          } as any
+        });
 
         // Check if AI generated generic types (fallback detection)
         if (isGenericTypes(structuredContent)) {
@@ -1269,6 +1280,11 @@ Use the business entities from the context above, not generic types.`;
     return contextContent;
   }
 
+  private truncateContext(text: string, maxChars: number = 4000): string {
+    if (!text || text.length <= maxChars) return text;
+    return text.substring(0, maxChars) + "\n\n... [TRUNCATED FOR TOKENS] ...";
+  }
+
   /**
    * Unified method to load all context files for consistent discovery
    */
@@ -1281,6 +1297,19 @@ Use the business entities from the context above, not generic types.`;
     hasContext: boolean;
   }> {
     const projectRoot = this.getProjectRoot();
+    const livingBrain = await this.loadLivingContext();
+    
+    if (livingBrain) {
+      return {
+        prd: livingBrain.prd.title + "\n" + livingBrain.prd.problemStatement,
+        features: livingBrain.features.map(f => `${f.name}: ${f.description}`).join("\n"),
+        userFlows: livingBrain.flows.map(f => `${f.name}: ${f.steps.join(", ")}`).join("\n"),
+        edgeCases: livingBrain.edgeCases.map(e => `${e.category}: ${e.description}`).join("\n"),
+        technicalSpecs: livingBrain.specs.architecture,
+        hasContext: true,
+      };
+    }
+
     const contextDir = path.join(projectRoot, ".mycontext");
 
     const readOrEmpty = async (filePath: string): Promise<string> => {
@@ -2194,11 +2223,14 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
 
       if (hasLocalKeys) {
         // Use local AI first (user's own keys)
+        // DEFAULT to gpt-4o-mini for planning tasks to avoid 8k token limits
+        const model = options.model || process.env.MYCONTEXT_MODEL || "gpt-4o-mini";
+
         this.spinner.updateText(
-          `🎨 Generating brand system with ${await this.ai.getActiveProviderName()}...`
+          `🎨 Generating brand system with ${await this.ai.getActiveProviderName()} (${model})...`
         );
         const { text, provider } = await this.ai.generateText(prompt, {
-          model: options.model || process.env.MYCONTEXT_MODEL,
+          model,
           modelCandidates: this.getModelCandidates(options),
           spinnerCallback: (text: string, resetTimer: boolean = false) => {
             this.spinner.updateText(text);
@@ -2210,6 +2242,14 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
 
         // Parse and create the brand system files
         const brandFiles = this.parseAndCreateBrandSystem(text);
+
+        // Update SSOT (Brain)
+        await this.updateLivingContext({
+          metadata: {
+            lastUpdatedAt: new Date().toISOString(),
+            status: "brand-generated"
+          } as any
+        });
 
         return {
           success: true,
@@ -2363,19 +2403,20 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     // Note: No core readiness check here - components-list generation should happen
     // before any core component is selected and refined
     const coreExcerpt = await this.readCoreExcerpt();
+
+    // DEFAULT to gpt-4o-mini for planning tasks to avoid 8k token limits
+    const model = options.model || process.env.MYCONTEXT_MODEL || "gpt-4o-mini";
+
     const prompt = [
-      `[mycontext] Plan: plan → generate → QA → docs → preview (→ checks)`,
-      `Create a detailed, business-specific component list for: ${
+      `[mycontext] Planning: Identify and decompose components for: ${
         projectContext.description || "MyContext project"
       }`,
       "",
-      "IMPORTANT: Use the detailed business context below to create components that directly implement the specific features, user stories, and acceptance criteria described. Extract exact feature names, user roles, and business requirements to generate precise, domain-specific components.",
-      "",
-      "Example: If the context mentions 'Mobile Order Entry' with specific acceptance criteria like 'Given a front office user is logged in, When they enter an order via a mobile device, Then the order should be saved and synced to the backend', create a component like 'MobileOrderEntry' with a description that references these specific requirements.",
+      "IMPORTANT: Use the detailed business context below to create components that directly implement the specific features described. Group components by domain (e.g., Auth, Dashboard, Billing).",
       "",
       ...(coreExcerpt
         ? [
-            "Core component excerpt (use for visual/style consistency):",
+            "Core component style (use for reference):",
             coreExcerpt,
             "",
           ]
@@ -2383,90 +2424,47 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       "Business Context:",
       allContext.hasContext
         ? [
-            allContext.prd ? `## PRD\n${allContext.prd}` : "",
-            allContext.features ? `## Features\n${allContext.features}` : "",
-            allContext.userFlows
-              ? `## User Flows\n${allContext.userFlows}`
-              : "",
-            allContext.edgeCases
-              ? `## Edge Cases\n${allContext.edgeCases}`
-              : "",
-            allContext.technicalSpecs
-              ? `## Technical Specs\n${allContext.technicalSpecs}`
-              : "",
+            allContext.prd ? `## PRD\n${this.truncateContext(allContext.prd)}` : "",
+            allContext.features ? `## Features\n${this.truncateContext(allContext.features)}` : "",
+            allContext.userFlows ? `## User Flows\n${this.truncateContext(allContext.userFlows)}` : "",
+            allContext.technicalSpecs ? `## Technical Specs\n${this.truncateContext(allContext.technicalSpecs)}` : "",
           ]
             .filter(Boolean)
             .join("\n\n")
-        : ctx.prd.split("\n").slice(0, 60).join("\n"),
+        : this.truncateContext(ctx.prd, 2000),
       "",
-      "Types excerpt:",
-      ctx.types.split("\n").slice(0, 80).join("\n"),
+      "Types Summary:",
+      this.truncateContext(ctx.types, 3000),
       "",
-      "Branding excerpt:",
-      ctx.brand.split("\n").slice(0, 40).join("\n"),
+      "Branding Summary:",
+      this.truncateContext(ctx.brand, 1500),
       "",
-      "Available shadcn/ui primitives (import from '@/components/ui/<component>'):",
+      "Available shadcn/ui primitives:",
       (ctx.shadcn.length ? ctx.shadcn : this.getCanonicalShadcnList())
         .slice(0, 60)
         .join(", "),
       "",
-      "Return strictly valid JSON ONLY with this HIERARCHICAL structure:",
+      "Return strictly valid JSON with this structure:",
       "{",
       '  "ApplicationName": {',
-      '    "description": "Main application component",',
-      '    "progress": { "completed": 0, "total": 0 },',
+      '    "description": "Short description",',
       '    "children": {',
-      '      "Header": {',
-      '        "description": "Application header section",',
-      '        "progress": { "completed": 0, "total": 0 },',
+      '      "SectionName": {',
+      '        "description": "Section description",',
       '        "children": {',
-      '          "Logo": { "description": "Company logo", "type": "display" },',
-      '          "Navigation": { "description": "Main navigation", "type": "interactive" }',
-      "        }",
-      "      },",
-      '      "Main": {',
-      '        "description": "Main content area",',
-      '        "progress": { "completed": 0, "total": 0 },',
-      '        "children": {',
-      '          "BusinessSection1": {',
-      '            "description": "First business domain section",',
-      '            "progress": { "completed": 0, "total": 0 },',
-      '            "children": {',
-      '              "SubComponent1": { "description": "Specific business component", "type": "form" },',
-      '              "SubComponent2": { "description": "Another business component", "type": "display" }',
-      "            }",
-      "          }",
+      '          "ComponentName": { "description": "Specific purpose", "type": "form|layout|display|interactive" }',
       "        }",
       "      }",
       "    }",
       "  },",
-      '  "metadata": {',
-      '    "coreCandidates": [',
-      '      { "name": string, "path": string, "reason": string },',
-      '      { "name": string, "path": string, "reason": string }',
-      "    ],",
-      '    "totalComponents": 0,',
-      '    "completedComponents": 0',
-      "  }",
+      '  "metadata": { "totalComponents": 0, "completedComponents": 0 }',
       "}",
       "",
       "Rules:",
-      "- Create a HIERARCHICAL component structure that mirrors React component composition",
-      "- Start with the main application component as the root",
-      "- Nest components from largest to smallest (App -> Sections -> SubComponents -> Atomic Components)",
-      "- Each component should have: description, progress tracking, and children (if any)",
-      "- Progress tracking: { completed: 0, total: 0 } - total counts all nested components",
-      "- CRITICAL: Use the SPECIFIC business context above to generate detailed, domain-specific components",
-      "- Extract specific feature names, user stories, and acceptance criteria from the context",
-      "- Create components that directly implement the features described in the context",
-      "- Use the exact terminology and business language from the context",
-      "- Group by business domain in the hierarchy (e.g., 'OrderManagement', 'InventoryManagement')",
-      "- Each leaf component should have a 'type' field: 'layout', 'display', 'interactive', 'form'",
-      "- Component descriptions should reference specific business requirements from the context",
-      "- No code fences, no comments, no trailing commas.",
-      "- Use only the fields above.",
-      "- Ensure arrays/objects have no extra commas.",
-      "- Provide 2-3 'coreCandidates' with their full path in the hierarchy.",
+      "- Logical React composition starting from root",
+      "- Extract specific feature terminology from context",
+      "- Ensure totalComponents includes all children",
+      "- Return ONLY JSON - no markdown fences.",
     ].join("\n");
 
     try {
@@ -2479,11 +2477,11 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       if (hasLocalKeys) {
         // Use local AI first (user's own keys)
         this.spinner.updateText(
-          `📋 Generating component list with ${await this.ai.getActiveProviderName()}...`
+          `📋 Generating component list with ${await this.ai.getActiveProviderName()} (${model})...`
         );
         try {
           const r = await this.ai.generateText(prompt, {
-            model: options.model || process.env.MYCONTEXT_MODEL,
+            model,
             modelCandidates: this.getModelCandidates(options),
             spinnerCallback: (text: string, resetTimer: boolean = false) => {
               this.spinner.updateText(text);
@@ -2495,14 +2493,12 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
           text = r.text;
           provider = r.provider as any;
         } catch (e: any) {
-          // Handle transient network issues like unexpected EOF with a single retry
+          // Retry logic (existing)
           const msg = String(e?.message || e);
           if (/unexpected EOF|ECONNRESET|EPIPE/i.test(msg)) {
-            this.spinner.updateText(
-              "Retrying component list generation after transient error..."
-            );
+            this.spinner.updateText("Retrying component list generation...");
             const r2 = await this.ai.generateText(prompt, {
-              model: options.model || process.env.MYCONTEXT_MODEL,
+              model,
               modelCandidates: this.getModelCandidates(options),
               spinnerCallback: (text: string, resetTimer: boolean = false) => {
                 this.spinner.updateText(text);
@@ -2543,6 +2539,21 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       // Attempt to repair and extract valid JSON
       const repaired = this.repairJson(text);
       const cleanedContent = this.extractJson(repaired);
+
+      // Update SSOT (Brain)
+      try {
+        const obj = JSON.parse(cleanedContent);
+        await this.updateLivingContext({
+          metadata: {
+            lastUpdatedAt: new Date().toISOString(),
+            status: "components-planned"
+          } as any
+          // Note: Full component hierarchy is heavy, keep in 04-component-list.json for now
+          // or we could flatten and store in context.json.components
+        });
+      } catch (e) {
+        // ignore parse errors for SSOT update; saveGeneratedContent will handle it later
+      }
 
       // Attach rich context so JSON alone is enough for component generation
       try {
@@ -4233,6 +4244,69 @@ export function Typography({ variant, children, className }: TypographyProps) {
     );
   }
 
+  private async loadLivingContext(): Promise<LivingContext | null> {
+    try {
+      const contextPath = path.join(this.getProjectRoot(), ".mycontext", "context.json");
+      if (await fs.pathExists(contextPath)) {
+        return await fs.readJson(contextPath);
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  }
+
+  private async updateLivingContext(update: Partial<LivingContext>): Promise<void> {
+    try {
+      const projectRoot = this.getProjectRoot();
+      const contextPath = path.join(projectRoot, ".mycontext", "context.json");
+      let current = await this.loadLivingContext();
+      
+      if (!current) {
+        // Fallback to empty context if it doesn't exist
+        current = {
+          metadata: {
+            version: "1.0.0",
+            generatedAt: new Date().toISOString(),
+            lastUpdatedAt: new Date().toISOString(),
+            projectConfig: {
+              id: require("crypto").randomUUID(),
+              name: "MyContext Project",
+              description: "",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              contextPath: ".mycontext",
+              version: "0.1.0",
+              status: "initialized"
+            }
+          },
+          prd: { title: "", problemStatement: "", goals: [], targetAudience: "", successMetrics: [] },
+          features: [],
+          flows: [],
+          edgeCases: [],
+          specs: {
+            architecture: "",
+            techStack: { frontend: [], backend: [], database: [], other: [] },
+            apiEndpoints: [],
+            databaseSchema: { tables: [] }
+          },
+          components: [],
+          actions: [],
+          routes: [],
+          brain: { memory: {}, logs: [] } as any
+        };
+      }
+
+      const { deepMerge } = await import("../utils/deepMerge");
+      const merged = deepMerge(current, update);
+      merged.metadata.lastUpdatedAt = new Date().toISOString();
+      
+      await fs.writeJson(contextPath, merged, { spaces: 2 });
+    } catch (e) {
+      console.log(chalk.yellow(`⚠️  Failed to update context.json: ${e instanceof Error ? e.message : String(e)}`));
+    }
+  }
+
   private async readContextArtifacts(): Promise<{
     prd: string;
     types: string;
@@ -4240,38 +4314,75 @@ export function Typography({ variant, children, className }: TypographyProps) {
     shadcn: string[];
   }> {
     try {
-      const cwd = process.cwd();
+      const cwd = this.getProjectRoot();
+      const livingBrain = await this.loadLivingContext();
+      
+      let prd = "";
+      let types = "";
+      let brand = "";
+      
+      if (livingBrain) {
+        // Build PRD string from JSON
+        prd = [
+          `# ${livingBrain.prd.title}`,
+          `## Problem Statement\n${livingBrain.prd.problemStatement}`,
+          `## Goals\n${livingBrain.prd.goals.map(g => `- ${g}`).join("\n")}`,
+          livingBrain.features.length ? `## Features\n${livingBrain.features.map(f => `### ${f.name} (${f.priority})\n${f.description}`).join("\n\n")}` : "",
+          livingBrain.flows.length ? `## Flows\n${livingBrain.flows.map(f => `### ${f.name}\n${f.steps.join("\n")}`).join("\n\n")}` : ""
+        ].filter(Boolean).join("\n\n");
+      }
+
       const readOrEmpty = async (rel: string) =>
         (await fs.pathExists(path.join(cwd, rel)))
           ? await fs.readFile(path.join(cwd, rel), "utf8")
           : "";
-      // Prefer split files if present
-      let prd = "";
-      const brief =
-        (await readOrEmpty(".mycontext/01a-brief.md")) ||
-        (await readOrEmpty(".mycontext/01-brief.md"));
-      const reqs =
-        (await readOrEmpty(".mycontext/01b-requirements.md")) ||
-        (await readOrEmpty(".mycontext/02-requirements.md"));
-      const flows =
-        (await readOrEmpty(".mycontext/01c-flows.md")) ||
-        (await readOrEmpty(".mycontext/03-flows.md"));
-      if (brief || reqs || flows) {
-        prd = [
-          brief ? "## Brief\n\n" + brief : "",
-          reqs ? "\n\n## Requirements\n\n" + reqs : "",
-          flows ? "\n\n## Flows\n\n" + flows : "",
-        ]
-          .filter(Boolean)
-          .join("");
-      }
+
+      // Fallback/Augment PRD from files if JSON is sparse
       if (!prd) {
-        prd = await readOrEmpty(".mycontext/01-prd.md");
+        const brief = (await readOrEmpty(".mycontext/01a-brief.md")) || (await readOrEmpty(".mycontext/01-brief.md"));
+        const reqs = (await readOrEmpty(".mycontext/01b-requirements.md")) || (await readOrEmpty(".mycontext/02-requirements.md"));
+        const flows = (await readOrEmpty(".mycontext/01c-flows.md")) || (await readOrEmpty(".mycontext/03-flows.md"));
+        
+        if (brief || reqs || flows) {
+          prd = [
+            brief ? "## Brief\n\n" + brief : "",
+            reqs ? "\n\n## Requirements\n\n" + reqs : "",
+            flows ? "\n\n## Flows\n\n" + flows : "",
+          ].filter(Boolean).join("");
+        }
+        if (!prd) {
+          prd = await readOrEmpty(".mycontext/01-prd.md");
+        }
       }
-      const types = await readOrEmpty(".mycontext/02-types.ts");
-      const brand =
-        (await readOrEmpty(".mycontext/brand/globals.css")) ||
-        (await readOrEmpty(".mycontext/03-branding.md"));
+
+      // Discover Types (Modern Multi-file)
+      const typesDir = path.join(cwd, ".mycontext", "types");
+      if (await fs.pathExists(typesDir)) {
+        const files = await fs.readdir(typesDir);
+        const typeFiles = files.filter(f => f.endsWith(".ts"));
+        for (const file of typeFiles) {
+          const content = await fs.readFile(path.join(typesDir, file), "utf8");
+          types += `\n// --- ${file} ---\n${content}\n`;
+        }
+      }
+      if (!types) {
+        types = (await readOrEmpty(".mycontext/02-types.ts")) || (await readOrEmpty(".mycontext/02-types-guide.md"));
+      }
+
+      // Discover Brand (Modern Multi-file)
+      const brandDir = path.join(cwd, ".mycontext", "brand");
+      if (await fs.pathExists(brandDir)) {
+        brand = await readOrEmpty(".mycontext/brand/globals.css");
+        const brandFiles = await fs.readdir(brandDir);
+        for (const file of brandFiles.filter(f => f.endsWith(".md"))) {
+          const content = await fs.readFile(path.join(brandDir, file), "utf8");
+          brand += `\n\n### ${file}\n${content}`;
+        }
+      }
+      if (!brand) {
+        brand = (await readOrEmpty(".mycontext/03-branding.md")) || (await readOrEmpty(".mycontext/03-branding-guide.md"));
+      }
+
       // discover shadcn/ui primitives from components/ui
       const uiDir = path.join(cwd, "components", "ui");
       let shadcn: string[] = [];
@@ -4283,6 +4394,7 @@ export function Typography({ variant, children, className }: TypographyProps) {
             .map((f) => f.replace(/\.tsx$/, ""));
         }
       } catch {}
+      
       return { prd, types, brand, shadcn };
     } catch {
       return { prd: "", types: "", brand: "", shadcn: [] };
