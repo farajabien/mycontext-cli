@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import prompts from "prompts";
+import inquirer from "inquirer";
 import figlet from "figlet";
 import gradient from "gradient-string";
 import { EnhancedSpinner } from "../utils/spinner";
@@ -88,13 +89,19 @@ export class InitCommand {
               }
             } else if (initMode === "manual" && !options.description) {
               spinner.stop();
-              const response = await prompts({
-                type: "text",
-                name: "desc",
-                message: "Enter project description:",
-                validate: value => value.length > 0 ? true : "Description is required"
-              });
-              description = response.desc;
+              console.log(chalk.cyan("\n📝 Enter project description."));
+              console.log(chalk.gray("   This will open your default editor ($EDITOR)."));
+              console.log(chalk.gray("   Paste your PRD/spec there, save, and exit to continue.\n"));
+              
+              const { desc } = await inquirer.prompt([
+                {
+                  type: "editor",
+                  name: "desc",
+                  message: "Project description:",
+                  validate: (value) => value.trim().length > 0 ? true : "Description is required"
+                }
+              ]);
+              description = desc;
               spinner.start();
             }
 
@@ -202,6 +209,21 @@ export class InitCommand {
     options: InitOptions,
     useCurrentDir: boolean
   ): Promise<void> {
+    // 0. Bootstrap Next.js project first
+    const hasPackageJson = await fs.pathExists(path.join(projectPath, "package.json"));
+    if (!hasPackageJson) {
+      spinner.updateText("Bootstrapping Next.js project...");
+      const projectNameParam = useCurrentDir ? "." : projectName;
+      execSync(`npx -y create-next-app@latest ${projectNameParam} --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --skip-install --no-react-compiler --no-git`, {
+        cwd: workingDir,
+        stdio: "inherit",
+      });
+      
+      // Install initial dependencies
+      spinner.updateText("Installing dependencies...");
+      execSync("pnpm install", { cwd: projectPath, stdio: "ignore" });
+    }
+
     // 1. Run shadcn init if components.json doesn't exist
     const componentsJsonPath = path.join(projectPath, "components.json");
     if (!fs.existsSync(componentsJsonPath)) {
