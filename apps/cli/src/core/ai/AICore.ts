@@ -83,6 +83,13 @@ export class AICore {
     if (xai.hasApiKey()) this.providers.set("xai", xai as any);
   }
 
+  /**
+   * Check if any AI provider has a valid key configured
+   */
+  public hasAnyProvider(): boolean {
+    return this.providers.size > 0;
+  }
+
   public getClient(name: AIProviderName): AIClient | undefined {
     return this.providers.get(name);
   }

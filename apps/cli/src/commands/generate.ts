@@ -4603,43 +4603,7 @@ ${
   }
 
   private hasLocalAIKeys(): boolean {
-    // Check for any local AI provider keys
-    const keys = {
-      github: !!process.env.MYCONTEXT_GITHUB_TOKEN,
-      qwen: !!process.env.MYCONTEXT_QWEN_API_KEY,
-      gemini: !!(
-        process.env.GEMINI_API_KEY ||
-        process.env.GOOGLE_API_KEY ||
-        process.env.MYCONTEXT_GEMINI_API_KEY
-      ),
-      xai: !!(process.env.MYCONTEXT_XAI_API_KEY || process.env.XAI_API_KEY),
-      claude: !!process.env.MYCONTEXT_CLAUDE_API_KEY,
-      openai: !!process.env.OPENAI_API_KEY,
-      anthropic: !!process.env.ANTHROPIC_API_KEY,
-      huggingface: !!process.env.HUGGINGFACE_API_KEY,
-      openrouter: !!(
-        process.env.MYCONTEXT_OPENROUTER_API_KEY ||
-        process.env.OPENROUTER_API_KEY
-      ),
-    };
-
-    console.log(`[GenerateCommand] API Keys detected:`, keys);
-
-    return !!(
-      process.env.MYCONTEXT_GITHUB_TOKEN ||
-      process.env.MYCONTEXT_QWEN_API_KEY ||
-      process.env.GEMINI_API_KEY ||
-      process.env.GOOGLE_API_KEY ||
-      process.env.MYCONTEXT_GEMINI_API_KEY ||
-      process.env.MYCONTEXT_XAI_API_KEY ||
-      process.env.XAI_API_KEY ||
-      process.env.MYCONTEXT_CLAUDE_API_KEY ||
-      process.env.OPENAI_API_KEY ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.HUGGINGFACE_API_KEY ||
-      process.env.MYCONTEXT_OPENROUTER_API_KEY ||
-      process.env.OPENROUTER_API_KEY
-    );
+    return AICore.getInstance().hasAnyProvider();
   }
 
   private getModelCandidates(options: GenerateOptions): string[] | undefined {

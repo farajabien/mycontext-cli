@@ -13,6 +13,7 @@ export class OpenRouterClient implements AIClient {
     this.apiKey =
       process.env.MYCONTEXT_OPENROUTER_API_KEY ||
       process.env.OPENROUTER_API_KEY ||
+      process.env.OPENROUTER_KEY ||
       null;
 
     if (this.apiKey) {

@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import prompts from "prompts";
 import inquirer from "inquirer";
+import clipboardy from "clipboardy";
 import figlet from "figlet";
 import gradient from "gradient-string";
 import { EnhancedSpinner } from "../utils/spinner";
@@ -89,25 +90,69 @@ export class InitCommand {
               }
             } else if (initMode === "manual" && !options.description) {
               spinner.stop();
-              console.log(chalk.cyan("\n📝 Enter project description."));
-              console.log(chalk.gray("   This will open your default editor ($EDITOR)."));
-              console.log(chalk.gray("   Paste your PRD/spec there, save, and exit to continue.\n"));
               
-              const { desc } = await inquirer.prompt([
+              const { inputMethod } = await inquirer.prompt([
                 {
-                  type: "editor",
-                  name: "desc",
-                  message: "Project description:",
-                  validate: (value) => value.trim().length > 0 ? true : "Description is required"
+                  type: "list",
+                  name: "inputMethod",
+                  message: "How would you like to provide the project description?",
+                  choices: [
+                    { name: "📋 Paste from Clipboard (Best for long PRDs)", value: "clipboard" },
+                    { name: "📝 Open Default Editor (Vim/Nano)", value: "editor" },
+                    { name: "⌨️  Type Simple Description", value: "type" }
+                  ]
                 }
               ]);
-              description = desc;
+
+              if (inputMethod === "clipboard") {
+                try {
+                  spinner.updateText("Reading clipboard...");
+                  description = await clipboardy.read();
+                  if (!description || description.trim().length === 0) {
+                    console.log(chalk.red("\n❌ Clipboard is empty. Please copy your spec first."));
+                    // Fallback to type
+                    description = (await inquirer.prompt([{ type: "input", name: "desc", message: "Simple description:" }])).desc;
+                  } else {
+                    console.log(chalk.green(`\n✅ Successfully ingested ${description.length} characters from clipboard.`));
+                    const preview = description.length > 100 ? description.substring(0, 100) + "..." : description;
+                    console.log(chalk.gray(`Preview: "${preview}"\n`));
+                  }
+                } catch (err) {
+                  console.log(chalk.red("\n❌ Failed to read clipboard. Check permissions."));
+                  description = (await inquirer.prompt([{ type: "input", name: "desc", message: "Simple description:" }])).desc;
+                }
+              } else if (inputMethod === "editor") {
+                const { desc } = await inquirer.prompt([
+                  {
+                    type: "editor",
+                    name: "desc",
+                    message: "Project description:",
+                    validate: (value) => value.trim().length > 0 ? true : "Description is required"
+                  }
+                ]);
+                description = desc;
+              } else {
+                const { desc } = await inquirer.prompt([
+                  {
+                    type: "input",
+                    name: "desc",
+                    message: "Simple description:",
+                    validate: (value) => value.length > 0 ? true : "Description is required"
+                  }
+                ]);
+                description = desc;
+              }
               spinner.start();
             }
 
             const config = await this.fs.initializeProject(finalProjectName!, description, currentDir, true);
             await this.createInitialManifest(currentDir, finalProjectName!, description);
+            
             spinner.success({ text: `Project "${finalProjectName!}" initialized with context!` });
+            
+            // Post-initialization environment setup
+            await this.setupEnvironmentKeys(currentDir, undefined);
+            
             this.showNextSteps(config, undefined, true);
             return;
           }
@@ -310,6 +355,9 @@ export class InitCommand {
       text: `Project "${projectName}" initialized successfully with InstantDB!`,
     });
 
+    // Post-initialization environment setup
+    await this.setupEnvironmentKeys(projectPath, "instantdb");
+
     // Show next steps
     this.showNextSteps(config, "instantdb", useCurrentDir);
   }
@@ -369,6 +417,9 @@ export class InitCommand {
       text: `Project "${projectName}" initialized successfully with Next.js!`,
     });
 
+    // Post-initialization environment setup
+    await this.setupEnvironmentKeys(projectPath, "nextjs");
+
     // Show next steps
     this.showNextSteps(config, "nextjs", useCurrentDir);
   }
@@ -400,6 +451,9 @@ export class InitCommand {
       text: `Project "${projectName}" initialized successfully!`,
     });
 
+    // Post-initialization environment setup
+    await this.setupEnvironmentKeys(projectPath, undefined);
+
     // Show next steps
     this.showNextSteps(config, undefined, useCurrentDir);
   }
@@ -409,34 +463,98 @@ export class InitCommand {
     return /^[a-zA-Z0-9._-]+$/.test(name);
   }
 
+  private async setupEnvironmentKeys(projectPath: string, framework?: string): Promise<void> {
+    const envPath = path.join(projectPath, ".env.local");
+    const hasEnv = await fs.pathExists(envPath);
+    let envContent = hasEnv ? await fs.readFile(envPath, "utf-8") : "";
+
+    console.log(chalk.blue("\n🔑 Environment Configuration:"));
+
+    const keysToPrompt = [];
+    
+    // Always prompt for GitHub Token (Preferred for reliability right now)
+    if (!process.env.GITHUB_TOKEN && !envContent.includes("GITHUB_TOKEN")) {
+      keysToPrompt.push({
+        type: "password",
+        name: "githubToken",
+        message: "Enter your GitHub Classic Token (with 'repo' scopes for AI Models):",
+      });
+    }
+
+    // Still allow Gemini API Key but mark as optional/secondary
+    if (!process.env.GEMINI_API_KEY && !envContent.includes("GEMINI_API_KEY")) {
+      keysToPrompt.push({
+        type: "password",
+        name: "geminiKey",
+        message: "Enter your Gemini API Key (Optional, get it from aistudio.google.com):",
+      });
+    }
+
+    // Prompt for InstantDB App ID if using instantdb and not present
+    if (framework === "instantdb" && !envContent.includes("NEXT_PUBLIC_INSTANT_APP_ID")) {
+      keysToPrompt.push({
+        type: "input",
+        name: "instantAppId",
+        message: "Enter your InstantDB App ID:",
+      });
+    }
+
+    if (keysToPrompt.length > 0) {
+      const answers = await inquirer.prompt(keysToPrompt);
+      
+      let newVars = "";
+      if (answers.githubToken) {
+        newVars += `\nGITHUB_TOKEN=${answers.githubToken}`;
+      }
+      if (answers.geminiKey) {
+        newVars += `\nGEMINI_API_KEY=${answers.geminiKey}`;
+      }
+      if (answers.instantAppId) {
+        newVars += `\nNEXT_PUBLIC_INSTANT_APP_ID=${answers.instantAppId}`;
+      }
+
+      if (newVars) {
+        if (!envContent) {
+          envContent = "# MyContext Environment Variables" + newVars;
+        } else {
+          envContent += newVars;
+        }
+        await fs.writeFile(envPath, envContent);
+        console.log(chalk.green("✅ Environment variables saved to .env.local"));
+      }
+    } else {
+      console.log(chalk.gray("ℹ️  Required environment variables are already set."));
+    }
+  }
+
   private showNextSteps(
     config: any,
     framework?: string,
     useCurrentDir?: boolean
   ): void {
-    const projectPath = useCurrentDir ? "." : config.name;
+    const projectPath = useCurrentDir ? "./" : config.name;
 
     console.log(chalk.blue("\n🎯 Next Steps:\n"));
 
+    let step = 1;
+
     if (!useCurrentDir) {
-      console.log(chalk.yellow("  1.  cd " + projectPath));
+      console.log(chalk.yellow(`  ${step++}. cd ` + projectPath));
     }
 
-    if (framework === "instantdb") {
-      console.log(chalk.yellow("  2.  Configure InstantDB in .env.local"));
-      console.log(chalk.cyan("      NEXT_PUBLIC_INSTANT_APP_ID=your-app-id\n"));
-    }
+    console.log(chalk.yellow(`  ${step++}. Generate Full Context (using GitHub Models):`));
+    console.log(chalk.cyan("      mycontext generate context --full\n"));
 
-    console.log(chalk.yellow("  3.  Generate Manifest (Living Brain):"));
+    console.log(chalk.yellow(`  ${step++}. Design Analysis & Manifest Verification:`));
     console.log(chalk.cyan("      mycontext design analyze\n"));
 
-    console.log(chalk.yellow("  4.  Assemble Atomic Components:"));
-    console.log(chalk.cyan("      mycontext generate components\n"));
+    console.log(chalk.yellow(`  ${step++}. Assemble Atomic Components:`));
+    console.log(chalk.cyan("      mycontext generate-components all\n"));
 
-    console.log(chalk.yellow("  5.  Keep Brain in sync:"));
+    console.log(chalk.yellow(`  ${step++}. Keep Brain in sync:`));
     console.log(chalk.cyan("      mycontext sync\n"));
 
-    console.log(chalk.green("✨ MyContext v4.2.10 | Context-Driven Development Activated\n"));
+    console.log(chalk.green("✨ MyContext v4.2.16 | Context-Driven Development Activated\n"));
 
     console.log(chalk.green("✨ Tips:"));
     console.log(chalk.gray("• Check .mycontext/ for all generated files"));
@@ -450,8 +568,6 @@ export class InitCommand {
     }
     console.log(chalk.gray("• Use --yes flag to skip prompts"));
     console.log(chalk.gray("• Run 'mycontext status' to check project progress\n"));
-
-    // Return cleanly — let Commander handle process exit
   }
 
   /**

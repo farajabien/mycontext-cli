@@ -67,19 +67,7 @@ export class GenerateComponentsCommand {
   }
 
   private hasLocalAIKeys(): boolean {
-    // Check for any local AI provider keys
-    return !!(
-      process.env.MYCONTEXT_GITHUB_TOKEN ||
-      process.env.MYCONTEXT_QWEN_API_KEY ||
-      process.env.MYCONTEXT_GEMINI_API_KEY ||
-      process.env.MYCONTEXT_XAI_API_KEY ||
-      process.env.XAI_API_KEY ||
-      process.env.OPENAI_API_KEY ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.HUGGINGFACE_API_KEY ||
-      process.env.MYCONTEXT_OPENROUTER_API_KEY ||
-      process.env.OPENROUTER_API_KEY
-    );
+    return require("../core/ai/AICore").AICore.getInstance().hasAnyProvider();
   }
 
   private async loadStackConfig(): Promise<any> {

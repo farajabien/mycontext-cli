@@ -12,7 +12,10 @@ export class GitHubModelsClient implements AIClient {
   private baseUrl = "https://models.inference.ai.azure.com";
 
   constructor() {
-    this.apiKey = process.env.GITHUB_TOKEN || process.env.GITHUB_MODELS_API_KEY;
+    this.apiKey = 
+      process.env.GITHUB_TOKEN || 
+      process.env.GITHUB_MODELS_API_KEY ||
+      process.env.MYCONTEXT_GITHUB_TOKEN;
   }
 
   public hasApiKey(): boolean {

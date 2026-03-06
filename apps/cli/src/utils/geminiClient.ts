@@ -54,12 +54,11 @@ export class GeminiClient implements AIClient {
   private model: string;
 
   private readonly MODELS = [
-    "gemini-2.0-flash",           // Latest stable Flash
-    "gemini-2.0-flash-exp",       // Experimental Flash 2.0
     "gemini-1.5-flash",           // Stable 1.5 Flash
-    "gemini-1.5-flash-latest",    // Alias for latest 1.5 Flash
     "gemini-1.5-pro",             // Stable 1.5 Pro
-    "gemini-1.5-pro-latest"       // Alias for latest 1.5 Pro
+    "gemini-2.0-flash",           // Flash 2.0 (Stable Alias)
+    "gemini-2.0-flash-exp",       // Experimental Flash 2.0
+    "gemini-1.5-flash-8b",        // Efficient 1.5 Flash
   ];
 
   constructor() {
@@ -74,6 +73,7 @@ export class GeminiClient implements AIClient {
     try {
       const key = this.getApiKey();
       if (key) {
+        // Use v1 for stable models by default
         this.genAI = new GoogleGenerativeAI(key);
       }
     } catch (e) {
@@ -136,7 +136,10 @@ export class GeminiClient implements AIClient {
    * Get GitHub token for text backups
    */
   private getGitHubToken(): string | undefined {
-    return process.env.GITHUB_TOKEN;
+    return (
+      process.env.GITHUB_TOKEN ||
+      process.env.MYCONTEXT_GITHUB_TOKEN
+    );
   }
 
   /**
@@ -223,6 +226,12 @@ export class GeminiClient implements AIClient {
     for (const modelName of this.MODELS) {
       try {
         this.model = modelName;
+        
+        if (!this.genAI) {
+            const key = this.getApiKey();
+            this.genAI = new GoogleGenerativeAI(key);
+        }
+        
         const model = this.genAI.getGenerativeModel({ 
             model: modelName,
             systemInstruction: systemInstruction
