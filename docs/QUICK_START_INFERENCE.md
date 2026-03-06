@@ -183,7 +183,7 @@ roles (admin, author, reader), and markdown support"
 - [ ] Test correction learning (reject an inference, see if AI learns)
 - [ ] Test checkpoint approval
 - [ ] Test final diff editing
-- [ ] Verify ASL saved to `.mycontext/asl.json`
+- [ ] Verify results saved to `.mycontext/context.json`
 
 ---
 
@@ -202,7 +202,7 @@ InitInteractiveCommand
   │   └── promptUser()              → Direct prompt if <70%
   ├── showCheckpointsAndConfirm()   → Review auto-inferred items
   ├── showDiffPreview()             → Show final diff
-  └── saveASL()                     → Save to .mycontext/asl.json
+  └── saveContext()                 → Save to .mycontext/context.json
 ```
 
 ---
@@ -259,8 +259,8 @@ A: Set `AUTO_INFER_THRESHOLD = 100` (not recommended, will prompt for everything
 **Q: Can I use a different AI model?**
 A: Yes, AICore supports multiple providers (Gemini, Claude, OpenRouter, etc.)
 
-**Q: How do I export the ASL?**
-A: It's automatically saved to `.mycontext/asl.json`
+**Q: How do I export the brain?**
+A: It's automatically saved to `.mycontext/context.json`
 
 ---
 
@@ -269,7 +269,7 @@ A: It's automatically saved to `.mycontext/asl.json`
 1. Test with real projects
 2. Share feedback
 3. Contribute improvements
-4. Build deterministic generators that consume the ASL
+4. Build deterministic generators that consume the Living Brain
 
 Happy building! 🚀
 

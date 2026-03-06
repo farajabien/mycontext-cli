@@ -20,11 +20,11 @@ MyContext is a **deterministic compiler** that transforms natural language speci
 └───────────────────────────┬─────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
-│  Layer 2: Planner (Validator & Orchestrator)                │
-│  - Validates ASL against context.json                        │
-│  - Detects incomplete specifications                         │
-│  - Generates diff proposals                                  │
-│  - Requires user approval for all changes                    │
+│  Layer 2: Planner (Unified Generator & Orchestrator)        │
+│  - Validates requirements against context.json               │
+│  - One-pass AI sync for PRD, Features, Types, and Brand      │
+│  - Generates diff proposals for the Living Brain             │
+│  - Export read-only Markdown files for review                │
 │  - Ensures 100% completeness before generation               │
 └───────────────────────────┬─────────────────────────────────┘
                             ↓
@@ -47,12 +47,12 @@ MyContext is a **deterministic compiler** that transforms natural language speci
 └───────────────────────────┬─────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
-│  Layer 5: Brain (Canonical State / Single Source of Truth)  │
-│  - context.json: Master state                                │
-│  - components_registry.json: Component catalog               │
-│  - types_registry.json: Type definitions                     │
-│  - permissions_manifest.json: RBAC rules                     │
-│  - design_manifest.json: Design tokens & styles              │
+│  Layer 5: Living Brain (Canonical State & Cockpit)          │
+│  - context.json: The single source of truth (SSOT)           │
+│  - TUI Dashboard: Real-time project health & command center  │
+│  - Registry: Automated tracking of components & types        │
+│  - Design Tokens: Brand guidelines & visual rules            │
+│  - Read-Only Exports: Markdown files (.mycontext/*.md)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 

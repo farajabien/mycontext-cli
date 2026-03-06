@@ -542,16 +542,10 @@ export class InitCommand {
       console.log(chalk.yellow(`  ${step++}. cd ` + projectPath));
     }
 
-    console.log(chalk.yellow(`  ${step++}. Generate Full Context (using GitHub Models):`));
+    console.log(chalk.yellow(`  ${step++}. Generate Full Context (FSR + Component Discovery):`));
     console.log(chalk.cyan("      mycontext generate context --full\n"));
 
-    console.log(chalk.yellow(`  ${step++}. Design Analysis & Manifest Verification:`));
-    console.log(chalk.cyan("      mycontext design analyze\n"));
-
-    console.log(chalk.yellow(`  ${step++}. Assemble Atomic Components:`));
-    console.log(chalk.cyan("      mycontext generate-components all\n"));
-
-    console.log(chalk.yellow(`  ${step++}. Keep Brain in sync:`));
+    console.log(chalk.yellow(`  ${step++}. Sync & Update Brain (as needed):`));
     console.log(chalk.cyan("      mycontext sync\n"));
 
     console.log(chalk.green("✨ MyContext v4.2.16 | Context-Driven Development Activated\n"));

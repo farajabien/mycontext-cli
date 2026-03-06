@@ -45,6 +45,23 @@ export class UnifiedDesignContextLoader {
     console.log(chalk.blue("🔄 Loading unified design context..."));
 
     try {
+      // 0. BRAIN-FIRST CHECK: If context.json exists, it's our SSOT.
+      // We skip the DesignPipelineAgent because context.json ALREADY contains the FSR.
+      const brainPath = path.join(this.projectPath, ".mycontext", "context.json");
+      if (await fs.pathExists(brainPath)) {
+        const brain = await fs.readJson(brainPath);
+        const contextFiles = await this.loadAllContextFiles();
+        
+        // Use the brain to enrich context (we still need the Enricher to prepare it for agents)
+        const enrichedContext = await this.contextEnricher.enrichWithBrain(contextFiles, brain);
+        
+        return {
+          enrichedContext,
+          hasDesignManifest: true,
+          shouldGenerateManifest: false,
+        };
+      }
+
       // 1. Load all context files
       const contextFiles = await this.loadAllContextFiles();
       console.log(

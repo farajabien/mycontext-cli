@@ -23,14 +23,12 @@ import { MCPSetupCommand } from "./commands/setup-mcp";
 import { SetupShadcnCommand } from "./commands/setup-shadcn";
 import { SetupCompleteCommand } from "./commands/setup-complete";
 import { HelpCommand } from "./commands/help";
-import { GenerateContextFilesCommand } from "./commands/generate-context-files";
 import { registerGenerateDesignPromptCommand } from "./commands/generate-design-prompt";
 import { registerGenerateSampleDataCommand } from "./commands/generate-sample-data";
 import { registerGenerateScreensCommand } from "./commands/generate-screens";
 import { registerGenerateScreensListCommand } from "./commands/generate-screens-list";
 import { registerGenerateComponentsManifestCommand } from "./commands/generate-components-manifest";
 import { registerGenerateActionsCommand } from "./commands/generate-actions";
-import { CompilePRDCommand } from "./commands/compile-prd";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
 import { DesignAnalyzeCommand } from "./commands/design-analyze";
@@ -172,7 +170,7 @@ program
           chalk.gray("   Edit: .mycontext/01-prd.md with your project details")
         );
         console.log(
-          chalk.gray("   Then run: mycontext generate-context-files")
+          chalk.gray("   Then run: mycontext generate context --full")
         );
         process.exit(1);
       }
@@ -215,25 +213,7 @@ planCommand.register(program);
 const buildFeatureCommand = new BuildFeatureCommand();
 buildFeatureCommand.register(program);
 
-// Compile PRD command
-program
-  .command("compile-prd")
-  .description("Compile PRD from A/B/C/D context files")
-  .option("--project-path <path>", "Project path (default: current directory)")
-  .option("--force", "Overwrite existing PRD")
-  .option("--verbose", "Show detailed output")
-  .action(async (options: any) => {
-    try {
-      const compilePRDCommand = new CompilePRDCommand();
-      await compilePRDCommand.execute({
-        ...program.opts(),
-        ...options,
-      });
-    } catch (error) {
-      console.error(chalk.red("❌ PRD compilation failed:"), error);
-      process.exit(1);
-    }
-  });
+// Sub-agent help or other commands can go here
 
 // Context-aware help command
 program
@@ -256,7 +236,7 @@ program
 // Review context command
 program
   .command("review:context")
-  .description("Review auto-generated features and address context gaps")
+  .description(chalk.yellow("[DEPRECATED] Review auto-generated features. (Now part of the TUI dashboard)"))
   .option("--auto-approve", "Automatically approve all features")
   .option("--skip-gaps", "Skip gap resolution")
   .action(async (options: any) => {
@@ -302,7 +282,7 @@ program
 // Generate command (orchestrator for context, types, brand, etc.)
 program
   .command("generate [type]")
-  .description("Generate project context, types, architecture, and more")
+  .description("Orchestrate the Living Brain (context, types, brand, and more)")
   .option("-f, --full", "Generate full context (PRD + A/B/C/D files)")
   .option("-d, --description <text>", "Project description for generation")
   .option("-c, --context-file <path>", "Context file path")
@@ -975,44 +955,27 @@ program
   });
 
 // Default action
-program.action(() => {
+program.action(async () => {
   // If --up is provided without a subcommand, run update
   const opts = program.opts() as any;
   if (opts.up) {
     const updater = new UpdateCommand();
-    updater
-      .execute()
-      .then(() => process.exit(0))
-      .catch(() => process.exit(1));
-    return;
+    await updater.execute();
+    process.exit(0);
   }
-  console.log(chalk.blue.bold("🚀 MyContext CLI\n"));
-  console.log(
-    chalk.gray(
-      "AI-powered spec-driven development for modern web applications.\n"
-    )
-  );
-  console.log(chalk.yellow("Quick Start:"));
-  console.log(chalk.cyan("  mycontext init my-project --framework instantdb"));
-  console.log(chalk.gray("  # Frameworks: instantdb | nextjs | other\n"));
-  console.log(
-    chalk.gray(
-      "  mycontext generate context --full --description 'Your project'"
-    )
-  );
-  console.log(chalk.gray("  mycontext compile-prd\n"));
-  console.log(chalk.yellow("Help:"));
-  console.log(chalk.cyan("  mycontext help"));
-  console.log(chalk.cyan("  mycontext help frameworks"));
-  console.log(chalk.cyan("  mycontext help getting-started\n"));
+
+  // Check if we should launch TUI
+  const { TUIClient } = await import("./tui/TUIClient");
+  const tui = new TUIClient();
+  await tui.start();
 });
 
 // Parse command line arguments
 program
   .parseAsync()
   .then(() => {
-    // Explicitly exit after command completes to avoid hanging
-    process.exit(0);
+    // Note: TUI handles its own exit
+    if (program.args.length > 0) process.exit(0);
   })
   .catch((error) => {
     console.error(chalk.red("❌ Command failed:"), error.message);

@@ -34,38 +34,54 @@ Every project is governed by a local "brain" folder that ensures your code, type
 
 ---
 
-## 🏗️ Full Project Workflow
+---
+
+## 🚀 The Brain-First Workflow
+
+Transforming natural language into project intent involves three core stages, all mediated by the **Living Brain (`.mycontext/context.json`)**.
 
 ### 1. Initialization (`mycontext init`)
-Set up your framework (InstantDB, Next.js, or shadcn) and establish the project brain.
+Establish the `.mycontext` directory and establish the source of truth.
 ```bash
 mycontext init --interactive
 ```
-*AI auto-infers 90% of your spec, reducing setup from 15 mins to 2 mins.*
+*AI auto-infers project framework, core entities, and foundational requirements.*
 
-### 2. Feature Planning (`mycontext plan`)
-Translate a feature request into a strict FSR (Feature Structured Representation).
+### 2. High-Fidelity Sync (`mycontext generate context --full`)
+The most critical step. This command performs a unified AI pass to synchronize:
+- **Requirements**: Functional and non-functional specs (PRD).
+- **Features**: Atomic feature breakdown with technical specifications.
+- **Types**: Shared TypeScript entity definitions and database schemas.
+- **Brand**: Visual design tokens (colors, typography).
+- **Registry**: Auto-discovery of existing code to prevent drift.
+
 ```bash
-mycontext plan "A gallery for removed background images with token display"
+mycontext generate context --full --description "A removal tool for image backgrounds"
 ```
 
-### 3. Deterministic Build (`mycontext build`)
-Compile your FSR into production-ready code.
+### 3. Component Orchestration (`mycontext generate-components`)
+Render the specifications in the brain into production-ready React code.
 ```bash
-mycontext build --feature gallery
+# Generate everything in the brain
+mycontext generate-components all
+
+# Or target a specific group
+mycontext generate-components gallery
 ```
 
-### 4. Continuous Sync (`mycontext sync`)
-Automatically update your documentation and `context.json` brain as your code evolves.
-```bash
-mycontext sync --readme
-```
+### 4. Project Cockpit (The Dashboard)
+Run `mycontext` without arguments to launch the interactive dashboard.
+- **Project Health**: View feature completeness and type coverage.
+- **Registry Manager**: Browse generated components and schemas.
+- **Sync Trigger**: Instantly refresh the brain from the dashboard.
 
-### 5. Diagnostics (`mycontext doctor`)
-Verify type safety, catch schema drift, and check for "as any" usage.
-```bash
-mycontext doctor --verbose
-```
+---
+
+## 🛠️ Diagnostics & Maintenance
+
+- **`mycontext doctor`**: Verify project health, type safety, and schema alignment.
+- **`mycontext sync --readme`**: Synchronize the root README with the brain's latest design manifest.
+- **`mycontext status`**: Quick check of the current project state.
 
 ---
 
@@ -77,24 +93,9 @@ npm install -g mycontext-cli
 ---
 
 ## 🛣️ Roadmap
-- [x] **Phase 0.6**: Deterministic Scaffolding & Token Tracking
-- [x] **Phase 0.7**: Premium Layout Engine & Test-Mode
-- [ ] **Phase 1**: Global Registry & Multi-Agent Orchestration
-- [ ] **Phase 2**: Granular component-level targeted LLM refactors
-
----
-
-## 📄 License & Links
-MIT © [MyContext Team](https://github.com/farajabien/mycontext-cli)
-- [Documentation](https://mycontext.framer.website)
-- [NPM: mycontext-cli](https://www.npmjs.com/package/mycontext-cli)
-
----
-
-## 🛣️ Roadmap
-- [x] **Phase 0.6**: Deterministic Scaffolding & Token Tracking
-- [x] **Phase 0.7**: Premium Layout Engine & Test-Mode
-- [ ] **Phase 1**: Global Registry & Multi-Agent Orchestration
+- [x] **Phase 0.7**: Brain-First Architecture & TUI Dashboard
+- [x] **Phase 0.8**: Smart Layout Engine & Deterministic Scaffolding
+- [ ] **Phase 1**: Multi-Agent Orchestration (Backend/Security/QA)
 - [ ] **Phase 2**: Granular component-level targeted LLM refactors
 
 ---

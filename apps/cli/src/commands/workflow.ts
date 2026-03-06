@@ -6,9 +6,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
-import { GenerateContextFilesCommand } from "./generate-context-files";
 import { GenerateCommand } from "./generate";
-import { CompilePRDCommand } from "./compile-prd";
 import { GenerateComponentsCommand } from "./generate-components";
 import { HybridAIClient } from "../utils/hybridAIClient";
 
@@ -521,28 +519,20 @@ Be specific and actionable. Focus on realistic components and features for the d
     console.log("");
 
     try {
-      // Step 1: Generate context files
-      console.log(chalk.cyan("📝 Step 1: Generating context files..."));
+      // Step 1: Generate context files (Brain Sync)
+      console.log(chalk.cyan("📝 Step 1: Generating context files (Brain Sync)..."));
       const contextDescription = this.generateContextDescription(analysis);
 
-      const contextCommand = new GenerateContextFilesCommand();
-      await contextCommand.execute({
+      const generateCommand = new GenerateCommand();
+      await generateCommand.execute({
+        type: "context",
+        full: true,
         description: contextDescription,
-        projectPath: path.join(process.cwd(), outputDir),
-        verbose: options.verbose,
         force: options.force,
-      });
-
-      // Step 2: Compile PRD
-      console.log(chalk.cyan("📋 Step 2: Compiling PRD..."));
-      const prdCommand = new CompilePRDCommand();
-      await prdCommand.execute({
-        projectPath: path.join(process.cwd(), outputDir),
       });
 
       // Step 3: Generate architecture
       console.log(chalk.cyan("🏗️  Step 3: Generating project architecture..."));
-      const generateCommand = new GenerateCommand();
       await generateCommand.execute({
         type: "architecture",
         description: contextDescription,
@@ -563,17 +553,11 @@ Be specific and actionable. Focus on realistic components and features for the d
         });
       }
 
-      // Step 5: Assemble Features
+      // Step 5: Feature Scaffolding
       if (!options.skipFeatures) {
-        console.log(chalk.cyan("📦 Step 5: Assembling features..."));
-        const { AssembleFeaturesCommand } = await import("./assemble-features");
-        const assembleFeaturesCommand = new AssembleFeaturesCommand();
-        await assembleFeaturesCommand.execute({
-          fromComponents: true,
-          role: options.role || "admin",
-          output: path.join(process.cwd(), outputDir),
-          verbose: options.verbose,
-        });
+        console.log(chalk.cyan("📦 Step 5: Finalizing feature scaffolding..."));
+        // Feature assembly is now handled by the unified brain sync and architecture generation
+        console.log(chalk.gray("   Features reconciled with Living Brain"));
       }
 
       // Step 6: Preview Information

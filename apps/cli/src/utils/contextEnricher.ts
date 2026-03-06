@@ -9,6 +9,9 @@ import {
   ImplementationPlan,
 } from "@myycontext/core";
 import chalk from "chalk";
+import { ContextRenderer } from "./contextRenderer";
+import * as path from "path";
+import * as fs from "fs-extra";
 
 /**
  * Context Enricher
@@ -87,8 +90,149 @@ export class ContextEnricher {
   }
 
   /**
-   * Format context for optimal model consumption
+   * Enrich context using the Living Brain (context.json)
    */
+  async enrichWithBrain(
+    contextFiles: any,
+    brain: any
+  ): Promise<EnrichedContext> {
+    console.log(chalk.blue("🔄 Enriching context directly from Living Brain..."));
+
+    // Transform Brain JSON to EnrichedContext with full type compliance
+    const enrichedContext: EnrichedContext = {
+      project_summary: {
+        app_name: brain.project_name || "MyContext App",
+        core_purpose: brain.prd?.problemStatement || "",
+        platform: "web",
+        complexity_level: "medium",
+        key_features: (brain.features || []).map((f: any) => f.name),
+        primary_user_actions: (brain.flows || []).map((f: any) => f.name),
+        technical_requirements: [
+          ...(brain.specs?.techStack?.frontend || []),
+          ...(brain.specs?.techStack?.backend || []),
+        ],
+      },
+      design_system: {
+        colors: {
+          primary: brain.brand?.colors?.primary || "#3b82f6",
+          background: brain.brand?.colors?.background || "#ffffff",
+          surface: brain.brand?.colors?.surface || "#ffffff",
+          secondary: brain.brand?.colors?.secondary || "#64748b",
+          accent: brain.brand?.colors?.accent || "#3b82f6",
+          border: "#e2e8f0",
+          success: "#22c55e",
+          warning: "#f59e0b",
+          error: "#ef4444",
+          text: brain.brand?.colors?.text || "#0f172a",
+          text_muted: brain.brand?.colors?.textMuted || "#64748b"
+        },
+        typography: {
+          font_families: {
+            heading: brain.brand?.typography?.fontFamily || "Inter",
+            body: brain.brand?.typography?.fontFamily || "Inter",
+            mono: "JetBrains Mono, monospace"
+          },
+          scale: { 
+            xs: "0.75rem", 
+            sm: "0.875rem", 
+            md: "1rem", 
+            lg: "1.125rem", 
+            xl: "1.25rem", 
+            "2xl": "1.5rem", 
+            "3xl": "1.875rem",
+            "4xl": "2.25rem"
+          },
+          weights: {
+            normal: "400",
+            medium: "500",
+            semibold: "600",
+            bold: "700"
+          }
+        },
+        spacing: { 
+          xs: "0.25rem", 
+          sm: "0.5rem", 
+          md: "1rem", 
+          lg: "1.5rem", 
+          xl: "2rem", 
+          "2xl": "3rem", 
+          "3xl": "4rem",
+          "4xl": "5rem"
+        },
+        radii: { 
+          none: "0", 
+          sm: "0.125rem", 
+          md: "0.375rem", 
+          lg: "0.5rem", 
+          xl: "0.75rem", 
+          full: "9999px" 
+        },
+        shadows: { 
+          sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)", 
+          md: "0 4px 6px -1px rgb(0 0 0 / 0.1)", 
+          lg: "0 10px 15px -3px rgb(0 0 0 / 0.1)", 
+          xl: "0 20px 25px -5px rgb(0 0 0 / 0.1)" 
+        },
+        motion: { 
+          duration: { fast: "100ms", normal: "200ms", slow: "300ms" }, 
+          easing: { linear: "linear", ease_in: "ease-in", ease_out: "ease-out", ease_in_out: "ease-in-out" } 
+        },
+        breakpoints: {
+          sm: "640px",
+          md: "768px",
+          lg: "1024px",
+          xl: "1280px"
+        }
+      },
+      design_intent: {
+        visual_philosophy: brain.brand?.designPrinciples?.join(". ") || "",
+        design_anchors: brain.brand?.designPrinciples || [],
+        user_experience_goals: ["Simplicity", "Speed", "Clarity"],
+        brand_alignment: "Consistent with brand guidelines",
+        technical_constraints: [],
+        success_criteria: (brain.prd?.successMetrics || []),
+        scalability_considerations: ["Modular components", "Atomic design"],
+        maintenance_guidelines: ["Use shared components", "Follow type system"],
+      },
+      component_architecture: {
+        screens: (brain.flows || []).map((f: any) => ({
+          name: f.name,
+          description: f.description,
+          layout_type: "standard",
+        })),
+        components: (brain.components || []).map((c: any) => ({
+          name: c.name,
+          description: c.description,
+          type: c.type,
+        })),
+        design_patterns: [] as string[],
+        interaction_flows: [] as any[],
+        state_management: [] as any[],
+        data_flow: [] as any[],
+      },
+      technical_context: {
+        prd: ContextRenderer.renderPRD(brain),
+        types: ContextRenderer.renderTypesGuide(brain),
+        brand: ContextRenderer.renderBrandGuide(brain),
+      },
+      implementation_guidelines: {
+        framework: brain.specs?.architecture || "nextjs-app-router",
+        state_management: "React Context/Zustand",
+        data_persistence: brain.specs?.techStack?.backend?.join(", ") || "InstantDB",
+        pages: (brain.flows || []).map((f: any) => f.name),
+        build_requirements: [],
+        performance_optimizations: [],
+        accessibility_implementation: [],
+        testing_strategy: [],
+      } as any, // Temporary override for pages type mismatch if existing
+      design_principles: brain.brand?.designPrinciples || [],
+      visual_tokens: {},
+      interaction_patterns: [],
+      accessibility_requirements: [],
+    };
+
+    return enrichedContext;
+  }
   formatContextForModel(context: EnrichedContext): string {
     const sections = [
       this.formatProjectSummary(context.project_summary),

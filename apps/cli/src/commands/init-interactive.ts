@@ -898,11 +898,43 @@ Return only valid JSON, no markdown.`;
       const mycontextDir = path.join(process.cwd(), ".mycontext");
       await fs.mkdir(mycontextDir, { recursive: true });
 
-      // Save ASL
+      // Save ASL (legacy compatibility)
       const aslPath = path.join(mycontextDir, "asl.json");
       await fs.writeFile(aslPath, JSON.stringify(this.asl, null, 2), "utf-8");
 
-      spinner.succeed(`Manifest saved to ${chalk.cyan(".mycontext/asl.json")}`);
+      // Save to Living Brain (Preferred SSOT)
+      const brainPath = path.join(mycontextDir, "context.json");
+      let brain: any = {};
+      try {
+        const existing = await fs.readFile(brainPath, "utf-8");
+        brain = JSON.parse(existing);
+      } catch (e) {
+        // use default skeleton if not exists
+        brain = { version: "1.0.0", metadata: {}, prd: {}, specs: { techStack: {} }, components: [] };
+      }
+
+      // Merge ASL data into Brain
+      brain.project_name = this.asl.project?.name || brain.project_name;
+      brain.prd = {
+        ...brain.prd,
+        title: this.asl.project?.name || brain.prd.title,
+        problemStatement: this.asl.project?.description || brain.prd.problemStatement,
+      };
+      
+      if (this.asl.project?.framework) {
+        brain.specs.techStack.frontend = [this.asl.project.framework, "Tailwind", "shadcn/ui"];
+      }
+      if (this.asl.project?.backend) {
+        brain.specs.techStack.backend = [this.asl.project.backend];
+      }
+
+      // Store full ASL in metadata for deep recovery
+      brain.metadata.asl = this.asl;
+      brain.metadata.lastUpdatedAt = new Date().toISOString();
+
+      await fs.writeFile(brainPath, JSON.stringify(brain, null, 2), "utf-8");
+
+      spinner.succeed(`Manifest saved to ${chalk.cyan(".mycontext/asl.json")} and ${chalk.cyan(".mycontext/context.json")}`);
     } catch (error) {
       spinner.fail("Failed to save manifest");
       throw error;

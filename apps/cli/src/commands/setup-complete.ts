@@ -6,7 +6,6 @@ import chalk from "chalk";
 import prompts from "prompts";
 import path from "path";
 import fs from "fs-extra";
-import { GenerateContextFilesCommand } from "./generate-context-files";
 import { GenerateCommand } from "./generate";
 import { ProgressTracker } from "../utils/progress";
 import { EnhancedSpinner } from "../utils/spinner";
@@ -339,12 +338,12 @@ export class SetupCompleteCommand {
       console.log(chalk.cyan("📝 Step 2: Generating context files..."));
 
       const contextDescription = this.buildContextDescription(preferences);
-      const contextCommand = new GenerateContextFilesCommand();
+      const generateCommand = new GenerateCommand();
 
-      await contextCommand.execute({
+      await generateCommand.execute({
+        type: "context",
+        full: true,
         description: contextDescription,
-        projectPath: projectPath,
-        verbose: false,
         force: true,
       });
 
@@ -355,7 +354,6 @@ export class SetupCompleteCommand {
       progressTracker.startStep("architecture");
       console.log(chalk.cyan("🏗️ Step 3: Generating project architecture..."));
 
-      const generateCommand = new GenerateCommand();
       await generateCommand.execute({
         type: "architecture",
         description: contextDescription,

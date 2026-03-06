@@ -122,7 +122,7 @@ export interface GenerationResult {
   success: boolean;
   content?: string;
   error?: string;
-  provider: "qwen" | "github" | "huggingface" | "hybrid";
+  provider: "qwen" | "github" | "huggingface" | "hybrid" | "local" | "qwen-hosted";
   metadata?: {
     model: string;
     tokens: number;

@@ -80,6 +80,7 @@ export interface LivingContext {
   // Component manifest (merged from brand and generation)
   components: Array<Component & {
     path?: string;
+    group?: string;
     status: "planned" | "generated" | "verified";
   }>;
 

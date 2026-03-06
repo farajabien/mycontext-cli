@@ -5,12 +5,15 @@
  * Defines the state machine for the "Claude Code"-like TUI.
  */
 
-export type TUIMode = "PLANNING" | "AGENT" | "AUTO_EDIT";
+import { LivingContext } from "./living-context";
+
+export type TUIMode = "PLANNING" | "DASHBOARD" | "AGENT" | "AUTO_EDIT";
 
 export interface TUIState {
   mode: TUIMode;
   input: string;
   history: TUIHistoryItem[];
+  context?: LivingContext;
   contextStatus: {
     megaContextComplete: boolean;
     missingFields: string[];

@@ -10,14 +10,14 @@
 
 This monorepo contains the **MyContext** ecosystem: The first compiler that turns your conversational intent into a deterministic **Feature Structured Representation (FSR)** and mathematically scaffolds a complete Next.js architecture with zero hallucination.
 
-## 🎯 NEW: Phase 0 DS-NLC Compiler (VERIFIED ✓)
+## 🎯 NEW: Unified Brain-First Workflow (VERIFIED ✓)
 
-The CLI pipeline has been successfully transformed into a rigorous Domain-Specific Natural Language Compiler. 
+The CLI has been transformed into a **Brain-First** orchestrator. The `context.json` (The Living Brain) is now the single source of truth for your entire project, from PRD to Types and Brand Guidelines.
 
-**Core Accomplishments**:
-1. **FSR Schema (AST)**: A strict JSON structure mapping features to pages, client/server components, server actions, data models, and UI rules.
-2. **Planner Module**: Isolates LLM intent parsing from file generation. Interactive terminal clarification ensures 100% specification certainty.
-3. **Deterministic Scaffold Generator**: Generates strictly typed Next.js App Router code, shadcn UI components, and InstantDB models utilizing zero machine-learning inference. Same FSR inputs always produce the exact same project output.
+**Key Features**:
+1. **Unified Sync**: `mycontext generate context --full` captures requirements, design tokens, and type definitions in a single high-fidelity AI pass.
+2. **Project Cockpit**: Running `mycontext` without arguments launches an interactive TUI dashboard to manage your project's health and triggers.
+3. **Deterministic Scaffolding**: Render your validated "Brain" into strictly typed Next.js App Router code with zero hallucination.
 
 ## 🧠 Core Philosophy
 
@@ -25,8 +25,8 @@ MyContext is **NOT** a free-wheeling autonomous coding agent. It is a **compiler
 
 - ❌ LLMs do not write your application's raw files.
 - ❌ No unpredictable trial-and-error code generation.
-- ✅ LLMs parse intent and generate an Abstract Specification Language (FSR).
-- ✅ Deterministic script engines render the FSR into Next.js source code.
+- ✅ LLMs parse intent and generate a unified **Living Brain (`context.json`)**.
+- ✅ Deterministic script engines render the Brain into production-ready source code.
 - ✅ Exact, predictable, testable, and strictly typed scaffold outputs.
 
 ---
@@ -36,7 +36,7 @@ MyContext is **NOT** a free-wheeling autonomous coding agent. It is a **compiler
 ### 📦 Apps
 
 - **[`apps/cli`](./apps/cli)** - `mycontext-cli`
-  The Domain-Specific Natural Language Compiler. Contains the interactive Planner, FSR schema validators, and the Deterministic Scaffold Generator.
+  The Brain-First Compiler & Project Cockpit. Contains the interactive Planner, TUI Dashboard, and Unified Scaffold Generator.
   📚 [CLI Documentation](./apps/cli/README.md) | 📦 [npm package](https://www.npmjs.com/package/mycontext-cli)
 
 - **[`apps/web`](./apps/web)** - MyContext Web
@@ -46,7 +46,7 @@ MyContext is **NOT** a free-wheeling autonomous coding agent. It is a **compiler
 ### 📚 Packages
 
 - **[`packages/core`](./packages/core)** - `@myycontext/core`
-  The fundamental shared types and schemas including the immutable **FSR (Feature Structured Representation)** definitions. 
+  Fundamental shared types and schemas including the **Living Context** definitions. 
   📚 [Core Documentation](./packages/core/README.md) | 📦 [npm package](https://www.npmjs.com/package/@myycontext/core)
 
 ---
@@ -59,11 +59,17 @@ MyContext is **NOT** a free-wheeling autonomous coding agent. It is a **compiler
 # Install the CLI globally
 npm install -g mycontext-cli
 
-# Initialize a project and generate FSR specification
-mycontext plan "A todo app with local storage"
+# 1. Initialize a project and establish the local brain
+mycontext init my-project --framework instantdb
 
-# Scaffold code from your generated FSR into Next.js App Router
-mycontext build --feature add_todo
+# 2. Sync the brain (PRD + Types + Brand + Components)
+mycontext generate context --full --description "A modern task manager"
+
+# 3. Scaffold the complete application from the internal specs
+mycontext generate-components all
+
+# 4. Launch the project cockpit
+mycontext
 ```
 
 ### For Contributors (Local Development)

@@ -1,6 +1,7 @@
 import { CommandOptions } from "../types";
 import { FileSystemManager } from "../utils/fileSystem";
 import { EnhancedSpinner } from "../utils/spinner";
+import { ContextRenderer } from "../utils/contextRenderer";
 import { HostedApiClient } from "../utils/hostedApiClient";
 import { CompleteArchitectureEngine } from "../utils/completeArchitectureEngine";
 import { UnifiedDesignContextLoader } from "../utils/unifiedDesignContextLoader";
@@ -489,7 +490,21 @@ export class GenerateComponentsCommand {
     compList: any | null;
   }> {
     try {
-      const cwd = process.cwd();
+      const fs = await import("fs-extra");
+      const brainPath = "./.mycontext/context.json";
+      
+      if (await fs.pathExists(brainPath)) {
+        const brain = await fs.readJson(brainPath);
+        return {
+          prd: ContextRenderer.renderPRD(brain),
+          types: ContextRenderer.renderTypesGuide(brain),
+          brand: ContextRenderer.renderBrandGuide(brain),
+          compListRaw: JSON.stringify({ components: brain.components }),
+          compList: { components: brain.components }
+        };
+      }
+
+      // FALLBACK: Legacy file-based discovery
       const prdCandidates = [
         "./.mycontext/01-prd.md",
         "./.mycontext/prd.md",
@@ -504,8 +519,8 @@ export class GenerateComponentsCommand {
       let prd = "";
       for (const p of prdCandidates) {
         try {
-          if (await (await import("fs-extra")).pathExists(p)) {
-            prd = await (await import("fs-extra")).readFile(p, "utf8");
+          if (await fs.pathExists(p)) {
+            prd = await fs.readFile(p, "utf8");
             break;
           }
         } catch {}
@@ -513,8 +528,8 @@ export class GenerateComponentsCommand {
       let types = "";
       for (const p of typesCandidates) {
         try {
-          if (await (await import("fs-extra")).pathExists(p)) {
-            types = await (await import("fs-extra")).readFile(p, "utf8");
+          if (await fs.pathExists(p)) {
+            types = await fs.readFile(p, "utf8");
             break;
           }
         } catch {}
@@ -529,8 +544,8 @@ export class GenerateComponentsCommand {
       let compList: any | null = null;
       for (const p of listCandidates) {
         try {
-          if (await (await import("fs-extra")).pathExists(p)) {
-            compListRaw = await (await import("fs-extra")).readFile(p, "utf8");
+          if (await fs.pathExists(p)) {
+            compListRaw = await fs.readFile(p, "utf8");
             try {
               compList = JSON.parse(compListRaw);
             } catch {

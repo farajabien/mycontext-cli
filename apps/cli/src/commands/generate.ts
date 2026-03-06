@@ -178,29 +178,14 @@ export class GenerateCommand {
         case "prd":
         case "requirements":
           // Check if user wants full context generation (PRD + A/B/C/D files)
+          // Check if user wants full context generation (PRD + A/B/C/D files)
           if (options.full) {
             // Generate both PRD and A/B/C/D files
             result = await this.generateFullContext(projectContext, options);
           } else {
-            // Default: Generate A/B/C/D files (requires existing PRD)
-            // This is the expected behavior for 'mycontext generate context'
-            // Use the dedicated GenerateContextFilesCommand for proper handling
-            const { GenerateContextFilesCommand } = await import(
-              "./generate-context-files"
-            );
-            const contextFilesCommand = new GenerateContextFilesCommand();
-            await contextFilesCommand.execute({
-              description: projectContext.description,
-              projectPath: this.getProjectRoot(),
-              verbose: options.verbose,
-              force: options.force,
-            });
-            result = {
-              success: true,
-              content: "Context files generated successfully",
-              provider: "hybrid" as any,
-              metadata: { model: "hybrid", tokens: 0, latency: 0 },
-            };
+            // Default: Direct to full generation as the new standard
+            console.log(chalk.blue("ℹ️  Note: 'generate context' now defaults to full brain synchronization."));
+            result = await this.generateFullContext(projectContext, options);
           }
           break;
         case "types":
@@ -2397,11 +2382,28 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
     projectContext: any,
     options: GenerateOptions
   ): Promise<GenerationResult> {
+    // 1. Try to load from Living Brain first
+    const livingContext = await this.loadLivingContext();
+    if (livingContext && livingContext.components && livingContext.components.length > 0 && !options.force) {
+      this.spinner.updateText("📋 Using component architecture from Living Brain...");
+      return {
+        success: true,
+        content: JSON.stringify(livingContext.components, null, 2),
+        provider: "local",
+        metadata: {
+          model: "static",
+          tokens: 0,
+          latency: 0,
+        },
+      };
+    }
+
+    // 2. Fallback to AI generation if brain is empty or force is used
+    this.spinner.updateText("📋 Discovering component architecture via AI...");
+    
     // Load comprehensive context for better component generation
     const allContext = await this.loadAllContextFiles();
     const ctx = await this.readContextArtifacts();
-    // Note: No core readiness check here - components-list generation should happen
-    // before any core component is selected and refined
     const coreExcerpt = await this.readCoreExcerpt();
 
     // DEFAULT to gpt-4o-mini for planning tasks to avoid 8k token limits
@@ -2446,24 +2448,15 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
       "",
       "Return strictly valid JSON with this structure:",
       "{",
-      '  "ApplicationName": {',
-      '    "description": "Short description",',
-      '    "children": {',
-      '      "SectionName": {',
-      '        "description": "Section description",',
-      '        "children": {',
-      '          "ComponentName": { "description": "Specific purpose", "type": "form|layout|display|interactive" }',
-      "        }",
-      "      }",
-      "    }",
-      "  },",
-      '  "metadata": { "totalComponents": 0, "completedComponents": 0 }',
+      '  "components": [',
+      '    { "name": "ComponentName", "description": "Specific purpose", "type": "form|layout|display|interactive", "group": "GroupName", "status": "planned" }',
+      "  ],",
+      '  "metadata": { "totalComponents": 0 }',
       "}",
       "",
       "Rules:",
       "- Logical React composition starting from root",
       "- Extract specific feature terminology from context",
-      "- Ensure totalComponents includes all children",
       "- Return ONLY JSON - no markdown fences.",
     ].join("\n");
 
@@ -2476,9 +2469,6 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
 
       if (hasLocalKeys) {
         // Use local AI first (user's own keys)
-        this.spinner.updateText(
-          `📋 Generating component list with ${await this.ai.getActiveProviderName()} (${model})...`
-        );
         try {
           const r = await this.ai.generateText(prompt, {
             model,
@@ -2515,10 +2505,6 @@ Make the CSS immediately usable - no placeholders, actual working values!`;
         }
       } else {
         // No local keys - use hosted API (requires authentication)
-        this.spinner.updateText(
-          "📋 Generating component list with MyContext AI (hosted)..."
-        );
-
         const hostedResult = await this.hostedApi.generateContext(
           "components-list",
           prompt,
@@ -4811,7 +4797,8 @@ INSTRUCTIONS:
 1. Analyze the project details provided above (which may include file structure, tech stack, and README summary).
 2. Extract functional requirements, user flows, and technical limits.
 3. If the description includes a file tree, infer the project architecture from it.
-4. Generate a complete PRD and Technical Spec that reflects this ACTUAL existing project.
+4. Identify all necessary UI components and group them logically (e.g. Auth, Sidebar, Dashboard).
+5. Generate a complete PRD, Technical Spec, and Component Architecture that reflects this ACTUAL existing project.
 `;
     }
 
@@ -4822,12 +4809,31 @@ INSTRUCTIONS:
   "features": [{ "id": "...", "name": "...", "description": "...", "priority": "high|medium|low", "userValue": "...", "acceptanceCriteria": [], "dependencies": [] }],
   "flows": [{ "id": "...", "name": "...", "description": "...", "steps": [], "actors": [] }],
   "edgeCases": [{ "id": "...", "category": "...", "description": "...", "mitigation": "..." }],
+  "brand": {
+    "theme": "light|dark",
+    "colors": { "primary": "#...", "background": "#...", "text": "#...", "accent": "#..." },
+    "typography": { "fontFamily": "...", "headingScale": "..." },
+    "designPrinciples": []
+  },
+  "types": {
+    "entities": [{ "name": "...", "description": "...", "schema": "export interface ... { ... }" }],
+    "shared": [{ "name": "...", "description": "...", "schema": "export interface ... { ... }" }]
+  },
   "specs": {
     "architecture": "...",
     "techStack": { "frontend": [], "backend": [], "database": [], "other": [] },
     "apiEndpoints": [{ "path": "...", "method": "...", "description": "...", "authRequired": true }],
     "databaseSchema": { "tables": [{ "name": "...", "columns": [{ "name": "...", "type": "...", "constraints": [] }] }] }
-  }
+  },
+  "components": [
+    {
+       "name": "ComponentName",
+       "description": "...",
+       "type": "form|layout|display|interactive",
+       "group": "Auth|Dashboard|etc",
+       "status": "planned"
+    }
+  ]
 }
 `;
 
@@ -4887,6 +4893,9 @@ INSTRUCTIONS:
         { name: "01b-user-flows.md", content: ContextRenderer.renderUserFlows(livingContext) },
         { name: "01c-edge-cases.md", content: ContextRenderer.renderEdgeCases(livingContext) },
         { name: "01d-technical-specs.md", content: ContextRenderer.renderTechnicalSpecs(livingContext) },
+        { name: "02-types-guide.md", content: ContextRenderer.renderTypesGuide(livingContext) },
+        { name: "03-brand-guide.md", content: ContextRenderer.renderBrandGuide(livingContext) },
+        { name: "04-component-list.md", content: ContextRenderer.renderComponentList(livingContext) },
       ];
 
       for (const render of renders) {

@@ -41,10 +41,42 @@ export class FileSystemManager {
     }
     await fs.ensureDir(mycontextPath);
 
-    // Write config file
     await fs.writeJson(path.join(mycontextPath, "config.json"), config, {
       spaces: 2,
     });
+
+    // Create initial Living Brain JSON (The Source of Truth)
+    const brain = {
+      version: "1.0.0",
+      generated_at: timestamp,
+      project_name: projectName,
+      metadata: {
+        version: "1.0.0",
+        generatedAt: timestamp,
+        lastUpdatedAt: timestamp,
+        projectConfig: config
+      },
+      prd: {
+        title: projectName,
+        problemStatement: description,
+        goals: [],
+        targetAudience: "",
+        successMetrics: []
+      },
+      features: [],
+      flows: [],
+      edgeCases: [],
+      specs: {
+        architecture: "nextjs-app-router",
+        techStack: { frontend: ["Next.js", "Tailwind", "shadcn/ui"], backend: ["InstantDB"], database: [], other: [] },
+        apiEndpoints: [],
+        databaseSchema: { tables: [] }
+      },
+      components: [],
+      actions: [],
+      routes: []
+    };
+    await fs.writeJson(path.join(mycontextPath, "context.json"), brain, { spaces: 2 });
 
     // Create initial PRD template (.mycontext/01-prd.md)
     const prdTemplate = this.createPRDTemplate(projectName, description);

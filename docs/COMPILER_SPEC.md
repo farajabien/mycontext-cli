@@ -35,11 +35,11 @@ Admins can manage inventory and view orders."
 ```
 my-blog/
 ├── .mycontext/
-│   ├── context.json              # Master brain (canonical state)
-│   ├── components_registry.json  # Component catalog
-│   ├── types_registry.json       # Type definitions
-│   ├── permissions_manifest.json # RBAC rules
-│   └── design_manifest.json      # Design tokens
+│   ├── context.json              # Master brain (canonical state / SSOT)
+│   ├── 01-prd.md                 # Read-only export: PRD
+│   ├── 01a-features.md           # Read-only export: Features
+│   ├── 02-types-guide.md         # Read-only export: Types
+│   └── 03-brand-guide.md         # Read-only export: Brand
 │
 ├── src/
 │   ├── app/
@@ -140,7 +140,7 @@ my-blog/
    - [ ] Authors and admins
    - [ ] All authenticated users
 
-**Output:** Abstract Specification Language (ASL)
+**Output:** The Living Brain (`context.json`)
 ```json
 {
   "project": {
@@ -229,7 +229,11 @@ my-blog/
     { "path": "/posts/[id]", "component": "PostDetailPage", "guards": ["authenticated"] },
     { "path": "/posts/new", "component": "NewPostPage", "guards": ["authenticated"], "permissions": ["create:Post"] },
     { "path": "/posts/[id]/edit", "component": "EditPostPage", "guards": ["authenticated"], "permissions": ["update:Post"] }
-  ]
+  ],
+  "brand": {
+    "colors": { "primary": "#3b82f6", "secondary": "#6366f1" },
+    "typography": { "sans": "Inter" }
+  }
 }
 ```
 
@@ -673,11 +677,19 @@ mycontext init --interactive
 - ASL is built iteratively
 - Stops when 100% complete
 
-### 2. Scaffold from Manifest
+### 2. Sync and Export
 ```bash
-mycontext scaffold --from-manifest
+mycontext generate context --full
 ```
-- Reads finalized ASL
+- Performs a unified AI sync
+- Updates `context.json` SSOT
+- Exports Markdown files for review
+
+### 3. Scaffold from Brain
+```bash
+mycontext generate-components all
+```
+- Reads finalized `context.json`
 - Executes all script generators
 - Outputs complete project
 
