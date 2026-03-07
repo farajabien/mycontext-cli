@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The App - Landing Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('/assets/images/hero-background.png');
+            background-size: cover;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <header class="flex justify-between items-center p-6 glass">
+            <img src="/assets/images/logo.png" alt="Logo" class="h-10">
+            <nav class="space-x-4">
+                <a href="#" class="text-white hover:text-teal-500">Home</a>
+                <a href="#" class="text-white hover:text-teal-500">Features</a>
+                <a href="#" class="text-white hover:text-teal-500">Pricing</a>
+                <a href="#" class="text-white hover:text-teal-500">Contact</a>
+            </nav>
+            <button id="theme-toggle" class="bg-teal-500 text-white p-2 rounded">Toggle Theme</button>
+        </header>
+
+        <main class="flex flex-col items-center justify-center h-screen text-center">
+            <h1 class="text-5xl text-white font-bold mb-4">Welcome to The App</h1>
+            <p class="text-lg text-gray-200 mb-8">Revolutionizing your development workflows with AI-driven tools.</p>
+            <img src="/assets/images/cta-button.png" alt="Get Started" class="mt-4 cursor-pointer">
+        </main>
+
+        <section class="py-16 glass">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-semibold text-center mb-10">Key Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <img src="/assets/images/feature-analytics-icon.png" alt="Analytics" class="mx-auto mb-4">
+                        <h3 class="font-semibold">Advanced Analytics</h3>
+                        <p>Get insights and metrics that matter to your projects.</p>
+                    </div>
+                    <div class="text-center">
+                        <img src="/assets/images/feature-analytics-icon.png" alt="AI Tools" class="mx-auto mb-4">
+                        <h3 class="font-semibold">AI Tools</h3>
+                        <p>Leverage cutting-edge AI technologies to enhance your productivity.</p>
+                    </div>
+                    <div class="text-center">
+                        <img src="/assets/images/feature-analytics-icon.png" alt="Collaboration" class="mx-auto mb-4">
+                        <h3 class="font-semibold">Team Collaboration</h3>
+                        <p>Streamline your workflow with seamless collaboration tools.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="flex flex-col items-center py-6">
+            <div class="glass p-6 text-center">
+                <p class="text-gray-500">© 2023 The App. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4">
+                    <a href="#" class="text-gray-500 hover:text-teal-500">Privacy Policy</a>
+                    <a href="#" class="text-gray-500 hover:text-teal-500">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

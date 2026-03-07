@@ -76,6 +76,14 @@ export class ProviderChain implements AIClient {
     return AICore.getInstance().generateVisionText(prompt, imagePath, options);
   }
 
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    return AICore.getInstance().generateImage(prompt, outputPath, options);
+  }
+
   // Legacy compatibility methods
   getPrimaryProvider(): any {
     return this.client;

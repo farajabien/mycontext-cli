@@ -408,9 +408,19 @@ export function registerVisionTestCommands(program: Command): void {
     .option("--slow-mo <ms>", "Slow down by N milliseconds")
     .option("--record-video", "Record video of test execution")
     .option("--check-density", "Perform visual density analysis")
+    .option("--fresh", "Delete existing test directory before starting")
     .option("-v, --verbose", "Verbose output")
     .action(async (name, options) => {
       const cmd = new VisionTestCommand();
+      
+      if (options.fresh) {
+        const testDir = path.join(process.cwd(), "tmp-test", name);
+        if (fs.existsSync(testDir)) {
+          console.log(chalk.yellow(`\n🧹 Cleaning up fresh test directory: ${testDir}\n`));
+          await fs.remove(testDir);
+        }
+      }
+
       if (options.checkDensity) {
         await cmd.checkDensity(options.url || "http://localhost:3000");
       } else {

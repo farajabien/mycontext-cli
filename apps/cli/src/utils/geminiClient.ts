@@ -54,11 +54,11 @@ export class GeminiClient implements AIClient {
   private model: string;
 
   private readonly MODELS = [
-    "gemini-1.5-flash",           // Stable 1.5 Flash
-    "gemini-1.5-pro",             // Stable 1.5 Pro
-    "gemini-2.0-flash",           // Flash 2.0 (Stable Alias)
-    "gemini-2.0-flash-exp",       // Experimental Flash 2.0
-    "gemini-1.5-flash-8b",        // Efficient 1.5 Flash
+    "gemini-2.0-flash",           // Flash 2.0
+    "gemini-1.5-pro",             // Pro 1.5
+    "gemini-1.5-flash",           // Flash 1.5
+    "gemini-2.0-flash-exp",       // Flash 2.0 Experimental
+    "gemini-pro",                 // Legacy Pro
   ];
 
   constructor() {
@@ -96,6 +96,10 @@ export class GeminiClient implements AIClient {
 
     if (key) {
       this.apiKey = key;
+      // Debug: Log key prefix to verify if terminal or file key is used
+      if (process.env.DEBUG || process.env.VERBOSE) {
+        logger.debug(`Gemini: Using API key starting with ${key.substring(0, 8)}... (Source: ${process.env.GEMINI_API_KEY ? 'Terminal/Env' : 'Project File'})`);
+      }
     }
     return key || "";
   }
@@ -224,20 +228,22 @@ export class GeminiClient implements AIClient {
 
     // Try models in order
     for (const modelName of this.MODELS) {
-      try {
-        this.model = modelName;
+      // Robust Endpoint Sweeping: Try both v1 and v1beta for each model
+      // 2.0 models usually need v1beta, 1.5 models usually use v1
+      const endpoints = modelName.includes("2.0") || modelName.includes("exp") 
+        ? ["v1beta", "v1"] 
+        : ["v1", "v1beta"];
         
-        if (!this.genAI) {
-            const key = this.getApiKey();
-            this.genAI = new GoogleGenerativeAI(key);
-        }
-        
-        const model = this.genAI.getGenerativeModel({ 
-            model: modelName,
-            systemInstruction: systemInstruction
-        });
+      for (const apiVersion of endpoints) {
+        try {
+          const fullModelName = modelName.startsWith("models/") ? modelName : `models/${modelName}`;
+          
+          const model = this.genAI.getGenerativeModel({ 
+              model: fullModelName,
+              systemInstruction: systemInstruction
+          }, { apiVersion });
 
-        logger.debug(`Gemini: Generating with ${modelName}`);
+          logger.debug(`Gemini: Generating with ${fullModelName} (${apiVersion})`);
 
         const generationConfig = {
             temperature: config?.temperature ?? 0.7,
@@ -288,6 +294,7 @@ export class GeminiClient implements AIClient {
             console.error(`⚠️ Gemini model ${modelName} failed: ${error.message.substring(0, 100)}${error.message.length > 100 ? '...' : ''}`);
         }
         continue;
+        }
       }
     }
     
@@ -362,6 +369,17 @@ IMPORTANT: Output ONLY valid HTML code within \`\`\`html blocks.
     if (context?.flows) prompt += `\n## FLOWS:\n${context.flows}\n`;
     if (context?.sampleData) prompt += `\n## DATA:\n${JSON.stringify(context.sampleData, null, 2)}\n`;
     
+    if (context?.imagesManifest) {
+      const assets = Array.isArray(context.imagesManifest.assets) ? context.imagesManifest.assets : (context.imagesManifest.visualAssets || context.imagesManifest);
+      if (Array.isArray(assets)) {
+        prompt += `\n## LOCAL VISUAL ASSETS (CRITICAL - USE THESE PATHS):\n`;
+        assets.forEach((a: any) => {
+          prompt += `- ${a.id}: /assets/images/${a.id}.png (${a.description})\n`;
+        });
+        prompt += `\nSTRICT REQUIREMENT: Use these LOCAL paths provided for all relevant images. DO NOT use Unsplash or placeholders.\n`;
+      }
+    }
+    
     prompt += `\n## REQUEST:\n${userPrompt}\n`;
     return prompt;
   }
@@ -427,6 +445,24 @@ IMPORTANT: Output ONLY valid HTML code within \`\`\`html blocks.
    */
   async listModels(): Promise<string[]> {
     return this.MODELS;
+  }
+
+  /**
+   * Generate image using Gemini (Implement via Imagen or specific multimodal if available)
+   * Note: Currently implemented as a placeholder for agentic fulfillment.
+   */
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options?: AIClientOptions
+  ): Promise<string> {
+    logger.debug(`Gemini: Requested image generation for: ${prompt}`);
+    // In a real environment, this would call Imagen 3 or similar GCP API
+    // For this CLI, we log it so the Agentic layer can fulfill or use a placeholder
+    
+    // Check for GITHUB_TOKEN which might allow some image models if added later
+    
+    throw new Error("Direct image generation not yet implemented in GeminiClient. Agentic fulfillment required.");
   }
 
   /**

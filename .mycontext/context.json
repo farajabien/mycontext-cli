@@ -1,272 +1,254 @@
 {
   "prd": {
-    "title": "MyContext Monorepo",
-    "problemStatement": "Development teams face challenges in maintaining alignment between their design intent and the actual implementation, leading to code drift, inefficiencies, and inconsistencies. Existing AI agents lack a deterministic context, often producing outputs that are misaligned with user requirements.",
+    "title": "MyContext AI CLI: The Living Brain for Spec-Driven Development",
+    "problemStatement": "Developers, especially those leveraging AI, spend significant time bootstrapping projects, managing context, and ensuring consistency across the codebase. AI code generation often lacks deep project awareness, leading to generic, disconnected, or incorrect outputs. There is a critical need for a system that maintains a dynamic, 'living' understanding of a project, which can be used by both humans and AI agents to build, evolve, and test applications with high fidelity and speed.",
     "goals": [
-      "Provide a deterministic framework to ensure code evolution aligns with design intent.",
-      "Enable zero-drift autonomous development through context-driven AI agents.",
-      "Create a unified ecosystem, including CLI tools, a web interface, and developer IDE extensions."
+      "To provide a CLI tool that can initialize, analyze, and manage a 'Living Brain' (a comprehensive JSON context file) for any web project.",
+      "To orchestrate a suite of specialized AI agents that can read from and write to the Living Brain to perform tasks like code generation, documentation, visual testing, and refactoring.",
+      "To enable a spec-driven development workflow where changes to the spec (the Living Brain) can be used to automatically generate or update code, tests, and documentation.",
+      "To integrate multi-modal AI (vision) for UI analysis, automated testing, and demo creation, bridging the gap between design and implementation.",
+      "To provide robust project analysis and planning tools that generate accurate, context-aware build strategies and executable plans."
     ],
-    "targetAudience": "Software developers, technical leads, and organizations seeking to streamline development processes and maintain code quality through AI-driven tools.",
+    "targetAudience": "Software developers, development teams, and AI engineers building modern web applications, with a primary focus on the Next.js/React ecosystem.",
     "successMetrics": [
-      "Successful deployment and adoption of the MyContext CLI tool.",
-      "Increased accuracy of AI-generated code aligned with design intent.",
-      "Positive feedback from developers using the Visual Studio Code extension."
+      "Reduction in project setup and scaffolding time by over 50%.",
+      "Achieve 90%+ accuracy for AI-generated components based on a well-defined Living Brain context.",
+      "Adoption of the CLI tool in developer workflows, measured by active projects and command usage.",
+      "Number of successful, end-to-end 'build-app' workflow executions from a simple prompt.",
+      "Positive developer feedback on the quality and contextual relevance of generated code and artifacts."
     ]
   },
   "features": [
     {
-      "id": "feature-1",
-      "name": "Deterministic Context Engine",
-      "description": "A deterministic physics engine that ensures code generation aligns with the context defined in context.json.",
+      "id": "living-brain-management",
+      "name": "Living Brain Management",
+      "description": "Core functionality to initialize, analyze, and manage the project's 'Living Brain' (context.json). This includes generating context from scratch, analyzing existing projects, and validating context integrity.",
       "priority": "high",
-      "userValue": "Developers can trust that generated code aligns with their design specifications.",
+      "userValue": "Provides a single source of truth for the project, ensuring that both developers and AI agents have a consistent and deep understanding of the project's requirements, architecture, and state.",
       "acceptanceCriteria": [
-        "The engine processes context.json and generates code that matches the defined structure and rules.",
-        "The engine handles edge cases and provides appropriate feedback for conflicts."
-      ],
-      "dependencies": [
-        "@mycontext/core"
-      ]
-    },
-    {
-      "id": "feature-2",
-      "name": "CLI Tool",
-      "description": "A command-line interface for initializing projects, analyzing screenshots, generating context, and autonomous code evolution.",
-      "priority": "high",
-      "userValue": "Developers can efficiently manage projects and initiate context-driven development from the command line.",
-      "acceptanceCriteria": [
-        "CLI successfully initializes new projects and generates context.json.",
-        "The interface is user-friendly and provides clear feedback.",
-        "Integration with the deterministic context engine is seamless."
-      ],
-      "dependencies": [
-        "@mycontext/core"
-      ]
-    },
-    {
-      "id": "feature-3",
-      "name": "Visual Studio Code Extension",
-      "description": "An extension to integrate MyContext features into the Visual Studio Code editor.",
-      "priority": "medium",
-      "userValue": "Developers can use MyContext tools directly within their IDE for a seamless workflow.",
-      "acceptanceCriteria": [
-        "The extension integrates with existing VS Code projects.",
-        "Developers can access MyContext features such as context editing and code generation."
-      ],
-      "dependencies": [
-        "@mycontext/core",
-        "mycontext-cli"
-      ]
-    },
-    {
-      "id": "feature-4",
-      "name": "Web Interface",
-      "description": "A visual studio and marketing website for the MyContext ecosystem.",
-      "priority": "medium",
-      "userValue": "Users can visually interact with the MyContext ecosystem and learn more about its capabilities.",
-      "acceptanceCriteria": [
-        "The web interface provides a clear overview of MyContext features.",
-        "Basic visual studio features are functional for project management."
+        "The `init` command creates a .mycontext directory with a basic context structure.",
+        "The `analyze` command scans an existing project and populates the Living Brain with inferred details.",
+        "The `generate context` command uses AI to flesh out a complete set of context documents (PRD, specs, etc.).",
+        "The `validate` command checks the context for completeness and consistency."
       ],
       "dependencies": []
+    },
+    {
+      "id": "agent-orchestration-system",
+      "name": "Agent Orchestration System",
+      "description": "A sophisticated system for managing and coordinating a team of specialized AI sub-agents. The orchestrator can execute agents sequentially, in parallel, or in complex workflows with validation gates.",
+      "priority": "high",
+      "userValue": "Enables complex, multi-step tasks to be automated reliably. It breaks down large problems into manageable pieces for specialized agents, improving the quality and reliability of the final output.",
+      "acceptanceCriteria": [
+        "The system can register and execute individual agents.",
+        "The `WorkflowAgent` can execute a predefined sequence of agents to build an application.",
+        "The system supports inter-agent communication via the `AgentCommunicationManager`.",
+        "Workflows can handle retries and failures gracefully."
+      ],
+      "dependencies": [
+        "living-brain-management"
+      ]
+    },
+    {
+      "id": "ai-powered-code-generation",
+      "name": "AI-Powered Code Generation",
+      "description": "Generates production-ready code for components, server actions, hooks, and types based on the Living Brain. It specializes in creating shadcn/ui-based React components for Next.js.",
+      "priority": "high",
+      "userValue": "Drastically accelerates development by automating the creation of boilerplate and complex UI components, ensuring they are consistent with the project's design system and technical specifications.",
+      "acceptanceCriteria": [
+        "The `generate-components` command can create single components, groups, or all components defined in the context.",
+        "Generated components are type-safe and use TypeScript.",
+        "Generated code adheres to best practices for the specified framework (Next.js App Router).",
+        "The `BackendDevAgent` can generate server actions and custom hooks for data fetching and mutations."
+      ],
+      "dependencies": [
+        "living-brain-management"
+      ]
+    },
+    {
+      "id": "vision-based-testing-and-demos",
+      "name": "Vision-Based Testing & Demos",
+      "description": "An autonomous testing suite that uses vision AI to navigate and validate web UIs like a human user. It can execute test missions, perform visual regression checks, and record professional demos.",
+      "priority": "medium",
+      "userValue": "Automates end-to-end testing in a way that closely mimics real user interaction, catching visual bugs and usability issues that traditional tests miss. It also automates the creation of marketing and documentation assets.",
+      "acceptanceCriteria": [
+        "The `VisionNavigatorAgent` can follow a multi-step mission on a live web page.",
+        "The `VisualValidatorAgent` can compare a screenshot against a baseline and identify significant differences.",
+        "The `DemoRecorderAgent` can generate video (MP4), screenshot sequences, and HTML replays of a test run.",
+        "The entire workflow is coordinated by the `VisionTestCoordinator`."
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "iterative-enhancement",
+      "name": "Iterative Enhancement & Refinement",
+      "description": "Allows developers to refine and refactor existing components using natural language prompts. The `EnhancementAgent` analyzes the code and applies the requested changes intelligently.",
+      "priority": "medium",
+      "userValue": "Streamlines the process of making changes and improvements to the codebase, enabling rapid prototyping and iteration without manual refactoring.",
+      "acceptanceCriteria": [
+        "The `enhance` command can take a component file and a prompt as input.",
+        "The agent can add new functionality, refactor logic, or change styling based on the prompt.",
+        "The agent provides a diff of the changes before applying them."
+      ],
+      "dependencies": [
+        "ai-powered-code-generation"
+      ]
     }
   ],
   "flows": [
     {
-      "id": "flow-1",
-      "name": "Project Initialization with CLI",
-      "description": "Users initialize a new project using the MyContext CLI.",
+      "id": "new-project-workflow",
+      "name": "New Project Initialization Workflow",
+      "description": "The end-to-end flow for a developer starting a new project from a simple description.",
       "steps": [
-        "User runs the CLI command to initialize a new project.",
-        "CLI prompts the user for project details.",
-        "CLI generates a context.json file and initial project structure."
+        "Developer runs `mycontext init-interactive` and provides a one-sentence description of the app.",
+        "The system decomposes the request and uses AI to infer a complete project specification (ASL), prompting the user only for low-confidence items.",
+        "Upon approval, the system saves the specification (`asl.json`).",
+        "Developer runs `mycontext build`.",
+        "The `WorkflowAgent` orchestrates the `ProjectSetupAgent` to scaffold the Next.js project.",
+        "The `CodeGenSubAgent` and `BackendDevAgent` are run to generate all components, actions, and hooks defined in the spec.",
+        "The `QASubAgent` validates the generated code.",
+        "The project is ready for the developer to run `pnpm dev`."
       ],
       "actors": [
-        "Developer"
+        "Developer",
+        "AI Planner",
+        "WorkflowAgent"
       ]
     },
     {
-      "id": "flow-2",
-      "name": "Code Generation Based on Context",
-      "description": "AI agents generate code based on the deterministic context defined in context.json.",
+      "id": "vision-test-flow",
+      "name": "Autonomous Vision-Based UI Test Flow",
+      "description": "A developer triggers an autonomous UI test on a deployed application.",
       "steps": [
-        "User updates context.json with new specifications.",
-        "CLI or IDE extension triggers the code generation process.",
-        "Deterministic context engine generates code and provides feedback."
+        "Developer defines a test mission in a config file (e.g., 'Sign up as a new user and create a new post').",
+        "Developer runs `mycontext vision-test --mission signup`.",
+        "The `VisionTestCoordinator` is activated.",
+        "The `VisionNavigatorAgent` opens a browser, navigates to the app URL, and uses vision AI to find and interact with elements (e.g., clicks 'Sign Up', fills form fields).",
+        "At key steps, the `VisualValidatorAgent` takes screenshots and compares them against baseline images to check for visual regressions.",
+        "The `DemoRecorderAgent` records the entire session.",
+        "Upon completion, the coordinator aggregates the results, including pass/fail status, visual diffs, and a link to the generated demo video.",
+        "The results are written to the Living Brain."
       ],
       "actors": [
-        "Developer"
+        "Developer",
+        "VisionTestCoordinator",
+        "VisionNavigatorAgent",
+        "VisualValidatorAgent"
       ]
-    },
-    {
-      "id": "flow-3",
-      "name": "Post-Scaffold LLM Enhancement",
-      "description": "After deterministic scaffolding, the planner agent may invoke the LLM to enhance or refactor existing components only (never generate from scratch).",
-      "steps": [
-        "Mega script completes deterministic scaffold (all code matches manifest/context).",
-        "Planner agent identifies opportunities for enhancement or refactor (e.g., improve a component, add animation, refactor logic).",
-        "LLM receives a single component or group of components and a specific enhancement/refactor query.",
-        "LLM output is reviewed and integrated; all changes update the component registry and context.json."
-      ],
-      "actors": [
-        "Planner Agent",
-        "LLM",
-        "Developer"
-      ],
-      "notes": "LLM is never used for initial codegen—only for post-scaffold enhancement/refactor. As CLI/planner enforce alignment, the ALIGN file's role becomes advisory/redundant."
-    }
     }
   ],
   "edgeCases": [
     {
-      "id": "edge-1",
-      "category": "File conflicts",
-      "description": "Generated code conflicts with existing files in the project.",
-      "mitigation": "Provide detailed feedback on conflicts and allow the user to resolve them manually or automatically overwrite."
+      "id": "ai-hallucination",
+      "category": "AI Reliability",
+      "description": "An AI agent may 'hallucinate' and generate code or text that is incorrect, irrelevant, or nonsensical.",
+      "mitigation": "Each agent's output is passed through a validation step (e.g., `QASubAgent` for code, schema validation for JSON). Workflows include retry logic. The system uses multiple AI providers and can fallback if one fails."
     },
     {
-      "id": "edge-2",
-      "category": "Invalid context.json",
-      "description": "User provides an incomplete or incorrect context.json file.",
-      "mitigation": "Implement validation for context.json and provide clear error messages to guide the user."
+      "id": "context-drift",
+      "category": "Project State",
+      "description": "The Living Brain (context.json) may become out of sync with the actual codebase if developers make manual changes without updating the context.",
+      "mitigation": "The `analyze` command can be run to re-scan the project and suggest updates to the Living Brain. Git hooks can be configured to remind developers to update the context."
+    },
+    {
+      "id": "infinite-agent-loop",
+      "category": "Workflow Execution",
+      "description": "An automated workflow, especially one with retry logic, could enter an infinite loop if an agent consistently fails in a specific way.",
+      "mitigation": "Workflows have a maximum attempt limit (`maxRetries`). The `SubAgentOrchestrator` tracks execution time and will time out long-running steps."
     }
   ],
-  "specs": {
-    "architecture": "Monorepo structure with distinct directories for CLI, web interface, VS Code extension, and shared core functionalities.",
-    "techStack": {
-      "frontend": [
-        "React",
-        "HTML",
-        "CSS"
-      ],
-      "backend": [
-        "Node.js"
-      ],
-      "database": [
-        "JSON (Living DB)",
-        "Option for external database integration"
-      ],
-      "other": [
-        "NPM for package management",
-        "GitHub for version control"
-      ]
+  "brand": {
+    "theme": "dark",
+    "colors": {
+      "primary": "#22c55e",
+      "background": "#0a0a0a",
+      "text": "#ededed",
+      "accent": "#2563eb"
     },
-    "apiEndpoints": [
+    "typography": {
+      "fontFamily": "Inter, Geist, sans-serif",
+      "headingScale": "1.2 (Major Third)"
+    },
+    "designPrinciples": [
+      "Developer-First: The UI and UX should be intuitive and efficient for developers.",
+      "Clarity over Cuteness: Prioritize clear information hierarchy and readability.",
+      "Deterministic & Reliable: Processes should be repeatable and produce consistent results.",
+      "Extensible: The architecture should allow for new agents and capabilities to be added easily."
+    ]
+  },
+  "types": {
+    "entities": [
       {
-        "path": "/context/generate",
-        "method": "POST",
-        "description": "Generates a context.json file based on input parameters.",
-        "authRequired": true
+        "name": "SubAgent",
+        "description": "Represents a specialized AI agent within the system.",
+        "schema": "export interface SubAgent<TInput = any, TOutput = any> {\n  name: string;\n  description: string;\n  personality: string;\n  llmProvider: string;\n  expertise: string[];\n  run(input: TInput): Promise<TOutput>;\n}"
       },
       {
-        "path": "/code/evolve",
-        "method": "POST",
-        "description": "Triggers autonomous code evolution based on the context.json file.",
-        "authRequired": true
+        "name": "LivingContext",
+        "description": "The core 'Living Brain' data structure that holds all project context.",
+        "schema": "export interface LivingContext {\n  prd: any;\n  features: any[];\n  flows: any[];\n  brand: any;\n  types: any;\n  specs: any;\n  components: any[];\n}"
+      },
+      {
+        "name": "VisionTestMission",
+        "description": "Defines a task for the vision-based testing agents to perform.",
+        "schema": "export interface VisionTestMission {\n  id: string;\n  name: string;\n  mission: string;\n  startUrl: string;\n  expectedOutcome: string;\n  recordDemo: boolean;\n}"
       }
     ],
-    "databaseSchema": {
-      "tables": [
-        {
-          "name": "contexts",
-          "columns": [
-            {
-              "name": "id",
-              "type": "UUID",
-              "constraints": [
-                "PRIMARY KEY"
-              ]
-            },
-            {
-              "name": "name",
-              "type": "VARCHAR(255)",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "data",
-              "type": "JSON",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "created_at",
-              "type": "TIMESTAMP",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "updated_at",
-              "type": "TIMESTAMP",
-              "constraints": [
-                "NOT NULL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "users",
-          "columns": [
-            {
-              "name": "id",
-              "type": "UUID",
-              "constraints": [
-                "PRIMARY KEY"
-              ]
-            },
-            {
-              "name": "username",
-              "type": "VARCHAR(255)",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "password_hash",
-              "type": "VARCHAR(255)",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "email",
-              "type": "VARCHAR(255)",
-              "constraints": [
-                "NOT NULL"
-              ]
-            },
-            {
-              "name": "created_at",
-              "type": "TIMESTAMP",
-              "constraints": [
-                "NOT NULL"
-              ]
-            }
-          ]
-        }
+    "shared": [
+      {
+        "name": "CommandOptions",
+        "description": "Shared options for CLI commands.",
+        "schema": "export interface CommandOptions {\n  yes?: boolean;\n  verbose?: boolean;\n  debug?: boolean;\n}"
+      }
+    ]
+  },
+  "specs": {
+    "architecture": "The project is a monorepo managed by pnpm workspaces. The primary application is a command-line interface (CLI) tool located in `apps/cli`. This CLI is built with TypeScript and Node.js, using `commander.js` for command parsing. The core logic is architected around a system of specialized AI 'Sub-Agents', managed by a central `SubAgentOrchestrator`. Each agent is a class responsible for a specific domain (e.g., code generation, security, QA). Agents communicate and share state through a central 'Living Brain' (a structured JSON file), following a blackboard architectural pattern. The monorepo also contains several experimental Next.js applications used for testing, demonstration, and as targets for the CLI's capabilities.",
+    "techStack": {
+      "frontend": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "shadcn/ui"
+      ],
+      "backend": [
+        "Node.js",
+        "TypeScript"
+      ],
+      "database": [],
+      "other": [
+        "pnpm (workspaces)",
+        "Commander.js",
+        "Playwright",
+        "Zod",
+        "OpenAI API",
+        "Google Gemini API",
+        "Anthropic Claude API"
       ]
+    },
+    "apiEndpoints": [],
+    "databaseSchema": {
+      "tables": []
     }
   },
+  "components": [],
   "metadata": {
     "version": "1.0.0",
-    "generatedAt": "2026-02-18T11:50:21.101Z",
-    "lastUpdatedAt": "2026-02-18T11:50:21.102Z",
+    "generatedAt": "2026-03-07T03:39:59.596Z",
+    "lastUpdatedAt": "2026-03-07T03:39:59.596Z",
     "projectConfig": {
-      "id": "958b8e40-5067-4a4c-9fa1-a1c2454fb87a",
-      "name": "MyContext Monorepo",
-      "description": "Development teams face challenges in maintaining alignment between their design intent and the actual implementation, leading to code drift, inefficiencies, and inconsistencies. Existing AI agents lack a deterministic context, often producing outputs that are misaligned with user requirements.",
-      "createdAt": "2026-02-18T11:50:21.102Z",
-      "updatedAt": "2026-02-18T11:50:21.102Z",
+      "id": "f5935938-168f-4849-b3b7-9665c84f4499",
+      "name": "MyContext AI CLI: The Living Brain for Spec-Driven Development",
+      "description": "Developers, especially those leveraging AI, spend significant time bootstrapping projects, managing context, and ensuring consistency across the codebase. AI code generation often lacks deep project awareness, leading to generic, disconnected, or incorrect outputs. There is a critical need for a system that maintains a dynamic, 'living' understanding of a project, which can be used by both humans and AI agents to build, evolve, and test applications with high fidelity and speed.",
+      "createdAt": "2026-03-07T03:39:59.596Z",
+      "updatedAt": "2026-03-07T03:39:59.596Z",
       "contextPath": ".mycontext",
       "version": "0.1.0",
       "status": "context-generated"
     }
   },
-  "components": [],
   "actions": [],
   "routes": []
 }

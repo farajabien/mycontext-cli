@@ -16,6 +16,7 @@ import {
 import { AICore } from "../core/ai/AICore";
 import { LivingContext } from "../types/living-context";
 import { ContextRenderer } from "../utils/contextRenderer";
+import { ProjectScanner } from "../services/ProjectScanner";
 
 // Dynamic component generation types
 type AppType =
@@ -327,7 +328,7 @@ export class GenerateCommand {
           }
 
           this.spinner.success({
-            text: "🎉 All artifacts generated successfully!",
+            text: "🎉 Context Scaffold Ready! Your Living Brain is now the perfect map for your next AI Agent.",
           });
 
           // Show next steps for the "all" workflow
@@ -594,7 +595,43 @@ export class GenerateCommand {
         return { description: content.trim() };
       }
     } catch {}
-    // 5) Interactive prompt to capture description (when not in --yes)
+    // 5) Auto-Inference fallback: Attempt to scan project if no PRD/Types found
+    try {
+      this.spinner.updateText("🔍 No context found. Inferring project structure...");
+      const scanner = new ProjectScanner(process.cwd());
+      const snapshot = await scanner.scan();
+      
+      if (snapshot.stats.totalFiles > 5) {
+        const fileTree = snapshot.fileTree.filter(f => f.type === 'file').map(f => f.path).slice(0, 50).join('\n');
+        const keyFiles = snapshot.keyFiles.map(f => `--- ${f.path} ---\n${f.content}`).join('\n\n');
+        
+        const inferenceDescription = `
+AUTO-INFERRED PROJECT ANALYSIS:
+The following project structure was detected. Please analyze it to build a comprehensive Living Brain.
+
+STATS:
+- Total Files: ${snapshot.stats.totalFiles}
+- Route Files: ${snapshot.stats.routeFiles}
+- Component Files: ${snapshot.stats.componentFiles}
+- Schema Files: ${snapshot.stats.schemaFiles}
+
+FILE TREE (Partial):
+${fileTree}
+
+KEY FILES CONTENT:
+${keyFiles}
+
+Based on this, generate a complete project context including PRD, Technical Specs, and Component Architecture.
+        `;
+        
+        console.log(chalk.blue("\n✨ Auto-inferred project context from codebase (Self-Analysis Mode)"));
+        return { description: inferenceDescription };
+      }
+    } catch (e) {
+      // Fallback to interactive prompts
+    }
+
+    // 6) Interactive prompt to capture description (when not in --yes)
     if (!(options as any).yes) {
       this.spinner.stop();
       console.log(
@@ -637,7 +674,7 @@ export class GenerateCommand {
       }
       this.spinner.start().updateText("Continuing without description...");
     }
-    // 6) Fallback to project config
+    // 7) Fallback to project config
     return await this.getProjectContext();
   }
 
@@ -4662,17 +4699,17 @@ ${
           console.log(chalk.gray("   Visit /preview (dev server)"));
           break;
         case "all":
-          console.log(chalk.blue("\n🎉 Full context generated! Next steps:"));
+          console.log(chalk.blue("\n🚀 Context Scaffolding Complete! Next steps:"));
           console.log(
-            chalk.gray("   1. Review generated files in .mycontext/")
+            chalk.gray("   1. Open .mycontext/ to see your project's new Living Brain.")
           );
           console.log(
             chalk.gray(
-              "   2. Generate components: mycontext generate-components all"
+              "   2. Recommended: Hand off .mycontext/ to your favorite AI agent (e.g. Antigravity)."
             )
           );
-          console.log(chalk.gray("   3. Start development: npm run dev"));
-          console.log(chalk.gray("   4. Preview: Visit /preview (dev server)"));
+          console.log(chalk.gray("   3. Start building: npm run dev"));
+          console.log(chalk.gray("   4. Preview architectural alignment: Visit /preview"));
           break;
         default:
           break;
@@ -4911,7 +4948,7 @@ INSTRUCTIONS:
 
       return {
         success: true,
-        content: JSON.stringify(livingContext, null, 2),
+        content: ContextRenderer.renderPRD(livingContext),
         provider: "hybrid" as any,
         metadata: { model: "structured", tokens: 0, latency: 0 },
       };

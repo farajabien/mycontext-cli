@@ -1,0 +1,427 @@
+{
+  "name": "mycontext",
+  "description": "Agentic AI Developer Tools landing page",
+  "projectType": "landing-page",
+  "aestheticPreference": "premium-high-fidelity",
+  "brain": {
+    "version": "1.0.35",
+    "narrative": "Waiting for a new challenge...",
+    "status": "idle",
+    "checkpoints": [],
+    "updates": [
+      {
+        "id": "58b8d790-7c49-433a-be49-245ccfdf2511",
+        "timestamp": 1772851806581,
+        "agent": "Ideator",
+        "role": "planner",
+        "type": "thought",
+        "message": "Exploring 1 UI concepts and Agentic AI Developer Tools visual assets."
+      },
+      {
+        "id": "713b65c2-0005-438d-94ff-ad07b4ccc463",
+        "timestamp": 1772852102418,
+        "agent": "Ideator",
+        "role": "planner",
+        "type": "thought",
+        "message": "Exploring 1 UI concepts and Agentic AI Developer Tools visual assets."
+      },
+      {
+        "id": "5f9a4357-3e88-4d79-b4eb-eb89a849487a",
+        "timestamp": 1772852112754,
+        "agent": "Ideator",
+        "role": "planner",
+        "type": "action",
+        "message": "Generated visual asset manifest with 0 planned assets."
+      },
+      {
+        "id": "f55a0ec6-e79a-4acf-b070-5d291d616724",
+        "timestamp": 1772852114522,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: hero-background",
+        "metadata": {
+          "id": "hero-background",
+          "type": "hero-image",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/hero-background.png"
+        }
+      },
+      {
+        "id": "a77f5d49-de88-42bb-8c20-c56b5ccbf61d",
+        "timestamp": 1772852114526,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: feature-analytics-icon",
+        "metadata": {
+          "id": "feature-analytics-icon",
+          "type": "icon",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/feature-analytics-icon.png"
+        }
+      },
+      {
+        "id": "7c2f148d-db85-4741-bfb3-74703ca210ec",
+        "timestamp": 1772852114530,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: tool-demo-screenshot",
+        "metadata": {
+          "id": "tool-demo-screenshot",
+          "type": "product-shot",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/tool-demo-screenshot.png"
+        }
+      },
+      {
+        "id": "6c979b06-ab65-46e8-a4a2-bab01ef815e3",
+        "timestamp": 1772852114540,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: team-avatar",
+        "metadata": {
+          "id": "team-avatar",
+          "type": "avatar",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/team-avatar.png"
+        }
+      },
+      {
+        "id": "4249025f-d418-48ac-8132-a60373fa1218",
+        "timestamp": 1772852114555,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: user-testimonial-slider",
+        "metadata": {
+          "id": "user-testimonial-slider",
+          "type": "carousel",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/user-testimonial-slider.png"
+        }
+      },
+      {
+        "id": "d5b52124-31e2-4185-b240-000e0bbd08c3",
+        "timestamp": 1772852114557,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: interactive-flowchart",
+        "metadata": {
+          "id": "interactive-flowchart",
+          "type": "illustration",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/interactive-flowchart.png"
+        }
+      },
+      {
+        "id": "ddd52c5a-17ca-4cb2-a341-ee4bd6d5c23f",
+        "timestamp": 1772852114558,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: cta-button",
+        "metadata": {
+          "id": "cta-button",
+          "type": "button",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/cta-button.png"
+        }
+      },
+      {
+        "id": "fcf36672-0b19-411f-b75b-797784c6554b",
+        "timestamp": 1772852114560,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: feature-highlights-section",
+        "metadata": {
+          "id": "feature-highlights-section",
+          "type": "layout",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/feature-highlights-section.png"
+        }
+      },
+      {
+        "id": "dd29cab8-2753-40a5-ac0b-caa231544dc7",
+        "timestamp": 1772852211897,
+        "agent": "Ideator",
+        "role": "planner",
+        "type": "thought",
+        "message": "Exploring 1 UI concepts and Agentic AI Developer Tools visual assets."
+      },
+      {
+        "id": "2089acd2-d9a0-453d-81ff-3a7ba4c0155b",
+        "timestamp": 1772852222073,
+        "agent": "Ideator",
+        "role": "planner",
+        "type": "action",
+        "message": "Generated visual asset manifest with 8 planned assets."
+      },
+      {
+        "id": "bc5e25e0-5e3a-471d-aee4-cc369ae0a0f7",
+        "timestamp": 1772852223797,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: hero-background",
+        "metadata": {
+          "id": "hero-background",
+          "type": "hero-image",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/hero-background.png"
+        }
+      },
+      {
+        "id": "e5dee490-d228-4697-9bac-4172b1aae564",
+        "timestamp": 1772852223805,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: feature-analytics-icon",
+        "metadata": {
+          "id": "feature-analytics-icon",
+          "type": "icon",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/feature-analytics-icon.png"
+        }
+      },
+      {
+        "id": "d2dcd2f6-575c-44a8-9244-f15d0834347b",
+        "timestamp": 1772852223809,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: tool-demo-screenshot",
+        "metadata": {
+          "id": "tool-demo-screenshot",
+          "type": "product-shot",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/tool-demo-screenshot.png"
+        }
+      },
+      {
+        "id": "cb73ffa6-8e02-4e0b-a5b0-56499d19b50f",
+        "timestamp": 1772852223818,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: team-avatar",
+        "metadata": {
+          "id": "team-avatar",
+          "type": "avatar",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/team-avatar.png"
+        }
+      },
+      {
+        "id": "1988887d-80e7-471b-9510-389f0cffe7d4",
+        "timestamp": 1772852223826,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: user-testimonial-slider",
+        "metadata": {
+          "id": "user-testimonial-slider",
+          "type": "carousel",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/user-testimonial-slider.png"
+        }
+      },
+      {
+        "id": "bc672f86-51b3-4c91-b340-327b090bd692",
+        "timestamp": 1772852223828,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: interactive-flowchart",
+        "metadata": {
+          "id": "interactive-flowchart",
+          "type": "illustration",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/interactive-flowchart.png"
+        }
+      },
+      {
+        "id": "dc171f6d-0d8b-4ab2-add6-17597853a0c6",
+        "timestamp": 1772852223831,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: cta-button",
+        "metadata": {
+          "id": "cta-button",
+          "type": "button",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/cta-button.png"
+        }
+      },
+      {
+        "id": "63b61c8f-5d97-49e1-a929-e2dd6c667089",
+        "timestamp": 1772852223832,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Processed visual asset: feature-highlights-section",
+        "metadata": {
+          "id": "feature-highlights-section",
+          "type": "layout",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/feature-highlights-section.png"
+        }
+      },
+      {
+        "id": "98d000cb-1c16-4a6d-878d-691d43a64527",
+        "timestamp": 1772852665430,
+        "agent": "ScreenGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Generated HTML screen for 'landing' in group 'custom'.",
+        "metadata": {
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing/index.html",
+          "model": "hybrid"
+        }
+      },
+      {
+        "id": "a7721a41-1c92-4242-87d5-efb76ecae02e",
+        "timestamp": 1772853353497,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Skipped existing visual asset: hero-background",
+        "metadata": {
+          "id": "hero-background",
+          "type": "hero-image",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/hero-background.png"
+        }
+      },
+      {
+        "id": "f1fe4702-886c-4225-b953-8f847da2dc88",
+        "timestamp": 1772853353521,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Skipped existing visual asset: feature-analytics-icon",
+        "metadata": {
+          "id": "feature-analytics-icon",
+          "type": "icon",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/feature-analytics-icon.png"
+        }
+      },
+      {
+        "id": "cbf9613c-b45d-420d-af22-5da1d1ef9691",
+        "timestamp": 1772853353524,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Skipped existing visual asset: tool-demo-screenshot",
+        "metadata": {
+          "id": "tool-demo-screenshot",
+          "type": "product-shot",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/tool-demo-screenshot.png"
+        }
+      },
+      {
+        "id": "f2314987-9549-4997-9da9-05d007f571cc",
+        "timestamp": 1772853353528,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "error",
+        "message": "Failed to generate visual asset: team-avatar",
+        "metadata": {
+          "id": "team-avatar",
+          "error": "Direct image generation not yet implemented in GeminiClient. Agentic fulfillment required."
+        }
+      },
+      {
+        "id": "a88aacf1-8a66-440f-8bb5-628e77d77001",
+        "timestamp": 1772853353531,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "error",
+        "message": "Failed to generate visual asset: user-testimonial-slider",
+        "metadata": {
+          "id": "user-testimonial-slider",
+          "error": "Direct image generation not yet implemented in GeminiClient. Agentic fulfillment required."
+        }
+      },
+      {
+        "id": "e3ddd25b-6128-452c-a1a7-aecf1b188517",
+        "timestamp": 1772853353535,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "error",
+        "message": "Failed to generate visual asset: interactive-flowchart",
+        "metadata": {
+          "id": "interactive-flowchart",
+          "error": "Direct image generation not yet implemented in GeminiClient. Agentic fulfillment required."
+        }
+      },
+      {
+        "id": "1e45c63e-6389-46be-aab2-acafc6f4044b",
+        "timestamp": 1772853353537,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Skipped existing visual asset: cta-button",
+        "metadata": {
+          "id": "cta-button",
+          "type": "button",
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/public/assets/images/cta-button.png"
+        }
+      },
+      {
+        "id": "28492569-3c07-44f8-8341-cf24dacd90bf",
+        "timestamp": 1772853353540,
+        "agent": "AssetGenerator",
+        "role": "builder",
+        "type": "error",
+        "message": "Failed to generate visual asset: feature-highlights-section",
+        "metadata": {
+          "id": "feature-highlights-section",
+          "error": "Direct image generation not yet implemented in GeminiClient. Agentic fulfillment required."
+        }
+      },
+      {
+        "id": "8d8ed4bd-6945-4842-a65f-66b2ac991091",
+        "timestamp": 1772853748263,
+        "agent": "ScreenGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Generated JSX screen for 'landing' in group 'custom'.",
+        "metadata": {
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing/index.tsx",
+          "model": "hybrid"
+        }
+      },
+      {
+        "id": "d6b6d4a8-b7b3-4d5b-819e-ef7143edb5ed",
+        "timestamp": 1772853913785,
+        "agent": "ScreenGenerator",
+        "role": "builder",
+        "type": "action",
+        "message": "Generated JSX screen for 'landing' in group 'custom'.",
+        "metadata": {
+          "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing/index.tsx",
+          "model": "hybrid"
+        }
+      }
+    ],
+    "tasks": [],
+    "artifacts": {
+      "code": {
+        "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing/index.html",
+        "content": "import React, { useState, FC, ReactNode } from 'react';\nimport { \n  Code, \n  Database, \n  Feather, \n  GitBranch, \n  LayoutDashboard, \n  Menu, \n  Moon, \n  Sun, \n  Twitter, \n  Github, \n  Linkedin, \n  X \n} from 'lucide-react';\n\n// --- TYPE DEFINITIONS ---\ninterface NavLink {\n  href: string;\n  label: string;\n}\n\ninterface Feature {\n  icon: React.ElementType;\n  title: string;\n  description: string;\n}\n\ninterface LayoutProps {\n  children: ReactNode;\n}\n\n// --- GLOBAL DESIGN & BRANDING CONSTANTS ---\nconst APP_NAME = \"The App\";\nconst NAV_LINKS: NavLink[] = [\n  { href: \"#features\", label: \"Features\" },\n  { href: \"#demo\", label: \"Demo\" },\n  { href: \"#workflow\", label: \"Workflow\" },\n  { href: \"#testimonials\", label: \"Testimonials\" },\n];\n\n// --- SUB-COMPONENTS (HEADER, FOOTER, ETC.) ---\n\n/**\n * ThemeToggle Component\n * A functional-looking UI element for switching between light and dark modes.\n */\nconst ThemeToggle: FC = () => {\n  const [isDarkMode, setIsDarkMode] = useState(true);\n\n  // In a real app, this would be connected to a theme context.\n  const toggleTheme = () => setIsDarkMode(!isDarkMode);\n\n  return (\n    <button\n      onClick={toggleTheme}\n      className=\"p-2 rounded-full text-slate-400 bg-slate-800/50 hover:bg-slate-700/70 hover:text-teal-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-slate-900\"\n      aria-label=\"Toggle theme\"\n    >\n      {isDarkMode ? <Sun className=\"h-5 w-5\" /> : <Moon className=\"h-5 w-5\" />}\n    </button>\n  );\n};\n\n/**\n * Header Component\n * A responsive, glassmorphic header with navigation and theme toggle.\n */\nconst Header: FC = () => {\n  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);\n\n  return (\n    <header className=\"fixed top-0 left-0 right-0 z-50\">\n      <nav className=\"container mx-auto px-6 py-4\">\n        <div className=\"relative z-20 flex items-center justify-between p-3 border rounded-2xl border-white/20 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/20\">\n          {/* Logo */}\n          <a href=\"#\" className=\"flex items-center space-x-2\">\n            <div className=\"p-1.5 bg-gradient-to-br from-teal-400 to-blue-600 rounded-lg\">\n              <Code className=\"w-6 h-6 text-white\" />\n            </div>\n            <span className=\"text-xl font-bold text-slate-100 tracking-wider\">{APP_NAME}</span>\n          </a>\n\n          {/* Desktop Navigation */}\n          <div className=\"hidden md:flex items-center space-x-8\">\n            {NAV_LINKS.map((link) => (\n              <a\n                key={link.href}\n                href={link.href}\n                className=\"text-slate-300 hover:text-teal-400 transition-colors duration-300 font-medium\"\n              >\n                {link.label}\n              </a>\n            ))}\n          </div>\n\n          {/* Actions */}\n          <div className=\"flex items-center space-x-4\">\n            <ThemeToggle />\n            <a\n              href=\"#\"\n              className=\"hidden md:inline-block px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-teal-500 to-blue-600 rounded-lg shadow-lg hover:shadow-teal-500/40 transition-all duration-300 transform hover:-translate-y-0.5\"\n            >\n              Get Started\n            </a>\n            <button\n              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}\n              className=\"md:hidden p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors\"\n              aria-label=\"Open menu\"\n            >\n              {isMobileMenuOpen ? <X className=\"h-6 w-6\" /> : <Menu className=\"h-6 w-6\" />}\n            </button>\n          </div>\n        </div>\n        \n        {/* Mobile Navigation */}\n        {isMobileMenuOpen && (\n          <div className=\"md:hidden mt-2\">\n            <div className=\"flex flex-col space-y-2 p-4 rounded-xl border border-white/10 bg-slate-800/80 backdrop-blur-lg\">\n              {NAV_LINKS.map((link) => (\n                <a\n                  key={link.href}\n                  href={link.href}\n                  onClick={() => setIsMobileMenuOpen(false)}\n                  className=\"block px-4 py-2 rounded-md text-slate-200 hover:bg-teal-500/20 hover:text-teal-300 transition-colors\"\n                >\n                  {link.label}\n                </a>\n              ))}\n              <a\n                href=\"#\"\n                className=\"w-full mt-2 px-5 py-3 text-center font-semibold text-white bg-gradient-to-r from-teal-500 to-blue-600 rounded-lg shadow-lg hover:shadow-teal-500/40 transition-all duration-300\"\n              >\n                Get Started\n              </a>\n            </div>\n          </div>\n        )}\n      </nav>\n    </header>\n  );\n};\n\n/**\n * Footer Component\n * A comprehensive footer with links, social icons, and copyright notice.\n */\nconst Footer: FC = () => {\n    const socialLinks = [\n      { icon: Twitter, href: \"#\", label: \"Twitter\" },\n      { icon: Github, href: \"#\", label: \"GitHub\" },\n      { icon: Linkedin, href: \"#\", label: \"LinkedIn\" },\n    ];\n  \n    const footerSections = [\n      {\n        title: \"Product\",\n        links: [\"Features\", \"Pricing\", \"Integrations\", \"API\"],\n      },\n      {\n        title: \"Company\",\n        links: [\"About Us\", \"Careers\", \"Blog\", \"Contact\"],\n      },\n      {\n        title: \"Resources\",\n        links: [\"Documentation\", \"Support\", \"Community\", \"Status\"],\n      },\n    ];\n  \n    return (\n      <footer className=\"bg-slate-900/50 border-t border-white/10 mt-24\">\n        <div className=\"container mx-auto px-6 py-12\">\n          <div className=\"grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8\">\n            {/* Brand and Socials */}\n            <div className=\"lg:col-span-2\">\n              <a href=\"#\" className=\"flex items-center space-x-2\">\n                <div className=\"p-1.5 bg-gradient-to-br from-teal-400 to-blue-600 rounded-lg\">\n                  <Code className=\"w-6 h-6 text-white\" />\n                </div>\n                <span className=\"text-xl font-bold text-slate-100\">{APP_NAME}</span>\n              </a>\n              <p className=\"mt-4 text-slate-400 max-w-xs\">\n                AI-driven development capabilities to automate workflows and enhance context awareness.\n              </p>\n              <div className=\"flex space-x-4 mt-6\">\n                {socialLinks.map((social) => (\n                  <a key={social.label} href={social.href} aria-label={social.label} className=\"text-slate-500 hover:text-teal-400 transition-colors\">\n                    <social.icon className=\"h-6 w-6\" />\n                  </a>\n                ))}\n              </div>\n            </div>\n  \n            {/* Link Sections */}\n            {footerSections.map((section) => (\n              <div key={section.title}>\n                <h3 className=\"font-semibold text-slate-200 tracking-wider uppercase\">{section.title}</h3>\n                <ul className=\"mt-4 space-y-3\">\n                  {section.links.map((link) => (\n                    <li key={link}>\n                      <a href=\"#\" className=\"text-slate-400 hover:text-teal-400 transition-colors\">\n                        {link}\n                      </a>\n                    </li>\n                  ))}\n                </ul>\n              </div>\n            ))}\n          </div>\n  \n          {/* Copyright */}\n          <div className=\"mt-12 pt-8 border-t border-slate-800 text-center text-slate-500 text-sm\">\n            <p>&copy; {new Date().getFullYear()} {APP_NAME}, Inc. All rights reserved.</p>\n          </div>\n        </div>\n      </footer>\n    );\n};\n  \n/**\n * Layout Component\n * Wraps all pages with a consistent structure, including the background.\n */\nconst Layout: FC<LayoutProps> = ({ children }) => {\n  return (\n    <div className=\"min-h-screen bg-slate-950 text-slate-200 font-sans antialiased relative\">\n      {/* High-impact background implementation */}\n      <div className=\"fixed inset-0 -z-10 h-full w-full\">\n        <img \n          src=\"/assets/images/hero-background.png\" \n          alt=\"Futuristic digital landscape\" \n          className=\"h-full w-full object-cover opacity-30\"\n        />\n        <div className=\"absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950 to-slate-950\"></div>\n      </div>\n      \n      <Header />\n      <main className=\"pt-28 md:pt-32\">\n        {children}\n      </main>\n      <Footer />\n    </div>\n  );\n};\n\n// --- PAGE SECTIONS ---\n\nconst HeroSection: FC = () => (\n  <section className=\"container mx-auto px-6 text-center\">\n    <div className=\"flex flex-col items-center\">\n      <div className=\"inline-block px-4 py-1.5 mb-6 text-sm font-medium text-teal-300 border border-teal-300/30 bg-teal-500/10 rounded-full\">\n        Automate Development & Enhance Context\n      </div>\n      <h1 className=\"text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-400\">\n        Supercharge Your Workflow with AI\n      </h1>\n      <p className=\"mt-6 max-w-2xl text-lg text-slate-400\">\n        Leverage our suite of AI-driven tools to accelerate development velocity, improve code quality, and maintain perfect context across your entire project.\n      </p>\n      <div className=\"mt-10\">\n        <a href=\"#\" className=\"inline-block group\">\n          <img \n            src=\"/assets/images/cta-button.png\" \n            alt=\"Get Started Now\" \n            className=\"h-14 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/40\"\n          />\n        </a>\n      </div>\n    </div>\n  </section>\n);\n\nconst FeaturesSection: FC = () => {\n  const features: Feature[] = [\n    {\n      icon: LayoutDashboard,\n      title: \"Intelligent Dashboards\",\n      description: \"Visualize project health and AI insights in one place.\",\n    },\n    {\n      icon: GitBranch,\n      title: \"Automated Workflows\",\n      description: \"Connect your repositories for automated code reviews and suggestions.\",\n    },\n    {\n      icon: Database,\n      title: \"Context-Aware Engine\",\n      description: \"Our AI understands your entire codebase for smarter, relevant assistance.\",\n    },\n  ];\n\n  return (\n    <section id=\"features\" className=\"container mx-auto px-6 mt-24 md:mt-32\">\n      <div className=\"text-center\">\n        <h2 className=\"text-3xl md:text-4xl font-bold text-slate-100\">Built for Modern Development Teams</h2>\n        <p className=\"mt-4 max-w-2xl mx-auto text-slate-400\">\n          Everything you need to integrate AI seamlessly into your existing processes.\n        </p>\n      </div>\n\n      <div className=\"grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12\">\n        {/* Main Feature Card */}\n        <div className=\"md:col-span-2 lg:col-span-1 p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-lg flex flex-col items-center text-center shadow-lg\">\n          <img src=\"/assets/images/feature-analytics-icon.png\" alt=\"Analytics Icon\" className=\"w-20 h-20 mb-6\" />\n          <h3 className=\"text-xl font-semibold text-white\">Advanced Analytics</h3>\n          <p className=\"mt-2 text-slate-400 flex-grow\">\n            Gain deep insights into development velocity and code quality metrics. Our AI pinpoints bottlenecks and suggests optimizations.\n          </p>\n          <a href=\"#\" className=\"mt-6 inline-flex items-center text-teal-400 hover:text-teal-300 transition-colors\">\n            Learn More <span className=\"ml-1\">&rarr;</span>\n          </a>\n        </div>\n        \n        {/* Other Feature Cards */}\n        {features.map((feature) => (\n          <div key={feature.title} className=\"p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-lg shadow-lg\">\n            <div className=\"p-3 inline-block bg-slate-800/70 rounded-lg border border-white/10\">\n              <feature.icon className=\"h-6 w-6 text-teal-400\" />\n            </div>\n            <h3 className=\"mt-4 text-xl font-semibold text-white\">{feature.title}</h3>\n            <p className=\"mt-2 text-slate-400\">{feature.description}</p>\n          </div>\n        ))}\n      </div>\n      \n      {/* Feature Highlights Section Image */}\n      <div className=\"mt-16\">\n        <img \n          src=\"/assets/images/feature-highlights-section.png\" \n          alt=\"Feature Highlights Grid\" \n          className=\"rounded-2xl w-full border border-white/10 shadow-2xl shadow-black/30\"\n        />\n      </div>\n    </section>\n  );\n};\n\nconst DemoSection: FC = () => (\n  <section id=\"demo\" className=\"container mx-auto px-6 mt-24 md:mt-32\">\n    <div className=\"text-center\">\n      <h2 className=\"text-3xl md:text-4xl font-bold text-slate-100\">See The App in Action</h2>\n      <p className=\"mt-4 max-w-2xl mx-auto text-slate-400\">\n        Explore the intuitive interface that brings powerful AI tools right to your fingertips.\n      </p>\n    </div>\n    <div className=\"mt-12 p-2 rounded-2xl bg-gradient-to-br from-teal-500/50 to-blue-600/50 shadow-2xl shadow-blue-500/20\">\n      <div className=\"p-4 bg-slate-900 rounded-xl\">\n        <div className=\"flex items-center space-x-2 p-2 border-b border-slate-700\">\n          <div className=\"w-3 h-3 rounded-full bg-red-500\"></div>\n          <div className=\"w-3 h-3 rounded-full bg-yellow-500\"></div>\n          <div className=\"w-3 h-3 rounded-full bg-green-500\"></div>\n        </div>\n        <img \n          src=\"/assets/images/tool-demo-screenshot.png\" \n          alt=\"Dashboard Screenshot\" \n          className=\"rounded-b-lg w-full\"\n        />\n      </div>\n    </div>\n  </section>\n);\n\nconst WorkflowSection: FC = () => (\n  <section id=\"workflow\" className=\"container mx-auto px-6 mt-24 md:mt-32\">\n    <div className=\"lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center\">\n      <div className=\"text-center lg:text-left\">\n        <h2 className=\"text-3xl md:text-4xl font-bold text-slate-100\">An Interconnected AI Ecosystem</h2>\n        <p className=\"mt-4 text-lg text-slate-400\">\n          Our tools aren't isolated. They form a cohesive system that shares context and learns from your entire development lifecycle, from commit to deployment.\n        </p>\n        <div className=\"mt-8 flex justify-center lg:justify-start\">\n            <img src=\"/assets/images/team-avatar.png\" alt=\"Team Avatars\" className=\"h-12 w-auto\" />\n            <div className=\"ml-4\">\n                <p className=\"text-slate-200 font-semibold\">Trusted by Elite Teams</p>\n                <p className=\"text-slate-400 text-sm\">Developers and PMs rely on The App.</p>\n            </div>\n        </div>\n      </div>\n      <div className=\"mt-12 lg:mt-0\">\n        <img \n          src=\"/assets/images/interactive-flowchart.png\" \n          alt=\"Interactive AI workflow flowchart\" \n          className=\"rounded-2xl w-full border border-white/10 shadow-2xl shadow-black/30\"\n        />\n      </div>\n    </div>\n  </section>\n);\n\nconst TestimonialsSection: FC = () => (\n    <section id=\"testimonials\" className=\"container mx-auto px-6 mt-24 md:mt-32\">\n        <div className=\"text-center\">\n            <h2 className=\"text-3xl md:text-4xl font-bold text-slate-100\">Loved by Developers Worldwide</h2>\n            <p className=\"mt-4 max-w-2xl mx-auto text-slate-400\">\n                Don't just take our word for it. Here's what our users are saying about the impact on their productivity.\n            </p>\n        </div>\n        <div className=\"mt-12\">\n            <img \n              src=\"/assets/images/user-testimonial-slider.png\" \n              alt=\"User testimonial slider\" \n              className=\"rounded-2xl w-full max-w-4xl mx-auto\"\n            />\n        </div>\n    </section>\n);\n\nconst CtaSection: FC = () => (\n    <section id=\"cta\" className=\"container mx-auto px-6 mt-24 md:mt-32\">\n        <div className=\"relative p-12 text-center overflow-hidden rounded-3xl bg-slate-900 border border-white/10\">\n            <div className=\"absolute -top-1/2 -left-1/2 w-[200%] h-[200%] -z-10 bg-[radial-gradient(circle_at_center,_rgba(0,194,203,0.15),_transparent_40%)]\"></div>\n            <h2 className=\"text-3xl md:text-4xl font-bold text-slate-100\">Ready to Transform Your Development Process?</h2>\n            <p className=\"mt-4 max-w-xl mx-auto text-slate-400\">\n                Join thousands of developers who are building faster and smarter with The App. Get started today.\n            </p>\n            <div className=\"mt-8\">\n                <a href=\"#\" className=\"inline-block group\">\n                    <img \n                        src=\"/assets/images/cta-button.png\" \n                        alt=\"Get Started Now\" \n                        className=\"h-14 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/40\"\n                    />\n                </a>\n            </div>\n        </div>\n    </section>\n);\n\n\n/**\n * LandingScreen Component\n * The main component that assembles the entire landing page.\n */\nconst LandingScreen: FC = () => {\n  return (\n    <Layout>\n      <HeroSection />\n      <FeaturesSection />\n      <DemoSection />\n      <WorkflowSection />\n      <TestimonialsSection />\n      <CtaSection />\n    </Layout>\n  );\n};\n\nexport default LandingScreen;",
+        "version": 3,
+        "lastUpdated": 1772853913787
+      }
+    },
+    "memory": {},
+    "registry": {
+      "components": []
+    }
+  },
+  "screens": [
+    {
+      "name": "landing",
+      "prompt": "Generate a landing screen for this application",
+      "model": "hybrid",
+      "timestamp": "2026-03-07T03:25:13.781Z",
+      "format": [
+        "jsx"
+      ],
+      "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing",
+      "group": "custom"
+    }
+  ],
+  "metadata": {
+    "lastUpdatedAt": "2026-03-07T03:25:13.792Z"
+  }
+}

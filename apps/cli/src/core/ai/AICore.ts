@@ -55,7 +55,7 @@ export class AICore {
 
     for (const p of candidates) {
       if (fs.existsSync(p)) {
-        const result = dotenv.config({ path: p, override: true });
+        const result = dotenv.config({ path: p, override: false });
         dotenvExpand.expand(result);
       }
     }
@@ -208,6 +208,44 @@ export class AICore {
     }
     
     throw new Error("No AI providers with vision support available");
+  }
+
+  /**
+   * Proxy for generateImage
+   */
+  public async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    const clients = this.getAvailableClients();
+    let lastError: any = null;
+
+    for (const client of clients) {
+      try {
+        return await client.generateImage(prompt, outputPath, options);
+      } catch (error: any) {
+        lastError = error;
+        const message = error.message || String(error);
+        
+        // If it's a rate limit or auth error, try the next client
+        if (message.includes("429") || message.toLowerCase().includes("rate limit") || 
+            message.includes("401") || message.toLowerCase().includes("unauthorized") ||
+            message.toLowerCase().includes("not implemented")) {
+          console.log(chalk.yellow(`⚠️  Provider image generation failed, trying fallback...`));
+          continue;
+        }
+        
+        console.log(chalk.gray(`ℹ️  Image provider error: ${message.substring(0, 50)}...`));
+      }
+    }
+
+    if (lastError) {
+      this.handleAIError(lastError);
+      throw lastError;
+    }
+    
+    throw new Error("No AI providers with image generation support available");
   }
 
   /**

@@ -11,6 +11,8 @@ export interface LivingContext {
     lastUpdatedAt: string;
     projectConfig: ProjectConfig;
   };
+  projectType?: 'fullstack' | 'landing-page' | 'ui-only' | 'basic';
+  aestheticPreference?: string;
 
   // 01-prd content
   prd: {
@@ -30,7 +32,11 @@ export interface LivingContext {
     priority: "high" | "medium" | "low";
     userValue: string;
     acceptanceCriteria: string[];
-    dependencies: string[]; // Feature IDs or component names
+    dependencies: string[]; // Feature IDs
+    componentIds?: string[]; // IDs/names of components in this feature
+    actionIds?: string[];    // IDs/names of actions in this feature
+    routeIds?: string[];     // IDs/names of routes in this feature
+    status?: "planned" | "in-progress" | "completed";
   }>;
 
   // 01b-user-flows content

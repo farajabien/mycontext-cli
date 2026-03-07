@@ -1,7 +1,7 @@
 {
   "name": "mycontext-cli",
-  "version": "4.2.16",
-  "description": "CLI tool for spec-driven development - Generate comprehensive context, visual screens, and scaffolding for AI-powered coding",
+  "version": "4.2.17",
+  "description": "The Context Engine for AI-Native Development - Generate high-fidelity scaffolds and Living Brains for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {
     "mycontext-cli": "dist/cli.js",
@@ -72,6 +72,7 @@
     "gradient-string": "^3.0.0",
     "handlebars": "^4.7.8",
     "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.1",
     "mdast-util-to-markdown": "^2.1.2",
     "node-fetch": "^2.7.0",
     "openai": "^6.2.0",
@@ -89,6 +90,7 @@
     "@types/glob": "^8.1.0",
     "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.0.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.0.0",
     "@types/node-fetch": "^2.6.13",
     "@types/prompts": "^2.4.9",

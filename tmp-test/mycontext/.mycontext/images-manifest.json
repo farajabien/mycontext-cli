@@ -1,0 +1,44 @@
+{
+  "visualAssets": [
+    {
+      "id": "hero-background",
+      "type": "hero-image",
+      "description": "A high-resolution, abstract image depicting a futuristic digital landscape with interconnected nodes and pathways, evoking a sense of advanced technology and AI integration."
+    },
+    {
+      "id": "feature-analytics-icon",
+      "type": "icon",
+      "description": "A sleek, modern icon representing analytics, featuring a stylized graph with upward trends, colored in teal with a hint of gold accent."
+    },
+    {
+      "id": "tool-demo-screenshot",
+      "type": "product-shot",
+      "description": "A high-quality screenshot of the dashboard showcasing various AI tools in action, with interactive elements highlighted, set against a clean white background."
+    },
+    {
+      "id": "team-avatar",
+      "type": "avatar",
+      "description": "A set of diverse, professional avatars representing the team behind the tools. The avatars should have a clean and modern aesthetic, with neutral backgrounds."
+    },
+    {
+      "id": "user-testimonial-slider",
+      "type": "carousel",
+      "description": "A visually appealing carousel layout featuring quotes from users about their experience with the tools. Each slide should include an avatar, quote, and a soft background."
+    },
+    {
+      "id": "interactive-flowchart",
+      "type": "illustration",
+      "description": "A detailed, interactive flowchart illustrating how different AI tools connect and work together, with vibrant colors and labeled paths for clarity."
+    },
+    {
+      "id": "cta-button",
+      "type": "button",
+      "description": "A prominent call-to-action button designed in a gradient from teal to gold, with rounded corners and a subtle drop shadow for depth."
+    },
+    {
+      "id": "feature-highlights-section",
+      "type": "layout",
+      "description": "A visually distinct section layout that showcases key features of the AI tools with icons, brief descriptions, and interactive elements, all set in a grid format."
+    }
+  ]
+}

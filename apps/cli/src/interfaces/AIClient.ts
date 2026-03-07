@@ -97,6 +97,13 @@ export interface AIClient {
     options?: AIClientOptions
   ): Promise<string>;
 
+  // New: Image generation
+  generateImage(
+    prompt: string,
+    outputPath: string,
+    options?: AIClientOptions
+  ): Promise<string>;
+
   // Model management
   listModels(): Promise<string[]>;
 

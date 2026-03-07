@@ -8,6 +8,11 @@ import { logger } from "../utils/logger";
 import { HybridAIClient } from "../utils/hybridAIClient";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { AICore } from "../core/ai/AICore";
+import { ContextRenderer } from "../utils/contextRenderer";
+import { LivingContext } from "../types/living-context";
+import { BrainClient } from "../core/brain/BrainClient";
+import { BrainRole } from "@myycontext/core";
 
 const execAsync = promisify(exec);
 
@@ -46,16 +51,19 @@ interface ScreenToGenerate {
 export class GenerateScreensCommand {
   private spinner: EnhancedSpinner;
   private ai: HybridAIClient;
+  private brain: BrainClient;
 
   constructor() {
     this.spinner = new EnhancedSpinner("Generating screens...");
     this.ai = new HybridAIClient();
+    this.brain = BrainClient.getInstance();
   }
 
   async execute(screenName?: string, options: ScreenGenerationOptions = {}): Promise<void> {
     const projectPath = process.cwd();
     const contextDir = path.join(projectPath, ".mycontext");
     const screensDir = path.join(contextDir, "screens");
+    const brain = await AICore.getInstance().getLivingContext();
 
     this.spinner.start();
 
@@ -114,7 +122,8 @@ export class GenerateScreensCommand {
             screen,
             context,
             screensDir,
-            options
+            options,
+            brain
           );
           generatedScreens.push(metadata);
           screenSpinner.succeed(`Generated ${screen.name}`);
@@ -126,6 +135,9 @@ export class GenerateScreensCommand {
 
       // Update screens manifest
       await this.updateScreensManifest(screensDir, generatedScreens);
+
+      // Sync with context.json (Living Brain)
+      await this.syncWithLivingBrain(projectPath, generatedScreens);
 
       // Show summary
       console.log(chalk.green(`\n✅ Generated ${generatedScreens.length} screen(s)`));
@@ -194,6 +206,19 @@ export class GenerateScreensCommand {
       }
     }
 
+    // Load screens from context.json if present
+    const contextJsonPath = path.join(contextDir, "context.json");
+    if (fs.existsSync(contextJsonPath)) {
+      try {
+        const contextJson = await fs.readJson(contextJsonPath);
+        if (contextJson.screens) {
+          context.screens = contextJson.screens;
+        }
+      } catch (error) {
+        // Not a big deal
+      }
+    }
+
     return context;
   }
 
@@ -222,6 +247,15 @@ export class GenerateScreensCommand {
           name,
           prompt: `Generate a ${name} screen for this application`,
           group: "flow",
+        });
+      });
+    } else if (context.screens && Array.isArray(context.screens)) {
+      // Use screens defined in context.json
+      context.screens.forEach((s: any) => {
+        screens.push({
+          name: s.name,
+          prompt: s.prompt || `Generate a ${s.name} screen`,
+          group: s.group || "context",
         });
       });
     } else {
@@ -267,27 +301,74 @@ export class GenerateScreensCommand {
     screen: ScreenToGenerate,
     context: any,
     screensDir: string,
-    options: ScreenGenerationOptions
+    options: ScreenGenerationOptions,
+    brain?: LivingContext | null
   ): Promise<ScreenMetadata> {
     const includeScreenshot = options.format?.includes("png") || options.includeScreenshot || false;
     const format = options.format || "html";
 
+    // Load images manifest if it exists
+    let imagesContext = "";
+    const manifestPath = path.join(process.cwd(), ".mycontext", "images-manifest.json");
+    let imagesManifest = null;
+    if (fs.existsSync(manifestPath)) {
+      try {
+        imagesManifest = await fs.readJson(manifestPath);
+        const assets = Array.isArray(imagesManifest.assets) ? imagesManifest.assets : (imagesManifest.visualAssets || imagesManifest);
+        if (Array.isArray(assets)) {
+          imagesContext = "\nLOCAL ASSETS AVAILABLE (Use these paths instead of placeholders):\n";
+          assets.forEach((a: any) => {
+            imagesContext += `- ${a.id}: /assets/images/${a.id}.png (${a.description})\n`;
+          });
+        }
+      } catch (err) {
+        logger.warn("Could not load images manifest");
+      }
+    }
+
     // Build prompt based on format
     let finalPrompt = screen.prompt;
+    
+    // Global Design System Context
+    const designSystem = `
+      ## GLOBAL DESIGN SYSTEM (PREMIUM STANDARDS):
+      - Typography: Use modern sans-serif fonts (e.g., Inter, Outfit, System-UI).
+      - Color Palette: Deep rich colors, vibrant accents, sleek dark modes.
+      - Contrast: Ensure high contrast for text visibility. AVOID white-on-light or black-on-dark issues.
+      - Aesthetics: Use Glassmorphism (backdrop-blur), soft shadows, and subtle gradients.
+      - Spacing: Expertly balanced whitespace and grid systems.
+    `;
+
+    // Standardized Layout Context
+    const layoutContext = `
+      ## STANDARDIZED LAYOUT REQUIREMENTS:
+      - All screens MUST be wrapped in a consistent 'Layout' structure.
+      - HEADER: Include a professional logo, navigation links, and a functional-looking 'ThemeToggle' (Light/Dark).
+      - FOOTER: Include company info, links, social icons, and copyright.
+      - Ensure the layout is responsive and works world-class on mobile and desktop.
+    `;
+
+    finalPrompt = `${designSystem}\n${layoutContext}\n\n## SCREEN SPECIFIC REQUEST:\n${finalPrompt}`;
+
+    if (imagesContext) {
+      finalPrompt += `\n\nCRITICAL: ${imagesContext}\n\nSTRICT REQUIREMENT: You MUST use the local asset paths provided above for ALL images in this screen. DO NOT use Unsplash, Placehold.it, or any other external image services. If a local asset matches the intended use (e.g., 'hero-background' for a hero section), YOU MUST USE IT. For the hero background, use: \`<body style="background-image: url('/assets/images/hero-background.png'); background-size: cover;">\` or a similar high-impact implementation.`;
+    }
     if (format === "jsx") {
       finalPrompt += ". Use React, Tailwind CSS, and Lucide/Radix components. Export as a default functional component.";
     }
 
     // Generate visual screen using HybridAIClient
     let result;
+    const enrichedContext = { ...context, imagesManifest };
+
     if (format === "html") {
       // For HTML, we can still use Gemini if available for best visual results, or fallback to generic text
       const provider = await this.ai.getActiveProviderName();
       if (provider === "gemini") {
         const gemini = (this.ai as any).providers.find((p: any) => p.name === "gemini").client;
-        result = await gemini.generateVisualScreen(finalPrompt, context, { includeScreenshot });
+        result = await gemini.generateVisualScreen(finalPrompt, enrichedContext, { includeScreenshot });
       } else {
-        const response = await this.ai.generateText(this.buildVisualHtmlPrompt(finalPrompt, context), options);
+        const response = await this.ai.generateText(this.buildVisualHtmlPrompt(finalPrompt, enrichedContext, brain), options);
         result = {
           html: this.extractCodeBlock(response.text, "html"),
           metadata: { model: response.provider, timestamp: new Date().toISOString() }
@@ -295,7 +376,7 @@ export class GenerateScreensCommand {
       }
     } else {
       // JSX format
-      const response = await this.ai.generateText(this.buildVisualJsxPrompt(finalPrompt, context), options);
+      const response = await this.ai.generateText(this.buildVisualJsxPrompt(finalPrompt, context, brain), options);
       result = {
         html: this.extractCodeBlock(response.text, "tsx") || this.extractCodeBlock(response.text, "jsx") || response.text,
         metadata: { model: response.provider, timestamp: new Date().toISOString() }
@@ -333,19 +414,76 @@ export class GenerateScreensCommand {
     };
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), "utf8");
 
+    // Sync with Brain
+    await this.brain.addUpdate(
+      "ScreenGenerator",
+      "builder",
+      "action",
+      `Generated ${format.toUpperCase()} screen for '${screen.name}' in group '${screen.group || 'default'}'.`,
+      { path: filePath, model: result.metadata.model }
+    );
+    
+    await this.brain.updateArtifact("code", result.html, filePath);
+
     return metadata;
   }
 
-  private buildVisualHtmlPrompt(userPrompt: string, context: any): string {
-    return `Generate a production-ready HTML page with Tailwind CSS based on: ${userPrompt}. 
-Context: ${JSON.stringify({ prd: context.prd?.substring(0, 500) })}. 
+  private buildVisualHtmlPrompt(userPrompt: string, context: any, brain?: LivingContext | null): string {
+    const prd = brain ? ContextRenderer.renderPRD(brain) : context.prd;
+    const brand = brain ? ContextRenderer.renderBrandGuide(brain) : context.brand;
+    const features = brain ? ContextRenderer.renderFeatures(brain) : context.features;
+    const aesthetic = brain?.aestheticPreference || "modern";
+    const projectType = brain?.projectType || "application";
+
+    return `You are an elite UI/UX engineer building a ${aesthetic} ${projectType}.
+    
+USER INSTRUCTION: ${userPrompt}
+
+FULL PROJECT CONTEXT (Living Brain):
+${prd}
+
+DESIGN SYSTEM & BRANDING:
+${brand}
+
+CORE FEATURES TO HIGHLIGHT:
+${features}
+
+REQUIREMENTS:
+1. Use BEAUTIFUL, high-quality Tailwind CSS.
+2. Incorporate the specific aesthetic: ${aesthetic}.
+3. NO generic placeholders like "Application Name". Use the real project name: ${brain?.metadata?.projectConfig?.name || "The App"}.
+4. Use realistic, industry-specific copy and imagery (via Unsplash/Placehold.co).
+5. Ensure the layout is premium and follows modern web design trends (e.g., glassmorphism, dynamic gradients, perfect spacing).
+
 Return ONLY the HTML code wrapped in \`\`\`html blocks.`;
   }
 
-  private buildVisualJsxPrompt(userPrompt: string, context: any): string {
-    return `Generate a production-ready React component (TSX) using Tailwind CSS for this screen: ${userPrompt}. 
-Context: ${JSON.stringify({ prd: context.prd?.substring(0, 500) })}. 
-Use Lucide icons and shadcn/ui patterns.
+  private buildVisualJsxPrompt(userPrompt: string, context: any, brain?: LivingContext | null): string {
+    const prd = brain ? ContextRenderer.renderPRD(brain) : context.prd;
+    const brand = brain ? ContextRenderer.renderBrandGuide(brain) : context.brand;
+    const aesthetic = brain?.aestheticPreference || "modern";
+
+    return `You are an elite Full-Stack UI Architect. Generate a production-ready, highly-polished React component (TSX) using Tailwind CSS.
+
+USER INSTRUCTION: ${userPrompt}
+
+AESTHETIC GOAL: ${aesthetic} (High-Fidelity, Premium)
+
+BRAIN CONTEXT:
+${prd}
+
+BRANDING DATA:
+${brand}
+
+TECHNICAL REQUIREMENTS:
+- Use React (Functional Components)
+- Use Tailwind CSS for all styling (Premium patterns)
+- Use Lucide-React for icons
+- Implementation MUST BE high-fidelity - avoid "dull" or "generic" layouts.
+- Use the actual Project Name: ${brain?.metadata?.projectConfig?.name || "The App"}.
+
+CRITICAL: Return the COMPLETE file content. DO NOT TRUNCATE. Ensure all components (Layout, Header, Hero, Features, Footer) are fully implemented in the same file.
+
 Return ONLY the TSX code wrapped in \`\`\`tsx blocks.`;
   }
 
@@ -427,6 +565,36 @@ Return ONLY the TSX code wrapped in \`\`\`tsx blocks.`;
     } catch (error) {
       logger.warn("Could not auto-open browser:", error);
       console.log(chalk.gray(`\n💡 Manually open: ${filePath}`));
+    }
+  }
+
+  /**
+   * Sync generated screens back to the Living Brain (context.json)
+   */
+  private async syncWithLivingBrain(projectPath: string, screens: ScreenMetadata[]): Promise<void> {
+    const contextPath = path.join(projectPath, ".mycontext", "context.json");
+    if (!fs.existsSync(contextPath)) return;
+
+    try {
+      const context = await fs.readJson(contextPath);
+      
+      if (!context.screens) context.screens = [];
+      
+      screens.forEach(screen => {
+        const existingIndex = context.screens.findIndex((s: any) => s.name === screen.name);
+        if (existingIndex >= 0) {
+          context.screens[existingIndex] = screen;
+        } else {
+          context.screens.push(screen);
+        }
+      });
+      
+      if (!context.metadata) context.metadata = {};
+      context.metadata.lastUpdatedAt = new Date().toISOString();
+      await fs.writeJson(contextPath, context, { spaces: 2 });
+      console.log(chalk.gray("   Brain synchronized with new screens."));
+    } catch (error) {
+      logger.error("Failed to sync with Living Brain:", error);
     }
   }
 }

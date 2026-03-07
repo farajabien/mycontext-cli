@@ -151,7 +151,7 @@ export class InitCommand {
             spinner.success({ text: `Project "${finalProjectName!}" initialized with context!` });
             
             // Post-initialization environment setup
-            await this.setupEnvironmentKeys(currentDir, undefined);
+            await this.setupEnvironmentKeys(currentDir, options, undefined);
             
             this.showNextSteps(config, undefined, true);
             return;
@@ -167,6 +167,7 @@ export class InitCommand {
           message: "No package.json found. What would you like to build?",
           choices: [
             { title: "Next.js + InstantDB (Full Stack)", value: "instantdb" },
+            { title: "Next.js Landing Page (High Fidelity UI)", value: "landing" },
             { title: "Next.js + shadcn (UI Only)", value: "nextjs" },
             { title: "Basic MyContext (Spec Only)", value: "basic" }
           ],
@@ -199,10 +200,30 @@ export class InitCommand {
       if (!finalProjectName) finalProjectName = currentDirName || "my-app";
 
       const workingDir = process.cwd();
-      const projectPath = useCurrentDir ? workingDir : path.resolve(workingDir, finalProjectName);
-      const effectiveDescription = options.description || `${finalProjectName} - AI-powered app`;
+      let projectPath: string;
+      let effectiveDescription: string;
 
-      // Safety check for overwrite
+      // Safety check for overwrite / non-empty directory
+      const isDirty = (await fs.readdir(workingDir)).filter(f => !f.startsWith('.')).length > 0;
+      
+      if (useCurrentDir && !hasPackageJson && isDirty && !options.force && !options.yes) {
+        console.log(chalk.yellow(`⚠️  The current directory contains files that may conflict with project scaffolding.`));
+        const { projectName: newName } = await prompts({
+          type: "text",
+          name: "projectName",
+          message: "Enter a new project name (to create a subdirectory):",
+          validate: (val) => val.length > 0 || "Project name is required"
+        });
+        
+        if (newName && newName !== ".") {
+          finalProjectName = newName;
+          useCurrentDir = false;
+        }
+      }
+
+      projectPath = useCurrentDir ? workingDir : path.resolve(workingDir, finalProjectName!);
+      effectiveDescription = options.description || `${finalProjectName} - AI-powered app`;
+
       if (await fs.pathExists(path.join(projectPath, ".mycontext")) && !options.force && !options.yes) {
         const { confirmOverwrite } = await prompts({
           type: "confirm",
@@ -220,13 +241,15 @@ export class InitCommand {
       spinner.start();
 
       if (options.specOnly) {
-        await this.initBasicProject(spinner, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
+        await this.initBasicProject(spinner, projectPath, finalProjectName!, { ...options, description: effectiveDescription }, useCurrentDir);
       } else {
         const framework = options.framework || "nextjs";
         if (framework === "instantdb") {
-          await this.initInstantDBProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
+          await this.initInstantDBProject(spinner, workingDir, projectPath, finalProjectName!, { ...options, description: effectiveDescription }, useCurrentDir);
+        } else if (framework === "landing") {
+          await this.initLandingPageProject(spinner, workingDir, projectPath, finalProjectName!, { ...options, description: effectiveDescription }, useCurrentDir);
         } else {
-          await this.initNextJSProject(spinner, workingDir, projectPath, finalProjectName, { ...options, description: effectiveDescription }, useCurrentDir);
+          await this.initNextJSProject(spinner, workingDir, projectPath, finalProjectName!, { ...options, description: effectiveDescription }, useCurrentDir);
         }
       }
 
@@ -238,7 +261,13 @@ export class InitCommand {
       
     } catch (error) {
       spinner.error({ text: "Failed to initialize project" });
-      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
+      if (error instanceof Error && error.message.includes("Command failed")) {
+        console.log(chalk.red("\n❌ Scaffolding Failed: create-next-app cannot run in a non-empty directory."));
+        console.log(chalk.blue("💡 Fix: Provide a unique project name to create a subdirectory:"));
+        console.log(chalk.cyan("   mycontext init <my-project-name>\n"));
+      } else {
+        console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
+      }
       throw error;
     }
   }
@@ -273,8 +302,8 @@ export class InitCommand {
     const componentsJsonPath = path.join(projectPath, "components.json");
     if (!fs.existsSync(componentsJsonPath)) {
       spinner.updateText("Running shadcn init...");
-      execSync("pnpm dlx shadcn@latest init", {
-        cwd: workingDir,
+      execSync(`pnpm dlx shadcn@latest init ${options.yes ? "-d -y" : ""}`, {
+        cwd: projectPath,
         stdio: "inherit",
       });
     } else {
@@ -283,12 +312,16 @@ export class InitCommand {
 
     // 2. Prompt user for instant-cli init
     spinner.stop();
-    const { runInstantInit } = await prompts({
-      type: "confirm",
-      name: "runInstantInit",
-      message: "Run 'npx instant-cli init' to initialize InstantDB?",
-      initial: true,
-    });
+    let runInstantInit = true;
+    if (!options.yes) {
+      const response = await prompts({
+        type: "confirm",
+        name: "runInstantInit",
+        message: "Run 'npx instant-cli init' to initialize InstantDB?",
+        initial: true,
+      });
+      runInstantInit = response.runInstantInit;
+    }
 
     if (runInstantInit) {
       spinner.start();
@@ -300,13 +333,17 @@ export class InitCommand {
 
       // Prompt user to push schemas
       spinner.stop();
-      const { pushSchemas } = await prompts({
-        type: "confirm",
-        name: "pushSchemas",
-        message:
-          "Push schemas to InstantDB dashboard? (Make sure you've configured your app)",
-        initial: false,
-      });
+      let pushSchemas = false;
+      if (!options.yes) {
+        const response = await prompts({
+          type: "confirm",
+          name: "pushSchemas",
+          message:
+            "Push schemas to InstantDB dashboard? (Make sure you've configured your app)",
+          initial: false,
+        });
+        pushSchemas = response.pushSchemas;
+      }
 
       if (pushSchemas) {
         spinner.start();
@@ -356,7 +393,7 @@ export class InitCommand {
     });
 
     // Post-initialization environment setup
-    await this.setupEnvironmentKeys(projectPath, "instantdb");
+    await this.setupEnvironmentKeys(projectPath, options, "instantdb");
 
     // Show next steps
     this.showNextSteps(config, "instantdb", useCurrentDir);
@@ -418,10 +455,44 @@ export class InitCommand {
     });
 
     // Post-initialization environment setup
-    await this.setupEnvironmentKeys(projectPath, "nextjs");
+    await this.setupEnvironmentKeys(projectPath, options, "nextjs");
 
     // Show next steps
     this.showNextSteps(config, "nextjs", useCurrentDir);
+  }
+
+  private async initLandingPageProject(
+    spinner: EnhancedSpinner,
+    workingDir: string,
+    projectPath: string,
+    projectName: string,
+    options: InitOptions,
+    useCurrentDir: boolean
+  ): Promise<void> {
+    // 1. Standard Next.js bootstrap
+    await this.initNextJSProject(spinner, workingDir, projectPath, projectName, options, useCurrentDir);
+    
+    // 2. Specialized Landing Page scaffolding
+    spinner.updateText("Generating specialized landing page architecture...");
+    const { DeterministicScaffoldGenerator } = await import("../generator/scaffold");
+    const scaffolder = new DeterministicScaffoldGenerator(projectPath);
+    
+    // We update the context to reflect it's a landing-page project
+    const contextPath = path.join(projectPath, ".mycontext", "context.json");
+    if (fs.existsSync(contextPath)) {
+      const context = await fs.readJson(contextPath);
+      context.projectType = "landing-page";
+      context.aestheticPreference = "premium-high-fidelity";
+      await fs.writeJson(contextPath, context, { spaces: 2 });
+    }
+    
+    await scaffolder.generateRootLandingPage([]);
+    
+    spinner.success({
+      text: `Premium Landing Page project "${projectName}" ready for ideation!`,
+    });
+    
+    console.log(chalk.cyan("\n🚀 Tip: Run 'mycontext ideate' to generate UI concepts for your landing page.\n"));
   }
 
   /**
@@ -452,7 +523,7 @@ export class InitCommand {
     });
 
     // Post-initialization environment setup
-    await this.setupEnvironmentKeys(projectPath, undefined);
+    await this.setupEnvironmentKeys(projectPath, options, undefined);
 
     // Show next steps
     this.showNextSteps(config, undefined, useCurrentDir);
@@ -463,12 +534,17 @@ export class InitCommand {
     return /^[a-zA-Z0-9._-]+$/.test(name);
   }
 
-  private async setupEnvironmentKeys(projectPath: string, framework?: string): Promise<void> {
+  private async setupEnvironmentKeys(projectPath: string, options: InitOptions, framework?: string): Promise<void> {
     const envPath = path.join(projectPath, ".env.local");
     const hasEnv = await fs.pathExists(envPath);
     let envContent = hasEnv ? await fs.readFile(envPath, "utf-8") : "";
 
     console.log(chalk.blue("\n🔑 Environment Configuration:"));
+
+    if (options.yes) {
+      console.log(chalk.gray("ℹ️  Non-interactive mode: Skipping environment prompts."));
+      return;
+    }
 
     const keysToPrompt = [];
     
@@ -548,7 +624,7 @@ export class InitCommand {
     console.log(chalk.yellow(`  ${step++}. Sync & Update Brain (as needed):`));
     console.log(chalk.cyan("      mycontext sync\n"));
 
-    console.log(chalk.green("✨ MyContext v4.2.16 | Context-Driven Development Activated\n"));
+    console.log(chalk.green("✨ MyContext v4.2.17 | Context-Driven Development Activated\n"));
 
     console.log(chalk.green("✨ Tips:"));
     console.log(chalk.gray("• Check .mycontext/ for all generated files"));
@@ -589,7 +665,7 @@ export class InitCommand {
       console.log(gradient.pastel.multiline(logo));
       console.log(
         chalk.cyan.bold(
-          "    🧠 Living Brain | Context-Driven Development (v4.2.10)\n"
+          "    🧠 Living Brain | Context-Driven Development (v4.2.17)\n"
         )
       );
     } catch (error) {

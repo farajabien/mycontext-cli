@@ -119,6 +119,14 @@ export class OpenRouterClient implements AIClient {
     }
   }
 
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("OpenRouter image generation not yet implemented in this client");
+  }
+
   async listModels(): Promise<string[]> {
     return ["deepseek/deepseek-r1", "google/gemini-pro-1.5-vision", "anthropic/claude-3-sonnet"];
   }

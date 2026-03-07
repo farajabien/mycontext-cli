@@ -183,6 +183,14 @@ ${context?.brand ? `Brand Guidelines: ${context.brand}` : ""}`;
     throw new Error("Claude SDK vision generation not yet implemented in this client");
   }
 
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("Claude SDK image generation not yet implemented in this client");
+  }
+
   /**
    * List available models
    */

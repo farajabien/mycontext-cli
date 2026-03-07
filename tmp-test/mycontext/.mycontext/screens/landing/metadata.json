@@ -1,0 +1,11 @@
+{
+  "name": "landing",
+  "prompt": "Generate a landing screen for this application",
+  "model": "hybrid",
+  "timestamp": "2026-03-07T03:25:13.781Z",
+  "format": [
+    "jsx"
+  ],
+  "path": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/tmp-test/mycontext/.mycontext/screens/landing",
+  "group": "custom"
+}

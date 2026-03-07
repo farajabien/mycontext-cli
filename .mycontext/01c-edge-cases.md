@@ -1,12 +1,16 @@
 # Edge Cases
 
 
-### [File conflicts] Generated code conflicts with existing files in the project.
-**Mitigation:** Provide detailed feedback on conflicts and allow the user to resolve them manually or automatically overwrite.
+### [AI Reliability] An AI agent may 'hallucinate' and generate code or text that is incorrect, irrelevant, or nonsensical.
+**Mitigation:** Each agent's output is passed through a validation step (e.g., `QASubAgent` for code, schema validation for JSON). Workflows include retry logic. The system uses multiple AI providers and can fallback if one fails.
 
 ---
-### [Invalid context.json] User provides an incomplete or incorrect context.json file.
-**Mitigation:** Implement validation for context.json and provide clear error messages to guide the user.
+### [Project State] The Living Brain (context.json) may become out of sync with the actual codebase if developers make manual changes without updating the context.
+**Mitigation:** The `analyze` command can be run to re-scan the project and suggest updates to the Living Brain. Git hooks can be configured to remind developers to update the context.
+
+---
+### [Workflow Execution] An automated workflow, especially one with retry logic, could enter an infinite loop if an agent consistently fails in a specific way.
+**Mitigation:** Workflows have a maximum attempt limit (`maxRetries`). The `SubAgentOrchestrator` tracks execution time and will time out long-running steps.
 
 
 ---

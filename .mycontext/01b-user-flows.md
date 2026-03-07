@@ -1,22 +1,32 @@
 # User Flows
 
 
-### Project Initialization with CLI
-**Description:** Users initialize a new project using the MyContext CLI.
-**Actors:** Developer
+### New Project Initialization Workflow
+**Description:** The end-to-end flow for a developer starting a new project from a simple description.
+**Actors:** Developer, AI Planner, WorkflowAgent
 **Steps:**
-1. User runs the CLI command to initialize a new project.
-2. CLI prompts the user for project details.
-3. CLI generates a context.json file and initial project structure.
+1. Developer runs `mycontext init-interactive` and provides a one-sentence description of the app.
+2. The system decomposes the request and uses AI to infer a complete project specification (ASL), prompting the user only for low-confidence items.
+3. Upon approval, the system saves the specification (`asl.json`).
+4. Developer runs `mycontext build`.
+5. The `WorkflowAgent` orchestrates the `ProjectSetupAgent` to scaffold the Next.js project.
+6. The `CodeGenSubAgent` and `BackendDevAgent` are run to generate all components, actions, and hooks defined in the spec.
+7. The `QASubAgent` validates the generated code.
+8. The project is ready for the developer to run `pnpm dev`.
 
 ---
-### Code Generation Based on Context
-**Description:** AI agents generate code based on the deterministic context defined in context.json.
-**Actors:** Developer
+### Autonomous Vision-Based UI Test Flow
+**Description:** A developer triggers an autonomous UI test on a deployed application.
+**Actors:** Developer, VisionTestCoordinator, VisionNavigatorAgent, VisualValidatorAgent
 **Steps:**
-1. User updates context.json with new specifications.
-2. CLI or IDE extension triggers the code generation process.
-3. Deterministic context engine generates code and provides feedback.
+1. Developer defines a test mission in a config file (e.g., 'Sign up as a new user and create a new post').
+2. Developer runs `mycontext vision-test --mission signup`.
+3. The `VisionTestCoordinator` is activated.
+4. The `VisionNavigatorAgent` opens a browser, navigates to the app URL, and uses vision AI to find and interact with elements (e.g., clicks 'Sign Up', fills form fields).
+5. At key steps, the `VisualValidatorAgent` takes screenshots and compares them against baseline images to check for visual regressions.
+6. The `DemoRecorderAgent` records the entire session.
+7. Upon completion, the coordinator aggregates the results, including pass/fail status, visual diffs, and a link to the generated demo video.
+8. The results are written to the Living Brain.
 
 
 ---

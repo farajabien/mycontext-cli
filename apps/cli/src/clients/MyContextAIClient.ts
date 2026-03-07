@@ -256,6 +256,17 @@ export class MyContextAIClient implements AIClient {
   }
 
   /**
+   * Generate image using MyContext AI
+   */
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("MyContext AI image generation not yet implemented in this client");
+  }
+
+  /**
    * List available models (returns our fine-tuned model)
    */
   async listModels(): Promise<string[]> {

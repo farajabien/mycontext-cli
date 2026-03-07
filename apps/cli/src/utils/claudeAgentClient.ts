@@ -633,6 +633,17 @@ export class ClaudeAgentClient implements AgentAIClient {
   }
 
   /**
+   * Generate image using Claude Agent (Agentic fulfillment)
+   */
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("Claude Agent image generation not yet implemented in this client");
+  }
+
+  /**
    * Run agent workflow with context management
    */
   async runAgentWorkflow(

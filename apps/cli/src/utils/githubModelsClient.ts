@@ -184,6 +184,17 @@ Return ONLY the updated code block.`;
   }
 
   /**
+   * Generate image using GitHub Models
+   */
+  public async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("GitHub Models image generation not yet implemented in this client");
+  }
+
+  /**
    * List available models (placeholder - can be expanded)
    */
   public async listModels(): Promise<string[]> {

@@ -89,6 +89,12 @@ const KEY_FILE_PATTERNS: RegExp[] = [
   /src\/commands\/.*\.(ts|js)$/,
   /src\/agents\/.*\.(ts|js)$/,
   /src\/cli\.ts$/,
+  /lib\/.*\.(ts|js)$/,
+  /types\/.*\.(ts|js)$/,
+  /hooks\/.*\.(ts|js)$/,
+  /constants\/.*\.(ts|js)$/,
+  /services\/.*\.(ts|js)$/,
+  /providers\/.*\.(ts|js)$/,
 ];
 
 const MAX_FILE_READ_SIZE = 4000; // chars per file
@@ -307,6 +313,7 @@ Rules:
 - "missing_in_code": context.json plans it but code doesn't have it yet
 - "outdated": Code has evolved beyond what context.json describes
 - Focus on actionable, specific findings. Max 10 diffs.
+- **CRITICAL**: Read the file path names and contents carefully to deduce the project's REAL BUSINESS DOMAIN. (e.g. Look for keywords in lib/, types/, and schema files to differentiate between "Health/Wellness" and "Real Estate/Vacancies").
 - If PLANNED CONTEXT is empty or minimal, infer the Project Name, Description, and Tech Stack from the code and include them in 'suggestedContextMerge'.`;
 
     try {

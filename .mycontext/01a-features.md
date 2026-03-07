@@ -1,41 +1,58 @@
 # Product Features
 
 
-### Deterministic Context Engine (HIGH)
-**Description:** A deterministic physics engine that ensures code generation aligns with the context defined in context.json.
-**Value:** Developers can trust that generated code aligns with their design specifications.
+### Living Brain Management (HIGH)
+**Description:** Core functionality to initialize, analyze, and manage the project's 'Living Brain' (context.json). This includes generating context from scratch, analyzing existing projects, and validating context integrity.
+**Value:** Provides a single source of truth for the project, ensuring that both developers and AI agents have a consistent and deep understanding of the project's requirements, architecture, and state.
 **Acceptance Criteria:**
-- [ ] The engine processes context.json and generates code that matches the defined structure and rules.
-- [ ] The engine handles edge cases and provides appropriate feedback for conflicts.
-**Dependencies:** @mycontext/core
-
----
-### CLI Tool (HIGH)
-**Description:** A command-line interface for initializing projects, analyzing screenshots, generating context, and autonomous code evolution.
-**Value:** Developers can efficiently manage projects and initiate context-driven development from the command line.
-**Acceptance Criteria:**
-- [ ] CLI successfully initializes new projects and generates context.json.
-- [ ] The interface is user-friendly and provides clear feedback.
-- [ ] Integration with the deterministic context engine is seamless.
-**Dependencies:** @mycontext/core
-
----
-### Visual Studio Code Extension (MEDIUM)
-**Description:** An extension to integrate MyContext features into the Visual Studio Code editor.
-**Value:** Developers can use MyContext tools directly within their IDE for a seamless workflow.
-**Acceptance Criteria:**
-- [ ] The extension integrates with existing VS Code projects.
-- [ ] Developers can access MyContext features such as context editing and code generation.
-**Dependencies:** @mycontext/core, mycontext-cli
-
----
-### Web Interface (MEDIUM)
-**Description:** A visual studio and marketing website for the MyContext ecosystem.
-**Value:** Users can visually interact with the MyContext ecosystem and learn more about its capabilities.
-**Acceptance Criteria:**
-- [ ] The web interface provides a clear overview of MyContext features.
-- [ ] Basic visual studio features are functional for project management.
+- [ ] The `init` command creates a .mycontext directory with a basic context structure.
+- [ ] The `analyze` command scans an existing project and populates the Living Brain with inferred details.
+- [ ] The `generate context` command uses AI to flesh out a complete set of context documents (PRD, specs, etc.).
+- [ ] The `validate` command checks the context for completeness and consistency.
 **Dependencies:** None
+
+---
+### Agent Orchestration System (HIGH)
+**Description:** A sophisticated system for managing and coordinating a team of specialized AI sub-agents. The orchestrator can execute agents sequentially, in parallel, or in complex workflows with validation gates.
+**Value:** Enables complex, multi-step tasks to be automated reliably. It breaks down large problems into manageable pieces for specialized agents, improving the quality and reliability of the final output.
+**Acceptance Criteria:**
+- [ ] The system can register and execute individual agents.
+- [ ] The `WorkflowAgent` can execute a predefined sequence of agents to build an application.
+- [ ] The system supports inter-agent communication via the `AgentCommunicationManager`.
+- [ ] Workflows can handle retries and failures gracefully.
+**Dependencies:** living-brain-management
+
+---
+### AI-Powered Code Generation (HIGH)
+**Description:** Generates production-ready code for components, server actions, hooks, and types based on the Living Brain. It specializes in creating shadcn/ui-based React components for Next.js.
+**Value:** Drastically accelerates development by automating the creation of boilerplate and complex UI components, ensuring they are consistent with the project's design system and technical specifications.
+**Acceptance Criteria:**
+- [ ] The `generate-components` command can create single components, groups, or all components defined in the context.
+- [ ] Generated components are type-safe and use TypeScript.
+- [ ] Generated code adheres to best practices for the specified framework (Next.js App Router).
+- [ ] The `BackendDevAgent` can generate server actions and custom hooks for data fetching and mutations.
+**Dependencies:** living-brain-management
+
+---
+### Vision-Based Testing & Demos (MEDIUM)
+**Description:** An autonomous testing suite that uses vision AI to navigate and validate web UIs like a human user. It can execute test missions, perform visual regression checks, and record professional demos.
+**Value:** Automates end-to-end testing in a way that closely mimics real user interaction, catching visual bugs and usability issues that traditional tests miss. It also automates the creation of marketing and documentation assets.
+**Acceptance Criteria:**
+- [ ] The `VisionNavigatorAgent` can follow a multi-step mission on a live web page.
+- [ ] The `VisualValidatorAgent` can compare a screenshot against a baseline and identify significant differences.
+- [ ] The `DemoRecorderAgent` can generate video (MP4), screenshot sequences, and HTML replays of a test run.
+- [ ] The entire workflow is coordinated by the `VisionTestCoordinator`.
+**Dependencies:** None
+
+---
+### Iterative Enhancement & Refinement (MEDIUM)
+**Description:** Allows developers to refine and refactor existing components using natural language prompts. The `EnhancementAgent` analyzes the code and applies the requested changes intelligently.
+**Value:** Streamlines the process of making changes and improvements to the codebase, enabling rapid prototyping and iteration without manual refactoring.
+**Acceptance Criteria:**
+- [ ] The `enhance` command can take a component file and a prompt as input.
+- [ ] The agent can add new functionality, refactor logic, or change styling based on the prompt.
+- [ ] The agent provides a diff of the changes before applying them.
+**Dependencies:** ai-powered-code-generation
 
 
 ---

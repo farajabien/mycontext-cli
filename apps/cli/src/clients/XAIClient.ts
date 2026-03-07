@@ -186,6 +186,17 @@ ${context?.brand ? `Brand Guidelines: ${context.brand}` : ""}`;
   }
 
   /**
+   * Generate image using X AI API
+   */
+  async generateImage(
+    prompt: string,
+    outputPath: string,
+    options: AIClientOptions = {}
+  ): Promise<string> {
+    throw new Error("XAI image generation not yet implemented in this client");
+  }
+
+  /**
    * List available models
    */
   async listModels(): Promise<string[]> {

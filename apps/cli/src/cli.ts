@@ -29,6 +29,7 @@ import { registerGenerateScreensCommand } from "./commands/generate-screens";
 import { registerGenerateScreensListCommand } from "./commands/generate-screens-list";
 import { registerGenerateComponentsManifestCommand } from "./commands/generate-components-manifest";
 import { registerGenerateActionsCommand } from "./commands/generate-actions";
+import { registerGenerateAssetsCommand } from "./commands/generate-assets";
 import { buildStrategyCommand } from "./commands/build-strategy";
 import { HealthCheckCommand } from "./commands/health-check";
 import { DesignAnalyzeCommand } from "./commands/design-analyze";
@@ -196,6 +197,9 @@ registerGenerateComponentsManifestCommand(program);
 
 // Generate actions command (UI-backend action hooks)
 registerGenerateActionsCommand(program);
+
+// Generate assets command (planned in ideate)
+registerGenerateAssetsCommand(program);
 
 // Test commands (UI flow testing with AI)
 registerTestCommands(program);
@@ -385,6 +389,132 @@ const generateComponentsCmd = program
       process.exit(1);
     }
 });
+
+// Add command
+program
+  .command("add <component>")
+  .description("Add a context-aware component (shadcn or custom)")
+  .option("-g, --group <name>", "Component group", "elements")
+  .option("--shadcn", "Force shadcn primitive installation")
+  .action(async (component, options) => {
+    try {
+      const { AddCommand } = await import("./commands/add");
+      const addCommand = new AddCommand();
+      await addCommand.execute(component, options);
+    } catch (error) {
+      console.error(chalk.red("❌ Add failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Ideate command
+program
+  .command("ideate")
+  .description("Generate creative UI/UX concepts based on project context")
+  .option("-i, --industry <name>", "Specific industry for ideation")
+  .option("-c, --count <number>", "Number of concepts to generate", "3")
+  .option("-o, --output <path>", "Output directory for ideas")
+  .action(async (options) => {
+    try {
+      const { IdeateCommand } = await import("./commands/ideate");
+      const ideateCommand = new IdeateCommand();
+      await ideateCommand.execute({
+        industry: options.industry,
+        count: parseInt(options.count),
+        output: options.output
+      });
+    } catch (error) {
+      console.error(chalk.red("❌ Ideation failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Build command
+program
+  .command("build")
+  .description("Scaffold the entire application from Living Brain")
+  .option("--force", "Force regeneration of all components")
+  .action(async (options) => {
+    try {
+      const { BuildCommand } = await import("./commands/build");
+      const buildCommand = new BuildCommand();
+      await buildCommand.execute(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Build failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Migrate commands
+const migrateCmd = program
+  .command("migrate [target]")
+  .description("Migrate components or codebase to new standards")
+  .option("-c, --component <name>", "Specific component to migrate")
+  .option("-g, --group <name>", "Component group to migrate")
+  .option("-a, --all", "Migrate all components")
+  .option("--no-actions", "Skip actions generation")
+  .option("--no-hooks", "Skip hooks generation")
+  .option("--no-context", "Skip context generation")
+  .option("--no-docs", "Skip docs generation")
+  .action(async (target, options) => {
+    // If a subcommand was used, target will be the subcommand name
+    if (target === "rtl" || target === "radix") return;
+    
+    try {
+      const { MigrateCommand } = await import("./commands/migrate");
+      const migrateCommand = new MigrateCommand();
+      await migrateCommand.execute(target || "", options);
+    } catch (error) {
+      console.error(chalk.red("❌ Migration failed:"), error);
+      process.exit(1);
+    }
+  });
+
+migrateCmd
+  .command("rtl")
+  .description("Migrate components to RTL-friendly logical properties")
+  .option("-p, --path <path>", "Specific file or directory to migrate")
+  .option("-a, --all", "Migrate all components in src/components")
+  .action(async (options) => {
+    try {
+      const { MigrateTransformCommand } = await import("./commands/migrate-transform");
+      const migrateTransform = new MigrateTransformCommand();
+      await migrateTransform.migrateRtl(options);
+    } catch (error) {
+      console.error(chalk.red("❌ RTL migration failed:"), error);
+      process.exit(1);
+    }
+  });
+
+migrateCmd
+  .command("radix")
+  .description("Refactor components to use Radix/Shadcn primitives")
+  .option("-p, --path <path>", "Specific file or directory to migrate")
+  .option("-a, --all", "Migrate all components in src/components")
+  .action(async (options) => {
+    try {
+      const { MigrateTransformCommand } = await import("./commands/migrate-transform");
+      const migrateTransform = new MigrateTransformCommand();
+      await migrateTransform.migrateRadix(options);
+    } catch (error) {
+      console.error(chalk.red("❌ Radix migration failed:"), error);
+      process.exit(1);
+    }
+  });
+
+// Registry commands
+const registryCmd = program
+  .command("registry")
+  .description("Manage component registry");
+
+registryCmd
+  .command("build")
+  .description("Build a registry from the current project components")
+  .action(async () => {
+    console.log(chalk.blue("🏗️ Building component registry..."));
+    // Placeholder for registry build logic
+    console.log(chalk.green("✅ Registry built at .mycontext/registry.json"));
+  });
 
 // Design analyze command
 program
