@@ -1,6 +1,26 @@
 
 export type BrainRole = "orchestrator" | "planner" | "builder" | "reviewer" | "user";
 
+export interface BrainTokenUsage {
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalTokens: number;
+  totalCostUSD: number;
+  callCount: number;
+  byAgent: Record<string, {
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    costUSD: number;
+  }>;
+  byProvider: Record<string, {
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    costUSD: number;
+  }>;
+}
+
 export interface BrainUpdate {
   id: string;
   timestamp: number;
@@ -52,6 +72,7 @@ export interface Brain {
   tasks: BrainTask[];
   artifacts: BrainArtifacts;
   memory: Record<string, any>; // Shared memory for agents to store loose facts
+  usage?: BrainTokenUsage; // Cumulative LLM token usage across all agents
   registry: {
     components: Array<{
       name: string;

@@ -38,7 +38,7 @@ export interface GeminiVisualResponse {
   };
 }
 
-import { AIClient, AIClientOptions, AgentContext } from "../interfaces/AIClient";
+import { AIClient, AIClientOptions, AgentContext, GenerationResult } from "../interfaces/AIClient";
 
 /**
  * Gemini API Client using official Google Generative AI SDK
@@ -54,11 +54,15 @@ export class GeminiClient implements AIClient {
   private model: string;
 
   private readonly MODELS = [
-    "gemini-2.0-flash",           // Flash 2.0
-    "gemini-1.5-pro",             // Pro 1.5
-    "gemini-1.5-flash",           // Flash 1.5
-    "gemini-2.0-flash-exp",       // Flash 2.0 Experimental
-    "gemini-pro",                 // Legacy Pro
+    "gemini-3.1-flash-lite-preview",  // 3.1 Flash Lite — cheapest ($0.25/$1.50 per 1M)
+    "gemini-3.1-pro-preview",         // 3.1 Pro — highest capability ($2/$12 per 1M)
+    "gemini-3.1-flash-image-preview", // 3.1 Flash Image — multimodal
+    "gemini-2.5-flash",               // 2.5 Flash — fast ($0.15/$0.60 per 1M)
+    "gemini-2.0-flash",               // 2.0 Flash — stable fallback
+    "gemini-1.5-pro",                 // 1.5 Pro — legacy
+    "gemini-1.5-flash",               // 1.5 Flash — legacy
+    "gemini-2.0-flash-exp",           // Flash 2.0 Experimental
+    "gemini-pro",                     // Legacy Pro
   ];
 
   constructor() {
@@ -158,9 +162,37 @@ export class GeminiClient implements AIClient {
       temperature: options.temperature,
       maxTokens: options.maxTokens,
     };
-    
+
     const response = await this.executeGenerateText(input, config);
     return response.content;
+  }
+
+  /**
+   * Generate text and return full GenerationResult including token usage.
+   * Use this when you need token counts for cost tracking.
+   */
+  async generateTextResult(
+    prompt: string,
+    options: AIClientOptions = {}
+  ): Promise<GenerationResult> {
+    const input: GeminiMessage[] = [{ role: "user", content: prompt }];
+    const config: GeminiGenerationConfig = {
+      temperature: options.temperature,
+      maxTokens: options.maxTokens,
+    };
+    const response = await this.executeGenerateText(input, config);
+    return {
+      content: response.content,
+      model: response.model,
+      provider: response.model?.includes("github-models") ? "github" : "gemini",
+      usage: response.usage
+        ? {
+            inputTokens: response.usage.promptTokens,
+            outputTokens: response.usage.completionTokens,
+            totalTokens: response.usage.totalTokens,
+          }
+        : undefined,
+    };
   }
 
   /**

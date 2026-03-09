@@ -1,7 +1,7 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { Brain, BrainUpdate, BrainTask, BrainRole, INITIAL_BRAIN_STATE } from '@myycontext/core';
+import { Brain, BrainUpdate, BrainTask, BrainRole, BrainTokenUsage, INITIAL_BRAIN_STATE } from '@myycontext/core';
 import { v4 as uuidv4 } from 'uuid';
 import chalk from 'chalk';
 
@@ -148,5 +148,67 @@ export class BrainClient {
     // Deep copy to avoid mutating the imported constant
     const freshBrain = JSON.parse(JSON.stringify(INITIAL_BRAIN_STATE));
     await this.saveBrain(freshBrain);
+  }
+
+  /**
+   * Record token usage for a single LLM call.
+   * Updates both the per-call metadata in the latest BrainUpdate (if any)
+   * and the cumulative usage summary on brain.usage.
+   */
+  public async recordTokenUsage(
+    agentName: string,
+    provider: string,
+    model: string,
+    tokens: { inputTokens: number; outputTokens: number; totalTokens: number },
+    costUSD: number
+  ): Promise<void> {
+    const brain = await this.getBrain();
+
+    if (!brain.usage) {
+      brain.usage = {
+        totalInputTokens: 0,
+        totalOutputTokens: 0,
+        totalTokens: 0,
+        totalCostUSD: 0,
+        callCount: 0,
+        byAgent: {},
+        byProvider: {},
+      };
+    }
+
+    const u = brain.usage;
+    u.totalInputTokens += tokens.inputTokens;
+    u.totalOutputTokens += tokens.outputTokens;
+    u.totalTokens += tokens.totalTokens;
+    u.totalCostUSD += costUSD;
+    u.callCount += 1;
+
+    // Per-agent accumulation
+    if (!u.byAgent[agentName]) {
+      u.byAgent[agentName] = { calls: 0, inputTokens: 0, outputTokens: 0, costUSD: 0 };
+    }
+    const ag = u.byAgent[agentName]!;
+    ag.calls += 1;
+    ag.inputTokens += tokens.inputTokens;
+    ag.outputTokens += tokens.outputTokens;
+    ag.costUSD += costUSD;
+
+    // Per-provider accumulation
+    if (!u.byProvider[provider]) {
+      u.byProvider[provider] = { calls: 0, inputTokens: 0, outputTokens: 0, costUSD: 0 };
+    }
+    const pr = u.byProvider[provider]!;
+    pr.calls += 1;
+    pr.inputTokens += tokens.inputTokens;
+    pr.outputTokens += tokens.outputTokens;
+    pr.costUSD += costUSD;
+
+    await this.saveBrain(brain);
+  }
+
+  /** Return the cumulative token usage summary for the current context */
+  public async getUsageSummary(): Promise<BrainTokenUsage | undefined> {
+    const brain = await this.getBrain();
+    return brain.usage;
   }
 }

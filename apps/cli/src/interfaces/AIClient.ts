@@ -36,6 +36,8 @@ export interface StreamingOptions {
 
 export interface GenerationResult {
   content: string;
+  model?: string;
+  provider?: string;
   usage?: {
     inputTokens: number;
     outputTokens: number;
@@ -74,6 +76,12 @@ export interface AIClient {
     prompt: string,
     options?: AIClientOptions
   ): Promise<string>;
+
+  // Text generation including token usage metadata (optional — not all clients implement)
+  generateTextResult?(
+    prompt: string,
+    options?: AIClientOptions
+  ): Promise<GenerationResult>;
 
   // Component-specific generation
   generateComponent(

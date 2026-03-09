@@ -8,7 +8,10 @@
     "factorize": "tsx src/runner.ts factorize",
     "password": "tsx src/runner.ts password",
     "benchmark": "tsx src/runner.ts benchmark",
-    "dev": "tsx src/runner.ts"
+    "dev": "tsx src/runner.ts",
+    "sat": "tsx src/sat.ts",
+    "sat:llm": "tsx src/sat.ts --llm --stats",
+    "sat:compare": "tsx src/sat.ts --compare --stats"
   },
   "dependencies": {
     "dotenv": "^16.4.0",

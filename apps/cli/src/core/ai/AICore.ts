@@ -5,6 +5,8 @@ import { LivingContext } from "../../types/living-context";
 import { GeminiClient } from "../../utils/geminiClient";
 import { XAIClient } from "../../clients/XAIClient";
 import { ClaudeAgentClient } from "../../utils/claudeAgentClient";
+import { BrainClient } from "../brain/BrainClient";
+import { calculateCostUSD } from "./TokenCostModel";
 import chalk from "chalk";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -139,6 +141,22 @@ export class AICore {
   }
 
   /**
+   * Record token usage to the Brain — fire-and-forget (never blocks generation)
+   */
+  private recordUsage(
+    provider: string,
+    model: string,
+    inputTokens: number,
+    outputTokens: number
+  ): void {
+    const costUSD = calculateCostUSD(model, inputTokens, outputTokens);
+    const brain = BrainClient.getInstance(this.config.workingDirectory);
+    brain
+      .recordTokenUsage("AICore", provider, model, { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens }, costUSD)
+      .catch(() => {/* silent — never break generation for tracking failures */});
+  }
+
+  /**
    * Proxy for generateText with automatic fallback
    */
   public async generateText(prompt: string, options: AIClientOptions = {}): Promise<string> {
@@ -147,18 +165,31 @@ export class AICore {
 
     for (const client of clients) {
       try {
+        // Use generateTextResult when available to capture token usage
+        if (typeof (client as any).generateTextResult === "function") {
+          const result = await (client as any).generateTextResult(prompt, options);
+          if (result.usage) {
+            this.recordUsage(
+              result.provider ?? client.clientType,
+              result.model ?? "unknown",
+              result.usage.inputTokens,
+              result.usage.outputTokens
+            );
+          }
+          return result.content;
+        }
         return await client.generateText(prompt, options);
       } catch (error: any) {
         lastError = error;
         const message = error.message || String(error);
-        
+
         // If it's a rate limit or auth error, log it and try the next client
-        if (message.includes("429") || message.toLowerCase().includes("rate limit") || 
+        if (message.includes("429") || message.toLowerCase().includes("rate limit") ||
             message.includes("401") || message.toLowerCase().includes("unauthorized")) {
           console.log(chalk.yellow(`⚠️  Provider ${client.clientType} failed, trying fallback...`));
           continue;
         }
-        
+
         // For other errors, we might still want to try fallback depending on severity
         console.log(chalk.gray(`ℹ️  Provider ${client.clientType} error: ${message.substring(0, 50)}...`));
       }
@@ -168,7 +199,7 @@ export class AICore {
       this.handleAIError(lastError);
       throw lastError;
     }
-    
+
     throw new Error("No AI providers available - configure API keys and retry");
   }
 
