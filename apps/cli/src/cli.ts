@@ -52,6 +52,7 @@ import { WorkflowAgent } from "./agents/implementations/WorkflowAgent";
 import { PromptConstructorAgent } from "./agents/implementations/PromptConstructorAgent";
 import { BackendDevAgent } from "./agents/implementations/BackendDevAgent";
 import { EnhancementAgent } from "./agents/implementations/EnhancementAgent";
+import { SolverAgent } from "./agents/implementations/SolverAgent";
 
 // Register sub-agents with the orchestrator
 orchestrator.registerAgent(new CodeGenSubAgent());
@@ -65,6 +66,7 @@ orchestrator.registerAgent(new WorkflowAgent());
 orchestrator.registerAgent(new PromptConstructorAgent());
 orchestrator.registerAgent(new BackendDevAgent());
 orchestrator.registerAgent(new EnhancementAgent());
+orchestrator.registerAgent(new SolverAgent());
 
 const program = new Command();
 

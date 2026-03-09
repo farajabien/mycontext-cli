@@ -1,0 +1,4 @@
+method,originalSearchSpaceSize,searchSpaceSize,exploredCount,prunedCount,reductionRatio,runtimeMs,llmTokensUsed,llmCallCount
+brute-force,23,23,23,22,0.000000,4,0,0
+constraint-propagation,23,1,1,22,0.956522,0,0,0
+llm-guided,23,1,1,22,0.956522,0,0,0

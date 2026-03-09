@@ -1,0 +1,13 @@
+method,searchSpaceSize,exploredCount,prunedCount,reductionRatio,runtimeMs,llmTokensUsed,llmCallCount
+brute-force,7,7,6,1.000000,1,0,0
+constraint-propagation,1,1,6,1.000000,0,0,0
+brute-force,23,23,22,1.000000,0,0,0
+constraint-propagation,1,1,22,1.000000,0,0,0
+brute-force,97,97,96,1.000000,0,0,0
+constraint-propagation,1,1,96,1.000000,1,0,0
+brute-force,999,999,999,1.000000,10,0,0
+constraint-propagation,0,0,999,1.000000,6,0,0
+brute-force,4095,4095,4095,1.000000,50,0,0
+constraint-propagation,0,0,4095,1.000000,29,0,0
+brute-force,32767,32767,32767,1.000000,166,0,0
+constraint-propagation,0,0,32767,1.000000,207,0,0

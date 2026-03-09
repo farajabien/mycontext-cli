@@ -1,0 +1,22 @@
+{
+  "name": "solver-experiment",
+  "version": "0.1.0",
+  "description": "Standalone research runner: Structured Reasoning Systems for NP-Type Problems",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "factorize": "tsx src/runner.ts factorize",
+    "password": "tsx src/runner.ts password",
+    "benchmark": "tsx src/runner.ts benchmark",
+    "dev": "tsx src/runner.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "openai": "^4.47.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.15.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

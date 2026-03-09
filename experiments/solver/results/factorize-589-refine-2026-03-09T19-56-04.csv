@@ -1,0 +1,3 @@
+loop,method,exploredCount,searchSpaceSize,reductionRatio,runtimeMs,llmTokensUsed,cumulativeTokens,costUSD,cumulativeCostUSD,solution
+1,brute-force,17,23,0.260870,0,0,0,0.000000,0.000000,{"a":19}
+2,llm-guided,0,1,1.000000,0,0,0,0.000000,0.000000,{"a":19}
