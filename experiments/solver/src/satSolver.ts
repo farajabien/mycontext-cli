@@ -188,7 +188,7 @@ export function unitPropagate(
   return { assignment: a, steps };
 }
 
-function evalClause(
+export function evalClause(
   clause: Clause,
   assignment: Assignment
 ): { status: "satisfied" | "conflict" | "unresolved"; unset: Literal[] } {

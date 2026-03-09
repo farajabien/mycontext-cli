@@ -155,7 +155,7 @@ The LLM token cost is approximately constant (~$0.008) while DPLL decisions grow
 
 [1] M. Davis, G. Logemann, and D. Loveland. "A machine program for theorem-proving." Communications of the ACM, 5(7):394–397, 1962.
 
-[2] F. Abien. "LLM-Guided Constraint Solving with Structured Problem Representations." mycontext-cli Research Track, March 2026. https://github.com/farajabien/mycontext-cli/blob/main/experiments/solver/README.md
+[2] F. Bienvenu. "LLM-Guided Constraint Solving with Structured Problem Representations." mycontext-cli Research Track, March 2026. https://github.com/farajabien/mycontext-cli/blob/main/experiments/solver/README.md
 
 [3] M. Järvisalo, D. Le Berre, O. Roussel, and L. Simon. "The International SAT Solver Competitions." AI Magazine, 33(1):89–92, 2012.
 
