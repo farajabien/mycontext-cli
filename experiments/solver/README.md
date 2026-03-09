@@ -6,6 +6,44 @@
 
 ---
 
+## Quick Start — Clone just the solver
+
+This solver lives inside the `mycontext-cli` monorepo. Use sparse checkout to download **only this directory** without fetching the full project:
+
+```bash
+# Sparse checkout — only downloads experiments/solver/, not the full CLI codebase
+git clone --filter=blob:none --sparse https://github.com/farajabien/mycontext-cli.git
+cd mycontext-cli
+git sparse-checkout set experiments/solver
+cd experiments/solver
+cp .env.example .env        # fill in at least one API key
+npm install
+```
+
+Then run any of the scripts below. No other packages or workspace setup required.
+
+### API keys
+
+Copy `.env.example` to `.env` and add at least one key:
+
+| Variable | Provider | Free tier |
+|---|---|---|
+| `GITHUB_TOKEN` | GitHub Models (gpt-4o-mini) | Yes — free with GitHub account |
+| `GEMINI_API_KEY` | Google Gemini | Yes — Gemini 3.1 Flash Lite |
+| `OPENAI_API_KEY` | OpenAI | No |
+
+The solver picks the first available key in the order above.
+
+### Quick commands
+
+```bash
+npm run sat:compare benchmarks/factorize-9797.cnf   # compare DPLL vs LLM on a factorization instance
+npm run benchmarks:generate                          # generate all 20 competition benchmarks
+npm run sat -- benchmarks/random3sat-100v-427c-s102.cnf   # plain DPLL on random 3-SAT
+```
+
+---
+
 ## Abstract
 
 This paper presents an empirical comparison of three computational strategies — brute-force enumeration, constraint propagation, and LLM-guided domain narrowing — applied to structured search problems (integer factorization and password search). We introduce a *two-currency cost model* that expresses computational effort simultaneously in CPU operations and LLM tokens, enabling direct trade-off analysis between traditional and AI-augmented approaches.

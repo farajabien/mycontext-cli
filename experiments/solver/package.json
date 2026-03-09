@@ -1,5 +1,5 @@
 {
-  "name": "solver-experiment",
+  "name": "llm-guided-sat",
   "version": "0.1.0",
   "description": "Standalone research runner: Structured Reasoning Systems for NP-Type Problems",
   "private": true,
