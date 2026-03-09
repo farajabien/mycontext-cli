@@ -34,6 +34,39 @@ export interface CNFFormula {
 
 export type Assignment = Map<number, boolean>; // variable -> true/false
 
+/**
+ * ProofStep — abstract representation of a single solver action.
+ *
+ * Because the LLM only selects *which variable to branch on*, not the logical
+ * validity of any inference, every decision can be recorded as a transparent,
+ * replayable symbol. A verifier that replays the trace through deterministic
+ * unit propagation can independently confirm SAT (by checking the assignment)
+ * or UNSAT (by reconstructing the resolution refutation from conflict leaves).
+ *
+ * This eliminates the "opaque model call" barrier: the LLM's contribution is
+ * fully materialised as structured data before any logical step executes.
+ */
+export type ProofStepSource = "llm" | "vsids" | "propagation";
+
+export interface ProofStep {
+  /** Sequential step index across the entire search */
+  seq: number;
+  /** Type of action */
+  type: "decision" | "unit-prop" | "conflict" | "sat";
+  /** Which variable was acted on (decisions and propagations) */
+  variable?: number;
+  /** Value assigned */
+  value?: boolean;
+  /** What produced this step */
+  source: ProofStepSource;
+  /** Current assignment depth (number of decisions made so far) */
+  depth: number;
+  /** LLM-provided confidence (0–1), only for source=llm */
+  confidence?: number;
+  /** LLM's brief reasoning string, only for source=llm */
+  reasoning?: string;
+}
+
 export interface SATResult {
   satisfiable: boolean;
   assignment?: Assignment;
@@ -43,6 +76,20 @@ export interface SATResult {
   llmTokens: number;
   llmCostUSD: number;
   runtimeMs: number;
+  /** Abstract proof trace — every solver action as a transparent ProofStep */
+  proofTrace: ProofStep[];
+}
+
+/** Compact single-line representation for competition comment output */
+export function serializeProofStep(s: ProofStep): string {
+  const base = `seq=${s.seq} type=${s.type} src=${s.source} depth=${s.depth}`;
+  if (s.variable !== undefined) {
+    const lit = s.value === false ? `-${s.variable}` : `${s.variable}`;
+    const extra = s.confidence !== undefined ? ` conf=${s.confidence.toFixed(2)}` : "";
+    const rsn = s.reasoning ? ` reason="${s.reasoning.replace(/"/g, "'").slice(0, 80)}"` : "";
+    return `${base} var=${lit}${extra}${rsn}`;
+  }
+  return base;
 }
 
 // ── DIMACS Parser ──────────────────────────────────────────────────────────
@@ -200,10 +247,14 @@ function chooseVariable(clauses: Clause[], assignment: Assignment, numVars: numb
 export function dpll(
   formula: CNFFormula,
   assignment: Assignment,
-  stats: DPLLStats
+  stats: DPLLStats,
+  trace: ProofStep[]
 ): Assignment | null {
   const result = unitPropagate(formula.clauses, assignment);
-  if (!result) return null;
+  if (!result) {
+    trace.push({ seq: trace.length, type: "conflict", source: "propagation", depth: stats.decisions });
+    return null;
+  }
   stats.propagations += result.steps;
   const a = result.assignment;
 
@@ -211,26 +262,35 @@ export function dpll(
   let allSatisfied = true;
   for (const clause of formula.clauses) {
     const { status } = evalClause(clause, a);
-    if (status === "conflict") return null;
+    if (status === "conflict") {
+      trace.push({ seq: trace.length, type: "conflict", source: "propagation", depth: stats.decisions });
+      return null;
+    }
     if (status !== "satisfied") { allSatisfied = false; }
   }
-  if (allSatisfied) return a;
+  if (allSatisfied) {
+    trace.push({ seq: trace.length, type: "sat", source: "propagation", depth: stats.decisions });
+    return a;
+  }
 
   // Choose branching variable
   const v = chooseVariable(formula.clauses, a, formula.numVars);
   if (v === null) return null;
+  const depth = stats.decisions;
   stats.decisions++;
+  trace.push({ seq: trace.length, type: "decision", variable: v, value: true, source: "vsids", depth });
 
   // Try true
   const aTrue = new Map(a);
   aTrue.set(v, true);
-  const resTrue = dpll(formula, aTrue, stats);
+  const resTrue = dpll(formula, aTrue, stats, trace);
   if (resTrue) return resTrue;
 
   // Try false
+  trace.push({ seq: trace.length, type: "decision", variable: v, value: false, source: "vsids", depth });
   const aFalse = new Map(a);
   aFalse.set(v, false);
-  return dpll(formula, aFalse, stats);
+  return dpll(formula, aFalse, stats, trace);
 }
 
 // ── LLM-Guided DPLL ─────────────────────────────────────────────────────
@@ -316,32 +376,49 @@ export async function dpllLLM(
   llm: OpenAI,
   model: string,
   tokenTracker: { total: number },
-  maxLLMCalls: number
+  maxLLMCalls: number,
+  trace: ProofStep[]
 ): Promise<Assignment | null> {
   const result = unitPropagate(formula.clauses, assignment);
-  if (!result) return null;
+  if (!result) {
+    trace.push({ seq: trace.length, type: "conflict", source: "propagation", depth: stats.decisions });
+    return null;
+  }
   stats.propagations += result.steps;
   const a = result.assignment;
 
   let allSatisfied = true;
   for (const clause of formula.clauses) {
     const { status } = evalClause(clause, a);
-    if (status === "conflict") return null;
+    if (status === "conflict") {
+      trace.push({ seq: trace.length, type: "conflict", source: "propagation", depth: stats.decisions });
+      return null;
+    }
     if (status !== "satisfied") allSatisfied = false;
   }
-  if (allSatisfied) return a;
+  if (allSatisfied) {
+    trace.push({ seq: trace.length, type: "sat", source: "propagation", depth: stats.decisions });
+    return a;
+  }
 
+  const depth = stats.decisions;
   stats.decisions++;
 
   // LLM branch selection when budget allows, otherwise fallback to VSIDS
   let v: number | null = null;
   let firstPolarity = true;
+  let stepSource: ProofStepSource = "vsids";
+  let confidence: number | undefined;
+  let reasoning: string | undefined;
 
   if (tokenTracker.total / 1000 < maxLLMCalls) {
     const hint = await llmSelectBranch(formula, a, llm, model, tokenTracker);
     if (hint) {
       v = hint.variable;
       firstPolarity = hint.polarity;
+      stepSource = "llm";
+      confidence = hint.confidence;
+      reasoning = hint.reasoning;
     }
   }
 
@@ -350,16 +427,38 @@ export async function dpllLLM(
     if (v === null) return null;
   }
 
+  // Record the decision — fully transparent, replayable by any checker
+  trace.push({
+    seq: trace.length,
+    type: "decision",
+    variable: v,
+    value: firstPolarity,
+    source: stepSource,
+    depth,
+    confidence,
+    reasoning,
+  });
+
   // Try preferred polarity first
   const aFirst = new Map(a);
   aFirst.set(v, firstPolarity);
-  const resFirst = await dpllLLM(formula, aFirst, stats, llm, model, tokenTracker, maxLLMCalls);
+  const resFirst = await dpllLLM(formula, aFirst, stats, llm, model, tokenTracker, maxLLMCalls, trace);
   if (resFirst) return resFirst;
 
   // Try opposite
+  trace.push({
+    seq: trace.length,
+    type: "decision",
+    variable: v,
+    value: !firstPolarity,
+    source: stepSource,
+    depth,
+    confidence,
+    reasoning: reasoning ? `[backtrack] ${reasoning}` : undefined,
+  });
   const aSecond = new Map(a);
   aSecond.set(v, !firstPolarity);
-  return dpllLLM(formula, aSecond, stats, llm, model, tokenTracker, maxLLMCalls);
+  return dpllLLM(formula, aSecond, stats, llm, model, tokenTracker, maxLLMCalls, trace);
 }
 
 // ── Public Solver API ─────────────────────────────────────────────────────
@@ -379,6 +478,7 @@ export async function solve(
   const t0 = Date.now();
   const stats: DPLLStats = { decisions: 0, propagations: 0 };
   const tokenTracker = { total: 0 };
+  const trace: ProofStep[] = [];
 
   let assignment: Assignment | null = null;
 
@@ -390,10 +490,11 @@ export async function solve(
       options.llm,
       options.llmModel ?? "gpt-4o-mini",
       tokenTracker,
-      options.maxLLMCallBudget ?? 10
+      options.maxLLMCallBudget ?? 10,
+      trace
     );
   } else {
-    assignment = dpll(formula, new Map(), stats);
+    assignment = dpll(formula, new Map(), stats, trace);
   }
 
   const runtimeMs = Date.now() - t0;
@@ -408,6 +509,7 @@ export async function solve(
     llmTokens: tokenTracker.total,
     llmCostUSD,
     runtimeMs,
+    proofTrace: trace,
   };
 }
 

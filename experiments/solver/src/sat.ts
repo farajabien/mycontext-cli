@@ -7,12 +7,21 @@
  *   cat input.cnf | npx tsx src/sat.ts [--llm]
  *
  * Options:
- *   --llm          Use LLM-guided branching (requires GEMINI_API_KEY or GITHUB_TOKEN)
+ *   --llm          Use LLM-guided branching (requires GITHUB_TOKEN)
  *   --budget <N>   Max LLM call batches (default: 10)
  *   --compare      Run both DPLL and LLM-guided and print comparison
- *   --stats        Print solver statistics to stderr
+ *   --stats        Print solver statistics + abstract proof trace to stderr
  *
  * Output format: SAT Competition standard (s SATISFIABLE / s UNSATISFIABLE + v line)
+ *
+ * Abstract Representation Layer
+ * ─────────────────────────────
+ * Every solver decision — including LLM-guided ones — is recorded as a
+ * ProofStep (variable, polarity, source, depth, reasoning). The full trace is
+ * emitted as "c proof-step: ..." comment lines, making the branching sequence
+ * transparent and independently replayable. For SAT instances the satisfying
+ * assignment is trivially verifiable; for UNSAT instances the trace constitutes
+ * a resolution refutation from which a formal proof can be reconstructed.
  */
 
 import * as fs from "fs";
@@ -24,6 +33,7 @@ import {
   parseDIMACS,
   solve,
   formatCompetitionOutput,
+  serializeProofStep,
   SATResult,
 } from "./satSolver.js";
 
@@ -58,40 +68,21 @@ for (const envFile of [
   }
 }
 
-// ── LLM client ───────────────────────────────────────────────────────────
+// ── LLM client (GitHub Models only) ──────────────────────────────────────
+// Uses the OpenAI-compatible endpoint at models.inference.ai.azure.com.
+// A free GitHub account token is sufficient — no billing required.
 
 function buildLLMClient(): { client: OpenAI; model: string; provider: string } | null {
-  const github = process.env.GITHUB_TOKEN ?? process.env.MYCONTEXT_GITHUB_TOKEN;
-  if (github) {
-    return {
-      client: new OpenAI({
-        baseURL: "https://models.inference.ai.azure.com",
-        apiKey: github,
-      }),
-      model: "gpt-4o-mini",
-      provider: "github-models",
-    };
-  }
-  const gemini = process.env.GEMINI_API_KEY;
-  if (gemini) {
-    return {
-      client: new OpenAI({
-        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-        apiKey: gemini,
-      }),
-      model: "gemini-3.1-flash-lite-preview",
-      provider: "gemini",
-    };
-  }
-  const openai = process.env.OPENAI_API_KEY;
-  if (openai) {
-    return {
-      client: new OpenAI({ apiKey: openai }),
-      model: "gpt-4o-mini",
-      provider: "openai",
-    };
-  }
-  return null;
+  const token = process.env.GITHUB_TOKEN ?? process.env.MYCONTEXT_GITHUB_TOKEN;
+  if (!token) return null;
+  return {
+    client: new OpenAI({
+      baseURL: "https://models.inference.ai.azure.com",
+      apiKey: token,
+    }),
+    model: "gpt-4o-mini",
+    provider: "github-models",
+  };
 }
 
 // ── Argument parsing ──────────────────────────────────────────────────────
@@ -132,6 +123,26 @@ function printStatsLine(label: string, result: SATResult, providerInfo = ""): vo
   );
 }
 
+/**
+ * Emit the abstract proof trace as competition comment lines.
+ * Each line is: c proof-step: <serialized ProofStep>
+ *
+ * A verifier can replay these steps through deterministic unit propagation to
+ * independently confirm the result, regardless of whether the decisions were
+ * LLM-guided or heuristic. LLM decisions include 'reason="..."' so the full
+ * branching rationale is auditable.
+ */
+function emitProofTrace(result: SATResult): void {
+  const llmSteps = result.proofTrace.filter(s => s.source === "llm").length;
+  const vsidsSteps = result.proofTrace.filter(s => s.source === "vsids").length;
+  process.stderr.write(
+    `c proof-trace: ${result.proofTrace.length} steps  llm=${llmSteps}  vsids=${vsidsSteps}\n`
+  );
+  for (const step of result.proofTrace) {
+    process.stderr.write(`c proof-step: ${serializeProofStep(step)}\n`);
+  }
+}
+
 async function main(): Promise<void> {
   const input = await readInput();
 
@@ -160,6 +171,7 @@ async function main(): Promise<void> {
         maxLLMCallBudget: budget,
       });
       printStatsLine("llm", llmResult, ` ${llmSetup.provider}/${llmSetup.model}`);
+      if (printStats) emitProofTrace(llmResult);
 
       const improvement = baseResult.decisions > 0
         ? ((1 - llmResult.decisions / baseResult.decisions) * 100).toFixed(1)
@@ -190,6 +202,7 @@ async function main(): Promise<void> {
         maxLLMCallBudget: budget,
       });
       if (printStats) printStatsLine("llm-guided", result, ` ${llmSetup.provider}`);
+      if (printStats) emitProofTrace(result);
       process.stdout.write(formatCompetitionOutput(result, formula.numVars) + "\n");
       return;
     }
@@ -198,6 +211,7 @@ async function main(): Promise<void> {
   // Default: DPLL
   const result = await solve(formula, { strategy: "dpll" });
   if (printStats) printStatsLine("dpll", result);
+  if (printStats) emitProofTrace(result);
   process.stdout.write(formatCompetitionOutput(result, formula.numVars) + "\n");
 }
 

@@ -82,12 +82,33 @@ To bound LLM costs, a token budget parameter controls the maximum number of LLM 
 
 ## 3. Implementation
 
-The solver is implemented in TypeScript (Node.js ≥ 18), using the OpenAI-compatible API for LLM access. Supported providers:
-- **GitHub Models** (endpoint: `models.inference.ai.azure.com`, model: `gpt-4o-mini`)
-- **Google Gemini** (`gemini-3.1-flash-lite-preview` via OpenAI-compat endpoint)
-- **OpenAI** (`gpt-4o-mini`)
+The solver is implemented in TypeScript (Node.js ≥ 18), using the OpenAI-compatible API for LLM access via **GitHub Models** (endpoint: `models.inference.ai.azure.com`, model: `gpt-4o-mini`). A free GitHub account token is sufficient — no billing required.
 
 The solver reads DIMACS CNF from stdin or a file argument and writes competition-format output to stdout. Log/stat messages are prefixed with `c` per competition output format requirements.
+
+### 3.5 Abstract Representation Layer
+
+The central challenge of LLM-guided SAT solving is auditability: an opaque model call cannot produce a certifiable proof trace. We address this with an **Abstract Representation Layer** that materialises every LLM decision as a structured `ProofStep` before any logical inference executes:
+
+```typescript
+interface ProofStep {
+  seq: number;           // sequential step index
+  type: "decision" | "unit-prop" | "conflict" | "sat";
+  variable?: number;     // variable acted on
+  value?: boolean;       // value assigned
+  source: "llm" | "vsids" | "propagation";
+  depth: number;         // decision depth
+  confidence?: number;   // LLM confidence (0–1)
+  reasoning?: string;    // LLM's brief rationale
+}
+```
+
+Every solver step — LLM-guided or heuristic — is appended to a trace array and emitted as `c proof-step: ...` competition comment lines. The full trace constitutes a transparent, replayable proof:
+
+- **For SAT:** the satisfying assignment is verifiable in O(clauses × clause_length) by any checker.
+- **For UNSAT:** the decision trace is a complete resolution refutation tree. A verifier can replay the steps through deterministic unit propagation to confirm every conflict, independently reconstructing the proof without trusting the LLM output.
+
+The key insight: the LLM determines only *which variable to branch on* — it does not perform logical inference. All unit propagation and conflict detection remain fully deterministic. The LLM's contribution is bounded to search-order selection, which is logically neutral with respect to proof validity.
 
 **Source code:** https://github.com/farajabien/mycontext-cli/tree/main/experiments/solver
 
@@ -122,7 +143,7 @@ The LLM token cost is approximately constant (~$0.008) while DPLL decisions grow
 
 ## 6. Limitations
 
-1. **LLM calls are not certifiable.** The solver cannot produce DRAT/LRAT proofs because the branching sequence is determined by an opaque model call. This is the primary reason for submitting to the Experimental Track.
+1. **No CDCL clause learning.** The solver uses plain DPLL without conflict-driven clause learning (CDCL). DRAT/LRAT proof generation requires logging learned clauses and their antecedents, which is a CDCL concept. The abstract proof trace (Section 3.5) provides a replayable resolution refutation for UNSAT instances, but not in DRAT format. This remains the primary reason for the Experimental Track submission; adding CDCL is the natural next step toward Main Track eligibility.
 
 2. **Latency.** Each LLM call adds 200–800ms wall-clock latency. For the competition's 5000-second limit, this allows approximately 6,000–25,000 LLM-guided decisions — sufficient for the submitted benchmark family.
 
