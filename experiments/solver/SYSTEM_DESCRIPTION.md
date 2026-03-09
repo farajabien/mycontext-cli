@@ -1,6 +1,6 @@
 # LLM-Guided: A Neuro-Symbolic SAT Solver Using LLM-Driven Branching Heuristics
 
-**Faraj Abien**
+**farajabien**
 Independent Researcher
 faraja.bien@gmail.com
 
@@ -161,8 +161,3 @@ The LLM token cost is approximately constant (~$0.008) while DPLL decisions grow
 
 [4] A. Biere, M. Heule, H. van Maaren, and T. Walsh (eds.). Handbook of Satisfiability, 2nd edition. IOS Press, 2021.
 
----
-
-*Submitted to SAT Competition 2026 — Experimental Track.*
-*Solver registration deadline: April 19, 2026.*
-*Solver submission deadline: April 26, 2026.*
