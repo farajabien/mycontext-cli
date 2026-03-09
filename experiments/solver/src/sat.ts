@@ -27,6 +27,19 @@ import {
   SATResult,
 } from "./satSolver.js";
 
+// ── Competition timeout handling ──────────────────────────────────────────
+// StarExec/BenchCloud sends SIGTERM (and SIGXCPU on CPU limit) when the
+// time limit is reached. Output s UNKNOWN and exit cleanly.
+
+function handleTimeout(signal: string): void {
+  process.stdout.write(`c Received ${signal} — time limit reached\ns UNKNOWN\n`);
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => handleTimeout("SIGTERM"));
+process.on("SIGXCPU", () => handleTimeout("SIGXCPU"));
+process.on("SIGINT",  () => handleTimeout("SIGINT"));
+
 // ── Environment loading ───────────────────────────────────────────────────
 
 const __filename = fileURLToPath(import.meta.url);

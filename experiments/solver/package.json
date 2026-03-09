@@ -11,7 +11,9 @@
     "dev": "tsx src/runner.ts",
     "sat": "tsx src/sat.ts",
     "sat:llm": "tsx src/sat.ts --llm --stats",
-    "sat:compare": "tsx src/sat.ts --compare --stats"
+    "sat:compare": "tsx src/sat.ts --compare --stats",
+    "benchmarks:generate": "tsx src/benchmarks.ts generate",
+    "benchmarks:factorize": "tsx src/benchmarks.ts factorize"
   },
   "dependencies": {
     "dotenv": "^16.4.0",
