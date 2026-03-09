@@ -1,0 +1,8 @@
+# Allow the pre-built competition bundle to be tracked
+!dist/
+!dist/*.mjs
+# Standard ignores
+node_modules/
+*.local
+results/
+*.zip

@@ -1,0 +1,52 @@
+#!/bin/bash
+# starexec_run_default — LLM-Guided SAT Solver (Experimental Track)
+# SAT Competition 2026
+#
+# StarExec invokes this script as:
+#   ./starexec_run_default <input.cnf>
+#
+# The solver outputs to stdout in competition format:
+#   s SATISFIABLE / s UNSATISFIABLE / s UNKNOWN
+#   v <literal list> 0
+
+set -euo pipefail
+
+INPUT="${1:-}"
+if [ -z "$INPUT" ]; then
+  echo "c Error: no input file provided"
+  echo "s UNKNOWN"
+  exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOLVER_DIR="$(dirname "$SCRIPT_DIR")"
+BUNDLE="$SOLVER_DIR/dist/sat.mjs"
+
+# Locate node
+NODE=""
+for candidate in node nodejs "$(which node 2>/dev/null || true)"; do
+  if command -v "$candidate" &>/dev/null; then
+    NODE="$candidate"
+    break
+  fi
+done
+
+if [ -z "$NODE" ]; then
+  echo "c Error: node not found on PATH — cannot run TypeScript solver"
+  echo "s UNKNOWN"
+  exit 1
+fi
+
+echo "c solver: LLM-Guided SAT (Experimental Track)"
+echo "c node: $($NODE --version 2>/dev/null)"
+
+# Run with LLM guidance if GITHUB_TOKEN is set, otherwise plain DPLL
+# On StarExec, LLM calls will fail if there is no internet access and the
+# solver gracefully falls back to VSIDS-lite for all branching decisions.
+if [ -n "${GITHUB_TOKEN:-}" ] || [ -n "${MYCONTEXT_GITHUB_TOKEN:-}" ]; then
+  echo "c mode: llm-guided"
+  exec "$NODE" "$BUNDLE" "$INPUT" --llm --budget 20
+else
+  echo "c mode: dpll (no GITHUB_TOKEN set)"
+  exec "$NODE" "$BUNDLE" "$INPUT"
+fi

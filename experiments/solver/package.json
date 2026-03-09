@@ -1,7 +1,7 @@
 {
   "name": "llm-guided-sat",
   "version": "0.1.0",
-  "description": "Standalone research runner: Structured Reasoning Systems for NP-Type Problems",
+  "description": "LLM-Guided DPLL SAT Solver — SAT Competition 2026 Experimental Track",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,15 +13,18 @@
     "sat:llm": "tsx src/sat.ts --llm --stats",
     "sat:compare": "tsx src/sat.ts --compare --stats",
     "benchmarks:generate": "tsx src/benchmarks.ts generate",
-    "benchmarks:factorize": "tsx src/benchmarks.ts factorize"
+    "benchmarks:factorize": "tsx src/benchmarks.ts factorize",
+    "build": "esbuild src/sat.ts --bundle --platform=node --target=node18 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=dist/sat.mjs",
+    "package": "npm run benchmarks:generate && npm run build && zip -r llm-guided-sat-starexec.zip bin/ dist/ benchmarks/ SYSTEM_DESCRIPTION.md README.md && echo 'Package ready: llm-guided-sat-starexec.zip'"
   },
   "dependencies": {
     "dotenv": "^16.4.0",
     "openai": "^4.47.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.27.3",
     "tsx": "^4.15.0",
-    "typescript": "^5.4.0",
-    "@types/node": "^20.0.0"
+    "typescript": "^5.4.0"
   }
 }

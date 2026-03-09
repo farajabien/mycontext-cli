@@ -328,9 +328,6 @@ Create `.env` in the repo root. At least one LLM key is required for `llm-guided
 ```env
 # Priority order (first valid key wins):
 GITHUB_TOKEN=github_pat_...      # GitHub Models — $0.00001/token
-OPENAI_API_KEY=sk-...            # OpenAI
-OPENROUTER_API_KEY=sk-or-...     # OpenRouter
-GEMINI_API_KEY=AI...             # Google Gemini (auto-fallback)
 ```
 
 ### Commands
@@ -401,3 +398,102 @@ The broader research direction is documented in `apps/cli/src/types/constraint.t
 ---
 
 *Experiment code: `experiments/solver/src/` — TypeScript, ~600 lines, zero runtime dependencies beyond `openai` and `dotenv`.*
+
+---
+
+## 11. SAT Competition 2026 — Submission Guide
+
+### Deadlines
+
+| Action | Deadline |
+|---|---|
+| Solver registration + benchmark submission | **April 19, 2026** |
+| Solver upload to StarExec | **April 26, 2026** |
+| Final solver documentation | May 17, 2026 |
+
+### Step 1 — Convert system description to PDF
+
+The competition requires a 1–2 page IEEE-format PDF. Convert `SYSTEM_DESCRIPTION.md`:
+
+```bash
+# Option A: pandoc (if installed)
+pandoc SYSTEM_DESCRIPTION.md -o SYSTEM_DESCRIPTION.pdf --pdf-engine=xelatex
+
+# Option B: GitHub → print to PDF
+# Open https://github.com/farajabien/mycontext-cli/blob/main/experiments/solver/SYSTEM_DESCRIPTION.md
+# and use browser Print → Save as PDF
+```
+
+### Step 2 — Registration email (before April 19)
+
+Check **https://satcompetition.github.io/2026/** for the organizer contact email. Send:
+
+```
+Subject: SAT Competition 2026 — Solver Registration — LLM-Guided (Experimental Track)
+
+Solver name:    LLM-Guided
+Authors:        Faraj Bienvenu <faraja.bien@gmail.com>
+Track:          Experimental Track
+System description: [attach SYSTEM_DESCRIPTION.pdf]
+Source code:    https://github.com/farajabien/mycontext-cli/tree/main/experiments/solver
+Benchmarks:     20 instances attached (see benchmarks/ directory)
+                  7 factorization circuits (factorize-*.cnf)
+                  7 graph 3-coloring instances (color3-*.cnf)
+                  6 random 3-SAT at phase transition (random3sat-*.cnf)
+```
+
+Attach the 20 `.cnf` files from `benchmarks/` as a zip.
+
+### Step 3 — Build the StarExec package (before April 26)
+
+```bash
+# Install dependencies (first time only)
+npm install
+
+# Build bundled binary + zip the competition package
+npm run package
+# → produces: llm-guided-sat-starexec.zip
+```
+
+The zip contains:
+```
+llm-guided-sat-starexec.zip
+├── bin/
+│   └── starexec_run_default   ← main entry point (chmod +x)
+├── dist/
+│   └── sat.mjs                ← bundled Node.js solver (~800KB, all deps baked in)
+├── benchmarks/
+│   └── *.cnf                  ← 20 competition instances
+├── SYSTEM_DESCRIPTION.md
+└── README.md
+```
+
+### Step 4 — Upload to StarExec
+
+1. Create an account at **https://www.starexec.org/starexec/**
+2. Go to **Solvers → Upload New Solver**
+3. Upload `llm-guided-sat-starexec.zip`
+4. Set solver name: `LLM-Guided`
+5. StarExec will call `bin/starexec_run_default <input.cnf>` for each benchmark
+
+### Notes on LLM mode in competition
+
+StarExec machines may not have internet access. The solver handles this gracefully:
+- If `GITHUB_TOKEN` is set in the environment → LLM-guided branching via GitHub Models
+- Otherwise → falls back to VSIDS-lite (plain DPLL), still produces correct results
+
+To request internet access for the Experimental Track, note this in your registration email. If granted, set `GITHUB_TOKEN` as a StarExec environment variable on the job configuration page.
+
+### Verifying a submission build
+
+```bash
+# Quick smoke test of the competition package before submitting
+bash bin/starexec_run_default benchmarks/factorize-77.cnf
+# Expected: c mode: dpll (or llm-guided if token set)
+#           c Parsed: 336 vars, 1082 clauses
+#           s SATISFIABLE
+#           v 1 2 ...
+
+bash bin/starexec_run_default benchmarks/color3-10v-21e-s42.cnf
+# Expected: s UNSATISFIABLE
+```
