@@ -76,7 +76,7 @@ export class ReadmeDeducer {
   /**
    * Update syncable sections in an existing README
    */
-  public generateSyncContent(context: LivingContext): string {
+  public generateSyncContent(context: LivingContext, extraContent?: string): string {
     let content = "\n";
     
     content += `### 🎯 Project Overview\n`;
@@ -94,8 +94,10 @@ export class ReadmeDeducer {
       content += `### 🛠️ Technical Stack\n`;
       const stack = context.specs.techStack;
       if (stack.frontend?.length) content += `- **Frontend**: ${stack.frontend.slice(0, 3).join(", ")}\n`;
-      if (stack.backend?.length) content += `- **Backend**: ${stack.backend.slice(0, 3).join(", ")}\n`;
-      content += "\n";
+    }
+
+    if (extraContent) {
+      content += `\n${extraContent}\n\n`;
     }
 
     content += `--- \n`;

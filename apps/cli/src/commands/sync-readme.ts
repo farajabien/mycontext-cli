@@ -57,8 +57,16 @@ export class SyncREADMECommand {
 
     // 1. Load context/manifest
     let context: any = null;
+    let extraContent: string | undefined = undefined;
+
     if (await fs.pathExists(contextPath)) {
       context = await fs.readJson(contextPath);
+    }
+    
+    // Check for user-defined extra README content
+    const extraPath = path.join(dir, ".mycontext", "README-extra.md");
+    if (await fs.pathExists(extraPath)) {
+      extraContent = await fs.readFile(extraPath, "utf-8");
     }
 
     // 2. Handle missing README
@@ -78,7 +86,7 @@ export class SyncREADMECommand {
     // 3. Sync existing README
     if (context && (await fs.pathExists(readmePath))) {
       const readmeContent = await fs.readFile(readmePath, "utf-8");
-      const injectedContent = this.readmeDeducer.generateSyncContent(context);
+      const injectedContent = this.readmeDeducer.generateSyncContent(context, extraContent);
       const updatedContent = this.syncContent(readmeContent, injectedContent);
 
       if (updatedContent !== readmeContent) {

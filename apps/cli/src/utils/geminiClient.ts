@@ -54,15 +54,7 @@ export class GeminiClient implements AIClient {
   private model: string;
 
   private readonly MODELS = [
-    "gemini-3.1-flash-lite-preview",  // 3.1 Flash Lite — cheapest ($0.25/$1.50 per 1M)
-    "gemini-3.1-pro-preview",         // 3.1 Pro — highest capability ($2/$12 per 1M)
-    "gemini-3.1-flash-image-preview", // 3.1 Flash Image — multimodal
-    "gemini-2.5-flash",               // 2.5 Flash — fast ($0.15/$0.60 per 1M)
-    "gemini-2.0-flash",               // 2.0 Flash — stable fallback
-    "gemini-1.5-pro",                 // 1.5 Pro — legacy
-    "gemini-1.5-flash",               // 1.5 Flash — legacy
-    "gemini-2.0-flash-exp",           // Flash 2.0 Experimental
-    "gemini-pro",                     // Legacy Pro
+    "gemini-2.5-flash",
   ];
 
   constructor() {
