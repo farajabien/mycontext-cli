@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Positioning Debt Problem — MyContext Storyboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 60px 30px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-radius: 16px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00d2ff, #7b2ff7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .header .subtitle { color: #888; font-size: 16px; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+    .header .meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #666;
+    }
+    .header .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* Narrative Strip */
+    .narrative {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .narrative-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .narrative-card h4 { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .narrative-card p { font-size: 14px; line-height: 1.5; }
+    .narrative-card.mission p { color: #00d2ff; }
+    .narrative-card.villain p { color: #ff4444; }
+    .narrative-card.identity p { color: #00c853; }
+
+    /* Controls */
+    .controls {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .step-indicator { margin-left: auto; color: #666; font-size: 14px; }
+    .voice-badge {
+      background: #1a1a2e;
+      color: #7b2ff7;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Scene */
+    .scene { display: none; gap: 24px; }
+    .scene-visual, .scene-script { flex: 1; }
+    .visual-prompt-card, .script-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 24px;
+      height: 100%;
+    }
+    .scene-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .visual-prompt-card h3 { font-size: 20px; margin-bottom: 16px; color: #fff; }
+    .visual-prompt { color: #aaa; line-height: 1.7; font-size: 14px; }
+    .broll { color: #666; margin-top: 12px; font-size: 13px; font-style: italic; }
+    .scene-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #222;
+      font-size: 13px;
+      color: #666;
+    }
+    .script-card h4 { color: #888; margin-bottom: 16px; font-size: 14px; }
+    .script-card blockquote {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #ddd;
+      border-left: 3px solid #7b2ff7;
+      padding-left: 20px;
+      font-style: italic;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: #444;
+      font-size: 12px;
+    }
+    .footer a { color: #7b2ff7; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>The Positioning Debt Problem</h1>
+      <p class="subtitle">A cinematic vertical video exposing how founders lose market share by ignoring positioning debt — and how to fix it with strategic narrative intelligence.</p>
+      <div class="meta">
+        <span>📐 9:16</span>
+        <span>🎬 5 scenes</span>
+        <span>⏱ 50s</span>
+        <span>🎙️ confident tone</span>
+      </div>
+    </div>
+
+    <div class="narrative">
+      <div class="narrative-card mission">
+        <h4>🎯 Mission</h4>
+        <p>Eliminate positioning debt for technical founders so their brilliance actually reaches the market.</p>
+      </div>
+      <div class="narrative-card villain">
+        <h4>👿 Villain</h4>
+        <p>The curse of 'build it and they will come' — the silent killer of great products.</p>
+      </div>
+      <div class="narrative-card identity">
+        <h4>🦋 Identity Shift</h4>
+        <p>From invisible builder to recognized authority.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn">← Prev</button>
+      <button id="nextBtn">Next →</button>
+      <span class="voice-badge">🎙️ confident · moderate</span>
+      <div class="step-indicator">
+        Scene <span id="currentScene">1</span> / <span id="totalScenes">5</span>
+      </div>
+    </div>
+
+    <div class="scenes">
+      
+      <div class="scene" data-scene="0" style="display:flex">
+        <div class="scene-visual">
+          <div class="visual-prompt-card">
+            <div class="scene-badge" style="background:#ff4444">
+              HOOK
+            </div>
+            <h3>Scene 1: The Hook</h3>
+            <p class="visual-prompt">Dark cinematic opening. A lone founder at a desk surrounded by code, glowing monitor illuminating their face. Camera slowly pushes in. Text overlay fades in: 'POSITIONING DEBT'. Mood: dramatic, isolated.</p>
+            
+            <div class="scene-meta">
+              <span class="duration">⏱ 8s</span>
+              <span class="transition">→ cut</span>
+              <span class="pillar">🎯 Problem Identification</span>
+            </div>
+          </div>
+        </div>
+        <div class="scene-script">
+          <div class="script-card">
+            <h4>🎙️ Script</h4>
+            <blockquote>You built a product that could change your industry. But nobody knows it exists. That silence? It has a name. Positioning Debt.</blockquote>
+          </div>
+        </div>
+      </div>
+    
+      <div class="scene" data-scene="1" >
+        <div class="scene-visual">
+          <div class="visual-prompt-card">
+            <div class="scene-badge" style="background:#ff8c00">
+              BUILD
+            </div>
+            <h3>Scene 2: The Villain</h3>
+            <p class="visual-prompt">Split screen: On the left, our founder working in silence. On the right, a confident competitor on a podcast, on stage, going viral. Fast intercuts. Colors shift from cool blue (our founder) to warm gold (the competitor). Mood: tension, urgency.</p>
+            <p class="broll"><strong>B-Roll:</strong> Show social media feeds scrolling with competitor content getting engagement</p>
+            <div class="scene-meta">
+              <span class="duration">⏱ 12s</span>
+              <span class="transition">→ dissolve</span>
+              <span class="pillar">🎯 Villain Introduction</span>
+            </div>
+          </div>
+        </div>
+        <div class="scene-script">
+          <div class="script-card">
+            <h4>🎙️ Script</h4>
+            <blockquote>Every day you don't position yourself, someone less qualified takes your stage. They're not smarter. They're not better. They just understood one thing you didn't: visibility is a strategy, not a side effect.</blockquote>
+          </div>
+        </div>
+      </div>
+    
+      <div class="scene" data-scene="2" >
+        <div class="scene-visual">
+          <div class="visual-prompt-card">
+            <div class="scene-badge" style="background:#ff8c00">
+              BUILD
+            </div>
+            <h3>Scene 3: The Framework</h3>
+            <p class="visual-prompt">Transition to bright, clean interface showing the Authority Engine dashboard. Smooth UI animation of the 'Strategic Brain' being built — nodes connecting, patterns forming. Camera flies through the interface. Mood: empowering, technological, clean.</p>
+            
+            <div class="scene-meta">
+              <span class="duration">⏱ 14s</span>
+              <span class="transition">→ fade</span>
+              <span class="pillar">🎯 Solution Architecture</span>
+            </div>
+          </div>
+        </div>
+        <div class="scene-script">
+          <div class="script-card">
+            <h4>🎙️ Script</h4>
+            <blockquote>At Authority Engine, we built a system that transforms your raw expertise into a cinematic content factory. No guesswork. No blank pages. Just your brilliance, architected into a strategic narrative that positions you as the undeniable authority.</blockquote>
+          </div>
+        </div>
+      </div>
+    
+      <div class="scene" data-scene="3" >
+        <div class="scene-visual">
+          <div class="visual-prompt-card">
+            <div class="scene-badge" style="background:#00c853">
+              PAYOFF
+            </div>
+            <h3>Scene 4: The Proof</h3>
+            <p class="visual-prompt">Speed montage: typing a brief → AI generating narrative → visual storyboard appearing → final video playing on a phone in vertical format. Timer counting up from 0:00 to 4:47. Satisfying, fast-paced editing. Mood: awe, speed, capability.</p>
+            <p class="broll"><strong>B-Roll:</strong> Show actual Authority Engine UI with real generation happening</p>
+            <div class="scene-meta">
+              <span class="duration">⏱ 8s</span>
+              <span class="transition">→ cut</span>
+              <span class="pillar">🎯 Proof of Value</span>
+            </div>
+          </div>
+        </div>
+        <div class="scene-script">
+          <div class="script-card">
+            <h4>🎙️ Script</h4>
+            <blockquote>From idea to finished video in under five minutes. Your voice. Your authority. Production quality that makes agencies jealous.</blockquote>
+          </div>
+        </div>
+      </div>
+    
+      <div class="scene" data-scene="4" >
+        <div class="scene-visual">
+          <div class="visual-prompt-card">
+            <div class="scene-badge" style="background:#00c853">
+              PAYOFF
+            </div>
+            <h3>Scene 5: The Call</h3>
+            <p class="visual-prompt">Our founder now standing confident, camera pulling back to reveal they're on stage, audience visible. Final frame: Authority Engine logo with CTA 'Build Your Authority'. Cinematic lens flare. Mood: triumphant, aspirational.</p>
+            
+            <div class="scene-meta">
+              <span class="duration">⏱ 8s</span>
+              <span class="transition">→ fade</span>
+              <span class="pillar">🎯 Call to Action</span>
+            </div>
+          </div>
+        </div>
+        <div class="scene-script">
+          <div class="script-card">
+            <h4>🎙️ Script</h4>
+            <blockquote>Stop being the best-kept secret in your industry. Your expertise deserves an audience. Build your Authority Engine today.</blockquote>
+          </div>
+        </div>
+      </div>
+    
+    </div>
+
+    <div class="footer">
+      Rendered by <a href="https://github.com/farajabien/mycontext-cli">MyContext</a> · Authority Engine Integration
+    </div>
+  </div>
+
+  <script>
+    let current = 0;
+    const total = 5;
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const currentSpan = document.getElementById('currentScene');
+
+    function show(i) {
+      document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+      const el = document.querySelector('[data-scene="' + i + '"]');
+      if (el) el.style.display = 'flex';
+      current = i;
+      currentSpan.textContent = i + 1;
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === total - 1;
+    }
+
+    prevBtn.addEventListener('click', () => { if (current > 0) show(current - 1); });
+    nextBtn.addEventListener('click', () => { if (current < total - 1) show(current + 1); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && current > 0) show(current - 1);
+      if (e.key === 'ArrowRight' && current < total - 1) show(current + 1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

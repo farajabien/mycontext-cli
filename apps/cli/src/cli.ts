@@ -37,6 +37,8 @@ import { AnalyzeScreenshotCommand } from "./commands/analyze-screenshot";
 import { PreCommandValidator } from "./utils/PreCommandValidator";
 import { registerTestCommands } from "./commands/test";
 import { registerVisionTestCommands } from "./commands/vision-test";
+import { registerRenderCommand } from "./commands/render";
+import { registerDemoCommand } from "./commands/demo";
 import { PlanFeatureCommand } from "./commands/plan-feature";
 import { PlanCommand } from "./commands/plan";
 // Import sub-agent system
@@ -208,6 +210,12 @@ registerTestCommands(program);
 
 // Vision test commands (AI-powered vision-based testing)
 registerVisionTestCommands(program);
+
+// Render command (Authority Engine blueprint → media pipeline)
+registerRenderCommand(program);
+
+// Demo command (universal AI-powered demo recording)
+registerDemoCommand(program);
 
 import { BuildFeatureCommand } from "./commands/build-feature";
 

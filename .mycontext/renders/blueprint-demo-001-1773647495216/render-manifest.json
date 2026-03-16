@@ -1,0 +1,16 @@
+{
+  "blueprintId": "blueprint-demo-001",
+  "renderedAt": "2026-03-16T07:51:35.228Z",
+  "outputDir": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/.mycontext/renders/blueprint-demo-001-1773647495216",
+  "artifacts": {
+    "voiceoverScript": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/.mycontext/renders/blueprint-demo-001-1773647495216/voiceover-script.json",
+    "voiceoverMarkdown": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/.mycontext/renders/blueprint-demo-001-1773647495216/voiceover-script.md",
+    "storyboardHtml": "/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/.mycontext/renders/blueprint-demo-001-1773647495216/storyboard.html"
+  },
+  "stats": {
+    "totalScenes": 5,
+    "totalDuration": 50,
+    "wordsSpoken": 129,
+    "generationTime": 12
+  }
+}

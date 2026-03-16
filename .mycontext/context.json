@@ -250,5 +250,158 @@
     }
   },
   "actions": [],
-  "routes": []
+  "routes": [],
+  "testExecutionHistory": [
+    {
+      "timestamp": "2026-03-16T08:23:26.448Z",
+      "agentName": "VisionTestCoordinator",
+      "updateType": "test-start",
+      "data": {
+        "executionId": "7f6b31e4-5e0c-4950-a2dd-258983e8a072",
+        "missionId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4",
+        "missionName": "gemini-live-marketing-agent.vercel.app Demo",
+        "recordDemo": true
+      },
+      "metadata": {
+        "testId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4",
+        "executionId": "7f6b31e4-5e0c-4950-a2dd-258983e8a072"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:23:26.459Z",
+      "agentName": "VisionNavigatorAgent",
+      "updateType": "test-start",
+      "data": {
+        "missionId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4",
+        "mission": "Explore the landing page, scroll through features, click the Start Narrative button, and observe the login screen",
+        "expectedOutcome": "Demo recorded successfully"
+      },
+      "metadata": {
+        "testId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:23:33.562Z",
+      "agentName": "VisionNavigatorAgent",
+      "updateType": "error",
+      "data": {
+        "error": "Gemini vision generation failed: All vision models failed",
+        "stack": "Error: Gemini vision generation failed: All vision models failed\n    at GeminiClient.generateFromImage (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/utils/geminiClient.ts:553:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async GeminiClient.generateVisionText (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/utils/geminiClient.ts:455:22)\n    at async AICore.generateVisionText (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/core/ai/AICore.ts:219:16)\n    at async VisionElementFinder.askVisionAI (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/services/vision-element-finder.ts:438:20)\n    at async VisionElementFinder.analyzePage (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/services/vision-element-finder.ts:54:28)\n    at async VisionNavigatorAgent.run (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/implementations/VisionNavigatorAgent.ts:115:30)\n    at async SubAgentOrchestrator.executeAgent (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/orchestrator/SubAgentOrchestrator.ts:76:22)\n    at async VisionTestCoordinator.run (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/implementations/VisionTestCoordinator.ts:136:32)\n    at async VisionTestRunner.runTest (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/mcp/vision-test-runner.ts:104:33)",
+        "stepsCompleted": 0
+      },
+      "metadata": {
+        "testId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:23:33.566Z",
+      "agentName": "VisionTestCoordinator",
+      "updateType": "error",
+      "data": {
+        "executionId": "7f6b31e4-5e0c-4950-a2dd-258983e8a072",
+        "error": "Gemini vision generation failed: All vision models failed",
+        "stack": "Error: Gemini vision generation failed: All vision models failed\n    at GeminiClient.generateFromImage (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/utils/geminiClient.ts:553:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async GeminiClient.generateVisionText (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/utils/geminiClient.ts:455:22)\n    at async AICore.generateVisionText (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/core/ai/AICore.ts:219:16)\n    at async VisionElementFinder.askVisionAI (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/services/vision-element-finder.ts:438:20)\n    at async VisionElementFinder.analyzePage (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/services/vision-element-finder.ts:54:28)\n    at async VisionNavigatorAgent.run (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/implementations/VisionNavigatorAgent.ts:115:30)\n    at async SubAgentOrchestrator.executeAgent (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/orchestrator/SubAgentOrchestrator.ts:76:22)\n    at async VisionTestCoordinator.run (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/agents/implementations/VisionTestCoordinator.ts:136:32)\n    at async VisionTestRunner.runTest (/Users/farajabien/Desktop/ahh work/personal/mycontext-cli/apps/cli/src/mcp/vision-test-runner.ts:104:33)",
+        "duration": 7118
+      },
+      "metadata": {
+        "testId": "126d7f35-d9c8-4a9a-a417-e33b5999e5e4",
+        "executionId": "7f6b31e4-5e0c-4950-a2dd-258983e8a072"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:32:56.862Z",
+      "agentName": "VisionTestCoordinator",
+      "updateType": "test-start",
+      "data": {
+        "executionId": "a6f14592-e21f-4bd4-89f8-4f97f53dd7b9",
+        "missionId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b",
+        "missionName": "gemini-live-marketing-agent.vercel.app Demo",
+        "recordDemo": true
+      },
+      "metadata": {
+        "testId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b",
+        "executionId": "a6f14592-e21f-4bd4-89f8-4f97f53dd7b9"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:32:56.867Z",
+      "agentName": "VisionNavigatorAgent",
+      "updateType": "test-start",
+      "data": {
+        "missionId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b",
+        "mission": "Explore the landing page, scroll to see the features, and then click 'Start Narrative' to see the login wall",
+        "expectedOutcome": "Demo recorded successfully"
+      },
+      "metadata": {
+        "testId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:33:47.076Z",
+      "agentName": "VisionNavigatorAgent",
+      "updateType": "test-step",
+      "data": {
+        "id": "01f32054-611b-4f77-91ad-5beacf19d7bd",
+        "order": 0,
+        "action": "scroll: down",
+        "intent": "Exploring features by scrolling",
+        "timestamp": "2026-03-16T08:33:47.069Z",
+        "success": true,
+        "visionDecision": {
+          "action": "scroll",
+          "confidence": 95,
+          "reasoning": "The mission explicitly states to 'scroll to see the features' before clicking 'Start Narrative'. The current DOM context and screenshot show only the top portion of the landing page, indicating there are more features below the fold that need to be viewed first.",
+          "visualContext": "The current view displays the main hero section, a 'Login' button, a 'Start Narrative' button (top right), and the main heading. It's clear there's more content below based on typical landing page structures and the instruction to 'scroll to see features'.",
+          "targetElement": null,
+          "value": "down",
+          "url": "https://gemini-live-marketing-agent.vercel.app/",
+          "intent": "Exploring features by scrolling",
+          "alignsWithPrimeObjective": true,
+          "gravityScore": 90
+        }
+      },
+      "metadata": {
+        "testId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b",
+        "executionId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b-1773650027076",
+        "stepId": "01f32054-611b-4f77-91ad-5beacf19d7bd"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T08:34:43.457Z",
+      "agentName": "VisionNavigatorAgent",
+      "updateType": "test-step",
+      "data": {
+        "id": "ebf8abd5-dc98-4545-b822-1536bdde3c67",
+        "order": 1,
+        "action": "scroll: The entire page content",
+        "intent": "Explore features",
+        "timestamp": "2026-03-16T08:34:43.453Z",
+        "success": true,
+        "visionDecision": {
+          "action": "scroll",
+          "confidence": 95,
+          "reasoning": "The mission requires me to 'explore the landing page, scroll to see the features'. The 'Previous Steps Taken' indicates one scroll action has already occurred. Looking at the current screenshot, there are still sections like 'The Full Content Ecosystem' and a final 'Stop fighting execution...' call to action at the bottom that haven't been fully explored. To ensure all features are seen as per the mission, another scroll down is necessary before clicking 'Start Narrative'.",
+          "visualContext": "The current view shows 'Getting Started in 3 Simple Steps' and 'The Full Content Ecosystem', with more content potentially below the fold, indicated by the partial view of the bottom section.",
+          "targetElement": {
+            "description": "The entire page content",
+            "visualCoordinates": {
+              "x": 500,
+              "y": 500
+            },
+            "domSelector": "body",
+            "confidence": 80
+          },
+          "value": "down",
+          "intent": "Explore features",
+          "alignsWithPrimeObjective": true,
+          "gravityScore": 90
+        }
+      },
+      "metadata": {
+        "testId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b",
+        "executionId": "e4f9f17b-6f8d-4870-9092-e6b71e9a5d1b-1773650083458",
+        "stepId": "ebf8abd5-dc98-4545-b822-1536bdde3c67"
+      }
+    }
+  ]
 }

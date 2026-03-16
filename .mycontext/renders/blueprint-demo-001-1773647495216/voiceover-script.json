@@ -1,0 +1,82 @@
+{
+  "title": "The Positioning Debt Problem",
+  "totalDuration": 52.8,
+  "segments": [
+    {
+      "id": "00063f3a-2a33-4b8b-a33f-b1eb4a2bca1f",
+      "timestamp": 0,
+      "duration": 8.8,
+      "narration": "You built a product that could change your industry. But nobody knows it exists. That silence? It has a name. Positioning Debt.",
+      "action": "The Hook",
+      "metadata": {
+        "step": 1,
+        "uiState": "Dark cinematic opening. A lone founder at a desk surrounded by code, glowing mon...",
+        "textOnScreen": [
+          "The Hook",
+          "Problem Identification"
+        ]
+      }
+    },
+    {
+      "id": "f12b545f-8cd0-4199-a90f-62ec734ecab6",
+      "timestamp": 8,
+      "duration": 13.2,
+      "narration": "Every day you don't position yourself, someone less qualified takes your stage. They're not smarter. They're not better. They just understood one thing you didn't: visibility is a strategy, not a side effect.",
+      "action": "The Villain",
+      "metadata": {
+        "step": 2,
+        "uiState": "Split screen: On the left, our founder working in silence. On the right, a confi...",
+        "textOnScreen": [
+          "The Villain",
+          "Villain Introduction"
+        ]
+      }
+    },
+    {
+      "id": "0fee6bc2-dae3-429d-ba74-e80257158e2e",
+      "timestamp": 20,
+      "duration": 14.8,
+      "narration": "At Authority Engine, we built a system that transforms your raw expertise into a cinematic content factory. No guesswork. No blank pages. Just your brilliance, architected into a strategic narrative that positions you as the undeniable authority.",
+      "action": "The Framework",
+      "metadata": {
+        "step": 3,
+        "uiState": "Transition to bright, clean interface showing the Authority Engine dashboard. Sm...",
+        "textOnScreen": [
+          "The Framework",
+          "Solution Architecture"
+        ]
+      }
+    },
+    {
+      "id": "8973edbc-c557-4a44-900d-c3c7c67891a0",
+      "timestamp": 34,
+      "duration": 8,
+      "narration": "From idea to finished video in under five minutes. Your voice. Your authority. Production quality that makes agencies jealous.",
+      "action": "The Proof",
+      "metadata": {
+        "step": 4,
+        "uiState": "Speed montage: typing a brief → AI generating narrative → visual storyboard appe...",
+        "textOnScreen": [
+          "The Proof",
+          "Proof of Value"
+        ]
+      }
+    },
+    {
+      "id": "8acf2b2a-a8e9-48a8-bd6d-3bd13d553e27",
+      "timestamp": 42,
+      "duration": 8,
+      "narration": "Stop being the best-kept secret in your industry. Your expertise deserves an audience. Build your Authority Engine today.",
+      "action": "The Call",
+      "metadata": {
+        "step": 5,
+        "uiState": "Our founder now standing confident, camera pulling back to reveal they're on sta...",
+        "textOnScreen": [
+          "The Call",
+          "Call to Action"
+        ]
+      }
+    }
+  ],
+  "fullScript": "# The Positioning Debt Problem — Voice-Over Script\n\nA cinematic vertical video exposing how founders lose market share by ignoring positioning debt — and how to fix it with strategic narrative intelligence.\n\n**Voice Tone**: confident · moderate\n**Duration**: 52s\n**Segments**: 5\n**Format**: 9:16 @ 1080p\n\n---\n\n## Narration\n\n### [00:00] Scene 1: The Hook\n\n> **Beat**: HOOK · **Pillar**: Problem Identification\n\n**Duration**: 8.8s\n\n> You built a product that could change your industry. But nobody knows it exists. That silence? It has a name. Positioning Debt.\n\n*Visual: Dark cinematic opening. A lone founder at a desk surrounded by code, glowing monitor illuminating their face. Camera slo...*\n\n---\n\n### [00:08] Scene 2: The Villain\n\n> **Beat**: BUILD · **Pillar**: Villain Introduction\n\n**Duration**: 13.2s\n\n> Every day you don't position yourself, someone less qualified takes your stage. They're not smarter. They're not better. They just understood one thing you didn't: visibility is a strategy, not a side effect.\n\n*Visual: Split screen: On the left, our founder working in silence. On the right, a confident competitor on a podcast, on stage, ...*\n\n---\n\n### [00:20] Scene 3: The Framework\n\n> **Beat**: BUILD · **Pillar**: Solution Architecture\n\n**Duration**: 14.8s\n\n> At Authority Engine, we built a system that transforms your raw expertise into a cinematic content factory. No guesswork. No blank pages. Just your brilliance, architected into a strategic narrative that positions you as the undeniable authority.\n\n*Visual: Transition to bright, clean interface showing the Authority Engine dashboard. Smooth UI animation of the 'Strategic Brai...*\n\n---\n\n### [00:34] Scene 4: The Proof\n\n> **Beat**: PAYOFF · **Pillar**: Proof of Value\n\n**Duration**: 8.0s\n\n> From idea to finished video in under five minutes. Your voice. Your authority. Production quality that makes agencies jealous.\n\n*Visual: Speed montage: typing a brief → AI generating narrative → visual storyboard appearing → final video playing on a phone i...*\n\n---\n\n### [00:42] Scene 5: The Call\n\n> **Beat**: PAYOFF · **Pillar**: Call to Action\n\n**Duration**: 8.0s\n\n> Stop being the best-kept secret in your industry. Your expertise deserves an audience. Build your Authority Engine today.\n\n*Visual: Our founder now standing confident, camera pulling back to reveal they're on stage, audience visible. Final frame: Autho...*\n\n---\n"
+}

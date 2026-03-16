@@ -30,6 +30,7 @@ export class VisionTestRunner {
   private contextService: ContextService;
   private screenshotsDir: string;
   private videosDir: string;
+  private lastVideoPath?: string;
 
   constructor(projectPath: string) {
     this.projectPath = projectPath;
@@ -110,8 +111,45 @@ export class VisionTestRunner {
       // Get the result
       const result = coordinatorOutput.result;
 
-      // Close page
+      // Capture video path before closing page (Playwright only flushes video on close)
+      let videoPath: string | undefined;
+      if (page.video()) {
+        try {
+          videoPath = await page.video()!.path();
+        } catch {
+          // Video path may not be available if recording wasn't configured
+        }
+      }
+
+      // Close page (this flushes the video file)
       await page.close();
+
+      // Store video path for external access
+      if (videoPath) {
+        this.lastVideoPath = videoPath;
+        
+        // Update demo artifacts with real video path and move file
+        if (result.demoArtifacts && result.demoArtifacts.formats.video) {
+          const targetPath = result.demoArtifacts.formats.video.path;
+          
+          try {
+            // Ensure target directory exists
+            await fs.ensureDir(path.dirname(targetPath));
+            
+            // Move/copy video to target location
+            await fs.copy(videoPath, targetPath);
+            
+            // Update result with final path and size
+            const stats = await fs.stat(targetPath);
+            result.demoArtifacts.formats.video.path = targetPath;
+            result.demoArtifacts.formats.video.size = stats.size;
+          } catch (copyError) {
+            console.warn(chalk.yellow(`\n⚠️  Failed to move video recording to demo directory: ${copyError}`));
+            // Fallback: keep the original Playwright path
+            result.demoArtifacts.formats.video.path = videoPath;
+          }
+        }
+      }
 
       // Display final summary
       this.displaySummary(result);
@@ -410,5 +448,12 @@ export class VisionTestRunner {
    */
   getContext(): BrowserContext | undefined {
     return this.context;
+  }
+
+  /**
+   * Get the last recorded video path
+   */
+  getLastVideoPath(): string | undefined {
+    return this.lastVideoPath;
   }
 }

@@ -188,24 +188,18 @@ are smooth, your screenshots are timed perfectly, and your scripts are engaging 
     config: DemoConfig
   ): Promise<DemoArtifacts["formats"]["video"]> {
     // Playwright automatically records video if configured in BrowserContext
-    // We need to get the video path after closing the context
+    // We get the final path in VisionTestRunner after closing.
+    // Here we just define where we WANT the video to be.
+    
+    const videoPath = path.join(this.demoDir, "video.webm");
 
-    // For now, return placeholder
-    // In production, this would:
-    // 1. Get video path from Playwright
-    // 2. Process video if needed (trim, compress, etc.)
-    // 3. Calculate duration and size
-
-    const videoPath = path.join(this.demoDir, "demo-video.webm");
-
-    // Placeholder video stats
-    const duration = steps.length * 3; // ~3 seconds per step
-    const size = 1024 * 1024 * 5; // 5MB placeholder
+    // Placeholder stats, will be updated by runner
+    const duration = steps.length * 3; 
 
     return {
       path: videoPath,
       duration,
-      size,
+      size: 0,
       resolution: config.videoQuality || "1080p",
     };
   }
@@ -370,161 +364,350 @@ are smooth, your screenshots are timed perfectly, and your scripts are engaging 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - Demo Replay</title>
   <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: #30363d;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --accent-color: #f85149;
+      --accent-glow: rgba(248, 81, 73, 0.4);
+      --success-color: #238636;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .header {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .header h1 { color: #333; margin-bottom: 10px; }
-    .header p { color: #666; }
-    .controls {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    button:hover { background: #0056b3; }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .step-indicator {
-      margin-left: auto;
-      color: #666;
-      font-size: 14px;
-    }
-    .content {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .step { display: none; }
-    .step-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #eee;
-    }
-    .step-header h2 { color: #333; }
-    .step-status {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .step-status.success {
-      background: #d4edda;
-      color: #155724;
-    }
-    .step-status.failed {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    .intent, .reasoning {
-      margin: 15px 0;
-      color: #555;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      padding: 0;
       line-height: 1.6;
     }
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 6px;
-      margin: 15px 0;
+
+    .container { 
+      max-width: 1400px; 
+      margin: 0 auto; 
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      height: 100vh;
+      overflow: hidden;
     }
-    img {
-      max-width: 100%;
-      height: auto;
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      color: var(--accent-color);
+    }
+
+    .mission-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .mission-card h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-item {
+      padding: 12px 15px;
       border-radius: 8px;
-      margin: 20px 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .step-item.active {
+      background: rgba(248, 81, 73, 0.1);
+      border-color: var(--accent-color);
+      color: var(--text-main);
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .active .step-number {
+      background: var(--accent-color);
+    }
+
+    /* Main Content */
+    .main-view {
+      padding: 40px;
+      overflow-y: auto;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+
+    .step-detail { display: none; }
+    .step-detail.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-header {
+      margin-bottom: 30px;
+    }
+
+    .step-header h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--border-color);
+      text-transform: uppercase;
+    }
+
+    .tag.action { background: var(--accent-color); color: white; }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .analysis-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .analysis-card h4 {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .screenshot-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      background: #000;
+    }
+
+    .screenshot-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .floating-controls {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      background: rgba(22, 27, 34, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 10px;
+      border-radius: 100px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      gap: 5px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .control-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .control-btn:hover { background: rgba(255,255,255,0.1); }
+    .control-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .reasoning-text {
+      font-style: italic;
+      color: var(--text-muted);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>${title}</h1>
-      ${description ? `<p>${description}</p>` : ""}
-    </div>
-
-    <div class="controls">
-      <button id="prevBtn">← Previous</button>
-      <button id="nextBtn">Next →</button>
-      <div class="step-indicator">
-        <span id="currentStep">1</span> / <span id="totalSteps">${steps.length}</span>
+    <aside class="sidebar">
+      <div class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 14"/></svg>
+        MYCONTEXT AGENT
       </div>
-    </div>
 
-    <div class="content">
-      ${stepsHTML}
-    </div>
+      <div class="mission-card">
+        <h3>Primary Objective</h3>
+        <p>${title}</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+          ${description || ""}
+        </p>
+      </div>
+
+      <nav class="step-list">
+        ${steps
+          .map(
+            (s, i) => `
+          <div class="step-item ${i === 0 ? "active" : ""}" onclick="showStep(${i})" id="sidemenu-${i}">
+            <div class="step-number">${i + 1}</div>
+            <div class="step-label">${s.action}</div>
+          </div>
+        `
+          )
+          .join("")}
+      </nav>
+    </aside>
+
+    <main class="main-view">
+      ${steps
+        .map((step, index) => {
+          const screenshotSrc = step.screenshot
+            ? path.relative(this.demoDir, step.screenshot)
+            : "";
+
+          return `
+        <div class="step-detail ${index === 0 ? "active" : ""}" data-step="${index}">
+          <div class="step-header">
+            <div class="tag-row">
+              <span class="tag action">${step.action}</span>
+              <span class="tag">${step.success ? "Success" : "Failed"}</span>
+            </div>
+            <h2>${step.intent}</h2>
+          </div>
+
+          <div class="analysis-grid">
+            <div class="analysis-card">
+              <h4>🎯 Intent & Strategy</h4>
+              <p>${step.intent}</p>
+              ${
+                step.visionDecision
+                  ? `<p class="reasoning-text" style="margin-top:10px">"${step.visionDecision.reasoning}"</p>`
+                  : ""
+              }
+            </div>
+            <div class="analysis-card">
+              <h4>🤖 Agent Insight</h4>
+              <p>${
+                step.visionDecision?.visualContext || "Analyzing UI patterns..."
+              }</p>
+            </div>
+          </div>
+
+          <div class="screenshot-container">
+            ${screenshotSrc ? `<img src="${screenshotSrc}" alt="Step ${index + 1}" />` : ""}
+          </div>
+          
+          ${step.error ? `<div class="error" style="background:rgba(248,81,73,0.1); border:1px solid var(--accent-color); padding:20px; margin-top:20px; border-radius:12px; color:var(--accent-color);"><strong>Error:</strong> ${step.error}</div>` : ""}
+        </div>
+      `;
+        })
+        .join("")}
+
+      <div class="floating-controls">
+        <button class="control-btn" id="prevBtn" title="Previous Step (Left Arrow)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="control-btn" id="nextBtn" title="Next Step (Right Arrow)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </main>
   </div>
 
   <script>
     let currentStep = 0;
     const totalSteps = ${steps.length};
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const currentStepSpan = document.getElementById('currentStep');
-
     function showStep(index) {
-      document.querySelectorAll('.step').forEach(step => {
-        step.style.display = 'none';
-      });
+      if (index < 0 || index >= totalSteps) return;
 
-      const step = document.querySelector(\`[data-step="\${index}"]\`);
-      if (step) step.style.display = 'block';
+      // Update detail cards
+      document.querySelectorAll('.step-detail').forEach(d => {
+        d.classList.remove('active');
+      });
+      document.querySelector(\`[data-step="\${index}"]\`).classList.add('active');
+
+      // Update sidebar
+      document.querySelectorAll('.step-item').forEach(i => {
+        i.classList.remove('active');
+      });
+      document.getElementById(\`sidemenu-\${index}\`).classList.add('active');
 
       currentStep = index;
-      currentStepSpan.textContent = index + 1;
-
-      prevBtn.disabled = index === 0;
-      nextBtn.disabled = index === totalSteps - 1;
+      
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').disabled = index === totalSteps - 1;
     }
 
-    prevBtn.addEventListener('click', () => {
-      if (currentStep > 0) showStep(currentStep - 1);
-    });
+    document.getElementById('prevBtn').addEventListener('click', () => showStep(currentStep - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => showStep(currentStep + 1));
 
-    nextBtn.addEventListener('click', () => {
-      if (currentStep < totalSteps - 1) showStep(currentStep + 1);
-    });
-
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' && currentStep > 0) {
-        showStep(currentStep - 1);
-      } else if (e.key === 'ArrowRight' && currentStep < totalSteps - 1) {
-        showStep(currentStep + 1);
-      }
+      if (e.key === 'ArrowLeft') showStep(currentStep - 1);
+      if (e.key === 'ArrowRight') showStep(currentStep + 1);
     });
 
     // Initialize

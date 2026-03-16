@@ -1,9 +1,0 @@
-{
-    "name": "solar-saas",
-    "version": "0.1.0",
-    "dependencies": {
-        "next": "latest",
-        "react": "latest",
-        "lucide-react": "latest"
-    }
-}

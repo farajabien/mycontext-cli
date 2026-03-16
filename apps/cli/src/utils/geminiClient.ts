@@ -55,6 +55,8 @@ export class GeminiClient implements AIClient {
 
   private readonly MODELS = [
     "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
   ];
 
   constructor() {
@@ -542,7 +544,8 @@ IMPORTANT: Output ONLY valid HTML code within \`\`\`html blocks.
                   model: modelName,
                   finishReason: response.candidates?.[0]?.finishReason
               };
-          } catch (e) {
+          } catch (e: any) {
+              logger.debug(`Vision model ${modelName} failed: ${e.message}`);
               continue;
           }
       }

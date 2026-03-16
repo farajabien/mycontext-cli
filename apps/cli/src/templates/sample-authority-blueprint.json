@@ -1,0 +1,79 @@
+{
+  "id": "blueprint-demo-001",
+  "title": "The Positioning Debt Problem",
+  "description": "A cinematic vertical video exposing how founders lose market share by ignoring positioning debt — and how to fix it with strategic narrative intelligence.",
+  "createdAt": "2026-03-16T10:00:00Z",
+  "source": "authority-engine",
+  "narrative": {
+    "mission": "Eliminate positioning debt for technical founders so their brilliance actually reaches the market.",
+    "villain": "The curse of 'build it and they will come' — the silent killer of great products.",
+    "identityShift": "From invisible builder to recognized authority."
+  },
+  "voiceTone": {
+    "style": "confident",
+    "pace": "moderate",
+    "emphasis": ["positioning debt", "authority", "invisible builder"],
+    "pauseAfterBeats": 1.5
+  },
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "title": "The Hook",
+      "script": "You built a product that could change your industry. But nobody knows it exists. That silence? It has a name. Positioning Debt.",
+      "visualPrompt": "Dark cinematic opening. A lone founder at a desk surrounded by code, glowing monitor illuminating their face. Camera slowly pushes in. Text overlay fades in: 'POSITIONING DEBT'. Mood: dramatic, isolated.",
+      "duration": 8,
+      "storyBeat": "hook",
+      "plotPillar": "Problem Identification",
+      "transition": "cut"
+    },
+    {
+      "sceneNumber": 2,
+      "title": "The Villain",
+      "script": "Every day you don't position yourself, someone less qualified takes your stage. They're not smarter. They're not better. They just understood one thing you didn't: visibility is a strategy, not a side effect.",
+      "visualPrompt": "Split screen: On the left, our founder working in silence. On the right, a confident competitor on a podcast, on stage, going viral. Fast intercuts. Colors shift from cool blue (our founder) to warm gold (the competitor). Mood: tension, urgency.",
+      "duration": 12,
+      "storyBeat": "build",
+      "plotPillar": "Villain Introduction",
+      "transition": "dissolve",
+      "bRollNotes": "Show social media feeds scrolling with competitor content getting engagement"
+    },
+    {
+      "sceneNumber": 3,
+      "title": "The Framework",
+      "script": "At Authority Engine, we built a system that transforms your raw expertise into a cinematic content factory. No guesswork. No blank pages. Just your brilliance, architected into a strategic narrative that positions you as the undeniable authority.",
+      "visualPrompt": "Transition to bright, clean interface showing the Authority Engine dashboard. Smooth UI animation of the 'Strategic Brain' being built — nodes connecting, patterns forming. Camera flies through the interface. Mood: empowering, technological, clean.",
+      "duration": 14,
+      "storyBeat": "build",
+      "plotPillar": "Solution Architecture",
+      "transition": "fade"
+    },
+    {
+      "sceneNumber": 4,
+      "title": "The Proof",
+      "script": "From idea to finished video in under five minutes. Your voice. Your authority. Production quality that makes agencies jealous.",
+      "visualPrompt": "Speed montage: typing a brief → AI generating narrative → visual storyboard appearing → final video playing on a phone in vertical format. Timer counting up from 0:00 to 4:47. Satisfying, fast-paced editing. Mood: awe, speed, capability.",
+      "duration": 8,
+      "storyBeat": "payoff",
+      "plotPillar": "Proof of Value",
+      "transition": "cut",
+      "bRollNotes": "Show actual Authority Engine UI with real generation happening"
+    },
+    {
+      "sceneNumber": 5,
+      "title": "The Call",
+      "script": "Stop being the best-kept secret in your industry. Your expertise deserves an audience. Build your Authority Engine today.",
+      "visualPrompt": "Our founder now standing confident, camera pulling back to reveal they're on stage, audience visible. Final frame: Authority Engine logo with CTA 'Build Your Authority'. Cinematic lens flare. Mood: triumphant, aspirational.",
+      "duration": 8,
+      "storyBeat": "payoff",
+      "plotPillar": "Call to Action",
+      "transition": "fade"
+    }
+  ],
+  "totalDuration": 50,
+  "outputFormat": {
+    "aspectRatio": "9:16",
+    "resolution": "1080p"
+  },
+  "storyBeats": ["hook", "build", "build", "payoff", "payoff"],
+  "plotPillars": ["Problem Identification", "Villain Introduction", "Solution Architecture", "Proof of Value", "Call to Action"]
+}
