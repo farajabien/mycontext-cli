@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gemini-live-marketing-agent.vercel.app Demo - Demo Replay</title>
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: #30363d;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --accent-color: #f85149;
+      --accent-glow: rgba(248, 81, 73, 0.4);
+      --success-color: #238636;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .container { 
+      max-width: 1400px; 
+      margin: 0 auto; 
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      color: var(--accent-color);
+    }
+
+    .mission-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .mission-card h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-item {
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .step-item.active {
+      background: rgba(248, 81, 73, 0.1);
+      border-color: var(--accent-color);
+      color: var(--text-main);
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .active .step-number {
+      background: var(--accent-color);
+    }
+
+    /* Main Content */
+    .main-view {
+      padding: 40px;
+      overflow-y: auto;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+
+    .step-detail { display: none; }
+    .step-detail.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-header {
+      margin-bottom: 30px;
+    }
+
+    .step-header h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--border-color);
+      text-transform: uppercase;
+    }
+
+    .tag.action { background: var(--accent-color); color: white; }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .analysis-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .analysis-card h4 {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .screenshot-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      background: #000;
+    }
+
+    .screenshot-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .floating-controls {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      background: rgba(22, 27, 34, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 10px;
+      border-radius: 100px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      gap: 5px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .control-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .control-btn:hover { background: rgba(255,255,255,0.1); }
+    .control-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .reasoning-text {
+      font-style: italic;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 14"/></svg>
+        MYCONTEXT AGENT
+      </div>
+
+      <div class="mission-card">
+        <h3>Primary Objective</h3>
+        <p>gemini-live-marketing-agent.vercel.app Demo</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+          Observe the page once and say finished
+        </p>
+      </div>
+
+      <nav class="step-list">
+        
+      </nav>
+    </aside>
+
+    <main class="main-view">
+      
+
+      <div class="floating-controls">
+        <button class="control-btn" id="prevBtn" title="Previous Step (Left Arrow)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="control-btn" id="nextBtn" title="Next Step (Right Arrow)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentStep = 0;
+    const totalSteps = 0;
+
+    function showStep(index) {
+      if (index < 0 || index >= totalSteps) return;
+
+      // Update detail cards
+      document.querySelectorAll('.step-detail').forEach(d => {
+        d.classList.remove('active');
+      });
+      document.querySelector(`[data-step="${index}"]`).classList.add('active');
+
+      // Update sidebar
+      document.querySelectorAll('.step-item').forEach(i => {
+        i.classList.remove('active');
+      });
+      document.getElementById(`sidemenu-${index}`).classList.add('active');
+
+      currentStep = index;
+      
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').disabled = index === totalSteps - 1;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => showStep(currentStep - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => showStep(currentStep + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') showStep(currentStep - 1);
+      if (e.key === 'ArrowRight') showStep(currentStep + 1);
+    });
+
+    // Initialize
+    showStep(0);
+  </script>
+</body>
+</html>

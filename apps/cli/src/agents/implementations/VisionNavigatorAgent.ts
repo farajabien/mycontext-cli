@@ -203,6 +203,16 @@ your actions against the project's Prime Objective to prevent mission drift.`;
           mission
         );
 
+        // Attach screenshot and visual analysis from the OBSERVE phase
+        step.screenshot = pageAnalysis.screenshot;
+        step.visualAnalysis = {
+          componentsDetected: pageAnalysis.elements.map(e => e.description),
+          interactiveElements: pageAnalysis.interactiveElements.map(e => e.description),
+          textContent: [pageAnalysis.uiState.mainContent],
+          colorPalette: pageAnalysis.designSystem.colors,
+          layoutStructure: pageAnalysis.layoutStructure.type
+        };
+
         steps.push(step);
 
         // Write step to Living Brain

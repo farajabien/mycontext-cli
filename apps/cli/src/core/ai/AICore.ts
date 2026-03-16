@@ -211,7 +211,7 @@ export class AICore {
     imagePath: string,
     options: AIClientOptions = {}
   ): Promise<string> {
-    const clients = this.getAvailableClients();
+    const clients = this.getVisionClients();
     let lastError: any = null;
 
     for (const client of clients) {
@@ -285,6 +285,18 @@ export class AICore {
   private getAvailableClients(): AIClient[] {
     const priority: AIProviderName[] = ["claude", "github", "openrouter", "gemini", "xai"];
     return priority
+      .map(type => this.providers.get(type))
+      .filter((client): client is AIClient => !!client && client.hasApiKey());
+  }
+
+  /**
+   * Get clients that support vision, prioritized for speed and reliability
+   */
+  private getVisionClients(): AIClient[] {
+    // Priority: Gemini is king for vision in this CLI, followed by OpenRouter/Claude
+    // GitHub is explicitly excluded as it often lacks vision permissions on free tokens
+    const visionPriority: AIProviderName[] = ["gemini", "claude", "openrouter", "xai"];
+    return visionPriority
       .map(type => this.providers.get(type))
       .filter((client): client is AIClient => !!client && client.hasApiKey());
   }
