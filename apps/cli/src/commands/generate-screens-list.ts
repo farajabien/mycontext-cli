@@ -80,6 +80,9 @@ export class GenerateScreensListCommand {
       await fs.ensureDir(path.dirname(outputPath));
       await fs.writeFile(outputPath, markdown, "utf-8");
 
+      // Sync with Living Brain (context.json)
+      await this.syncWithLivingContext(screens);
+
       this.spinner.succeed("Screens list generated!");
 
       console.log(chalk.green(`\n✅ Generated ${screens.length} screens`));
@@ -296,6 +299,44 @@ Output ONLY the JSON array, no explanation.`;
 `;
 
     return md;
+  }
+
+  private async asyncLoadLivingContext(): Promise<any> {
+    const contextPath = path.join(this.contextDir, "context.json");
+    if (await fs.pathExists(contextPath)) {
+      return await fs.readJson(contextPath);
+    }
+    return null;
+  }
+
+  private async syncWithLivingContext(screens: Screen[]): Promise<void> {
+    try {
+      const livingContext = await this.asyncLoadLivingContext();
+      if (!livingContext) return;
+
+      // Map screens to RouteDefinitions
+      const routes = screens.map(screen => ({
+        path: screen.route,
+        type: "page" as const,
+        components: screen.components,
+        actions: [],
+        metadata: {
+          title: screen.name,
+          description: screen.description
+        }
+      }));
+
+      // Update the routes in living context
+      livingContext.routes = routes;
+      livingContext.metadata.lastUpdatedAt = new Date().toISOString();
+
+      const contextPath = path.join(this.contextDir, "context.json");
+      await fs.writeJson(contextPath, livingContext, { spaces: 2 });
+      
+      logger.info(`Synced ${screens.length} routes to context.json`);
+    } catch (error) {
+      logger.error("Failed to sync screens with living context:", error);
+    }
   }
 }
 

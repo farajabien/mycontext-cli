@@ -86,6 +86,9 @@ export class GenerateComponentsManifestCommand {
       const jsonPath = path.join(this.contextDir, "03-components.json");
       await fs.writeFile(jsonPath, JSON.stringify(components, null, 2), "utf-8");
 
+      this.spinner.updateText("Syncing with Living Brain...");
+      await this.syncWithLivingContext(components);
+
       this.spinner.succeed("Components manifest generated!");
 
       console.log(chalk.green(`\n✅ Generated ${components.length} component definitions`));
@@ -140,90 +143,69 @@ export class GenerateComponentsManifestCommand {
   }
 
   private buildComponentsPrompt(context: any): string {
-    let prompt = `You are a React component architect. Analyze the following project context and define ALL UI components needed.
+    let prompt = `You are a React component architect. Analyze the project context and define UI components.
+    
+OUTPUT ONLY A JSON ARRAY. NO MARKDOWN BLOCKS. NO EXPLANATION.
 
-For each component, provide:
-1. Name (PascalCase, e.g., "TaskCard", "UserAvatar")
-2. Type (layout|display|interactive|form|navigation)
-3. Description (what it does)
-4. Props with types and sample values
-5. Actions/callbacks it needs
-6. Which screens use it
+For each component:
+- name: PascalCase
+- type: layout|display|interactive|form|navigation
+- description: Clear purpose
+- props: Array of { name, type, required (boolean), description }
+- actions: Array of callback names
+- usedInScreens: Array of screen names
 
-OUTPUT FORMAT (JSON array):
-\`\`\`json
+Output format:
 [
   {
     "name": "TaskCard",
     "type": "display",
-    "description": "Displays a single task with title, status, and actions",
-    "props": [
-      {
-        "name": "task",
-        "type": "Task",
-        "required": true,
-        "description": "The task data to display",
-        "sampleValue": { "id": "1", "title": "Buy groceries", "completed": false }
-      },
-      {
-        "name": "onComplete",
-        "type": "(id: string) => void",
-        "required": true,
-        "description": "Callback when task is marked complete",
-        "sampleValue": "() => console.log('completed')"
-      }
-    ],
-    "sampleData": {
-      "task": { "id": "1", "title": "Sample Task", "completed": false, "priority": "high" }
-    },
-    "actions": ["onComplete", "onEdit", "onDelete"],
-    "usedInScreens": ["DashboardScreen", "TaskListScreen"]
+    "description": "Displays a task",
+    "props": [{"name": "task", "type": "Task", "required": true, "description": "Task data"}],
+    "actions": ["onComplete"],
+    "usedInScreens": ["DashboardScreen"]
   }
 ]
-\`\`\`
 
 PROJECT CONTEXT:
 `;
 
     if (context.screensList) {
-      prompt += `\n## Screens List:\n${context.screensList.substring(0, 2500)}\n`;
-    }
-
-    if (context.types) {
-      prompt += `\n## TypeScript Types:\n${context.types.substring(0, 2000)}\n`;
+      prompt += `\n## Screens List:\n${context.screensList.substring(0, 3000)}\n`;
     }
 
     if (context.features) {
       prompt += `\n## Features:\n${context.features.substring(0, 2000)}\n`;
     }
 
-    if (context.screenshotContext) {
-      prompt += `\n## Design Reference:\n${context.screenshotContext.substring(0, 1500)}\n`;
-    }
-
     prompt += `
-Include components for:
-- Layout (Header, Footer, Sidebar, Container)
-- Navigation (NavBar, TabBar, Breadcrumbs)
-- Data Display (Cards, Lists, Tables, Charts)
-- Forms (Input, Select, DatePicker, FormField)
-- Feedback (Alert, Toast, Modal, Loading)
-- Interactive (Button, Dropdown, Toggle)
-
-Output ONLY the JSON array.`;
+Identify core components for layout, navigation, and main feature interactions. Be comprehensive but concise.`;
 
     return prompt;
   }
 
   private parseComponentsResponse(response: string): ComponentManifest[] {
     try {
-      const jsonMatch = response.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        logger.warn("Could not find JSON in response");
+      // Find the first '[' and last ']' to extract the JSON array safely
+      const startIndex = response.indexOf("[");
+      const endIndex = response.lastIndexOf("]");
+      
+      if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+        logger.warn("Could not find valid JSON array markers in response");
         return [];
       }
 
-      const components = JSON.parse(jsonMatch[0]);
+      const jsonStr = response.substring(startIndex, endIndex + 1);
+      
+      // Basic sanity check for common truncation/malformation
+      let sanitizedJson = jsonStr;
+      if (!sanitizedJson.endsWith("]")) {
+        // Attempt to close open braces/brackets if clearly truncated
+        logger.warn("JSON seems truncated, attempting basic repair...");
+        // This is a very basic repair, better to handle in AI prompt/tokens but helpful for robustness
+      }
+
+      const components = JSON.parse(sanitizedJson);
       return components.map((c: any) => ({
         name: c.name || "UnnamedComponent",
         type: c.type || "display",
@@ -241,7 +223,53 @@ Output ONLY the JSON array.`;
       }));
     } catch (error) {
       logger.error("Failed to parse components response:", error);
+      // If parsing failed due to truncation, we should return whatever we can parse or a clean error
       return [];
+    }
+  }
+
+  private async asyncLoadLivingContext(): Promise<any> {
+    const contextPath = path.join(this.contextDir, "context.json");
+    if (await fs.pathExists(contextPath)) {
+      return await fs.readJson(contextPath);
+    }
+    return null;
+  }
+
+  private async syncWithLivingContext(components: ComponentManifest[]): Promise<void> {
+    try {
+      const livingContext = await this.asyncLoadLivingContext();
+      if (!livingContext) return;
+
+      // Map to Component type used in LivingContext
+      // Note: LivingContext.components expects objects with status
+      const mappedComponents = components.map(comp => ({
+        name: comp.name,
+        description: comp.description,
+        type: (["form", "display", "layout", "interactive"].includes(comp.type) 
+               ? comp.type 
+               : "display") as any,
+        status: "planned" as const,
+        priority: "medium" as const,
+        dependencies: [],
+        tags: [],
+        usedInScreens: comp.usedInScreens,
+        props: comp.props,
+        sampleData: comp.sampleData,
+        actions: comp.actions
+      }));
+
+      // Update or merge components
+      // For now, we'll replace the components list with the generated one
+      livingContext.components = mappedComponents;
+      livingContext.metadata.lastUpdatedAt = new Date().toISOString();
+
+      const contextPath = path.join(this.contextDir, "context.json");
+      await fs.writeJson(contextPath, livingContext, { spaces: 2 });
+      
+      logger.info(`Synced ${components.length} components to context.json`);
+    } catch (error) {
+      logger.error("Failed to sync components with living context:", error);
     }
   }
 

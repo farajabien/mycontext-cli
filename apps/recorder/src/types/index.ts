@@ -737,37 +737,11 @@ export interface GenerationQueueItem {
 // RE-EXPORT SPECIALIZED TYPES
 // ============================================================================
 
-// Progress Types
-export * from "./progress";
+// Living Context Types
+export * from "./living-context";
 
-// Analysis Types
-export * from "./analysis";
+// Vision Testing Types
+export * from "./vision-testing";
 
-// Component Types
-export * from "./components";
-
-// Enhancement Types
-export * from "./enhancement";
-
-// PM Integration Types
-export * from "./pm-integration";
-
-// Feature Bundle Types
-export * from "./feature-bundle";
-
-// Role Permission Types (excluding members already exported from feature-bundle)
-export type { Role, RoleHierarchy } from "./role-permissions";
-
-// Flow Testing Types (excluding ValidationRule which conflicts with feature-bundle)
-export type {
-  TestMission,
-  TestExecutionResult,
-  TestStep,
-  TestStatus,
-  ValidationResult,
-  TestReport,
-  TestMissionsStorage,
-  BrowserConfig,
-  TestGenerationOptions,
-  InteractiveTestSession,
-} from "./flow-testing";
+// Flow Testing Types
+export * from "./flow-testing";

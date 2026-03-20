@@ -2,8 +2,8 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { VisionTestRunner } from "./core/VisionTestRunner";
 import { VisionTestMission, DemoConfig } from "./types/vision-testing";
-import * as dotenv from "dotenv";
-import * as path from "path";
+import dotenv from "dotenv";
+import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();

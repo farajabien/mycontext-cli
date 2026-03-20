@@ -8,9 +8,9 @@ import { ClaudeAgentClient } from "../utils/claudeAgentClient";
 import { BrainClient } from "./BrainClient";
 import { calculateCostUSD } from "./TokenCostModel";
 import chalk from "chalk";
-import * as fs from "fs-extra";
-import * as path from "path";
-import * as dotenv from "dotenv";
+import fs from "fs-extra";
+import path from "path";
+import dotenv from "dotenv";
 import * as dotenvExpand from "dotenv-expand";
 
 export type AIProviderName = "github" | "openrouter" | "gemini" | "xai" | "claude" | "qwen";
@@ -47,18 +47,33 @@ export class AICore {
   }
 
   private loadEnvironmentVariables(): void {
-    const cwd = this.config.workingDirectory || process.cwd();
-    const candidates = [
-      path.join(cwd, ".mycontext", ".env.local"),
-      path.join(cwd, ".mycontext", ".env"),
-      path.join(cwd, ".env.local"),
-      path.join(cwd, ".env"),
-    ];
+    const startDir = this.config.workingDirectory || process.cwd();
+    const dirs: string[] = [];
+    let currentDir = startDir;
+
+    // Collect all directories from current to root
+    while (currentDir !== path.parse(currentDir).root) {
+      dirs.push(currentDir);
+      currentDir = path.dirname(currentDir);
+    }
+    dirs.push(currentDir); // Add root
+
+    // Process from root down to startDir so local overrides work
+    const candidates: string[] = [];
+    for (let i = dirs.length - 1; i >= 0; i--) {
+      const dir = dirs[i]!;
+      candidates.push(path.join(dir, ".mycontext", ".env.local"));
+      candidates.push(path.join(dir, ".mycontext", ".env"));
+      candidates.push(path.join(dir, ".env.local"));
+      candidates.push(path.join(dir, ".env"));
+    }
 
     for (const p of candidates) {
       if (fs.existsSync(p)) {
-        const result = dotenv.config({ path: p, override: false });
-        dotenvExpand.expand(result);
+        const result = dotenv.config({ path: p, override: true }); // Use override: true to allow deeper levels to shadow
+        if (result.parsed) {
+          dotenvExpand.expand(result);
+        }
       }
     }
   }

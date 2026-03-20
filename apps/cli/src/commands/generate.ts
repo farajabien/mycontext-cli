@@ -4894,9 +4894,13 @@ INSTRUCTIONS:
           status: "context-generated"
         }
       },
-      components: [],
-      actions: [],
-      routes: []
+      // Preserve generated components if they exist in structured data, or use existing ones
+      components: Array.isArray(livingContextData.components) ? livingContextData.components.map((c: any) => ({
+        ...c,
+        status: c.status || "planned"
+      })) : (existingContext?.components || []),
+      actions: Array.isArray(livingContextData.actions) ? livingContextData.actions : (existingContext?.actions || []),
+      routes: Array.isArray(livingContextData.routes) ? livingContextData.routes : (existingContext?.routes || [])
     };
 
     return livingContext;
