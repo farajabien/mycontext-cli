@@ -1,6 +1,6 @@
 {
   "name": "mycontext-cli",
-  "version": "4.2.19",
+  "version": "4.2.20",
   "description": "The Context Engine for AI-Native Development - Generate high-fidelity scaffolds and Living Brains for AI-powered coding",
   "main": "dist/cli.js",
   "bin": {
