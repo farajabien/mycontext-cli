@@ -29,7 +29,9 @@
 
 ## What is MyContext?
 
-MyContext treats your project spec as a **Living Brain** — a structured JSON document (`.mycontext/context.json`) that describes your app's goals, architecture, components, and design system. Every CLI command reads from and writes back to this Brain, keeping your code and your spec permanently in sync.
+MyContext treats your project spec as a **Living Brain** — a structured JSON document (`.mycontext/context.json`) that describes your app's goals, architecture, components, and design system. 
+
+Every CLI command — such as screen mapping or component discovery — automatically synchronizes its results back into this central Brain, ensuring your documentation and your code remain perfectly aligned.
 
 ---
 
@@ -154,15 +156,14 @@ mycontext setup-mcp --provider custom --server <url>
 
 #### `mycontext generate [type]`
 
-Orchestrate the Living Brain — generate context files, types, brand tokens, and more.
+Orchestrate the Living Brain — generate context files, types, brand tokens, and more. All generation commands automatically synchronize their results into `.mycontext/context.json`.
 
 ```bash
 mycontext generate context --full          # Full PRD + A/B/C/D context files
 mycontext generate context                 # Incremental update
-mycontext generate --from-schema           # Types from InstantDB schema
-mycontext generate design-prompt           # AI design brief
-mycontext generate screens                 # Screen list from user flows
-mycontext generate components-manifest     # Component props + sample data
+mycontext generate:screens-list            # Sync routes to the Brain
+mycontext generate:components-manifest     # Sync component specs to the Brain
+mycontext generate design-prompt           # AI design brief for UI designer
 mycontext generate actions                 # UI→backend action hooks
 mycontext generate assets                  # Planned asset list
 mycontext generate sample-data             # Seed data for development
@@ -401,11 +402,12 @@ mycontext help generate --verbose
 
 ```bash
 mkdir my-app && cd my-app
-mycontext init --interactive          # Guided spec wizard
-mycontext setup                       # Configure AI keys
+mycontext init --spec-only            # Context files only
+mycontext setup                       # Configure AI keys (Gemini, Claude, etc.)
 mycontext generate context --full     # Build the Living Brain
-mycontext generate components-manifest
-mycontext build                       # Scaffold the whole app
+mycontext generate:screens-list       # Map routes to Brain
+mycontext generate:components-manifest # Map component specs to Brain
+mycontext generate:design-prompt      # Ready for UI designer handoff
 ```
 
 ### Adding a feature to an existing project
