@@ -1,7 +1,7 @@
 {
   "name": "@myycontext/vscode",
-  "displayName": "MyContext Living Brain",
-  "description": "Visual interface for the MyContext Living DB and Agentic Evolution",
+  "displayName": "MyContext Living Brain (Alpha)",
+  "description": "Visual interface for the MyContext Living Brain and Agentic Evolution",
   "version": "1.0.1",
   "publisher": "mycontext",
   "engines": {
