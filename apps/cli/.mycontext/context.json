@@ -1,0 +1,38 @@
+{
+  "brain": {
+    "version": "1.0.1",
+    "narrative": "Waiting for a new challenge...",
+    "status": "idle",
+    "checkpoints": [],
+    "updates": [],
+    "tasks": [],
+    "artifacts": {},
+    "memory": {},
+    "registry": {
+      "components": []
+    },
+    "usage": {
+      "totalInputTokens": 214,
+      "totalOutputTokens": 234,
+      "totalTokens": 448,
+      "totalCostUSD": 0.0001725,
+      "callCount": 1,
+      "byAgent": {
+        "AICore": {
+          "calls": 1,
+          "inputTokens": 214,
+          "outputTokens": 234,
+          "costUSD": 0.0001725
+        }
+      },
+      "byProvider": {
+        "gemini": {
+          "calls": 1,
+          "inputTokens": 214,
+          "outputTokens": 234,
+          "costUSD": 0.0001725
+        }
+      }
+    }
+  }
+}

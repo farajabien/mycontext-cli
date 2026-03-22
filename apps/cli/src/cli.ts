@@ -23,6 +23,8 @@ import { MCPSetupCommand } from "./commands/setup-mcp";
 import { SetupShadcnCommand } from "./commands/setup-shadcn";
 import { SetupCompleteCommand } from "./commands/setup-complete";
 import { HelpCommand } from "./commands/help";
+import { MCPStartCommand } from "./commands/mcp-start";
+
 import { registerGenerateDesignPromptCommand } from "./commands/generate-design-prompt";
 import { registerGenerateSampleDataCommand } from "./commands/generate-sample-data";
 import { registerGenerateScreensCommand } from "./commands/generate-screens";
@@ -186,6 +188,10 @@ program
 
 // Generate design prompt command
 registerGenerateDesignPromptCommand(program);
+
+// MCP commands
+const mcpStartCommand = new MCPStartCommand();
+mcpStartCommand.register(program);
 
 // Generate sample data command
 registerGenerateSampleDataCommand(program);
